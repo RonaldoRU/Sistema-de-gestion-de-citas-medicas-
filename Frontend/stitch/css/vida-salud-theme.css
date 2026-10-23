@@ -1,0 +1,281 @@
+/* Vida Salud — identidad clínica (azul confianza + teal salud) */
+
+:root {
+  --vs-ink: #1e293b;
+  --vs-muted: #64748b;
+  --vs-paper: #f4f9fc;
+  --vs-rail: #e3f0f7;
+  --vs-forest: #0369a1;
+  --vs-moss: #0d9488;
+  --vs-clay: #0891b2;
+  --vs-line: #cbd5e1;
+  --vs-focus: #0284c7;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body.vs-app {
+  background-color: var(--vs-paper);
+  color: var(--vs-ink);
+}
+
+/* Rail lateral */
+.vs-rail {
+  background: linear-gradient(180deg, #eef6fb 0%, var(--vs-rail) 48%, #d9eaf3 100%);
+  border-right: 1px solid var(--vs-railLine, #c5dce8);
+  box-shadow: none;
+}
+
+.vs-mark {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(145deg, var(--vs-forest) 0%, #0c4a6e 100%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.vs-rail-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.vs-rail-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+.vs-rail-link:hover {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(3, 105, 161, 0.08);
+  color: var(--vs-ink);
+}
+
+.vs-rail-link.is-active {
+  background: #fff;
+  border-color: var(--vs-line);
+  color: var(--vs-forest);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+  position: relative;
+}
+
+.vs-rail-link.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  bottom: 0.45rem;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--vs-moss);
+}
+
+.vs-rail-section {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 0 0.85rem 0.5rem;
+}
+
+.vs-topbar {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--vs-line);
+}
+
+.vs-page-title {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 600;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+  color: var(--vs-ink);
+}
+
+.vs-card {
+  background: #fff;
+  border: 1px solid var(--vs-line);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.vs-card:hover {
+  border-color: #b8ccd9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px -6px rgba(3, 105, 161, 0.12);
+}
+
+.vs-kpi-value {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.vs-btn-primary {
+  background: var(--vs-forest);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.vs-btn-primary:hover {
+  background: #075985;
+}
+
+.vs-btn-primary:active {
+  transform: scale(0.99);
+}
+
+.vs-btn-ghost {
+  color: var(--vs-muted);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--vs-line);
+  background: #fff;
+}
+
+.vs-btn-ghost:hover {
+  border-color: #94a3b8;
+  color: var(--vs-ink);
+}
+
+/* Login */
+.vs-login-split {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 960px) {
+  .vs-login-split {
+    grid-template-columns: minmax(280px, 42%) 1fr;
+  }
+}
+
+.vs-login-hero {
+  background: linear-gradient(165deg, #0369a1 0%, #0c4a6e 55%, #134e4a 100%);
+  color: #f0f9ff;
+  position: relative;
+  overflow: hidden;
+}
+
+.vs-login-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(13, 148, 136, 0.35), transparent 55%),
+    radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.1), transparent 40%);
+  pointer-events: none;
+}
+
+.vs-login-pattern {
+  opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='none' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E");
+}
+
+.vs-field:focus-visible,
+.vs-rail-link:focus-visible,
+.vs-logout-btn:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--vs-focus);
+  outline-offset: 2px;
+}
+
+/* Shell móvil (complementa vida-salud-shell.css) */
+.vs-overlay {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+/* Tablas y listados */
+.vs-app .rounded-2xl {
+  border-radius: 0.75rem;
+}
+
+.vs-app table thead th {
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vs-muted);
+  font-weight: 700;
+}
+
+/* Animaciones ligeras */
+@keyframes vs-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vs-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Misma entrada que Inicio: cada bloque sube 10px, mismo ritmo */
+.vs-page-stack > *,
+.vs-login-hero-content {
+  animation: vs-fade-up 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.vs-page-stack > *:nth-child(1) { animation-delay: 0.04s; }
+.vs-page-stack > *:nth-child(2) { animation-delay: 0.1s; }
+.vs-page-stack > *:nth-child(3) { animation-delay: 0.16s; }
+.vs-page-stack > *:nth-child(4) { animation-delay: 0.22s; }
+.vs-page-stack > *:nth-child(5) { animation-delay: 0.28s; }
+.vs-page-stack > *:nth-child(6) { animation-delay: 0.34s; }
+.vs-page-stack > *:nth-child(7) { animation-delay: 0.4s; }
+.vs-page-stack > *:nth-child(8) { animation-delay: 0.46s; }
+
+.vs-login-hero-content {
+  animation-delay: 0.04s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vs-page-stack > *,
+  .vs-login-hero-content {
+    animation: none;
+  }
+
+  .vs-card:hover {
+    transform: none;
+  }
+}
