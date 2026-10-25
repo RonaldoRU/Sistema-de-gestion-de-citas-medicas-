@@ -1,0 +1,170 @@
+/* Shell Vida Salud — menú móvil, hamburguesa y transiciones ligeras */
+
+html,
+body.vs-app {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+#app-main {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.vs-sidebar {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.vs-rail-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.vs-rail-foot {
+  flex-shrink: 0;
+}
+
+.vs-overlay {
+  backdrop-filter: blur(4px);
+  transition: opacity 0.28s ease;
+}
+
+.vs-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.vs-sidebar {
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.vs-sidebar .vs-rail-link {
+  animation: vs-nav-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.vs-sidebar nav a.vs-rail-link:nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+.vs-sidebar nav a.vs-rail-link:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.vs-sidebar nav a.vs-rail-link:nth-child(4) {
+  animation-delay: 0.14s;
+}
+
+@keyframes vs-nav-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Botón hamburguesa → X */
+.vs-hamburger-btn {
+  color: var(--vs-ink, #1e293b);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.vs-hamburger {
+  width: 1.25rem;
+  height: 0.875rem;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.vs-hamburger__line {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: currentColor;
+  border-radius: 999px;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+  transform-origin: center;
+}
+
+.vs-hamburger-btn[aria-expanded='true'] .vs-hamburger__line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.vs-hamburger-btn[aria-expanded='true'] .vs-hamburger__line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0.4);
+}
+
+.vs-hamburger-btn[aria-expanded='true'] .vs-hamburger__line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+aside.vs-sidebar {
+  width: 16rem;
+}
+
+@media (min-width: 1024px) {
+  .vs-sidebar {
+    transform: none !important;
+    transition: width 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  aside.vs-sidebar.is-collapsed {
+    width: 4.75rem !important;
+  }
+
+  .vs-sidebar.is-collapsed .vs-rail-label,
+  .vs-sidebar.is-collapsed .vs-brand-text,
+  .vs-sidebar.is-collapsed .vs-rail-section,
+  .vs-sidebar.is-collapsed .vs-rail-meta {
+    display: none;
+  }
+
+  .vs-sidebar.is-collapsed .vs-brand-row,
+  .vs-sidebar.is-collapsed .vs-rail-link,
+  .vs-sidebar.is-collapsed .vs-logout-btn {
+    justify-content: center;
+  }
+
+  .vs-sidebar.is-collapsed .vs-rail-link {
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
+  }
+
+  .vs-sidebar.is-collapsed .vs-rail-foot {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vs-sidebar,
+  .vs-overlay,
+  .vs-hamburger__line {
+    transition: none !important;
+  }
+
+  .vs-sidebar .vs-rail-link {
+    animation: none !important;
+  }
+}
+
+.vs-logout-btn {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.vs-logout-btn:hover {
+  background-color: rgba(254, 226, 226, 0.15);
+  border-color: rgba(254, 202, 202, 0.5);
+}

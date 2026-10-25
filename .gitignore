@@ -42,3 +42,7 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
+
+# No subas la API key de Stitch al repositorio
+**/.cursor/mcp.json
+
