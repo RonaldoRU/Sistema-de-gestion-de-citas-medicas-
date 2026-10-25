@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registrar paciente · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU12">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Registrar paciente</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P4 · Gestión de Pacientes</p>
+            <h2 class="vs-h1">Registrar nuevo paciente</h2>
+            <p class="vs-lead">Da de alta a un paciente nuevo. El código se asigna al guardar y el CI no puede repetirse.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU12</span><span class="vs-trace__actor">Recepcionista</span></span>
+            <a href="cu15-buscar-paciente.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-search"/></svg>Buscar existente</a>
+          </div>
+        </header>
+
+        <section>
+          <form class="vs-card" data-demo="Paciente registrado" data-demo-sub="Código asignado PAC-0071 · ya puedes programar citas" novalidate>
+            <div class="vs-card__body vs-form">
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">1</span>Identificación</legend>
+                <div class="vs-form-grid vs-form-grid--3">
+                  <div class="vs-field">
+                    <label class="vs-label" for="p-ci">Cédula de identidad <span class="vs-req">*</span></label>
+                    <div class="vs-input-icon"><svg class="vs-i"><use href="#i-id-card"/></svg><input id="p-ci" class="vs-input vs-input--mono" type="text" inputmode="numeric" placeholder="9930412" pattern="[0-9]{5,10}" required></div>
+                    <span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>CI obligatorio, solo números</span>
+                  </div>
+                  <div class="vs-field">
+                    <label class="vs-label" for="p-nombres">Nombres <span class="vs-req">*</span></label>
+                    <input id="p-nombres" class="vs-input" type="text" placeholder="Valeria" required>
+                  </div>
+                  <div class="vs-field">
+                    <label class="vs-label" for="p-apellidos">Apellidos <span class="vs-req">*</span></label>
+                    <input id="p-apellidos" class="vs-input" type="text" placeholder="Montaño Ruiz" required>
+                  </div>
+                  <div class="vs-field">
+                    <label class="vs-label" for="p-nac">Fecha de nacimiento <span class="vs-req">*</span></label>
+                    <input id="p-nac" class="vs-input vs-input--mono" type="date" max="2026-10-26" required>
+                    <p class="vs-hint">Si es menor de edad, registra después un contacto de emergencia.</p>
+                  </div>
+                  <div class="vs-field">
+                    <span class="vs-label">Sexo <span class="vs-req">*</span></span>
+                    <div class="vs-pills">
+                      <label class="vs-pill"><input type="radio" name="sexo" value="F" required><span>Femenino</span></label>
+                      <label class="vs-pill"><input type="radio" name="sexo" value="M"><span>Masculino</span></label>
+                    </div>
+                  </div>
+                  <div class="vs-field">
+                    <label class="vs-label" for="p-codigo">Código de paciente</label>
+                    <input id="p-codigo" class="vs-input vs-input--mono" type="text" value="PAC-0071 (automático)" readonly>
+                  </div>
+                </div>
+              </fieldset>
+
+              <hr class="vs-divider">
+
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">2</span>Contacto y domicilio</legend>
+                <div class="vs-form-grid">
+                  <div class="vs-field">
+                    <label class="vs-label" for="p-tel">Teléfono <span class="vs-req">*</span></label>
+                    <div class="vs-input-icon"><svg class="vs-i"><use href="#i-phone"/></svg><input id="p-tel" class="vs-input vs-input--mono" type="tel" inputmode="numeric" placeholder="7XXXXXXX" pattern="[0-9]{7,8}" required></div>
+                    <p class="vs-hint">Se usa para los recordatorios de cita.</p>
+                  </div>
+                  <div class="vs-field">
+                    <label class="vs-label" for="p-email">Correo electrónico <span class="vs-label__opt">opcional</span></label>
+                    <div class="vs-input-icon"><svg class="vs-i"><use href="#i-mail"/></svg><input id="p-email" class="vs-input" type="email" placeholder="vmontano@gmail.com"></div>
+                  </div>
+                  <div class="vs-field vs-col-2">
+                    <label class="vs-label" for="p-dir">Dirección <span class="vs-req">*</span></label>
+                    <div class="vs-input-icon"><svg class="vs-i"><use href="#i-map-pin"/></svg><input id="p-dir" class="vs-input" type="text" placeholder="Av. Virgen de Cotoca, 5to anillo" required></div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <hr class="vs-divider">
+
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">3</span>Después de guardar</legend>
+                <div class="vs-choice-grid vs-choice-grid--2">
+                  <label class="vs-choice"><input type="radio" name="next" value="medica" checked><div><div class="vs-choice__title">Completar información médica</div><div class="vs-choice__desc">Tipo de sangre, alergias y antecedentes.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="next" value="cita"><div><div class="vs-choice__title">Programar una cita ahora</div><div class="vs-choice__desc">Reservar un horario enseguida.</div></div></label>
+                </div>
+              </fieldset>
+            </div>
+            <div class="vs-card__foot">
+              <span>Los campos con <span class="vs-req">*</span> son obligatorios</span>
+              <div class="vs-row">
+                <button type="reset" class="vs-btn vs-btn--ghost">Limpiar</button>
+                <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-user-plus"/></svg>Guardar paciente</button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

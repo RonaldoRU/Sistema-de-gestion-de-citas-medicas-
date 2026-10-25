@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bloquear agenda · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU23">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Bloquear agenda</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
+            <h2 class="vs-h1">Bloquear agenda por feriados o licencias</h2>
+            <p class="vs-lead">Un bloqueo retira los bloques del rango de fechas de la disponibilidad. Puede ser general (toda la clínica) o individual (un médico). Si hay citas en el rango, se listan para reprogramarlas.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU23</span><span class="vs-trace__actor">Administrador</span></span>
+          </div>
+        </header>
+
+        <section class="vs-split">
+          <form class="vs-card" data-demo="Bloqueo registrado" data-demo-sub="Licencia Dra. Montero 09–11/11 · 2 citas enviadas a reprogramación" novalidate>
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Nuevo bloqueo</h3><p class="vs-card__sub">Tabla <span class="vs-code">bloqueo_agenda</span></p></div></div>
+            <div class="vs-card__body vs-form">
+              <div class="vs-field">
+                <span class="vs-label">Alcance <span class="vs-req">*</span></span>
+                <div class="vs-choice-grid vs-choice-grid--2">
+                  <label class="vs-choice"><input type="radio" name="alcance" value="general" data-switch><div><div class="vs-choice__title">General</div><div class="vs-choice__desc">Aplica a todos los médicos. Típico de feriados nacionales o departamentales.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="alcance" value="individual" data-switch checked><div><div class="vs-choice__title">Individual</div><div class="vs-choice__desc">Un médico concreto: licencias, congresos, vacaciones.</div></div></label>
+                </div>
+              </div>
+              <div class="vs-field" data-show-when="alcance" data-show-value="individual">
+                <label class="vs-label" for="bl-med">Médico <span class="vs-req">*</span></label>
+                <select id="bl-med" class="vs-select">
+                  <option>MED-001 · Dr. Juan Ronaldo Rojas Ugarte</option>
+                  <option>MED-002 · Dra. Patricia Gutiérrez Melgar</option>
+                  <option>MED-003 · Dr. Fernando Arteaga Ribera</option>
+                  <option selected>MED-004 · Dra. Claudia Montero Saucedo</option>
+                  <option>MED-005 · Dr. Marcelo Terceros Chávez</option>
+                  <option>MED-006 · Dra. Gabriela Peña Salvatierra</option>
+                  <option>MED-007 · Dr. Álvaro Moreno Durán</option>
+                  <option>MED-008 · Dra. Lorena Antelo Barba</option>
+                  <option>MED-009 · Dr. Ricardo Égüez Parada</option>
+                </select>
+              </div>
+              <div class="vs-alert vs-alert--info" data-show-when="alcance" data-show-value="general" hidden><svg class="vs-i"><use href="#i-info"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Bloqueo general</span>Se registra con <span class="vs-code">aplica_a_todos = true</span> y sin médico. Afecta la disponibilidad de los 9 médicos activos.</div></div>
+              <div class="vs-form-grid vs-form-grid--3">
+                <div class="vs-field"><label class="vs-label" for="bl-ini">Desde <span class="vs-req">*</span></label><input id="bl-ini" class="vs-input vs-input--mono" type="date" value="2026-11-09" min="2026-10-26" required></div>
+                <div class="vs-field"><label class="vs-label" for="bl-fin">Hasta <span class="vs-req">*</span></label><input id="bl-fin" class="vs-input vs-input--mono" type="date" value="2026-11-11" min="2026-10-26" required></div>
+                <div class="vs-field"><label class="vs-label" for="bl-tipo">Tipo <span class="vs-req">*</span></label><select id="bl-tipo" class="vs-select" required><option>FERIADO</option><option selected>LICENCIA</option><option>OTRO</option></select></div>
+                <div class="vs-field vs-col-3"><label class="vs-label" for="bl-motivo">Motivo <span class="vs-req">*</span></label><input id="bl-motivo" class="vs-input" type="text" value="Licencia médica por intervención ambulatoria" required></div>
+              </div>
+
+              <div class="vs-alert vs-alert--warn">
+                <svg class="vs-i"><use href="#i-alert"/></svg>
+                <div class="vs-alert__body"><span class="vs-alert__title">2 citas dentro del rango (A1)</span>Al confirmar, quedarán marcadas para reprogramación y recepción llamará a los pacientes.</div>
+              </div>
+              <div class="vs-table-wrap">
+                <table class="vs-table vs-table--compact">
+                  <thead><tr><th>Código</th><th>Fecha y hora</th><th>Paciente</th><th>Estado</th></tr></thead>
+                  <tbody>
+                    <tr><td class="vs-td-num">CM-0301</td><td class="vs-td-num">09/11 08:30</td><td>Paola Paz Terceros</td><td><span class="vs-badge vs-badge--info">Programada</span></td></tr>
+                    <tr><td class="vs-td-num">CM-0305</td><td class="vs-td-num">11/11 14:00</td><td>Camila Choque Peña</td><td><span class="vs-badge vs-badge--info">Programada</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="vs-card__foot">
+              <span>El bloqueo se refleja de inmediato en CU22 y CU24.</span>
+              <div class="vs-row"><button type="reset" class="vs-btn vs-btn--ghost">Descartar</button><button type="submit" class="vs-btn vs-btn--danger"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Registrar bloqueo</button></div>
+            </div>
+          </form>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Bloqueos vigentes y futuros</h3></div><span class="vs-badge vs-badge--muted">3</span></div>
+              <ul class="vs-list vs-list--boxed">
+                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--rose" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-calendar-x"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Lun 02/11/2026 · Feriado nacional</div><div class="vs-list-row__sub">Día de Todos los Difuntos · <span class="vs-badge vs-badge--danger vs-badge--mono">FERIADO</span> · todos los médicos</div></div><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Quitar" data-open-dialog="dlg-quitar"><svg class="vs-i"><use href="#i-trash"/></svg></button></li>
+                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--amber" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-moon"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">16–20/11/2026 · Dra. Gabriela Peña Salvatierra</div><div class="vs-list-row__sub">Licencia por vacaciones programadas · <span class="vs-badge vs-badge--warn vs-badge--mono">LICENCIA</span></div></div><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Quitar" data-open-dialog="dlg-quitar"><svg class="vs-i"><use href="#i-trash"/></svg></button></li>
+                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--amber" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-moon"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">09–11/11/2026 · Dra. Claudia Montero Saucedo</div><div class="vs-list-row__sub">Licencia médica · <span class="vs-badge vs-badge--muted vs-badge--mono">BORRADOR</span> · sin guardar</div></div></li>
+              </ul>
+            </article>
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Historial</h3><p class="vs-card__sub">Bloqueos ya vencidos</p></div></div>
+              <ul class="vs-list vs-list--boxed">
+                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">Lun 12/10/2026 · Dra. Montero</div><div class="vs-list-row__sub">Asistencia a congreso de Ginecología · OTRO</div></div><span class="vs-badge vs-badge--muted">Vencido</span></li>
+                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">Jue 24/09/2026 · General</div><div class="vs-list-row__sub">Feriado departamental: Aniversario de Santa Cruz · FERIADO</div></div><span class="vs-badge vs-badge--muted">Vencido</span></li>
+                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">14–18/09/2026 · Dra. Gutiérrez</div><div class="vs-list-row__sub">Licencia por capacitación en Pediatría (Cochabamba) · LICENCIA</div></div><span class="vs-badge vs-badge--muted">Vencido</span></li>
+              </ul>
+            </article>
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule"><span class="vs-rule__k">Rango</span>La fecha fin no puede ser anterior a la de inicio; se permite un solo día.</div>
+                <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">Citas afectadas (A1)</span>Se listan antes de confirmar; el bloqueo no las cancela, las marca para reprogramar.</div>
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Bitácora</span>Se registra el administrador, el rango y el motivo (CU10).</div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-quitar" class="vs-modal">
+    <div class="vs-modal__head">
+      <span class="vs-modal__icon vs-modal__icon--warn"><svg class="vs-i"><use href="#i-trash"/></svg></span>
+      <div><h2 class="vs-modal__title">Quitar bloqueo</h2><p class="vs-modal__text">Los bloques del rango volverán a estar disponibles para reservar. Esta acción queda registrada en la bitácora.</p></div>
+    </div>
+    <div class="vs-modal__foot">
+      <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+      <button type="button" class="vs-btn vs-btn--danger" data-toast="Bloqueo eliminado" data-toast-sub="La disponibilidad del rango fue restablecida">Quitar</button>
+    </div>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
