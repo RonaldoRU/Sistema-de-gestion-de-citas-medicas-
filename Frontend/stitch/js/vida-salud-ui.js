@@ -307,6 +307,66 @@
     apply();
   });
 
+  /* ---------- Paginación de filas (CU23 y listas largas) ---------- */
+  document.querySelectorAll('[data-pager]').forEach(function (root) {
+    var size = parseInt(root.getAttribute('data-page-size'), 10) || 5;
+    var rows = Array.prototype.slice.call(root.querySelectorAll('[data-page-row]'));
+    var status = root.querySelector('[data-pager-status]');
+    var controls = root.querySelector('[data-pager-controls]');
+    if (!rows.length || !controls) return;
+    var page = 0;
+    var pages = Math.max(1, Math.ceil(rows.length / size));
+
+    function button(label, opts) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      if (opts.html) b.innerHTML = opts.html;
+      else b.textContent = label;
+      if (opts.aria) b.setAttribute('aria-label', opts.aria);
+      if (opts.disabled) b.disabled = true;
+      if (opts.current) {
+        b.className = 'is-current';
+        b.setAttribute('aria-current', 'page');
+      }
+      b.addEventListener('click', opts.onClick);
+      controls.appendChild(b);
+    }
+
+    function render() {
+      rows.forEach(function (row, i) {
+        row.hidden = i < page * size || i >= (page + 1) * size;
+      });
+      var from = page * size + 1;
+      var to = Math.min(rows.length, (page + 1) * size);
+      if (status) {
+        status.innerHTML = 'Mostrando <strong class="vs-strong">' + from + '–' + to + '</strong> de <strong class="vs-strong">' + rows.length + '</strong>';
+      }
+      controls.innerHTML = '';
+      button('', {
+        html: '<svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-chevron-left"/></svg>',
+        aria: 'Anterior',
+        disabled: page === 0,
+        onClick: function () { page -= 1; render(); }
+      });
+      for (var n = 0; n < pages; n += 1) {
+        (function (index) {
+          button(String(index + 1), {
+            current: index === page,
+            onClick: function () { page = index; render(); }
+          });
+        })(n);
+      }
+      button('', {
+        html: '<svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-chevron-right"/></svg>',
+        aria: 'Siguiente',
+        disabled: page >= pages - 1,
+        onClick: function () { page += 1; render(); }
+      });
+    }
+
+    render();
+  });
+
   /* ---------- Filas que se marcan al hacer clic ---------- */
   document.querySelectorAll('[data-selectable] tbody tr').forEach(function (row) {
     row.addEventListener('click', function (e) {

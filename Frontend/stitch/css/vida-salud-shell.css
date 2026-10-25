@@ -231,15 +231,16 @@ body.vs-no-scroll {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--vs-font-mono);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
   color: var(--vs-forest);
   background: #fff;
   border: 1px solid #cfe1ec;
   flex-shrink: 0;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.vs-pkg__tile .vs-i {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 .vs-pkg.has-active > .vs-pkg__head .vs-pkg__tile {

@@ -264,7 +264,7 @@
       var listId = 'pkg-' + pkg.id.toLowerCase();
       html += '<section class="vs-pkg' + (isOpen ? ' is-open' : '') + (hasActive ? ' has-active' : '') + '" data-pkg="' + pkg.id + '">';
       html += '  <button type="button" class="vs-pkg__head" aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-controls="' + listId + '" title="' + pkg.id + ' · ' + pkg.name + '">';
-      html += '    <span class="vs-pkg__tile">' + pkg.id + '</span>';
+      html += '    <span class="vs-pkg__tile">' + icon(pkg.icon) + '</span>';
       html += '    <span class="vs-pkg__name">' + pkg.name + '</span>';
       html += '    <span class="vs-pkg__count" aria-label="' + pkg.items.length + ' casos de uso">' + pkg.items.length + '</span>';
       html += icon('chevron', 'vs-i vs-pkg__chev');
@@ -322,7 +322,7 @@
     var crumb = document.querySelector('[data-nav-crumb]');
     if (crumb) {
       if (found) {
-        crumb.innerHTML = '<span class="vs-code">' + found.pkg.id + '</span><span class="vs-truncate">' + found.pkg.name + '</span>';
+        crumb.innerHTML = icon(found.pkg.icon, 'vs-i vs-i--sm') + '<span class="vs-truncate">' + found.pkg.name + '</span>';
       } else if (isHome) {
         crumb.innerHTML = '<span class="vs-truncate">Panel general</span>';
       }

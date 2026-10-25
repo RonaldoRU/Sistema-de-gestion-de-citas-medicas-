@@ -86,7 +86,7 @@ Iconos: sprite SVG inyectado por `vida-salud-nav.js`; uso `<svg class="vs-i"><us
 
 ## Interacciones de prototipo (ui.js, por atributos)
 
-`data-open-dialog` / `data-close-dialog`, `data-toast` + `data-toast-sub`, `form[data-demo]` (valida y muestra toast o abre `data-demo-dialog`), `data-tabs`, `data-slots` + `data-slot-summary` + `data-slot-confirm`, `data-stepper`, `data-pass-rules`, `data-time-range`, `data-confirm-text` + `data-confirm-target`, `data-switch` + `data-show-when`, `data-selectable`, `data-dismiss`, `data-toggle-pass`, `data-role-preview`.
+`data-open-dialog` / `data-close-dialog`, `data-toast` + `data-toast-sub`, `form[data-demo]` (valida y muestra toast o abre `data-demo-dialog`), `data-tabs`, `data-slots` + `data-slot-summary` + `data-slot-confirm`, `data-stepper`, `data-pass-rules`, `data-time-range`, `data-confirm-text` + `data-confirm-target`, `data-switch` + `data-show-when`, `data-selectable`, `data-dismiss`, `data-toggle-pass`, `data-role-preview`, `data-pager` + `data-page-size` + `data-page-row`.
 
 ## Datos de demostración
 

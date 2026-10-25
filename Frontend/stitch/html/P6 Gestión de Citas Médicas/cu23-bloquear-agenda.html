@@ -34,23 +34,23 @@
         <header class="vs-page-head">
           <div class="vs-page-head__text">
             <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
-            <h2 class="vs-h1">Bloquear agenda por feriados o licencias</h2>
-            <p class="vs-lead">Un bloqueo retira los bloques del rango de fechas de la disponibilidad. Puede ser general (toda la clínica) o individual (un médico). Si hay citas en el rango, se listan para reprogramarlas.</p>
+            <h2 class="vs-h1">Bloquear agenda</h2>
+            <p class="vs-lead">Inhabilita un feriado o la licencia de un médico. Si ya hay citas en esas fechas, quedan listadas para reprogramarlas.</p>
           </div>
           <div class="vs-page-head__side">
             <span class="vs-trace"><span class="vs-trace__cu">CU23</span><span class="vs-trace__actor">Administrador</span></span>
           </div>
         </header>
 
-        <section class="vs-split">
+        <section>
           <form class="vs-card" data-demo="Bloqueo registrado" data-demo-sub="Licencia Dra. Montero 09–11/11 · 2 citas enviadas a reprogramación" novalidate>
-            <div class="vs-card__head"><div><h3 class="vs-card__title">Nuevo bloqueo</h3><p class="vs-card__sub">Tabla <span class="vs-code">bloqueo_agenda</span></p></div></div>
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Nuevo bloqueo</h3><p class="vs-card__sub">Feriado de la clínica o licencia de un médico</p></div></div>
             <div class="vs-card__body vs-form">
               <div class="vs-field">
                 <span class="vs-label">Alcance <span class="vs-req">*</span></span>
                 <div class="vs-choice-grid vs-choice-grid--2">
-                  <label class="vs-choice"><input type="radio" name="alcance" value="general" data-switch><div><div class="vs-choice__title">General</div><div class="vs-choice__desc">Aplica a todos los médicos. Típico de feriados nacionales o departamentales.</div></div></label>
-                  <label class="vs-choice"><input type="radio" name="alcance" value="individual" data-switch checked><div><div class="vs-choice__title">Individual</div><div class="vs-choice__desc">Un médico concreto: licencias, congresos, vacaciones.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="alcance" value="general" data-switch><div><div class="vs-choice__title">General</div><div class="vs-choice__desc">Toda la clínica</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="alcance" value="individual" data-switch checked><div><div class="vs-choice__title">Individual</div><div class="vs-choice__desc">Un médico</div></div></label>
                 </div>
               </div>
               <div class="vs-field" data-show-when="alcance" data-show-value="individual">
@@ -67,17 +67,15 @@
                   <option>MED-009 · Dr. Ricardo Égüez Parada</option>
                 </select>
               </div>
-              <div class="vs-alert vs-alert--info" data-show-when="alcance" data-show-value="general" hidden><svg class="vs-i"><use href="#i-info"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Bloqueo general</span>Se registra con <span class="vs-code">aplica_a_todos = true</span> y sin médico. Afecta la disponibilidad de los 9 médicos activos.</div></div>
               <div class="vs-form-grid vs-form-grid--3">
                 <div class="vs-field"><label class="vs-label" for="bl-ini">Desde <span class="vs-req">*</span></label><input id="bl-ini" class="vs-input vs-input--mono" type="date" value="2026-11-09" min="2026-10-26" required></div>
                 <div class="vs-field"><label class="vs-label" for="bl-fin">Hasta <span class="vs-req">*</span></label><input id="bl-fin" class="vs-input vs-input--mono" type="date" value="2026-11-11" min="2026-10-26" required></div>
                 <div class="vs-field"><label class="vs-label" for="bl-tipo">Tipo <span class="vs-req">*</span></label><select id="bl-tipo" class="vs-select" required><option>FERIADO</option><option selected>LICENCIA</option><option>OTRO</option></select></div>
                 <div class="vs-field vs-col-3"><label class="vs-label" for="bl-motivo">Motivo <span class="vs-req">*</span></label><input id="bl-motivo" class="vs-input" type="text" value="Licencia médica por intervención ambulatoria" required></div>
               </div>
-
               <div class="vs-alert vs-alert--warn">
                 <svg class="vs-i"><use href="#i-alert"/></svg>
-                <div class="vs-alert__body"><span class="vs-alert__title">2 citas dentro del rango (A1)</span>Al confirmar, quedarán marcadas para reprogramación y recepción llamará a los pacientes.</div>
+                <div class="vs-alert__body"><span class="vs-alert__title">2 citas en este rango</span>Al confirmar quedan para reprogramar. Recepción llama a los pacientes.</div>
               </div>
               <div class="vs-table-wrap">
                 <table class="vs-table vs-table--compact">
@@ -90,37 +88,70 @@
               </div>
             </div>
             <div class="vs-card__foot">
-              <span>El bloqueo se refleja de inmediato en CU22 y CU24.</span>
+              <span>La disponibilidad se actualiza al guardar.</span>
               <div class="vs-row"><button type="reset" class="vs-btn vs-btn--ghost">Descartar</button><button type="submit" class="vs-btn vs-btn--danger"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Registrar bloqueo</button></div>
             </div>
           </form>
+        </section>
 
-          <aside class="vs-stack">
-            <article class="vs-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Bloqueos vigentes y futuros</h3></div><span class="vs-badge vs-badge--muted">3</span></div>
-              <ul class="vs-list vs-list--boxed">
-                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--rose" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-calendar-x"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Lun 02/11/2026 · Feriado nacional</div><div class="vs-list-row__sub">Día de Todos los Difuntos · <span class="vs-badge vs-badge--danger vs-badge--mono">FERIADO</span> · todos los médicos</div></div><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Quitar" data-open-dialog="dlg-quitar"><svg class="vs-i"><use href="#i-trash"/></svg></button></li>
-                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--amber" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-moon"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">16–20/11/2026 · Dra. Gabriela Peña Salvatierra</div><div class="vs-list-row__sub">Licencia por vacaciones programadas · <span class="vs-badge vs-badge--warn vs-badge--mono">LICENCIA</span></div></div><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Quitar" data-open-dialog="dlg-quitar"><svg class="vs-i"><use href="#i-trash"/></svg></button></li>
-                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--amber" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-moon"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">09–11/11/2026 · Dra. Claudia Montero Saucedo</div><div class="vs-list-row__sub">Licencia médica · <span class="vs-badge vs-badge--muted vs-badge--mono">BORRADOR</span> · sin guardar</div></div></li>
-              </ul>
-            </article>
-            <article class="vs-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Historial</h3><p class="vs-card__sub">Bloqueos ya vencidos</p></div></div>
-              <ul class="vs-list vs-list--boxed">
-                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">Lun 12/10/2026 · Dra. Montero</div><div class="vs-list-row__sub">Asistencia a congreso de Ginecología · OTRO</div></div><span class="vs-badge vs-badge--muted">Vencido</span></li>
-                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">Jue 24/09/2026 · General</div><div class="vs-list-row__sub">Feriado departamental: Aniversario de Santa Cruz · FERIADO</div></div><span class="vs-badge vs-badge--muted">Vencido</span></li>
-                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">14–18/09/2026 · Dra. Gutiérrez</div><div class="vs-list-row__sub">Licencia por capacitación en Pediatría (Cochabamba) · LICENCIA</div></div><span class="vs-badge vs-badge--muted">Vencido</span></li>
-              </ul>
-            </article>
-            <article class="vs-card vs-card--accent">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas</h3></div></div>
-              <div class="vs-card__body vs-rules">
-                <div class="vs-rule"><span class="vs-rule__k">Rango</span>La fecha fin no puede ser anterior a la de inicio; se permite un solo día.</div>
-                <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">Citas afectadas (A1)</span>Se listan antes de confirmar; el bloqueo no las cancela, las marca para reprogramar.</div>
-                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Bitácora</span>Se registra el administrador, el rango y el motivo (CU10).</div>
-              </div>
-            </article>
-          </aside>
+        <section>
+          <article class="vs-card" data-pager data-page-size="3">
+            <div class="vs-card__head">
+              <div><h3 class="vs-card__title">Bloqueos registrados</h3><p class="vs-card__sub">Primero los que siguen vigentes</p></div>
+              <span class="vs-badge vs-badge--muted">5</span>
+            </div>
+            <div class="vs-table-wrap">
+              <table class="vs-table">
+                <thead><tr><th>Fechas</th><th>Alcance</th><th>Tipo</th><th>Motivo</th><th>Estado</th><th></th></tr></thead>
+                <tbody>
+                  <tr data-page-row>
+                    <td class="vs-td-num">02/11/2026</td>
+                    <td>Toda la clínica</td>
+                    <td><span class="vs-badge vs-badge--danger">Feriado</span></td>
+                    <td>Día de Todos los Difuntos</td>
+                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Vigente</span></td>
+                    <td class="vs-td-actions"><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Quitar" data-open-dialog="dlg-quitar"><svg class="vs-i"><use href="#i-trash"/></svg></button></td>
+                  </tr>
+                  <tr data-page-row>
+                    <td class="vs-td-num">16–20/11/2026</td>
+                    <td>Dra. Gabriela Peña Salvatierra</td>
+                    <td><span class="vs-badge vs-badge--warn">Licencia</span></td>
+                    <td>Vacaciones programadas</td>
+                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Vigente</span></td>
+                    <td class="vs-td-actions"><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Quitar" data-open-dialog="dlg-quitar"><svg class="vs-i"><use href="#i-trash"/></svg></button></td>
+                  </tr>
+                  <tr data-page-row class="is-muted">
+                    <td class="vs-td-num">12/10/2026</td>
+                    <td>Dra. Claudia Montero Saucedo</td>
+                    <td><span class="vs-badge vs-badge--muted">Otro</span></td>
+                    <td>Congreso de Ginecología</td>
+                    <td><span class="vs-badge vs-badge--muted">Vencido</span></td>
+                    <td></td>
+                  </tr>
+                  <tr data-page-row class="is-muted">
+                    <td class="vs-td-num">24/09/2026</td>
+                    <td>Toda la clínica</td>
+                    <td><span class="vs-badge vs-badge--danger">Feriado</span></td>
+                    <td>Aniversario de Santa Cruz</td>
+                    <td><span class="vs-badge vs-badge--muted">Vencido</span></td>
+                    <td></td>
+                  </tr>
+                  <tr data-page-row class="is-muted">
+                    <td class="vs-td-num">14–18/09/2026</td>
+                    <td>Dra. Patricia Gutiérrez Melgar</td>
+                    <td><span class="vs-badge vs-badge--warn">Licencia</span></td>
+                    <td>Capacitación en Pediatría, Cochabamba</td>
+                    <td><span class="vs-badge vs-badge--muted">Vencido</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="vs-pagination">
+              <span data-pager-status>Mostrando <strong class="vs-strong">1–3</strong> de <strong class="vs-strong">5</strong></span>
+              <div class="vs-pager" data-pager-controls></div>
+            </div>
+          </article>
         </section>
 
       </div>
