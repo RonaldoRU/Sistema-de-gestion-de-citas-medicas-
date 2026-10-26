@@ -210,21 +210,21 @@ INSERT INTO "rol_permiso" ("id_rol","id_permiso","fecha_asignacion") VALUES
 -- el bloqueo de 1 minuto ya venció, por eso hoy está ACTIVO con contador en 0.
 -- Usuario 15 (médico dado de baja) quedó INACTIVO (CU09, CU19).
 INSERT INTO "usuario" ("id_usuario","id_persona","id_rol","nombre_usuario","hash_contrasena","estado","intentos_fallidos","bloqueado_hasta","ultimo_acceso","fecha_creacion") VALUES
-(1,1,1,'scolque','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 16:36:00-04','2026-08-01 08:03:00-04'),
-(2,2,2,'rvaca','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 15:36:00-04','2026-08-01 08:06:00-04'),
-(3,3,2,'csuarez','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 10:12:00-04','2026-08-01 08:09:00-04'),
-(4,4,2,'jmendoza','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 09:37:00-04','2026-08-01 08:12:00-04'),
-(5,5,2,'djustiniano','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 14:02:00-04','2026-08-01 08:15:00-04'),
-(6,6,3,'jrojas','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 13:06:00-04','2026-08-01 08:18:00-04'),
-(7,7,3,'pgutierrez','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 12:16:00-04','2026-08-01 08:21:00-04'),
-(8,8,3,'farteaga','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 17:24:00-04','2026-08-01 08:24:00-04'),
-(9,9,3,'cmontero','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 15:25:00-04','2026-08-01 08:27:00-04'),
-(10,10,3,'mterceros','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 15:43:00-04','2026-08-01 08:30:00-04'),
-(11,11,3,'gpena','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 12:40:00-04','2026-08-01 08:33:00-04'),
-(12,12,3,'amoreno','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 09:07:00-04','2026-08-01 08:36:00-04'),
-(13,13,3,'lantelo','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 13:49:00-04','2026-08-01 08:39:00-04'),
-(14,14,3,'reguez','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 09:29:00-04','2026-08-01 08:42:00-04'),
-(15,15,3,'hflores','y$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','INACTIVO',0,NULL,NULL,'2026-08-01 08:45:00-04');
+(1,1,1,'scolque','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 16:36:00-04','2026-08-01 08:03:00-04'),
+(2,2,2,'rvaca','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 15:36:00-04','2026-08-01 08:06:00-04'),
+(3,3,2,'csuarez','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 10:12:00-04','2026-08-01 08:09:00-04'),
+(4,4,2,'jmendoza','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 09:37:00-04','2026-08-01 08:12:00-04'),
+(5,5,2,'djustiniano','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 14:02:00-04','2026-08-01 08:15:00-04'),
+(6,6,3,'jrojas','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 13:06:00-04','2026-08-01 08:18:00-04'),
+(7,7,3,'pgutierrez','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 12:16:00-04','2026-08-01 08:21:00-04'),
+(8,8,3,'farteaga','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 17:24:00-04','2026-08-01 08:24:00-04'),
+(9,9,3,'cmontero','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 15:25:00-04','2026-08-01 08:27:00-04'),
+(10,10,3,'mterceros','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 15:43:00-04','2026-08-01 08:30:00-04'),
+(11,11,3,'gpena','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 12:40:00-04','2026-08-01 08:33:00-04'),
+(12,12,3,'amoreno','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 09:07:00-04','2026-08-01 08:36:00-04'),
+(13,13,3,'lantelo','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 13:49:00-04','2026-08-01 08:39:00-04'),
+(14,14,3,'reguez','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','ACTIVO',0,NULL,'2026-10-23 09:29:00-04','2026-08-01 08:42:00-04'),
+(15,15,3,'hflores','$2y$10$vmx.LdE2pdrXq6Ay02apPe.F8OnCVZuauZzroMGiyL/6gINcHEDee','INACTIVO',0,NULL,NULL,'2026-08-01 08:45:00-04');
 
 INSERT INTO "personal_administrativo" ("id_persona","cargo") VALUES
 (1,'Administradora del sistema'),
