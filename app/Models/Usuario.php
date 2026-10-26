@@ -26,6 +26,7 @@ class Usuario extends Authenticatable
         'bloqueado_hasta',
         'ultimo_acceso',
         'fecha_creacion',
+        'remember_token',
     ];
 
     protected $hidden = [

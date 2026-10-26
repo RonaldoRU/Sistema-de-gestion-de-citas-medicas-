@@ -162,7 +162,8 @@ CREATE TABLE "usuario" (
     CONSTRAINT "usuario_intentos_fallidos_no_negativo" CHECK ("intentos_fallidos" >= 0),
   "bloqueado_hasta" timestamptz,
   "ultimo_acceso" timestamptz,
-  "fecha_creacion" timestamptz NOT NULL DEFAULT now()
+  "fecha_creacion" timestamptz NOT NULL DEFAULT now(),
+  "remember_token" varchar(100)
 );
 
 -- Unicidad del nombre de usuario sin distinguir mayúsculas: evita que

@@ -564,7 +564,7 @@
         try {
           var res = await VS_API.login(uVal, pVal, true);
           if (alertBox) alertBox.style.display = 'none';
-          window.location.href = 'dashboard-admin-stitch.html';
+          window.location.href = 'inicio.html';
         } catch (err) {
           if (alertBox) {
             var msg = (err.data && err.data.message) ? err.data.message : err.message;
