@@ -24,5 +24,14 @@ mkdir -p /var/www/html/storage/framework/cache/data \
 
 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true
 
-# Ejecutar el comando pasado como parámetro (por defecto php-fpm)
+# Ejecución automática en Railway / Cloud cuando se asigna la variable $PORT
+if [ -n "$PORT" ] && [ "$1" = "php-fpm" ]; then
+    echo "Ambiente Cloud / Railway detectado. Puerto: $PORT"
+    echo "Ejecutando migraciones de base de datos..."
+    php artisan migrate --force || true
+    echo "Iniciando servidor HTTP Laravel en 0.0.0.0:$PORT..."
+    exec php artisan serve --host=0.0.0.0 --port="$PORT"
+fi
+
+# Ejecutar el comando pasado como parámetro (por defecto php-fpm para Docker Compose)
 exec "$@"

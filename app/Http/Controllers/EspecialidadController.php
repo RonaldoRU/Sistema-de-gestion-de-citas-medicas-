@@ -65,10 +65,10 @@ class EspecialidadController extends Controller
 
         AuditoriaService::registrar(
             'P5_MEDICOS',
-            'CREAR',
+            'REGISTRAR',
             'especialidad',
             $especialidad->id_especialidad,
-            "Se creó la especialidad médica [{$especialidad->nombre}]."
+            "Registro de especialidad médica [{$especialidad->nombre}]."
         );
 
         return response()->json([

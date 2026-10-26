@@ -162,10 +162,10 @@ class CitaController extends Controller
 
             AuditoriaService::registrar(
                 'P6_CITAS',
-                'CREAR',
+                'REGISTRAR',
                 'cita',
                 $cita->id_cita,
-                "Cita [{$cita->codigo}] agendada para el paciente [{$paciente->nombre_completo}] con el Dr. [{$medico->nombre_completo}] el [{$fecha} {$horaInicio}]."
+                "Registro de cita: Cita [{$cita->codigo}] agendada para el paciente [{$paciente->nombre_completo}] con el Dr. [{$medico->nombre_completo}] el [{$fecha} {$horaInicio}]."
             );
 
             return response()->json([

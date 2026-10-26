@@ -146,7 +146,7 @@ class PacienteController extends Controller
             // CU12 Paso 6: Auditar la acción en la bitácora (CU10)
             AuditoriaService::registrar(
                 'P4_PACIENTES',
-                'CREAR',
+                'REGISTRAR',
                 'paciente',
                 $paciente->id_persona,
                 "Se registró al paciente [{$persona->nombre_completo}] con CI [{$persona->ci}] y código [{$paciente->codigo}]."
@@ -441,10 +441,10 @@ class PacienteController extends Controller
         // CU17 Paso 4: Audita la baja en la bitácora (CU10)
         AuditoriaService::registrar(
             'P4_PACIENTES',
-            'BAJA_LOGICA',
+            'INACTIVAR',
             'paciente',
             $paciente->id_persona,
-            "Paciente [{$paciente->codigo} - {$paciente->nombre_completo}] dado de baja lógica (activo = false)."
+            "Inactivación: Paciente [{$paciente->codigo} - {$paciente->nombre_completo}] dado de baja lógica (activo = false)."
         );
 
         return response()->json([
@@ -471,10 +471,10 @@ class PacienteController extends Controller
 
         AuditoriaService::registrar(
             'P4_PACIENTES',
-            'REACTIVAR',
+            'RENOVAR',
             'paciente',
             $paciente->id_persona,
-            "Paciente [{$paciente->codigo} - {$paciente->nombre_completo}] reactivado a estado activo."
+            "Renovación: Paciente [{$paciente->codigo} - {$paciente->nombre_completo}] reactivado a estado activo."
         );
 
         return response()->json([

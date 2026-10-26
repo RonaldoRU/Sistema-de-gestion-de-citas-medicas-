@@ -149,7 +149,7 @@ class MedicoController extends Controller
 
             AuditoriaService::registrar(
                 'P5_MEDICOS',
-                'CREAR',
+                'REGISTRAR',
                 'medico',
                 $medico->id_persona,
                 "Se registró al médico [{$persona->nombre_completo}] con matrícula [{$medico->matricula}] y código [{$medico->codigo}]."
@@ -390,10 +390,10 @@ class MedicoController extends Controller
 
         AuditoriaService::registrar(
             'P5_MEDICOS',
-            'BAJA_LOGICA',
+            'INACTIVAR',
             'medico',
             $medico->id_persona,
-            "Médico [{$medico->nombre_completo}] suspendido a estado inactivo."
+            "Inactivación: Médico [{$medico->nombre_completo}] suspendido a estado inactivo."
         );
 
         return response()->json([
@@ -425,10 +425,10 @@ class MedicoController extends Controller
 
         AuditoriaService::registrar(
             'P5_MEDICOS',
-            'REACTIVAR',
+            'RENOVAR',
             'medico',
             $medico->id_persona,
-            "Médico [{$medico->nombre_completo}] reactivado a estado activo."
+            "Renovación: Médico [{$medico->nombre_completo}] reactivado a estado activo."
         );
 
         return response()->json([

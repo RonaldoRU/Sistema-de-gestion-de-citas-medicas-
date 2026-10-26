@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
@@ -45,10 +45,10 @@
 
         <section class="vs-card">
           <div class="vs-card__body">
-            <form class="vs-row vs-row--nowrap" onsubmit="event.preventDefault()" style="gap:.75rem">
+            <form id="paciente-buscar-form" class="vs-row vs-row--nowrap" onsubmit="event.preventDefault()" style="gap:.75rem">
               <div class="vs-input-icon vs-input-icon--lg vs-grow">
                 <svg class="vs-i"><use href="#i-search"/></svg>
-                <input class="vs-input vs-input--lg" type="search" value="Égüez" placeholder="CI, nombres, apellidos o código PAC-####" aria-label="Buscar paciente">
+                <input id="paciente-buscar-input" class="vs-input vs-input--lg" type="search" placeholder="CI, nombres, apellidos o código PAC-####" aria-label="Buscar paciente">
               </div>
               <button type="submit" class="vs-btn vs-btn--primary vs-btn--lg"><svg class="vs-i"><use href="#i-search"/></svg><span class="vs-hide-sm">Buscar</span></button>
             </form>
@@ -56,44 +56,20 @@
               <div class="vs-pills">
                 <label class="vs-pill"><input type="radio" name="est" value="activos" checked><span>Activos</span></label>
                 <label class="vs-pill"><input type="radio" name="est" value="todos"><span>Incluir inactivos</span></label>
-                <label class="vs-pill"><input type="checkbox" name="menores"><span>Solo menores de edad</span></label>
               </div>
-              <span class="vs-small vs-muted">3 coincidencias para “Égüez”</span>
+              <span id="paciente-conteo" class="vs-small vs-muted">Padrón de pacientes registrado</span>
             </div>
           </div>
         </section>
 
         <section class="vs-split">
           <article class="vs-card">
-            <div class="vs-card__head"><div><h3 class="vs-card__title">Resultados</h3><p class="vs-card__sub">Selecciona una fila para editar sus datos</p></div></div>
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Resultados</h3><p class="vs-card__sub">Pacientes registrados en PostgreSQL</p></div></div>
             <div class="vs-table-wrap">
               <table class="vs-table" data-selectable>
-                <thead><tr><th>Código</th><th>Paciente</th><th class="vs-hide-md">Edad / Sexo</th><th class="vs-hide-md">Teléfono</th><th>Estado</th><th class="vs-td-actions">Acciones</th></tr></thead>
-                <tbody>
-                  <tr class="is-selected">
-                    <td class="vs-td-num">PAC-0016</td>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">JE</span><div><div class="vs-cell-person__name">Jimena Égüez Choque</div><div class="vs-cell-person__sub vs-mono">CI 12181643</div></div></div></td>
-                    <td class="vs-hide-md">50 años · F</td>
-                    <td class="vs-hide-md vs-td-num">75666779</td>
-                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td>
-                    <td class="vs-td-actions"><a href="cu13-informacion-medica.html" class="vs-icon-btn vs-icon-btn--teal" title="Información médica"><svg class="vs-i"><use href="#i-heart"/></svg></a><a href="cu16-historial-citas.html" class="vs-icon-btn" title="Historial de citas"><svg class="vs-i"><use href="#i-calendar"/></svg></a><a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-icon-btn" title="Programar cita"><svg class="vs-i"><use href="#i-plus"/></svg></a></td>
-                  </tr>
-                  <tr>
-                    <td class="vs-td-num">PAC-0001</td>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--amber">MS</span><div><div class="vs-cell-person__name">Mauricio Suárez Égüez <span class="vs-badge vs-badge--warn">Menor</span></div><div class="vs-cell-person__sub vs-mono">CI 9802455</div></div></div></td>
-                    <td class="vs-hide-md">9 años · M</td>
-                    <td class="vs-hide-md vs-td-num">73222777</td>
-                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td>
-                    <td class="vs-td-actions"><a href="cu13-informacion-medica.html" class="vs-icon-btn vs-icon-btn--teal" title="Información médica"><svg class="vs-i"><use href="#i-heart"/></svg></a><a href="cu16-historial-citas.html" class="vs-icon-btn" title="Historial de citas"><svg class="vs-i"><use href="#i-calendar"/></svg></a><a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-icon-btn" title="Programar cita"><svg class="vs-i"><use href="#i-plus"/></svg></a></td>
-                  </tr>
-                  <tr>
-                    <td class="vs-td-num">PAC-0033</td>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">RE</span><div><div class="vs-cell-person__name">Rodrigo Égüez Salvatierra</div><div class="vs-cell-person__sub vs-mono">CI 6471120</div></div></div></td>
-                    <td class="vs-hide-md">42 años · M</td>
-                    <td class="vs-hide-md vs-td-num">70918264</td>
-                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td>
-                    <td class="vs-td-actions"><a href="cu13-informacion-medica.html" class="vs-icon-btn vs-icon-btn--teal" title="Información médica"><svg class="vs-i"><use href="#i-heart"/></svg></a><a href="cu16-historial-citas.html" class="vs-icon-btn" title="Historial de citas"><svg class="vs-i"><use href="#i-calendar"/></svg></a><a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-icon-btn" title="Programar cita"><svg class="vs-i"><use href="#i-plus"/></svg></a></td>
-                  </tr>
+                <thead><tr><th>Código</th><th>Paciente</th><th class="vs-hide-md">CI</th><th class="vs-hide-md">Teléfono</th><th>Estado</th><th class="vs-td-actions">Acciones</th></tr></thead>
+                <tbody id="vs-pacientes-tbody">
+                  <tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">Cargando padrón de pacientes desde la base de datos...</td></tr>
                 </tbody>
               </table>
             </div>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="h-full">
 <head>
   <meta charset="UTF-8">
@@ -86,8 +86,8 @@
     <p class="text-sm text-vs-muted mt-1 max-w-2xl">Quién hizo qué y cuándo: accesos, cambios de usuarios y alertas.</p>
   </div>
   <div class="flex items-center gap-2.5 self-start lg:self-center">
-    <button type="button" class="vs-btn-ghost px-3.5 py-2 text-xs">Limpiar filtros</button>
-    <button type="button" class="vs-btn-primary px-4 py-2 text-xs">Descargar registro</button>
+    <button type="button" id="stitch-btn-limpiar" class="vs-btn-ghost px-3.5 py-2 text-xs">Limpiar filtros</button>
+    <button type="button" id="stitch-btn-exportar-csv" class="vs-btn-primary px-4 py-2 text-xs">Descargar registro</button>
   </div>
 </div>
 <!-- KPI Metrics Cards (Bento Style 4-columns) -->
@@ -101,7 +101,7 @@
 </div>
 </div>
 <div class="mt-3">
-<div class="text-3xl font-extrabold text-vs-ink tracking-tight">189</div>
+<div class="text-3xl font-extrabold text-vs-ink tracking-tight" id="stitch-kpi-total">—</div>
 <div class="flex items-center gap-1.5 mt-1 text-teal-700 text-[11px] font-semibold">
 <span class="material-symbols-outlined text-[16px]">check_circle</span>
 <span>100% registros auditados</span>
@@ -117,7 +117,7 @@
 </div>
 </div>
 <div class="mt-3">
-<div class="text-3xl font-extrabold text-vs-ink tracking-tight">42</div>
+<div class="text-3xl font-extrabold text-vs-ink tracking-tight" id="stitch-kpi-logins">—</div>
 <div class="flex items-center gap-1.5 mt-1 text-slate-500 text-[11px] font-semibold">
 <span class="material-symbols-outlined text-[16px] text-vs-forest">lock</span>
 <span>Accesos validados (TLS 1.3)</span>
@@ -133,7 +133,7 @@
 </div>
 </div>
 <div class="mt-3">
-<div class="text-3xl font-extrabold text-error tracking-tight">4</div>
+<div class="text-3xl font-extrabold text-error tracking-tight" id="stitch-kpi-alertas">—</div>
 <div class="flex items-center gap-1.5 mt-1 text-error text-[11px] font-semibold">
 <span class="material-symbols-outlined text-[16px]">gpp_bad</span>
 <span>Bloqueos / Fallos</span>
@@ -143,16 +143,16 @@
 <!-- Card 4: Operaciones de roles -->
 <div class="bg-white p-5 rounded-xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
 <div class="flex items-center justify-between">
-<span class="text-xs font-bold uppercase tracking-wider text-slate-500">Modificaciones de roles</span>
+<span class="text-xs font-bold uppercase tracking-wider text-slate-500">Operaciones administrativas</span>
 <div class="w-8 h-8 rounded-lg bg-cyan-50 text-tertiary flex items-center justify-center">
 <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
 </div>
 </div>
 <div class="mt-3">
-<div class="text-3xl font-extrabold text-vs-ink tracking-tight">9</div>
+<div class="text-3xl font-extrabold text-vs-ink tracking-tight" id="stitch-kpi-roles">—</div>
 <div class="flex items-center gap-1.5 mt-1 text-slate-500 text-[11px] font-semibold">
 <span class="material-symbols-outlined text-[16px]">edit_note</span>
-<span>Operaciones/</span>
+<span>Altas, Bajas y Renovaciones</span>
 </div>
 </div>
 </div>
@@ -166,7 +166,7 @@
 </div>
 <span class="text-[11px] font-semibold text-slate-500">Registros históricos inalterables</span>
 </div>
-<form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3.5 items-end" onsubmit="event.preventDefault();">
+<form id="stitch-filter-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3.5 items-end">
 <!-- Filter: Search user -->
 <div class="lg:col-span-4 space-y-1">
 <label class="text-[11px] font-semibold font-semibold text-slate-500 block">
@@ -174,7 +174,7 @@
             </label>
 <div class="relative">
 <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-500 text-[18px]">search</span>
-<input class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs placeholder:text-outline focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" placeholder="C.I., nombre o correo institucional..." type="text"/>
+<input id="stitch-b-usuario" class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs placeholder:text-outline focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" placeholder="C.I., nombre o correo institucional..." type="text"/>
 </div>
 </div>
 <!-- Filter: System module -->
@@ -182,12 +182,15 @@
 <label class="text-[11px] font-semibold font-semibold text-slate-500 block">
               Módulo del sistema
             </label>
-<select class="w-full py-2 px-3 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+<select id="stitch-b-modulo" class="w-full py-2 px-3 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
 <option value="">Todos los módulos</option>
-<option value="autenticacion">Autenticación</option>
-<option value="usuarios">Gestión de Usuarios</option>
-<option value="roles">Roles y Permisos</option>
-<option value="seguridad">Seguridad</option>
+<option value="P1_SEGURIDAD">P1 · Autenticación / Seguridad</option>
+<option value="P2_RBAC">P2 · Usuarios y Permisos</option>
+<option value="P3_AUDITORIA">P3 · Auditoría</option>
+<option value="P4_PACIENTES">P4 · Pacientes</option>
+<option value="P5_MEDICOS">P5 · Médicos y Horarios</option>
+<option value="P6_CITAS">P6 · Citas Médicas</option>
+<option value="P7_REPORTES">P7 · Reportes</option>
 </select>
 </div>
 <!-- Filter: Action type -->
@@ -195,13 +198,17 @@
 <label class="text-[11px] font-semibold font-semibold text-slate-500 block">
               Tipo de acción
             </label>
-<select class="w-full py-2 px-3 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+<select id="stitch-b-accion" class="w-full py-2 px-3 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
 <option value="">Todas las acciones</option>
-<option value="creacion">Creación de usuario</option>
-<option value="rol">Cambio de rol</option>
-<option value="clave">Restablecimiento clave</option>
-<option value="fallo">Intento fallido</option>
-<option value="bloqueo">Bloqueo preventivo</option>
+<option value="REGISTRAR">REGISTRAR (Altas)</option>
+<option value="INACTIVAR">INACTIVAR (Bajas / Suspensión)</option>
+<option value="RENOVAR">RENOVAR (Reactivación)</option>
+<option value="MODIFICAR">MODIFICAR</option>
+<option value="ELIMINAR">ELIMINAR</option>
+<option value="LOGIN">LOGIN</option>
+<option value="LOGOUT">LOGOUT</option>
+<option value="BLOQUEO">BLOQUEO</option>
+<option value="CREAR">CREAR</option>
 </select>
 </div>
 <!-- Filter: Date from -->
@@ -210,8 +217,8 @@
               Rango de fechas
             </label>
 <div class="grid grid-cols-2 gap-1.5">
-<input class="w-full py-2 px-2 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs font-medium tabular-nums text-center focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" title="Fecha Desde" type="text" value="14/03/2026"/>
-<input class="w-full py-2 px-2 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs font-medium tabular-nums text-center focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" title="Fecha Hasta" type="text" value="15/03/2026"/>
+<input id="stitch-b-desde" class="w-full py-2 px-2 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs font-medium tabular-nums text-center focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" title="Fecha Desde" type="date"/>
+<input id="stitch-b-hasta" class="w-full py-2 px-2 bg-white border border-slate-200 rounded-lg text-vs-ink text-xs font-medium tabular-nums text-center focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" title="Fecha Hasta" type="date"/>
 </div>
 </div>
 <!-- Buttons: Filter / Clear -->
@@ -252,229 +259,12 @@
 <th class="py-3 px-4 font-semibold" scope="col">Detalle y Metadatos</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant/30 text-xs">
-<!-- Row 1: Creación de usuario -->
-<tr class="hover:bg-slate-50/40 transition-colors">
-<td class="py-3.5 px-4 text-xs font-medium tabular-nums text-vs-ink whitespace-nowrap align-top">
-<div class="font-semibold text-vs-ink">15/03/2026</div>
-<div class="text-slate-500 text-[11px]">10:42:15 (BOT)</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<div class="flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-full bg-primary/10 text-vs-forest font-bold flex items-center justify-center text-[11px]">
-                      AS
-                    </div>
-<div>
-<div class="text-xs font-semibold font-semibold text-vs-ink">Admin Sistema</div>
-<div class="text-slate-500 text-[11px]">3419201 LP · Administrador</div>
-</div>
-</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50/70 text-teal-800 border border-teal-200">
-                    Gestión de Usuarios
-                  </span>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-800 border border-teal-200 font-semibold">
-<span class="material-symbols-outlined text-[13px]">person_add</span>
-                    Creación de usuario
-                  </span>
-</td>
-<td class="py-3.5 px-4 text-vs-ink align-top">
-<div class="font-medium">Alta de médico Dr. Fernando Quiroga (Especialidad: Cardiología).</div>
-<div class="text-xs font-medium tabular-nums text-slate-500 mt-0.5 flex items-center gap-2">
-<span>IP: 192.168.10.45</span>
-<span class="text-outline">·</span>
-<span>Terminal Central TI</span>
-</div>
-</td>
-</tr>
-<!-- Row 2: Inicio de sesión exitoso -->
-<tr class="hover:bg-slate-50/40 transition-colors">
-<td class="py-3.5 px-4 text-xs font-medium tabular-nums text-vs-ink whitespace-nowrap align-top">
-<div class="font-semibold text-vs-ink">15/03/2026</div>
-<div class="text-slate-500 text-[11px]">10:14:02 (BOT)</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<div class="flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-full bg-blue-100 text-blue-800 font-bold flex items-center justify-center text-[11px]">
-                      MS
-                    </div>
-<div>
-<div class="text-xs font-semibold font-semibold text-vs-ink">Lic. Mariana Siles</div>
-<div class="text-slate-500 text-[11px]">6834190 SC · Recepción</div>
-</div>
-</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
-                    Autenticación
-                  </span>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-800 border border-teal-200 font-semibold">
-<span class="material-symbols-outlined text-[13px]">login</span>
-                    Inicio de sesión exitoso
-                  </span>
-</td>
-<td class="py-3.5 px-4 text-vs-ink align-top">
-<div class="font-medium">Acceso validado en Terminal Admisión Central.</div>
-<div class="text-xs font-medium tabular-nums text-slate-500 mt-0.5 flex items-center gap-2">
-<span>IP: 192.168.10.12</span>
-<span class="text-outline">·</span>
-<span>Host: ADM-PC-02</span>
-</div>
-</td>
-</tr>
-<!-- Row 3: Restablecimiento de clave -->
-<tr class="hover:bg-slate-50/40 transition-colors">
-<td class="py-3.5 px-4 text-xs font-medium tabular-nums text-vs-ink whitespace-nowrap align-top">
-<div class="font-semibold text-vs-ink">15/03/2026</div>
-<div class="text-slate-500 text-[11px]">09:50:33 (BOT)</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<div class="flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-full bg-primary/10 text-vs-forest font-bold flex items-center justify-center text-[11px]">
-                      AS
-                    </div>
-<div>
-<div class="text-xs font-semibold font-semibold text-vs-ink">Admin Sistema</div>
-<div class="text-slate-500 text-[11px]">3419201 LP · Administrador</div>
-</div>
-</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-900 border border-amber-200">
-                    Seguridad
-                  </span>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-900 border border-amber-300 font-semibold">
-<span class="material-symbols-outlined text-[13px]">lock_reset</span>
-                    Restablecimiento clave
-                  </span>
-</td>
-<td class="py-3.5 px-4 text-vs-ink align-top">
-<div class="font-medium">Reset temporal para Dra. Claudia Paredes por olvido de credencial.</div>
-<div class="text-xs font-medium tabular-nums text-slate-500 mt-0.5 flex items-center gap-2">
-<span>IP: 192.168.10.45</span>
-<span class="text-outline">·</span>
-<span>Módulo TI Autorizado</span>
-</div>
-</td>
-</tr>
-<!-- Row 4: Intento fallido -->
-<tr class="hover:bg-red-50/30 transition-colors bg-red-50/10">
-<td class="py-3.5 px-4 text-xs font-medium tabular-nums text-vs-ink whitespace-nowrap align-top">
-<div class="font-semibold text-vs-ink">15/03/2026</div>
-<div class="text-error text-[11px]">09:12:18 (BOT)</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<div class="flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-full bg-red-100 text-error font-bold flex items-center justify-center text-[11px]">
-                      !
-                    </div>
-<div>
-<div class="text-xs font-semibold font-semibold text-error">Desconocido / Alerta</div>
-<div class="text-slate-500 text-[11px]">j.justiniano@vidasalud.bo</div>
-</div>
-</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-error border border-red-200">
-                    Seguridad
-                  </span>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-error border border-red-300 font-semibold">
-<span class="material-symbols-outlined text-[13px]">error</span>
-                    Intento fallido de acceso
-                  </span>
-</td>
-<td class="py-3.5 px-4 text-vs-ink align-top">
-<div class="font-medium text-error font-semibold">Contraseña inválida para usuario (Intento 2 de 3).</div>
-<div class="text-xs font-medium tabular-nums text-slate-500 mt-0.5 flex items-center gap-2">
-<span class="text-error">IP Externa: 190.181.42.10</span>
-<span class="text-outline">·</span>
-<span>Túnel Web Externo</span>
-</div>
-</td>
-</tr>
-<!-- Row 5: Cambio de rol -->
-<tr class="hover:bg-slate-50/40 transition-colors">
-<td class="py-3.5 px-4 text-xs font-medium tabular-nums text-vs-ink whitespace-nowrap align-top">
-<div class="font-semibold text-vs-ink">15/03/2026</div>
-<div class="text-slate-500 text-[11px]">08:30:05 (BOT)</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<div class="flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-full bg-primary/10 text-vs-forest font-bold flex items-center justify-center text-[11px]">
-                      AS
-                    </div>
-<div>
-<div class="text-xs font-semibold font-semibold text-vs-ink">Admin Sistema</div>
-<div class="text-slate-500 text-[11px]">3419201 LP · Administrador</div>
-</div>
-</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50/70 text-teal-800 border border-teal-200">
-                    Gestión de Usuarios
-                  </span>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50/70 text-teal-800 border border-teal-300 font-semibold">
-<span class="material-symbols-outlined text-[13px]">manage_accounts</span>
-                    Cambio de rol / permisos
-                  </span>
-</td>
-<td class="py-3.5 px-4 text-vs-ink align-top">
-<div class="font-medium">Asignación de rol 'Médico Titular' a Dr. Javier Justiniano.</div>
-<div class="text-xs font-medium tabular-nums text-slate-500 mt-0.5 flex items-center gap-2">
-<span>IP: 192.168.10.45</span>
-<span class="text-outline">·</span>
-<span>Consola de Gestión</span>
-</div>
-</td>
-</tr>
-<!-- Row 6: Bloqueo preventivo -->
-<tr class="hover:bg-red-50/30 transition-colors bg-red-50/20">
-<td class="py-3.5 px-4 text-xs font-medium tabular-nums text-vs-ink whitespace-nowrap align-top">
-<div class="font-semibold text-vs-ink">14/03/2026</div>
-<div class="text-error text-[11px]">15:40:12 (BOT)</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<div class="flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-full bg-surface-container text-tertiary font-bold flex items-center justify-center text-[11px]">
-<span class="material-symbols-outlined text-[14px]">smart_toy</span>
-</div>
-<div>
-<div class="text-xs font-semibold font-semibold text-vs-ink">Sistema Automático</div>
-<div class="text-slate-500 text-[11px]">Daemon Auditoría TI</div>
-</div>
-</div>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-error border border-red-200">
-                    Seguridad
-                  </span>
-</td>
-<td class="py-3.5 px-4 align-top">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-100 text-error border border-red-300 font-bold">
-<span class="material-symbols-outlined text-[13px]">lock_clock</span>
-                    Bloqueo preventivo de cuenta
-                  </span>
-</td>
-<td class="py-3.5 px-4 text-vs-ink align-top">
-<div class="font-medium text-error">3 intentos erróneos consecutivos para r.mamani@vidasalud.bo. Bloqueo 15 min.</div>
-<div class="text-xs font-medium tabular-nums text-error mt-0.5 flex items-center gap-2">
-<span>IP Sospechosa: 190.181.15.4</span>
-<span class="text-outline">·</span>
-<span class="font-semibold underline">Activado</span>
-</div>
-</td>
-</tr>
+<tbody class="divide-y divide-outline-variant/30 text-xs" id="stitch-bitacora-tbody">
+  <tr>
+    <td colspan="5" class="py-8 text-center text-slate-400">
+      Cargando eventos de auditoría desde la base de datos...
+    </td>
+  </tr>
 </tbody>
 </table>
 </div>

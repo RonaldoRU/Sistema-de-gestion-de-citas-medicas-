@@ -40,9 +40,18 @@ class BitacoraController extends Controller
             $query->where('modulo', strtoupper($request->input('modulo')));
         }
 
-        // Filtro por Tipo de Acción
+        // Filtro por Tipo de Acción (con compatibilidad de alias)
         if ($request->filled('tipo_accion')) {
-            $query->where('tipo_accion', strtoupper($request->input('tipo_accion')));
+            $accion = strtoupper(trim($request->input('tipo_accion')));
+            if (in_array($accion, ['REGISTRAR', 'CREAR'])) {
+                $query->whereIn('tipo_accion', ['REGISTRAR', 'CREAR']);
+            } elseif (in_array($accion, ['RENOVAR', 'REACTIVAR'])) {
+                $query->whereIn('tipo_accion', ['RENOVAR', 'REACTIVAR']);
+            } elseif (in_array($accion, ['INACTIVAR', 'SUSPENDER'])) {
+                $query->where('tipo_accion', 'INACTIVAR');
+            } else {
+                $query->where('tipo_accion', $accion);
+            }
         }
 
         // Filtro por Rango de Fechas

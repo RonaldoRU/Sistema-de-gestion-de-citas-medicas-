@@ -12,7 +12,8 @@ class AuditoriaService
      * Enumeración válida de tipo_accion según PostgreSQL DDL (vida_salud.sql).
      */
     public const ACCIONES_VALIDAS = [
-        'CREAR', 'MODIFICAR', 'ELIMINAR', 'LOGIN', 'LOGOUT', 'BLOQUEO'
+        'CREAR', 'MODIFICAR', 'ELIMINAR', 'LOGIN', 'LOGOUT', 'BLOQUEO',
+        'INACTIVAR', 'REGISTRAR', 'RENOVAR', 'REACTIVAR'
     ];
 
     /**
@@ -31,18 +32,24 @@ class AuditoriaService
         // Normalizar tipo de acción para cumplir con el enum de PostgreSQL
         $tipoUpper = strtoupper(trim($tipoAccion));
         if (!in_array($tipoUpper, self::ACCIONES_VALIDAS)) {
-            if (str_contains($tipoUpper, 'LOGIN') || str_contains($tipoUpper, 'AUTH') || str_contains($tipoUpper, 'SESION')) {
+            if (str_contains($tipoUpper, 'INACTIV') || str_contains($tipoUpper, 'SUSPEND') || str_contains($tipoUpper, 'DESACTIV') || str_contains($tipoUpper, 'BAJA')) {
+                $tipoUpper = 'INACTIVAR';
+            } elseif (str_contains($tipoUpper, 'RENOV') || str_contains($tipoUpper, 'REACTIV') || str_contains($tipoUpper, 'HABILIT')) {
+                $tipoUpper = 'RENOVAR';
+            } elseif (str_contains($tipoUpper, 'REGISTR') || str_contains($tipoUpper, 'ALTA')) {
+                $tipoUpper = 'REGISTRAR';
+            } elseif (str_contains($tipoUpper, 'LOGIN') || str_contains($tipoUpper, 'AUTH') || str_contains($tipoUpper, 'SESION')) {
                 $tipoUpper = 'LOGIN';
             } elseif (str_contains($tipoUpper, 'LOGOUT') || str_contains($tipoUpper, 'SALIR')) {
                 $tipoUpper = 'LOGOUT';
             } elseif (str_contains($tipoUpper, 'BLOQUE')) {
                 $tipoUpper = 'BLOQUEO';
-            } elseif (str_contains($tipoUpper, 'ELIMIN') || str_contains($tipoUpper, 'BORR') || str_contains($tipoUpper, 'DELETE')) {
+            } elseif (str_contains($tipoUpper, 'ELIMIN') || str_contains($tipoUpper, 'BORR') || str_contains($tipoUpper, 'DELETE') || str_contains($tipoUpper, 'CANCEL')) {
                 $tipoUpper = 'ELIMINAR';
-            } elseif (str_contains($tipoUpper, 'MODIF') || str_contains($tipoUpper, 'EDIT') || str_contains($tipoUpper, 'ACTUALIZ') || str_contains($tipoUpper, 'UPDATE')) {
+            } elseif (str_contains($tipoUpper, 'MODIF') || str_contains($tipoUpper, 'EDIT') || str_contains($tipoUpper, 'ACTUALIZ') || str_contains($tipoUpper, 'UPDATE') || str_contains($tipoUpper, 'CAMBIO') || str_contains($tipoUpper, 'REPROGRAM')) {
                 $tipoUpper = 'MODIFICAR';
             } else {
-                $tipoUpper = 'CREAR';
+                $tipoUpper = 'REGISTRAR';
             }
         }
 

@@ -36,7 +36,18 @@ COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-EXPOSE 9000
+# Copiar código fuente de la aplicación (para Docker standalone y despliegues en Railway)
+COPY . /var/www/html
+
+# Permisos para storage y cache
+RUN mkdir -p /var/www/html/storage/framework/cache/data \
+             /var/www/html/storage/framework/sessions \
+             /var/www/html/storage/framework/views \
+             /var/www/html/storage/logs \
+             /var/www/html/bootstrap/cache \
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+
+EXPOSE 9000 8080 80
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]

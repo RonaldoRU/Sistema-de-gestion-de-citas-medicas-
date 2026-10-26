@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="h-full">
 <head>
   <meta charset="utf-8">
@@ -41,13 +41,13 @@
         <h2 class="font-display text-2xl font-semibold text-vs-ink tracking-tight">Bienvenido</h2>
         <p class="text-sm text-vs-muted mt-1 mb-6">Ingresa con tu usuario institucional.</p>
 
-        <!-- Demo: quitar en producción -->
-        <div class="mb-5 rounded-lg border border-rose-200/80 bg-rose-50/90 px-3 py-2.5 text-sm text-rose-900" role="alert">
-          <p class="font-semibold">No pudimos validar tus datos</p>
-          <p class="text-rose-800/90 mt-0.5 text-[13px]">Revisa usuario y contraseña. Tras 3 intentos fallidos la cuenta se bloquea 15 minutos.</p>
+        <!-- Alert error (oculto por defecto) -->
+        <div id="stitch-login-alert" class="mb-5 rounded-lg border border-rose-200/80 bg-rose-50/90 px-3 py-2.5 text-sm text-rose-900" role="alert" style="display:none;">
+          <p class="font-semibold" id="stitch-login-alert-title">No pudimos validar tus datos</p>
+          <p class="text-rose-800/90 mt-0.5 text-[13px]" id="stitch-login-alert-desc">Revisa usuario y contraseña.</p>
         </div>
 
-        <form class="space-y-4" action="dashboard-admin-stitch.html" method="get">
+        <form id="stitch-form-login" class="space-y-4" action="dashboard-admin-stitch.html" method="post">
           <div>
             <label class="block text-sm font-semibold text-vs-ink mb-1.5" for="username">Usuario o correo</label>
             <input
@@ -56,7 +56,7 @@
               type="text"
               autocomplete="username"
               required
-              placeholder="ana.soto@vidasalud.bo"
+              placeholder="scolque o usuario"
               class="vs-field block w-full rounded-lg border border-vs-line bg-vs-card px-3 py-2.5 text-sm text-vs-ink placeholder:text-slate-400 focus:border-vs-forest focus:ring-2 focus:ring-vs-forest/15"
             />
           </div>

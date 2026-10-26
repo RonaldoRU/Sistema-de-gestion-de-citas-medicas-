@@ -77,10 +77,14 @@ class RegistrarBitacoraEnVivo
             $tipoAccion = 'LOGIN';
         } elseif (str_contains($path, 'logout')) {
             $tipoAccion = 'LOGOUT';
-        } elseif (str_contains($path, 'bloque') || str_contains($path, 'inactivar')) {
+        } elseif (str_contains($path, 'inactivar') || str_contains($path, 'suspender') || str_contains($path, 'desactivar')) {
+            $tipoAccion = 'INACTIVAR';
+        } elseif (str_contains($path, 'reactivar') || str_contains($path, 'renovar')) {
+            $tipoAccion = 'RENOVAR';
+        } elseif (str_contains($path, 'bloque')) {
             $tipoAccion = 'BLOQUEO';
         } elseif ($metodo === 'POST') {
-            $tipoAccion = 'CREAR';
+            $tipoAccion = 'REGISTRAR';
         } elseif ($metodo === 'PUT' || $metodo === 'PATCH') {
             $tipoAccion = 'MODIFICAR';
         } elseif ($metodo === 'DELETE') {

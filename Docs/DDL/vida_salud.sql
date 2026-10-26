@@ -59,7 +59,7 @@ SET search_path TO vida_salud;
 CREATE TYPE estado_usuario AS ENUM ('ACTIVO', 'INACTIVO', 'BLOQUEADO');
 
 -- CU10: tipos de acción que registra la bitácora.
-CREATE TYPE tipo_accion AS ENUM ('CREAR', 'MODIFICAR', 'ELIMINAR', 'LOGIN', 'LOGOUT', 'BLOQUEO');
+CREATE TYPE tipo_accion AS ENUM ('CREAR', 'MODIFICAR', 'ELIMINAR', 'LOGIN', 'LOGOUT', 'BLOQUEO', 'INACTIVAR', 'REGISTRAR', 'RENOVAR', 'REACTIVAR');
 
 -- CU33: motivo del bloqueo de agenda.
 CREATE TYPE tipo_bloqueo AS ENUM ('FERIADO', 'LICENCIA', 'OTRO');

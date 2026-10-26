@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="h-full">
 <head>
   <meta charset="UTF-8">
@@ -88,8 +88,8 @@
             <p class="text-sm text-vs-muted mt-1 max-w-2xl">Altas, roles y cuentas suspendidas del personal de la clínica.</p>
           </div>
           <div class="flex items-center gap-2.5 self-start">
-            <button type="button" class="vs-btn-ghost px-3.5 py-2 text-xs">Exportar CSV</button>
-            <button type="button" class="vs-btn-primary px-4 py-2 text-xs">Nuevo usuario</button>
+            <button type="button" id="stitch-u-btn-exportar" class="vs-btn-ghost px-3.5 py-2 text-xs">Exportar CSV</button>
+            <button type="button" id="stitch-btn-nuevo-usuario" class="vs-btn-primary px-4 py-2 text-xs">Nuevo usuario</button>
           </div>
         </header>
 
@@ -101,8 +101,8 @@
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 20v-1.2A3.8 3.8 0 0 0 12.2 15H7.8A3.8 3.8 0 0 0 4 18.8V20"/><circle cx="10" cy="8" r="3"/></svg>
               </span>
             </div>
-            <p class="vs-kpi-value text-3xl text-vs-ink mt-3">24</p>
-            <p class="text-xs text-teal-700 font-semibold mt-1">100% activo · nómina habilitada</p>
+            <p class="vs-kpi-value text-3xl text-vs-ink mt-3" id="stitch-u-kpi-total">—</p>
+            <p class="text-xs text-teal-700 font-semibold mt-1" id="stitch-u-kpi-hint-total">Nómina del personal</p>
           </article>
           <article class="vs-card p-5">
             <div class="flex items-center justify-between gap-3">
@@ -111,8 +111,8 @@
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 6v12M8 10h8"/><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
               </span>
             </div>
-            <p class="vs-kpi-value text-3xl text-vs-ink mt-3">15</p>
-            <p class="text-xs text-vs-muted mt-1">62.5% · Pediatría, Cardio, Gineco</p>
+            <p class="vs-kpi-value text-3xl text-vs-ink mt-3" id="stitch-u-kpi-medicos">—</p>
+            <p class="text-xs text-vs-muted mt-1" id="stitch-u-kpi-hint-medicos">Médicos clínicos</p>
           </article>
           <article class="vs-card p-5">
             <div class="flex items-center justify-between gap-3">
@@ -121,8 +121,8 @@
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
               </span>
             </div>
-            <p class="vs-kpi-value text-3xl text-vs-ink mt-3">6</p>
-            <p class="text-xs text-vs-muted mt-1">25% · Admisión y triaje</p>
+            <p class="vs-kpi-value text-3xl text-vs-ink mt-3" id="stitch-u-kpi-recep">—</p>
+            <p class="text-xs text-vs-muted mt-1" id="stitch-u-kpi-hint-recep">Admisión y citas</p>
           </article>
           <article class="vs-card p-5">
             <div class="flex items-center justify-between gap-3">
@@ -131,8 +131,8 @@
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 7 7 9 4-2 7-4.5 7-9V6z"/></svg>
               </span>
             </div>
-            <p class="vs-kpi-value text-3xl text-vs-ink mt-3">3</p>
-            <p class="text-xs text-amber-700 font-semibold mt-1">Supervisión · TI y seguridad</p>
+            <p class="vs-kpi-value text-3xl text-vs-ink mt-3" id="stitch-u-kpi-admin">—</p>
+            <p class="text-xs text-amber-700 font-semibold mt-1">Supervisión y control</p>
           </article>
         </div>
 
@@ -140,25 +140,25 @@
         <div class="vs-card p-5">
           <div class="flex items-center gap-2 mb-3 text-slate-700 font-semibold text-xs tracking-wide">
             <span class="material-symbols-outlined text-vs-moss text-lg">filter_alt</span>
-            <span>Filtros de búsqueda (/)</span>
+            <span>Filtros de búsqueda</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
             <!-- Buscar CI / Nombre -->
             <div class="lg:col-span-5 relative">
               <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
-              <input type="text" placeholder="Buscar por C.I., nombre o correo institucional..." 
+              <input type="text" id="stitch-u-buscar" placeholder="Buscar por C.I., nombre o correo institucional..." 
                 class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-vs-moss/30 focus:border-vs-moss transition">
             </div>
 
             <!-- Select Rol -->
             <div class="lg:col-span-3">
               <div class="relative">
-                <select class="w-full appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-vs-moss/30 focus:border-vs-moss transition">
-                  <option value="">Todos los roles (Médico, Recep., Admin)</option>
+                <select id="stitch-u-rol" class="w-full appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-vs-moss/30 focus:border-vs-moss transition">
+                  <option value="">Todos los roles</option>
                   <option value="medico">Médico Clínico</option>
                   <option value="recepcionista">Recepcionista</option>
-                  <option value="admin">Administrador del Sistema</option>
+                  <option value="administrador">Administrador del Sistema</option>
                 </select>
                 <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none">expand_more</span>
               </div>
@@ -167,11 +167,11 @@
             <!-- Select Estado -->
             <div class="lg:col-span-2">
               <div class="relative">
-                <select class="w-full appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-vs-moss/30 focus:border-vs-moss transition">
+                <select id="stitch-u-estado" class="w-full appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-vs-moss/30 focus:border-vs-moss transition">
                   <option value="">Todos los estados</option>
-                  <option value="activo">Activo</option>
-                  <option value="inactivo">Inactivo</option>
-                  <option value="bloqueado">Bloqueado</option>
+                  <option value="ACTIVO">Activo</option>
+                  <option value="INACTIVO">Inactivo</option>
+                  <option value="BLOQUEADO">Bloqueado</option>
                 </select>
                 <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none">expand_more</span>
               </div>
@@ -179,11 +179,11 @@
 
             <!-- Buttons: Filtrar & Limpiar -->
             <div class="lg:col-span-2 flex items-center gap-2">
-              <button class="flex-1 py-2.5 px-3 bg-vs-moss hover:bg-vs-forest text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition">
+              <button type="button" id="stitch-u-btn-filtrar" class="flex-1 py-2.5 px-3 bg-vs-moss hover:bg-vs-forest text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition">
                 <span class="material-symbols-outlined text-sm">tune</span>
                 <span>Filtrar</span>
               </button>
-              <button title="Limpiar filtros" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium rounded-xl flex items-center justify-center transition">
+              <button type="button" id="stitch-u-btn-limpiar" title="Limpiar filtros" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium rounded-xl flex items-center justify-center transition">
                 <span class="material-symbols-outlined text-sm">restart_alt</span>
               </button>
             </div>
@@ -221,295 +221,12 @@
                     <th scope="col" class="py-3.5 px-4 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                  
-                  <!-- Row 1: Fernando Quiroga -->
-                  <tr class="hover:bg-slate-50/60 transition-colors group">
-                    <td class="py-3.5 px-4 font-mono font-medium text-slate-700">4920147 LP</td>
-                    <td class="py-3.5 px-4">
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-teal-100/80 text-vs-forest font-bold text-[10px] flex items-center justify-center">
-                          FQ
-                        </div>
-                        <div>
-                          <div class="font-bold text-slate-900">Dr. Fernando Quiroga Morales</div>
-                          <div class="text-[10px] text-vs-forest">Cardiología · Consultorio 204</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden md:table-cell">f.quiroga@vidasalud.bo</td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden sm:table-cell">+591 71523489</td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50/70 text-vs-forest border border-teal-200">
-                        <span class="material-symbols-outlined text-xs">medical_services</span> Médico
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-50 text-teal-700 border border-teal-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> Activo
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-right">
-                      <div class="inline-flex items-center gap-1">
-                        <button title="Editar usuario" class="p-1.5 text-slate-400 hover:text-vs-moss hover:bg-teal-50/60 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                        <button title="Cambiar rol" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">admin_panel_settings</span>
-                        </button>
-                        <button title="Inactivar cuenta" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">block</span>
-                        </button>
-                      </div>
+                <tbody class="divide-y divide-slate-100" id="stitch-usuarios-tbody">
+                  <tr>
+                    <td colspan="7" class="py-8 text-center text-slate-400">
+                      Cargando personal institucional desde la base de datos...
                     </td>
                   </tr>
-
-                  <!-- Row 2: Claudia Paredes -->
-                  <tr class="hover:bg-slate-50/60 transition-colors group">
-                    <td class="py-3.5 px-4 font-mono font-medium text-slate-700">3819204 LP</td>
-                    <td class="py-3.5 px-4">
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-teal-100/80 text-vs-forest font-bold text-[10px] flex items-center justify-center">
-                          CP
-                        </div>
-                        <div>
-                          <div class="font-bold text-slate-900">Dra. Claudia Paredes Guzmán</div>
-                          <div class="text-[10px] text-vs-forest">Pediatría · Consultorio 102</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden md:table-cell">c.paredes@vidasalud.bo</td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden sm:table-cell">+591 72091823</td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50/70 text-vs-forest border border-teal-200">
-                        <span class="material-symbols-outlined text-xs">medical_services</span> Médico
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-50 text-teal-700 border border-teal-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> Activo
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-right">
-                      <div class="inline-flex items-center gap-1">
-                        <button title="Editar usuario" class="p-1.5 text-slate-400 hover:text-vs-moss hover:bg-teal-50/60 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                        <button title="Cambiar rol" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">admin_panel_settings</span>
-                        </button>
-                        <button title="Inactivar cuenta" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">block</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- Row 3: Mariana Siles -->
-                  <tr class="hover:bg-slate-50/60 transition-colors group">
-                    <td class="py-3.5 px-4 font-mono font-medium text-slate-700">6834190 SC</td>
-                    <td class="py-3.5 px-4">
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-teal-100/80 text-vs-forest font-bold text-[10px] flex items-center justify-center">
-                          MS
-                        </div>
-                        <div>
-                          <div class="font-bold text-slate-900">Lic. Mariana Siles Rojas</div>
-                          <div class="text-[10px] text-slate-500">Recepción Central · Turno Mañana</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden md:table-cell">m.siles@vidasalud.bo</td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden sm:table-cell">+591 76543210</td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50/70 text-teal-800 border border-teal-200">
-                        <span class="material-symbols-outlined text-xs">badge</span> Recepcionista
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-50 text-teal-700 border border-teal-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> Activo
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-right">
-                      <div class="inline-flex items-center gap-1">
-                        <button title="Editar usuario" class="p-1.5 text-slate-400 hover:text-vs-moss hover:bg-teal-50/60 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                        <button title="Cambiar rol" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">admin_panel_settings</span>
-                        </button>
-                        <button title="Inactivar cuenta" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">block</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- Row 4: Javier Justiniano -->
-                  <tr class="hover:bg-slate-50/60 transition-colors group">
-                    <td class="py-3.5 px-4 font-mono font-medium text-slate-700">5192843 LP</td>
-                    <td class="py-3.5 px-4">
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-teal-100/80 text-vs-forest font-bold text-[10px] flex items-center justify-center">
-                          JJ
-                        </div>
-                        <div>
-                          <div class="font-bold text-slate-900">Dr. Javier Justiniano Arze</div>
-                          <div class="text-[10px] text-vs-forest">Traumatología · Consultorio 305</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden md:table-cell">j.justiniano@vidasalud.bo</td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden sm:table-cell">+591 73019284</td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50/70 text-vs-forest border border-teal-200">
-                        <span class="material-symbols-outlined text-xs">medical_services</span> Médico
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Bloqueado
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-right">
-                      <div class="inline-flex items-center gap-1">
-                        <button title="Editar usuario" class="p-1.5 text-slate-400 hover:text-vs-moss hover:bg-teal-50/60 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                        <button title="Desbloquear / Reestablecer" class="p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">lock_open</span>
-                        </button>
-                        <button title="Inactivar cuenta" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">block</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- Row 5: Paola Quispe -->
-                  <tr class="hover:bg-slate-50/60 transition-colors group">
-                    <td class="py-3.5 px-4 font-mono font-medium text-slate-700">4792104 CBBA</td>
-                    <td class="py-3.5 px-4">
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-teal-100/80 text-vs-forest font-bold text-[10px] flex items-center justify-center">
-                          PQ
-                        </div>
-                        <div>
-                          <div class="font-bold text-slate-900">Lic. Paola Quispe Condori</div>
-                          <div class="text-[10px] text-slate-500">Recepción · Admisión Urgencias</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden md:table-cell">p.quispe@vidasalud.bo</td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden sm:table-cell">+591 70129485</td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50/70 text-teal-800 border border-teal-200">
-                        <span class="material-symbols-outlined text-xs">badge</span> Recepcionista
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-50 text-teal-700 border border-teal-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> Activo
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-right">
-                      <div class="inline-flex items-center gap-1">
-                        <button title="Editar usuario" class="p-1.5 text-slate-400 hover:text-vs-moss hover:bg-teal-50/60 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                        <button title="Cambiar rol" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">admin_panel_settings</span>
-                        </button>
-                        <button title="Inactivar cuenta" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">block</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- Row 6: Dr. Roberto Méndez -->
-                  <tr class="hover:bg-slate-50/60 transition-colors group">
-                    <td class="py-3.5 px-4 font-mono font-medium text-slate-700">3349102 LP</td>
-                    <td class="py-3.5 px-4">
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-teal-100/80 text-vs-forest font-bold text-[10px] flex items-center justify-center">
-                          RM
-                        </div>
-                        <div>
-                          <div class="font-bold text-slate-900">Dr. Roberto Méndez Arce</div>
-                          <div class="text-[10px] text-vs-forest">Medicina General · Consultorio 104</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden md:table-cell">r.mendez@vidasalud.bo</td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden sm:table-cell">+591 71209384</td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50/70 text-vs-forest border border-teal-200">
-                        <span class="material-symbols-outlined text-xs">medical_services</span> Médico
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Inactivo
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-right">
-                      <div class="inline-flex items-center gap-1">
-                        <button title="Editar usuario" class="p-1.5 text-slate-400 hover:text-vs-moss hover:bg-teal-50/60 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                        <button title="Reactivar usuario" class="p-1.5 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">check_circle</span>
-                        </button>
-                        <button title="Eliminar definitivamente" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">delete</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- Row 7: Lic. Carla Villegas -->
-                  <tr class="hover:bg-slate-50/60 transition-colors group">
-                    <td class="py-3.5 px-4 font-mono font-medium text-slate-700">6019342 OR</td>
-                    <td class="py-3.5 px-4">
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-teal-100/80 text-vs-forest font-bold text-[10px] flex items-center justify-center">
-                          CV
-                        </div>
-                        <div>
-                          <div class="font-bold text-slate-900">Lic. Carla Villegas Flores</div>
-                          <div class="text-[10px] text-slate-500">Administración TI · Seguridad</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden md:table-cell">c.villegas@vidasalud.bo</td>
-                    <td class="py-3.5 px-4 text-slate-600 hidden sm:table-cell">+591 79182341</td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                        <span class="material-symbols-outlined text-xs">admin_panel_settings</span> Administrador
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4">
-                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-50 text-teal-700 border border-teal-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> Activo
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-right">
-                      <div class="inline-flex items-center gap-1">
-                        <button title="Editar usuario" class="p-1.5 text-slate-400 hover:text-vs-moss hover:bg-teal-50/60 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                        <button title="Cambiar rol" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">admin_panel_settings</span>
-                        </button>
-                        <button title="Inactivar cuenta" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
-                          <span class="material-symbols-outlined text-base">block</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-
                 </tbody>
               </table>
             </div>
@@ -544,58 +261,9 @@
                   <span class="material-symbols-outlined text-vs-moss text-lg">person_pin</span>
                   <h3 class="text-sm font-bold text-slate-900">Usuarios recientes</h3>
                 </div>
-                <span class="text-[10px] font-bold text-vs-forest bg-teal-50/70 px-2 py-0.5 rounded-full border border-teal-200">/</span>
-              </div>
-
-              <!-- List with initials avatar style -->
-              <div class="mt-4 space-y-3.5">
-                <!-- Item 1 -->
-                <div class="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition">
-                  <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center shrink-0">
-                    FQ
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold text-slate-900 truncate">Dr. Fernando Quiroga</p>
-                    <p class="text-[11px] text-vs-forest">Cardiología · Creado hace 12 min</p>
-                    <span class="inline-block mt-1 text-[10px] bg-teal-50 text-teal-700 border border-teal-200 px-1.5 py-0.2 rounded font-medium">Alta exitosa</span>
-                  </div>
-                </div>
-
-                <!-- Item 2 -->
-                <div class="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition">
-                  <div class="w-8 h-8 rounded-full bg-teal-100/80 text-vs-forest font-bold text-xs flex items-center justify-center shrink-0">
-                    CP
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold text-slate-900 truncate">Dra. Claudia Paredes</p>
-                    <p class="text-[11px] text-slate-500">Clave forzada generada</p>
-                    <span class="inline-block mt-1 text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded font-medium">Reset</span>
-                  </div>
-                </div>
-
-                <!-- Item 3 -->
-                <div class="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition">
-                  <div class="w-8 h-8 rounded-full bg-teal-100/80 text-teal-800 font-bold text-xs flex items-center justify-center shrink-0">
-                    MS
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold text-slate-900 truncate">Lic. Mariana Siles</p>
-                    <p class="text-[11px] text-slate-500">Recepción · Turno asignado</p>
-                    <span class="inline-block mt-1 text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-medium">Actualizado</span>
-                  </div>
-                </div>
-
-                <!-- Item 4 -->
-                <div class="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition">
-                  <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-800 font-bold text-xs flex items-center justify-center shrink-0">
-                    JJ
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold text-slate-900 truncate">Dr. Javier Justiniano</p>
-                    <p class="text-[11px] text-rose-600">3 intentos fallidos de clave</p>
-                    <span class="inline-block mt-1 text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-1.5 py-0.2 rounded font-medium">Bloqueado temporal</span>
-                  </div>
-                </div>
+                <span class="text-[10px] font-bold text-vs-forest bg-teal-50/70 px-2 py-0.5 rounded-full border bo              <!-- List with initials avatar style -->
+              <div class="mt-4 space-y-3.5" id="stitch-recent-users">
+                <p class="text-xs text-slate-400 text-center py-4">Cargando actividad reciente...</p>
               </div>
             </div>
 
@@ -607,40 +275,14 @@
               </div>
 
               <div class="mt-4 space-y-2.5">
-                <a href="#" class="flex items-center justify-between p-3 rounded-xl border border-slate-200/80 hover:border-teal-300 hover:bg-teal-50/60/40 transition group">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-teal-50/70 text-vs-moss flex items-center justify-center group-hover:scale-105 transition">
-                      <span class="material-symbols-outlined text-base">vpn_key</span>
-                    </div>
-                    <div>
-                      <p class="text-xs font-bold text-slate-800">Restablecer contraseña</p>
-                      <p class="text-[10px] text-slate-500">Enviar clave temporal</p>
-                    </div>
-                  </div>
-                  <span class="material-symbols-outlined text-slate-400 group-hover:text-vs-moss text-sm">chevron_right</span>
-                </a>
-
-                <a href="#" class="flex items-center justify-between p-3 rounded-xl border border-slate-200/80 hover:border-teal-300 hover:bg-teal-50/60/40 transition group">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-teal-50/70 text-vs-moss flex items-center justify-center group-hover:scale-105 transition">
-                      <span class="material-symbols-outlined text-base">manage_accounts</span>
-                    </div>
-                    <div>
-                      <p class="text-xs font-bold text-slate-800">Asignar roles y permisos</p>
-                      <p class="text-[10px] text-slate-500">Matriz de privilegios</p>
-                    </div>
-                  </div>
-                  <span class="material-symbols-outlined text-slate-400 group-hover:text-vs-moss text-sm">chevron_right</span>
-                </a>
-
-                <a href="#" class="flex items-center justify-between p-3 rounded-xl border border-slate-200/80 hover:border-teal-300 hover:bg-teal-50/60/40 transition group">
+                <a href="bitacora-auditoria-stitch.html" class="flex items-center justify-between p-3 rounded-xl border border-slate-200/80 hover:border-teal-300 hover:bg-teal-50/60/40 transition group">
                   <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-teal-50/70 text-vs-moss flex items-center justify-center group-hover:scale-105 transition">
                       <span class="material-symbols-outlined text-base">history_edu</span>
                     </div>
                     <div>
-                      <p class="text-xs font-bold text-slate-800">Ver logs de auditoría</p>
-                      <p class="text-[10px] text-slate-500">Trazabilidad de cambios</p>
+                      <p class="text-xs font-bold text-slate-800">Ver bitácora en vivo</p>
+                      <p class="text-[10px] text-slate-500">Trazabilidad de cambios y acciones</p>
                     </div>
                   </div>
                   <span class="material-symbols-outlined text-slate-400 group-hover:text-vs-moss text-sm">chevron_right</span>
@@ -657,13 +299,76 @@
 
   </div>
 
-  <script src="../js/vida-salud-api.js"></script>
-</body>
+  <!-- Modal Crear Usuario -->
+  <div id="modal-nuevo-usuario" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-teal-50 text-vs-forest inline-flex items-center justify-center font-bold">
+            <span class="material-symbols-outlined text-lg">person_add</span>
+          </span>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Registrar nuevo usuario</h3>
+            <p class="text-[11px] text-slate-500">Se almacenará en PostgreSQL y se registrará en bitácora.</p>
+          </div>
+        </div>
+        <button type="button" id="btn-cerrar-modal-user" class="text-slate-400 hover:text-slate-600 text-lg p-1">✕</button>
+      </div>
 
+      <form id="form-crear-usuario-stitch" class="mt-4 space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">C.I. *</label>
+            <input type="text" name="ci" required placeholder="7668799" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-vs-moss/20 focus:border-vs-moss">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Teléfono</label>
+            <input type="text" name="telefono" placeholder="78901234" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-vs-moss/20 focus:border-vs-moss">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombres *</label>
+            <input type="text" name="nombres" required placeholder="Andrés" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-vs-moss/20 focus:border-vs-moss">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Apellidos *</label>
+            <input type="text" name="apellidos" required placeholder="Paz Méndez" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-vs-moss/20 focus:border-vs-moss">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Correo institucional *</label>
+          <input type="email" name="email" required placeholder="apaz@vidasalud.com.bo" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-vs-moss/20 focus:border-vs-moss">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Rol en el sistema *</label>
+            <select name="id_rol" required class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-vs-moss/20 focus:border-vs-moss">
+              <option value="2">Recepcionista</option>
+              <option value="1">Administrador</option>
+              <option value="3">Médico</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Contraseña *</label>
+            <input type="password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-vs-moss/20 focus:border-vs-moss">
+          </div>
+        </div>
+
+        <div id="modal-user-error" class="text-xs text-rose-600 bg-rose-50 border border-rose-200 p-2 rounded-lg hidden"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" id="btn-cancelar-modal-user" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+          <button type="submit" id="btn-submit-modal-user" class="px-4 py-2 text-xs font-semibold text-white bg-vs-moss hover:bg-vs-forest rounded-lg shadow-sm">Guardar usuario</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="../js/vida-salud-app-shell.js"></script>
   <script src="../js/vida-salud-api.js"></script>
 </body>
 </html>
-

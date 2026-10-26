@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
@@ -52,24 +52,17 @@
         <section class="vs-split">
           <article class="vs-card">
             <div class="vs-card__head">
-              <div><h3 class="vs-card__title">Especialidades registradas</h3><p class="vs-card__sub">Tabla <span class="vs-code">especialidad</span> · nombre único</p></div>
-              <div class="vs-input-icon" style="max-width:15rem"><svg class="vs-i"><use href="#i-search"/></svg><input class="vs-input" type="search" placeholder="Buscar especialidad"></div>
+              <div><h3 class="vs-card__title">Especialidades registradas</h3><p class="vs-card__sub">Tabla <span class="vs-code">especialidad</span> · Base de Datos PostgreSQL</p></div>
+              <div class="vs-input-icon" style="max-width:15rem"><svg class="vs-i"><use href="#i-search"/></svg><input id="filtro-esp-buscar" class="vs-input" type="search" placeholder="Buscar especialidad"></div>
             </div>
             <div class="vs-table-wrap">
               <table class="vs-table">
                 <thead><tr><th>#</th><th>Especialidad</th><th class="vs-hide-md">Descripción</th><th>Médicos</th><th>Estado</th><th class="vs-td-actions">Acciones</th></tr></thead>
-                <tbody>
-                  <tr><td class="vs-td-num">1</td><td><strong class="vs-strong">Medicina General</strong></td><td class="vs-hide-md vs-muted">Atención primaria y consulta general</td><td><span class="vs-badge vs-badge--info">4</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
-                  <tr><td class="vs-td-num">2</td><td><strong class="vs-strong">Pediatría</strong></td><td class="vs-hide-md vs-muted">Atención de niños y adolescentes</td><td><span class="vs-badge vs-badge--info">2</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
-                  <tr><td class="vs-td-num">3</td><td><strong class="vs-strong">Ginecología</strong></td><td class="vs-hide-md vs-muted">Salud de la mujer y control prenatal</td><td><span class="vs-badge vs-badge--info">1</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
-                  <tr><td class="vs-td-num">4</td><td><strong class="vs-strong">Odontología</strong></td><td class="vs-hide-md vs-muted">Salud bucal y tratamientos dentales</td><td><span class="vs-badge vs-badge--info">1</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
-                  <tr><td class="vs-td-num">5</td><td><strong class="vs-strong">Cardiología</strong></td><td class="vs-hide-md vs-muted">Diagnóstico y control de enfermedades del corazón</td><td><span class="vs-badge vs-badge--info">1</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
-                  <tr><td class="vs-td-num">6</td><td><strong class="vs-strong">Traumatología</strong></td><td class="vs-hide-md vs-muted">Lesiones del sistema músculo-esquelético</td><td><span class="vs-badge vs-badge--info">1</span> <span class="vs-xs vs-muted">(+1 inactivo)</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
-                  <tr><td class="vs-td-num">7</td><td><strong class="vs-strong">Dermatología</strong></td><td class="vs-hide-md vs-muted">Enfermedades de la piel, pelo y uñas</td><td><span class="vs-badge vs-badge--info">1</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                <tbody id="vs-especialidades-tbody">
                 </tbody>
               </table>
             </div>
-            <div class="vs-card__foot"><span>7 especialidades · 0 inactivas</span><span class="vs-xs">Una especialidad con médicos activos no puede inactivarse</span></div>
+            <div class="vs-card__foot"><span id="vs-especialidades-total">Cargando especialidades...</span><span class="vs-xs">Una especialidad con médicos activos no puede inactivarse</span></div>
           </article>
 
           <aside class="vs-stack">
@@ -93,7 +86,7 @@
   </div>
 
   <dialog id="dlg-nueva" class="vs-modal">
-    <form data-demo="Especialidad creada" data-demo-sub="Nutrición ya puede asignarse a médicos" novalidate>
+    <form id="form-nueva-especialidad" data-api-bound="true" novalidate>
       <div class="vs-modal__head">
         <span class="vs-modal__icon"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span>
         <div><h2 class="vs-modal__title">Nueva especialidad</h2><p class="vs-modal__text">Define el nombre y una descripción breve visible para recepción.</p></div>

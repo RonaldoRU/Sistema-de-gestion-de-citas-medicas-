@@ -19,6 +19,14 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'service' => 'Clinica Vida Salud API',
+        'timestamp' => now()->toIso8601String()
+    ]);
+});
+
 // =========================================================================
 // PAQUETE P1 Y P2: SEGURIDAD Y AUTENTICACIÓN (CU01–CU04)
 // =========================================================================

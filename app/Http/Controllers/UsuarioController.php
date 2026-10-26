@@ -166,10 +166,10 @@ class UsuarioController extends Controller
             // CU05 Paso 5: Auditar el evento en la bitácora (CU10)
             AuditoriaService::registrar(
                 'P2_RBAC',
-                'CREAR',
+                'REGISTRAR',
                 'usuario',
                 $usuario->id_usuario,
-                "Se creó el usuario [{$usuario->nombre_usuario}] con CI [{$persona->ci}], correo [{$persona->email}] y rol [{$usuario->rol?->nombre}]."
+                "Registro de usuario [{$usuario->nombre_usuario}] con CI [{$persona->ci}], correo [{$persona->email}] y rol [{$usuario->rol?->nombre}]."
             );
 
             return response()->json([
@@ -381,10 +381,10 @@ class UsuarioController extends Controller
         // CU09 Paso 5: Auditar la acción en la bitácora (CU10)
         AuditoriaService::registrar(
             'P2_RBAC',
-            'SUSPENDER',
+            'INACTIVAR',
             'usuario',
             $usuario->id_usuario,
-            "Cuenta del usuario [{$usuario->nombre_usuario}] dada de baja lógica (estado = INACTIVO). Sesiones revocadas."
+            "Inactivación de cuenta: Usuario [{$usuario->nombre_usuario}] dado de baja lógica (estado = INACTIVO). Sesiones revocadas."
         );
 
         return response()->json([
@@ -419,10 +419,10 @@ class UsuarioController extends Controller
 
         AuditoriaService::registrar(
             'P2_RBAC',
-            'REACTIVAR',
+            'RENOVAR',
             'usuario',
             $usuario->id_usuario,
-            "Cuenta del usuario [{$usuario->nombre_usuario}] reactivada a estado ACTIVO."
+            "Renovación de cuenta: Usuario [{$usuario->nombre_usuario}] renovado y reactivado a estado ACTIVO."
         );
 
         return response()->json([

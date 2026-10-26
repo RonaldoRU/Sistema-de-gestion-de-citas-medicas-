@@ -4,11 +4,11 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect('/Frontend/stitch/html/inicio.html');
+    return redirect('/Frontend/stitch/html/P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
 })->name('home');
 
 Route::get('/inicio', function () {
-    return redirect('/Frontend/stitch/html/inicio.html');
+    return redirect('/Frontend/stitch/html/P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
 })->name('inicio');
 
 // Rutas Web de Autenticación
