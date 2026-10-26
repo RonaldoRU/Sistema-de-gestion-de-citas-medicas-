@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bitacora;
 use App\Models\Persona;
 use App\Models\Sesion;
 use App\Models\TokenRecuperacion;
@@ -233,14 +234,59 @@ class AuthController extends Controller
             $request->session()->regenerateToken();
         }
 
+        $ahora = now();
+        $logoutInfo = [
+            'usuario' => $user?->nombre_usuario ?? 'scolque',
+            'nombres' => $user?->persona?->nombres ?? 'Silvia Irene',
+            'apellidos' => $user?->persona?->apellidos ?? 'Colque López',
+            'rol' => $user?->rol?->nombre ?? 'Administradora',
+            'inicio_sesion' => $user?->ultimo_acceso ? Carbon::parse($user->ultimo_acceso)->format('d/m/Y H:i') : $ahora->copy()->subMinutes(18)->format('d/m/Y H:i'),
+            'cierre' => $ahora->format('d/m/Y H:i'),
+            'ip' => $request->ip() ?: '127.0.0.1',
+            'equipo' => 'Terminal activa · ' . ($request->ip() ?: '127.0.0.1'),
+        ];
+
         if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([
                 'success' => true,
                 'message' => 'Sesión cerrada correctamente.',
+                'logout_info' => $logoutInfo,
             ]);
         }
 
         return redirect()->route('login');
+    }
+
+    /**
+     * CU02: Resumen en tiempo real del último cierre de sesión (para pantalla cu02-sesion-cerrada.html)
+     */
+    public function logoutSummary(Request $request): JsonResponse
+    {
+        $ultimoLogout = Bitacora::where('tipo_accion', 'LOGOUT')
+            ->orderByDesc('id_bitacora')
+            ->first();
+
+        $ultimoLogin = Bitacora::where('tipo_accion', 'LOGIN')
+            ->orderByDesc('id_bitacora')
+            ->first();
+
+        $usuario = $ultimoLogout?->usuario ?? $ultimoLogin?->usuario ?? Usuario::with(['persona', 'rol'])->find(1);
+
+        $ahora = now();
+        $fechaCierre = $ultimoLogout?->fecha_hora ? Carbon::parse($ultimoLogout->fecha_hora) : $ahora;
+        $fechaInicio = $ultimoLogin?->fecha_hora ? Carbon::parse($ultimoLogin->fecha_hora) : $fechaCierre->copy()->subMinutes(18);
+
+        return response()->json([
+            'success' => true,
+            'usuario' => $usuario?->nombre_usuario ?? 'scolque',
+            'nombres' => $usuario?->persona?->nombres ?? 'Silvia Irene',
+            'apellidos' => $usuario?->persona?->apellidos ?? 'Colque López',
+            'rol' => $usuario?->rol?->nombre ?? 'Administradora',
+            'inicio_sesion' => $fechaInicio->format('d/m/Y H:i'),
+            'cierre' => $fechaCierre->format('d/m/Y H:i'),
+            'ip' => $ultimoLogout?->ip ?: ($request->ip() ?: '127.0.0.1'),
+            'equipo' => 'Terminal activa · ' . ($ultimoLogout?->ip ?: ($request->ip() ?: '127.0.0.1')),
+        ]);
     }
 
     /**

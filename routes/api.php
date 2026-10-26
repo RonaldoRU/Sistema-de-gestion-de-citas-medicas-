@@ -38,10 +38,14 @@ Route::prefix('auth')->group(function () {
     Route::post('/recuperar-clave/solicitar', [AuthController::class, 'solicitarRecuperacion'])->name('api.auth.recuperar.solicitar');
     Route::post('/recuperar-clave/restablecer', [AuthController::class, 'restablecerContrasena'])->name('api.auth.recuperar.restablecer');
 
+    // CU02: Resumen en tiempo real del cierre de sesión
+    Route::get('/logout-summary', [AuthController::class, 'logoutSummary'])->name('api.auth.logout-summary');
+
+    // CU02: Cerrar Sesión y Revocar Sesión
+    Route::post('/logout', [AuthController::class, 'logout'])->name('api.auth.logout');
+
     // Rutas protegidas de sesión
     Route::middleware('auth')->group(function () {
-        // CU02: Cerrar Sesión y Revocar Sesión
-        Route::post('/logout', [AuthController::class, 'logout'])->name('api.auth.logout');
         Route::get('/me', [AuthController::class, 'me'])->name('api.auth.me');
     });
 });

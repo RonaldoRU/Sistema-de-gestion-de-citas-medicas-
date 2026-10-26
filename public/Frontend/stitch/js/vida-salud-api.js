@@ -535,7 +535,8 @@
         try {
           await VS_API.logout();
         } catch (err) {}
-        window.location.href = location.pathname.includes('/P') ? '../P1 Seguridad y Autenticación/cu02-sesion-cerrada.html' : 'P1 Seguridad y Autenticación/cu02-sesion-cerrada.html';
+        var targetUrl = location.pathname.includes('/P') ? '../P1 Seguridad y Autenticación/cu02-sesion-cerrada.html' : 'P1 Seguridad y Autenticación/cu02-sesion-cerrada.html';
+        window.location.href = targetUrl + '?t=' + Date.now();
       });
     });
 
