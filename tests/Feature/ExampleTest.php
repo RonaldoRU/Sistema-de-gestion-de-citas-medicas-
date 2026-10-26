@@ -2,17 +2,14 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_returns_a_successful_response()
+    public function test_returns_a_successful_response(): void
     {
         $response = $this->get(route('home'));
 
-        $response->assertRedirect('/Frontend/stitch/html/inicio.html');
+        $response->assertRedirect('/Frontend/stitch/html/P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
     }
 }

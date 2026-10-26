@@ -180,5 +180,24 @@ class DatabaseSeeder extends Seeder
             'duracion_bloque_min' => 30,
             'activo' => true,
         ]);
+
+        // Sincronizar secuencias de PostgreSQL para tablas con IDs explícitos
+        if (DB::getDriverName() === 'pgsql') {
+            $tables = [
+                'rol' => 'id_rol',
+                'permiso' => 'id_permiso',
+                'especialidad' => 'id_especialidad',
+                'persona' => 'id_persona',
+                'usuario' => 'id_usuario',
+                'horario' => 'id_horario',
+            ];
+            foreach ($tables as $tabla => $pk) {
+                try {
+                    DB::statement("SELECT setval(pg_get_serial_sequence('{$tabla}', '{$pk}'), COALESCE((SELECT MAX({$pk}) FROM {$tabla}), 1))");
+                } catch (\Throwable $e) {
+                    // Ignorar si la tabla o secuencia no existe
+                }
+            }
+        }
     }
 }

@@ -11,10 +11,18 @@ return new class extends Migration
     public function up(): void
     {
         if (DB::getDriverName() === 'pgsql') {
-            DB::statement("ALTER TYPE vida_salud.tipo_accion ADD VALUE IF NOT EXISTS 'INACTIVAR'");
-            DB::statement("ALTER TYPE vida_salud.tipo_accion ADD VALUE IF NOT EXISTS 'REGISTRAR'");
-            DB::statement("ALTER TYPE vida_salud.tipo_accion ADD VALUE IF NOT EXISTS 'RENOVAR'");
-            DB::statement("ALTER TYPE vida_salud.tipo_accion ADD VALUE IF NOT EXISTS 'REACTIVAR'");
+            $hasEnum = DB::select("SELECT 1 FROM pg_type WHERE typname = 'tipo_accion'");
+            if (!empty($hasEnum)) {
+                $schemaRow = DB::select("SELECT n.nspname FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace WHERE t.typname = 'tipo_accion' LIMIT 1");
+                $schema = !empty($schemaRow) ? $schemaRow[0]->nspname : 'public';
+                foreach (['INACTIVAR', 'REGISTRAR', 'RENOVAR', 'REACTIVAR'] as $val) {
+                    try {
+                        DB::statement("ALTER TYPE {$schema}.tipo_accion ADD VALUE IF NOT EXISTS '{$val}'");
+                    } catch (\Throwable $e) {
+                        // Ignorar si ya existe
+                    }
+                }
+            }
         }
     }
 
