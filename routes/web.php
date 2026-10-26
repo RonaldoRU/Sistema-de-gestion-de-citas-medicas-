@@ -4,10 +4,6 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $path = base_path('Frontend/stitch/html/inicio.html');
-    if (file_exists($path)) {
-        return response()->file($path, ['Content-Type' => 'text/html; charset=UTF-8']);
-    }
     return redirect('/Frontend/stitch/html/inicio.html');
 })->name('home');
 
