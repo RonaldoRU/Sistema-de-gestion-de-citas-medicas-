@@ -1,0 +1,73 @@
+services:
+  # Servidor Web Nginx
+  web:
+    image: nginx:alpine
+    container_name: vidasalud-web
+    restart: unless-stopped
+    ports:
+      - "8002:80"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - vidasalud-net
+
+  # Aplicación Laravel (PHP 8.3 FPM con extensiones PostgreSQL e Intl)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vidasalud-app:latest
+    container_name: vidasalud-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8002
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: Clinica_Vida_Salud
+      DB_USERNAME: postgres
+      DB_PASSWORD: belen0506
+      DB_SCHEMA: vida_salud,public
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - vidasalud-net
+
+  # Base de Datos PostgreSQL 16 con carga automática de esquema y datos
+  db:
+    image: postgres:16-alpine
+    container_name: vidasalud-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: Clinica_Vida_Salud
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: belen0506
+    ports:
+      - "5432:5432"
+    volumes:
+      - vidasalud-pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d Clinica_Vida_Salud"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    networks:
+      - vidasalud-net
+
+networks:
+  vidasalud-net:
+    driver: bridge
+
+volumes:
+  vidasalud-pgdata:
+    driver: local

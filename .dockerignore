@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+npm-debug.log
+yarn-error.log
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*.php
+docker/postgres/data
