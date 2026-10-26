@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthenticateWithTokenOrSession;
 use App\Http\Middleware\CheckRol;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'rol' => CheckRol::class,
+        ]);
+
+        $middleware->api(prepend: [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            AuthenticateWithTokenOrSession::class,
         ]);
 
         $middleware->web(append: [

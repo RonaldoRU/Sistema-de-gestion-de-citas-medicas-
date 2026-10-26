@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roles y permisos (RBAC) · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+  <style>
+    .vs-role-admin { border-top: 3px solid var(--vs-amber-700, #b45309); }
+    .vs-role-recep { border-top: 3px solid var(--vs-clay); }
+    .vs-matrix td.vs-m-cell, .vs-matrix thead th.vs-m-cell { text-align: center; }
+    .vs-matrix thead th.vs-m-cell { min-width: 8.25rem; }
+    .vs-matrix td:first-child { min-width: 15rem; }
+    .vs-perm { display: flex; flex-direction: column; gap: .12rem; }
+    .vs-perm__name { font-weight: 600; color: var(--vs-ink); }
+    .vs-perm__code { font-family: var(--vs-font-mono); font-size: .6875rem; color: var(--vs-muted); }
+    .vs-m-on, .vs-m-off { display: inline-flex; width: 1.5rem; height: 1.5rem; border-radius: 999px; align-items: center; justify-content: center; }
+    .vs-m-on { background: var(--vs-teal-50); color: var(--vs-moss-deep); border: 1px solid var(--vs-teal-200); }
+    .vs-m-off { color: var(--vs-line); }
+    .vs-matrix tr.vs-m-group td { background: var(--vs-soft); font-size: .6875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--vs-muted); padding-top: .55rem; padding-bottom: .55rem; }
+    .vs-arrow-mini { color: var(--vs-muted); }
+  </style>
+</head>
+<body class="vs-app" data-cu="CU08">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Roles y permisos</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P2 · Administración de Usuarios y Permisos</p>
+            <h2 class="vs-h1">Matriz de permisos y cambio de rol</h2>
+            <p class="vs-lead">Cada usuario tiene exactamente un rol; el rol agrupa los permisos que habilitan menús y rutas. Al cambiar el rol, los nuevos privilegios rigen en la próxima navegación.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU08</span><span class="vs-trace__actor">Administrador (Superusuario)</span></span>
+            <button type="button" class="vs-btn vs-btn--primary" data-open-dialog="dlg-rol"><svg class="vs-i"><use href="#i-shield"/></svg>Cambiar rol de un usuario</button>
+          </div>
+        </header>
+
+        <section class="vs-grid vs-grid--3">
+          <article class="vs-card vs-kpi vs-role-admin">
+            <div class="vs-kpi__top"><span class="vs-kpi__label">Administrador</span><span class="vs-badge vs-badge--warn">1 usuario</span></div>
+            <p class="vs-kpi__value">19 <span class="vs-small vs-muted" style="font-family:var(--vs-font-sans);font-weight:600">permisos</span></p>
+            <p class="vs-kpi__hint">Usuarios, roles, catálogos, bitácora y reportes</p>
+          </article>
+          <article class="vs-card vs-kpi vs-role-recep">
+            <div class="vs-kpi__top"><span class="vs-kpi__label">Recepcionista</span><span class="vs-badge vs-badge--info">4 usuarios</span></div>
+            <p class="vs-kpi__value">9 <span class="vs-small vs-muted" style="font-family:var(--vs-font-sans);font-weight:600">permisos</span></p>
+            <p class="vs-kpi__hint">Pacientes, disponibilidad y control de citas</p>
+          </article>
+          <article class="vs-card vs-kpi vs-card--teal">
+            <div class="vs-kpi__top"><span class="vs-kpi__label">Médico</span><span class="vs-badge vs-badge--ok">10 usuarios</span></div>
+            <p class="vs-kpi__value">6 <span class="vs-small vs-muted" style="font-family:var(--vs-font-sans);font-weight:600">permisos</span></p>
+            <p class="vs-kpi__hint">Agenda del día, ficha del paciente y atención</p>
+          </article>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head">
+            <div><h3 class="vs-card__title">Matriz de permisos por rol</h3><p class="vs-card__sub">19 permisos agrupados por paquete · cada usuario tiene un solo rol</p></div>
+            <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Matriz exportada" data-toast-sub="permisos_por_rol.csv"><svg class="vs-i"><use href="#i-download"/></svg>CSV</button>
+          </div>
+          <div class="vs-table-wrap">
+            <table class="vs-table vs-table--compact vs-matrix">
+              <thead>
+                <tr>
+                  <th>Permiso</th>
+                  <th class="vs-m-cell"><span class="vs-badge vs-badge--warn">Administrador</span></th>
+                  <th class="vs-m-cell"><span class="vs-badge vs-badge--info">Recepcionista</span></th>
+                  <th class="vs-m-cell"><span class="vs-badge vs-badge--ok">Médico</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="vs-m-group"><td colspan="4">P1 · Seguridad y Autenticación</td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Iniciar sesión</span><span class="vs-perm__code">iniciar_sesion</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Cambiar su contraseña</span><span class="vs-perm__code">cambiar_propia_contrasena</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td></tr>
+                <tr class="vs-m-group"><td colspan="4">P2 · Administración de Usuarios</td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Gestionar usuarios</span><span class="vs-perm__code">gestionar_usuarios</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Gestionar roles y permisos</span><span class="vs-perm__code">gestionar_roles_permisos</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr class="vs-m-group"><td colspan="4">P3 · Auditoría y Bitácora</td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Consultar bitácora</span><span class="vs-perm__code">consultar_bitacora</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr class="vs-m-group"><td colspan="4">P4 · Gestión de Pacientes</td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Gestionar pacientes</span><span class="vs-perm__code">gestionar_pacientes</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Información médica</span><span class="vs-perm__code">gestionar_info_medica</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Historial del paciente</span><span class="vs-perm__code">consultar_historial_paciente</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td></tr>
+                <tr class="vs-m-group"><td colspan="4">P5 · Gestión Médica y Horarios</td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Especialidades</span><span class="vs-perm__code">gestionar_especialidades</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Personal médico</span><span class="vs-perm__code">gestionar_medicos</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Horarios y bloques</span><span class="vs-perm__code">configurar_horarios</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Bloquear agenda</span><span class="vs-perm__code">bloquear_agenda</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr class="vs-m-group"><td colspan="4">P6 · Gestión de Citas</td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Consultar disponibilidad</span><span class="vs-perm__code">consultar_disponibilidad</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Programar y gestionar citas</span><span class="vs-perm__code">gestionar_citas</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Controlar asistencia</span><span class="vs-perm__code">controlar_asistencia</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Agenda diaria</span><span class="vs-perm__code">consultar_agenda_diaria</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Marcar atendida</span><span class="vs-perm__code">marcar_atendida</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td></tr>
+                <tr class="vs-m-group"><td colspan="4">P7 · Reportes</td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Generar reportes</span><span class="vs-perm__code">generar_reportes</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+                <tr><td><span class="vs-perm"><span class="vs-perm__name">Exportar PDF y CSV</span><span class="vs-perm__code">exportar_reportes</span></span></td><td class="vs-m-cell"><span class="vs-m-on" aria-label="Permitido"><svg class="vs-i vs-i--sm" aria-hidden="true"><use href="#i-check"/></svg></span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td><td class="vs-m-cell"><span class="vs-m-off" aria-label="Sin acceso">—</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vs-card__foot">
+            <span class="vs-row" style="gap:1.25rem">
+              <span class="vs-row" style="gap:.4rem"><span class="vs-m-on" aria-hidden="true"><svg class="vs-i vs-i--sm"><use href="#i-check"/></svg></span>Permitido</span>
+              <span class="vs-row" style="gap:.4rem"><span class="vs-m-off" aria-hidden="true">—</span>Sin acceso</span>
+            </span>
+            <span>Asignados el 01/08/2026</span>
+          </div>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head">
+            <div><h3 class="vs-card__title">Cambios de rol recientes</h3><p class="vs-card__sub">Quedan registrados en la bitácora</p></div>
+            <a href="../P3 Auditoría, Trazabilidad y Bitácora/cu11-bitacora.html" class="vs-link">Ver bitácora</a>
+          </div>
+          <div class="vs-table-wrap">
+            <table class="vs-table vs-table--compact">
+              <thead><tr><th>Fecha</th><th>Cuenta</th><th>Cambio</th><th class="vs-hide-md">Motivo</th><th class="vs-hide-sm">Registró</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="vs-td-num">14/09/2026 10:21</td>
+                  <td><div class="vs-cell-person__name">Carla Suárez</div><div class="vs-cell-person__sub vs-mono">csuarez</div></td>
+                  <td><span class="vs-row vs-row--nowrap" style="gap:.4rem"><span class="vs-badge vs-badge--info">Recepcionista</span><svg class="vs-i vs-i--sm vs-arrow-mini" aria-hidden="true"><use href="#i-arrow-right"/></svg><span class="vs-badge vs-badge--info">Recepcionista</span></span></td>
+                  <td class="vs-hide-md">Cambio de turno, mismos permisos</td>
+                  <td class="vs-hide-sm vs-mono">scolque</td>
+                </tr>
+                <tr>
+                  <td class="vs-td-num">01/08/2026 08:45</td>
+                  <td><div class="vs-cell-person__name">Dr. Hugo Flores</div><div class="vs-cell-person__sub vs-mono">hflores</div></td>
+                  <td><span class="vs-row vs-row--nowrap" style="gap:.4rem"><span class="vs-badge vs-badge--muted">Alta</span><svg class="vs-i vs-i--sm vs-arrow-mini" aria-hidden="true"><use href="#i-arrow-right"/></svg><span class="vs-badge vs-badge--ok">Médico</span></span></td>
+                  <td class="vs-hide-md">Creado desde Personal médico</td>
+                  <td class="vs-hide-sm vs-mono">scolque</td>
+                </tr>
+                <tr>
+                  <td class="vs-td-num">01/08/2026 08:03</td>
+                  <td><div class="vs-cell-person__name">Silvia Colque</div><div class="vs-cell-person__sub vs-mono">scolque</div></td>
+                  <td><span class="vs-row vs-row--nowrap" style="gap:.4rem"><span class="vs-badge vs-badge--muted">Alta</span><svg class="vs-i vs-i--sm vs-arrow-mini" aria-hidden="true"><use href="#i-arrow-right"/></svg><span class="vs-badge vs-badge--warn">Administrador</span></span></td>
+                  <td class="vs-hide-md">Cuenta inicial del sistema</td>
+                  <td class="vs-hide-sm vs-mono">sistema</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-rol" class="vs-modal vs-modal--lg">
+    <form data-demo="Rol actualizado" data-demo-sub="El cambio quedó auditado en la bitácora como evento de seguridad" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon vs-modal__icon--warn"><svg class="vs-i"><use href="#i-shield"/></svg></span>
+        <div><h2 class="vs-modal__title">Cambiar rol operativo</h2><p class="vs-modal__text">Selecciona el usuario y el nuevo rol. Los menús y rutas habilitados cambiarán según la matriz de permisos.</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-field">
+          <label class="vs-label" for="r-usuario">Usuario</label>
+          <select id="r-usuario" class="vs-select" required>
+            <option value="">Selecciona un usuario…</option>
+            <option selected>Carla Andrea Suárez Roca — csuarez (Recepcionista)</option>
+            <option>Rosa María Vaca Cuéllar — rvaca (Recepcionista)</option>
+            <option>Jorge Luis Mendoza Paz — jmendoza (Recepcionista)</option>
+            <option>Daniela Justiniano Áñez — djustiniano (Recepcionista)</option>
+            <option>Dr. Juan Ronaldo Rojas Ugarte — jrojas (Médico)</option>
+          </select>
+        </div>
+        <div class="vs-row vs-row--between">
+          <span class="vs-small vs-muted">Rol actual: <span class="vs-badge vs-badge--info">Recepcionista</span></span>
+          <svg class="vs-i vs-muted"><use href="#i-arrow-right"/></svg>
+          <span class="vs-small vs-muted">Nuevo rol: <strong class="vs-strong" data-role-out>Administrador</strong></span>
+        </div>
+        <div class="vs-choice-grid vs-choice-grid--3">
+          <label class="vs-choice"><input type="radio" name="nuevo-rol" value="Administrador" data-role-preview checked><div><div class="vs-choice__title">Administrador</div><div class="vs-choice__desc">19 permisos · P1 a P7</div></div></label>
+          <label class="vs-choice"><input type="radio" name="nuevo-rol" value="Recepcionista" disabled><div><div class="vs-choice__title">Recepcionista</div><div class="vs-choice__desc">Rol actual</div></div></label>
+          <label class="vs-choice"><input type="radio" name="nuevo-rol" value="Médico" data-role-preview><div><div class="vs-choice__title">Médico</div><div class="vs-choice__desc">6 permisos · agenda y atención</div></div></label>
+        </div>
+        <div class="vs-alert vs-alert--warn"><svg class="vs-i"><use href="#i-alert"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Impacto</span>csuarez ganará acceso a usuarios, bitácora, catálogos y reportes. Confirma solo si corresponde a su función.</div></div>
+        <div class="vs-field"><label class="vs-label" for="r-motivo">Motivo del cambio <span class="vs-label__opt">se guarda en bitácora</span></label><input id="r-motivo" class="vs-input" type="text" placeholder="Ej. Cobertura de administración durante vacaciones" required></div>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+        <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Confirmar cambio de rol</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

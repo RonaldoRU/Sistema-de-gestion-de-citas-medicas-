@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agenda diaria del médico · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU30">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Agenda diaria</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
+            <h2 class="vs-h1">Agenda diaria del médico</h2>
+            <p class="vs-lead">Vista cronológica de las citas del día con el estado de cada una y acceso directo a la ficha del paciente. Es la pantalla de trabajo del médico durante el turno.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU30</span><span class="vs-trace__actor">Médico · Recepcionista</span></span>
+            <button type="button" class="vs-btn vs-btn--ghost" data-toast="Agenda enviada a impresión" data-toast-sub="agenda_MED-001_2026-10-26.pdf"><svg class="vs-i"><use href="#i-printer"/></svg>Imprimir</button>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight vs-row vs-row--between">
+            <div class="vs-row" style="gap:.85rem">
+              <span class="vs-avatar vs-avatar--lg vs-avatar--teal">JR</span>
+              <div>
+                <div class="vs-h3">Dr. Juan Ronaldo Rojas Ugarte</div>
+                <div class="vs-xs vs-muted"><span class="vs-mono">MED-001</span> · Medicina General · turno 08:00–12:00 · consultorio 3</div>
+              </div>
+            </div>
+            <form class="vs-row" onsubmit="event.preventDefault()">
+              <button type="button" class="vs-icon-btn" aria-label="Día anterior" data-toast="Agenda del viernes 23/10" data-toast-sub="8 citas · 7 atendidas · 1 inasistencia"><svg class="vs-i"><use href="#i-chevron-left"/></svg></button>
+              <input class="vs-input vs-input--mono" type="date" value="2026-10-26" aria-label="Fecha" style="width:11rem">
+              <button type="button" class="vs-icon-btn" aria-label="Día siguiente" data-toast="Agenda del miércoles 28/10" data-toast-sub="3 citas programadas · 5 bloques libres"><svg class="vs-i"><use href="#i-chevron-right"/></svg></button>
+              <span class="vs-badge vs-badge--info vs-badge--lg">Hoy · lunes 26 de octubre</span>
+            </form>
+          </div>
+        </section>
+
+        <section class="vs-grid vs-grid--4">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Citas del día</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-calendar"/></svg></span></div><p class="vs-kpi__value">6</p><p class="vs-kpi__hint">de 8 bloques · 2 libres</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Atendidas</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">1</p><p class="vs-kpi__hint vs-kpi__hint--ok">CM-0281 · 08:26</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">En espera</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">4</p><p class="vs-kpi__hint">2 confirmadas · 2 programadas</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Canceladas</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-calendar-x"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--rose">1</p><p class="vs-kpi__hint">CM-0279 · 11:00 liberado</p></article>
+        </section>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Cronograma</h3><p class="vs-card__sub">Bloques de 30 minutos · hora actual 08:52</p></div><span class="vs-live"><i></i>Actualizado</span></div>
+            <div class="vs-card__body">
+              <div class="vs-agenda">
+                <div class="vs-agenda__row"><div class="vs-agenda__time">08:00</div><div class="vs-agenda__item vs-agenda__item--done"><div><div class="vs-agenda__title">Ronald Saucedo Mendoza <span class="vs-xs vs-mono vs-muted">CM-0281</span></div><div class="vs-agenda__sub">Resultados de laboratorio · atendida 08:26</div></div><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Atendida</span></div></div>
+                <div class="vs-agenda__row"><div class="vs-agenda__time">08:30</div><div class="vs-agenda__item vs-agenda__item--now"><div><div class="vs-agenda__title">Jimena Égüez Choque <span class="vs-xs vs-mono vs-muted">CM-0283</span></div><div class="vs-agenda__sub">Control de presión arterial · 50 años · <span class="vs-badge vs-badge--warn">Alergia: Ibuprofeno</span></div></div><div class="vs-row vs-row--nowrap"><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>En atención</span><a href="cu31-marcar-atendida.html" class="vs-btn vs-btn--primary vs-btn--sm"><svg class="vs-i"><use href="#i-check"/></svg>Marcar atendida</a></div></div></div>
+                <div class="vs-agenda__row"><div class="vs-agenda__time">09:00</div><div class="vs-agenda__item"><div><div class="vs-agenda__title">Fernando Wilson Roca Barba <span class="vs-xs vs-mono vs-muted">CM-0286</span></div><div class="vs-agenda__sub">Dolor lumbar · en sala de espera desde 08:52</div></div><div class="vs-row vs-row--nowrap"><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span><button type="button" class="vs-icon-btn" title="Ver ficha" data-open-dialog="dlg-paciente"><svg class="vs-i"><use href="#i-eye"/></svg></button></div></div></div>
+                <div class="vs-agenda__row"><div class="vs-agenda__time">09:30</div><div class="vs-agenda__item vs-agenda__item--free">Bloque libre</div></div>
+                <div class="vs-agenda__row"><div class="vs-agenda__time">10:00</div><div class="vs-agenda__item"><div><div class="vs-agenda__title">Paola Paz Terceros <span class="vs-xs vs-mono vs-muted">CM-0288</span></div><div class="vs-agenda__sub">Dolor de cabeza recurrente</div></div><div class="vs-row vs-row--nowrap"><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span><button type="button" class="vs-icon-btn" title="Ver ficha" data-open-dialog="dlg-paciente"><svg class="vs-i"><use href="#i-eye"/></svg></button></div></div></div>
+                <div class="vs-agenda__row"><div class="vs-agenda__time">10:30</div><div class="vs-agenda__item"><div><div class="vs-agenda__title">Iván Cuéllar Arteaga <span class="vs-xs vs-mono vs-muted">CM-0290</span></div><div class="vs-agenda__sub">Chequeo general · primera consulta</div></div><div class="vs-row vs-row--nowrap"><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span><button type="button" class="vs-icon-btn" title="Ver ficha" data-open-dialog="dlg-paciente"><svg class="vs-i"><use href="#i-eye"/></svg></button></div></div></div>
+                <div class="vs-agenda__row"><div class="vs-agenda__time">11:00</div><div class="vs-agenda__item vs-agenda__item--cancel"><div><div class="vs-agenda__title">Daniel Vargas Soliz <span class="vs-xs vs-mono vs-muted">CM-0279</span></div><div class="vs-agenda__sub">Cancelada 08:09 · “Paciente viajó” · bloque liberado</div></div><span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Cancelada</span></div></div>
+                <div class="vs-agenda__row"><div class="vs-agenda__time">11:30</div><div class="vs-agenda__item vs-agenda__item--free">Bloque libre</div></div>
+              </div>
+            </div>
+            <div class="vs-card__foot"><span>Si el médico no tuviera citas se mostraría “Sin citas para la fecha” (A1).</span><a href="cu29-asistencia-estados.html" class="vs-link">Control de asistencia</a></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card vs-card--teal">
+              <div class="vs-card__head">
+                <div class="vs-row" style="gap:.85rem"><span class="vs-avatar vs-avatar--lg vs-avatar--sky">JE</span><div><h3 class="vs-card__title">Jimena Égüez Choque</h3><p class="vs-card__sub">En atención · CM-0283 · 08:30</p></div></div>
+              </div>
+              <div class="vs-card__body">
+                <dl class="vs-dl">
+                  <dt>Código</dt><dd class="vs-mono">PAC-0016 · CI 12181643</dd>
+                  <dt>Edad / sexo</dt><dd>50 años · Femenino</dd>
+                  <dt>Sangre</dt><dd><span class="vs-badge vs-badge--danger vs-badge--mono">A+</span></dd>
+                  <dt>Alergias</dt><dd><span class="vs-badge vs-badge--warn">Ibuprofeno</span></dd>
+                  <dt>Antecedentes</dt><dd>Cesárea (2018)</dd>
+                  <dt>Emergencia</dt><dd>Luis Antelo Gutiérrez · <span class="vs-mono">71375376</span></dd>
+                  <dt>Última cita</dt><dd>11/09 · Control de presión · “control en 15 días”</dd>
+                </dl>
+              </div>
+              <div class="vs-card__foot">
+                <a href="../P4 Gestión de Pacientes/cu16-historial-citas.html" class="vs-link">Historial completo</a>
+                <a href="../P4 Gestión de Pacientes/cu13-informacion-medica.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-heart"/></svg>Ficha médica</a>
+              </div>
+            </article>
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Otros médicos hoy</h3></div></div>
+              <ul class="vs-list vs-list--boxed">
+                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">CM</span><div class="vs-list-row__body"><div class="vs-list-row__title">Dra. Claudia Montero Saucedo</div><div class="vs-list-row__sub">Ginecología · 08:00–12:00 · 5 citas</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Agenda cambiada" data-toast-sub="Dra. Montero · 5 citas · 1 atendida">Ver</button></li>
+                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">AM</span><div class="vs-list-row__body"><div class="vs-list-row__title">Dr. Álvaro Moreno Durán</div><div class="vs-list-row__sub">Traumatología · 08:00–12:00 · 3 citas</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Agenda cambiada" data-toast-sub="Dr. Moreno · 3 citas">Ver</button></li>
+                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">PG</span><div class="vs-list-row__body"><div class="vs-list-row__title">Dra. Patricia Gutiérrez Melgar</div><div class="vs-list-row__sub">Pediatría · 14:00–18:00 · 6 citas</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Agenda cambiada" data-toast-sub="Dra. Gutiérrez · turno tarde">Ver</button></li>
+                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">RE</span><div class="vs-list-row__body"><div class="vs-list-row__title">Dr. Ricardo Égüez Parada</div><div class="vs-list-row__sub">Medicina General · 14:00–18:00 · 4 citas</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Agenda cambiada" data-toast-sub="Dr. Égüez · turno tarde">Ver</button></li>
+              </ul>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-paciente" class="vs-modal">
+    <div class="vs-modal__head">
+      <span class="vs-avatar vs-avatar--lg vs-avatar--teal">FR</span>
+      <div><h2 class="vs-modal__title">Fernando Wilson Roca Barba</h2><p class="vs-modal__text">PAC-0058 · CI 5142779 · 44 años · CM-0286 · 09:00 · Dolor lumbar</p></div>
+    </div>
+    <div class="vs-modal__body">
+      <dl class="vs-dl">
+        <dt>Sangre</dt><dd><span class="vs-badge vs-badge--danger vs-badge--mono">O+</span></dd>
+        <dt>Alergias</dt><dd>Ninguna conocida</dd>
+        <dt>Crónicas</dt><dd>Lumbalgia crónica</dd>
+        <dt>Medicación</dt><dd>Diclofenaco 50 mg (ocasional)</dd>
+        <dt>Emergencia</dt><dd>Andrea Roca Barba · Esposo(a) · <span class="vs-mono">74725857</span></dd>
+      </dl>
+    </div>
+    <div class="vs-modal__foot">
+      <a href="../P4 Gestión de Pacientes/cu16-historial-citas.html" class="vs-btn vs-btn--ghost">Historial</a>
+      <button type="button" class="vs-btn vs-btn--primary" data-close-dialog>Cerrar</button>
+    </div>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

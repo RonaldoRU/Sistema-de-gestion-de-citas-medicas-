@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consultar bitácora · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU11">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Consultar bitácora</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P3 · Auditoría, Trazabilidad y Bitácora</p>
+            <h2 class="vs-h1">Consulta de la bitácora</h2>
+            <p class="vs-lead">Filtra por usuario, módulo, tipo de acción y rango de fechas para auditar qué ocurrió en el sistema. Los resultados se ordenan del más reciente al más antiguo.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU11</span><span class="vs-trace__actor">Administrador</span></span>
+            <button type="button" class="vs-btn vs-btn--ghost" data-toast="Exportación generada" data-toast-sub="bitacora_2026-10-26.csv · 148 filas"><svg class="vs-i"><use href="#i-file-csv"/></svg>Exportar CSV</button>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight">
+            <form class="vs-filters" onsubmit="event.preventDefault()">
+              <div class="vs-field vs-f-3"><label class="vs-label" for="b-usuario">Usuario</label><select id="b-usuario" class="vs-select"><option value="">Todos los usuarios</option><option>scolque — Silvia Colque</option><option>rvaca — Rosa Vaca</option><option>csuarez — Carla Suárez</option><option>jmendoza — Jorge Mendoza</option><option>djustiniano — Daniela Justiniano</option><option>jrojas — Dr. Juan Rojas</option><option>Sistema</option></select></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="b-modulo">Módulo</label><select id="b-modulo" class="vs-select"><option value="">Todos</option><option>P1 · Seguridad y Autenticación</option><option>P2 · Usuarios y Permisos</option><option>P3 · Auditoría</option><option>P4 · Pacientes</option><option>P5 · Gestión Médica y Horarios</option><option>P6 · Citas Médicas</option><option>P7 · Reportes</option></select></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-accion">Acción</label><select id="b-accion" class="vs-select"><option value="">Todas</option><option>CREAR</option><option>MODIFICAR</option><option>ELIMINAR</option><option>LOGIN</option><option>LOGOUT</option><option>BLOQUEO</option></select></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-desde">Desde</label><input id="b-desde" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-hasta">Hasta</label><input id="b-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+              <div class="vs-field vs-f-6"><label class="vs-label" for="b-q">Texto en el detalle</label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-search"/></svg><input id="b-q" class="vs-input" type="search" placeholder="Ej. CM-0283, PAC-0071, jmendoza"></div></div>
+              <div class="vs-row vs-f-6" style="justify-content:flex-end;align-self:end">
+                <button type="reset" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-refresh"/></svg>Limpiar</button>
+                <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-filter"/></svg>Aplicar filtros</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head">
+            <div><h3 class="vs-card__title">Eventos registrados</h3><p class="vs-card__sub">Lunes 26/10/2026 · ordenados por fecha y hora descendente</p></div>
+            <div class="vs-row">
+              <span class="vs-badge vs-badge--muted vs-badge--lg">148 eventos</span>
+              <span class="vs-badge vs-badge--danger vs-badge--lg">1 alerta</span>
+            </div>
+          </div>
+          <div class="vs-table-wrap">
+            <table class="vs-table vs-table--compact">
+              <thead><tr><th>Fecha y hora</th><th>Usuario</th><th class="vs-hide-md">Módulo</th><th>Acción</th><th class="vs-hide-md">Tabla / registro</th><th>Detalle</th><th class="vs-hide-md">IP</th></tr></thead>
+              <tbody>
+                <tr><td class="vs-td-num">26/10 08:31:07</td><td><span class="vs-mono">rvaca</span></td><td class="vs-hide-md">P6 Citas</td><td><span class="vs-badge vs-badge--info vs-badge--mono">CREAR</span></td><td class="vs-hide-md vs-mono vs-xs">cita · 296</td><td>Nueva cita CM-0296 · Iván Cuéllar Arteaga · Dr. Rojas · 26/10 10:30</td><td class="vs-hide-md vs-td-num">192.168.1.21</td></tr>
+                <tr><td class="vs-td-num">26/10 08:29:52</td><td><span class="vs-mono">csuarez</span></td><td class="vs-hide-md">P6 Citas</td><td><span class="vs-badge vs-badge--cyan vs-badge--mono">MODIFICAR</span></td><td class="vs-hide-md vs-mono vs-xs">cita · 283</td><td>CM-0283: PROGRAMADA → CONFIRMADA (confirmación telefónica)</td><td class="vs-hide-md vs-td-num">192.168.1.24</td></tr>
+                <tr><td class="vs-td-num">26/10 08:26:40</td><td><span class="vs-mono">jrojas</span></td><td class="vs-hide-md">P6 Citas</td><td><span class="vs-badge vs-badge--cyan vs-badge--mono">MODIFICAR</span></td><td class="vs-hide-md vs-mono vs-xs">cita · 281</td><td>CM-0281: CONFIRMADA → ATENDIDA · observación registrada</td><td class="vs-hide-md vs-td-num">192.168.1.40</td></tr>
+                <tr><td class="vs-td-num">26/10 08:14:03</td><td><span class="vs-mono">rvaca</span></td><td class="vs-hide-md">P4 Pacientes</td><td><span class="vs-badge vs-badge--info vs-badge--mono">CREAR</span></td><td class="vs-hide-md vs-mono vs-xs">paciente · 86</td><td>Registro de paciente PAC-0071 · Valeria Montaño Ruiz · CI 9930412</td><td class="vs-hide-md vs-td-num">192.168.1.21</td></tr>
+                <tr><td class="vs-td-num">26/10 08:13:04</td><td><span class="vs-mono vs-muted">Sistema</span></td><td class="vs-hide-md">P1 Seguridad</td><td><span class="vs-badge vs-badge--danger vs-badge--mono">BLOQUEO</span></td><td class="vs-hide-md vs-mono vs-xs">usuario · 4</td><td>jmendoza bloqueado 1 min por 3 intentos fallidos consecutivos</td><td class="vs-hide-md vs-td-num">192.168.1.33</td></tr>
+                <tr><td class="vs-td-num">26/10 08:12:48</td><td><span class="vs-mono vs-muted">Sistema</span></td><td class="vs-hide-md">P1 Seguridad</td><td><span class="vs-badge vs-badge--warn vs-badge--mono">LOGIN</span></td><td class="vs-hide-md vs-mono vs-xs">usuario · 4</td><td>Intento fallido 2/3 para jmendoza (contraseña incorrecta)</td><td class="vs-hide-md vs-td-num">192.168.1.33</td></tr>
+                <tr><td class="vs-td-num">26/10 08:12:31</td><td><span class="vs-mono vs-muted">Sistema</span></td><td class="vs-hide-md">P1 Seguridad</td><td><span class="vs-badge vs-badge--warn vs-badge--mono">LOGIN</span></td><td class="vs-hide-md vs-mono vs-xs">usuario · 4</td><td>Intento fallido 1/3 para jmendoza (contraseña incorrecta)</td><td class="vs-hide-md vs-td-num">192.168.1.33</td></tr>
+                <tr><td class="vs-td-num">26/10 08:09:15</td><td><span class="vs-mono">csuarez</span></td><td class="vs-hide-md">P6 Citas</td><td><span class="vs-badge vs-badge--cyan vs-badge--mono">MODIFICAR</span></td><td class="vs-hide-md vs-mono vs-xs">cita · 279</td><td>CM-0279: PROGRAMADA → CANCELADA · motivo: “Paciente viajó”</td><td class="vs-hide-md vs-td-num">192.168.1.24</td></tr>
+                <tr><td class="vs-td-num">26/10 08:04:11</td><td><span class="vs-mono">jrojas</span></td><td class="vs-hide-md">P1 Seguridad</td><td><span class="vs-badge vs-badge--ok vs-badge--mono">LOGIN</span></td><td class="vs-hide-md vs-mono vs-xs">usuario · 6</td><td>Inicio de sesión correcto</td><td class="vs-hide-md vs-td-num">192.168.1.40</td></tr>
+                <tr><td class="vs-td-num">26/10 08:01:35</td><td><span class="vs-mono">rvaca</span></td><td class="vs-hide-md">P1 Seguridad</td><td><span class="vs-badge vs-badge--ok vs-badge--mono">LOGIN</span></td><td class="vs-hide-md vs-mono vs-xs">usuario · 2</td><td>Inicio de sesión correcto</td><td class="vs-hide-md vs-td-num">192.168.1.21</td></tr>
+                <tr><td class="vs-td-num">26/10 07:58:02</td><td><span class="vs-mono">csuarez</span></td><td class="vs-hide-md">P1 Seguridad</td><td><span class="vs-badge vs-badge--ok vs-badge--mono">LOGIN</span></td><td class="vs-hide-md vs-mono vs-xs">usuario · 3</td><td>Inicio de sesión correcto</td><td class="vs-hide-md vs-td-num">192.168.1.24</td></tr>
+                <tr><td class="vs-td-num">26/10 07:52:19</td><td><span class="vs-mono">scolque</span></td><td class="vs-hide-md">P1 Seguridad</td><td><span class="vs-badge vs-badge--ok vs-badge--mono">LOGIN</span></td><td class="vs-hide-md vs-mono vs-xs">usuario · 1</td><td>Inicio de sesión correcto</td><td class="vs-hide-md vs-td-num">192.168.1.10</td></tr>
+                <tr><td class="vs-td-num">25/10 18:02:44</td><td><span class="vs-mono">djustiniano</span></td><td class="vs-hide-md">P1 Seguridad</td><td><span class="vs-badge vs-badge--muted vs-badge--mono">LOGOUT</span></td><td class="vs-hide-md vs-mono vs-xs">usuario · 5</td><td>Cierre de sesión</td><td class="vs-hide-md vs-td-num">192.168.1.37</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vs-pagination">
+            <span>Mostrando <strong class="vs-strong">1–12</strong> de <strong class="vs-strong">148</strong> eventos</span>
+            <div class="vs-pager"><button type="button" disabled aria-label="Anterior"><svg class="vs-i vs-i--sm"><use href="#i-chevron-left"/></svg></button><button type="button" class="is-current">1</button><button type="button">2</button><button type="button">3</button><span>…</span><button type="button">13</button><button type="button" aria-label="Siguiente"><svg class="vs-i vs-i--sm"><use href="#i-chevron-right"/></svg></button></div>
+          </div>
+        </section>
+
+        <section class="vs-grid vs-grid--3">
+          <article class="vs-card vs-card--accent">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas de consulta</h3></div></div>
+            <div class="vs-card__body vs-rules">
+              <div class="vs-rule"><span class="vs-rule__k">Solo lectura</span>La bitácora no se edita ni se borra desde la interfaz; es evidencia.</div>
+              <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Sin resultados (A1)</span>Si los filtros no coinciden, se informa “No se encontraron registros” y se sugiere ampliar el rango.</div>
+              <div class="vs-rule"><span class="vs-rule__k">Rango máximo</span>Hasta 90 días por consulta para mantener el rendimiento.</div>
+            </div>
+          </article>
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Consultas frecuentes</h3></div></div>
+            <ul class="vs-list vs-list--boxed">
+              <li class="vs-list-row"><svg class="vs-i vs-muted"><use href="#i-lock"/></svg><div class="vs-list-row__body"><div class="vs-list-row__title">Bloqueos del mes</div><div class="vs-list-row__sub">Acción BLOQUEO · últimos 30 días</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Filtro aplicado" data-toast-sub="4 eventos BLOQUEO en octubre">Aplicar</button></li>
+              <li class="vs-list-row"><svg class="vs-i vs-muted"><use href="#i-calendar-x"/></svg><div class="vs-list-row__body"><div class="vs-list-row__title">Cancelaciones de citas</div><div class="vs-list-row__sub">P6 · MODIFICAR → CANCELADA</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Filtro aplicado" data-toast-sub="31 cancelaciones en octubre">Aplicar</button></li>
+              <li class="vs-list-row"><svg class="vs-i vs-muted"><use href="#i-shield"/></svg><div class="vs-list-row__body"><div class="vs-list-row__title">Cambios de rol</div><div class="vs-list-row__sub">P2 · tabla usuario · campo id_rol</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Filtro aplicado" data-toast-sub="1 cambio de rol en el periodo">Aplicar</button></li>
+            </ul>
+          </article>
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Actividad por módulo hoy</h3></div></div>
+            <div class="vs-card__body vs-bars">
+              <div class="vs-bars__row"><span class="vs-bars__label">P6 Citas</span><div class="vs-bar"><i style="width:58%"></i></div><span class="vs-bars__val">86</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">P1 Seguridad</span><div class="vs-bar vs-bar--teal"><i style="width:22%"></i></div><span class="vs-bars__val">33</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">P4 Pacientes</span><div class="vs-bar vs-bar--cyan"><i style="width:14%"></i></div><span class="vs-bars__val">21</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">P5 Médicos</span><div class="vs-bar vs-bar--amber"><i style="width:4%"></i></div><span class="vs-bars__val">6</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">P2 Usuarios</span><div class="vs-bar vs-bar--rose"><i style="width:1%"></i></div><span class="vs-bars__val">2</span></div>
+            </div>
+          </article>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

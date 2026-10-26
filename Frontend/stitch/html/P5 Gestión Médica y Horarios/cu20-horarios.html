@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Horarios y bloques de atención · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU20">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Horarios de atención</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P5 · Gestión Médica y Horarios</p>
+            <h2 class="vs-h1">Configurar horarios y bloques de 30 minutos</h2>
+            <p class="vs-lead">Define los días y turnos en que atiende cada médico. El sistema divide cada turno en bloques de 30 minutos, que son las unidades que se reservan al programar citas.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU20</span><span class="vs-trace__actor">Administrador</span></span>
+            <a href="../P6 Gestión de Citas Médicas/cu23-bloquear-agenda.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Bloqueos de agenda</a>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight vs-row vs-row--between">
+            <div class="vs-row" style="gap:.85rem">
+              <span class="vs-avatar vs-avatar--lg vs-avatar--teal">JR</span>
+              <div>
+                <div class="vs-h3">Dr. Juan Ronaldo Rojas Ugarte</div>
+                <div class="vs-xs vs-muted"><span class="vs-mono">MED-001</span> · MP-SCZ-1422 · Medicina General · 3 turnos semanales · 24 bloques por semana</div>
+              </div>
+            </div>
+            <form class="vs-row" onsubmit="event.preventDefault()">
+              <label class="vs-label" for="h-medico" style="margin:0">Médico</label>
+              <select id="h-medico" class="vs-select" style="min-width:16rem">
+                <option selected>MED-001 · Dr. Juan Ronaldo Rojas Ugarte</option>
+                <option>MED-002 · Dra. Patricia Gutiérrez Melgar</option>
+                <option>MED-003 · Dr. Fernando Arteaga Ribera</option>
+                <option>MED-004 · Dra. Claudia Montero Saucedo</option>
+                <option>MED-005 · Dr. Marcelo Terceros Chávez</option>
+                <option>MED-006 · Dra. Gabriela Peña Salvatierra</option>
+                <option>MED-007 · Dr. Álvaro Moreno Durán</option>
+                <option>MED-008 · Dra. Lorena Antelo Barba</option>
+                <option>MED-009 · Dr. Ricardo Égüez Parada</option>
+              </select>
+            </form>
+          </div>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head">
+            <div><h3 class="vs-card__title">Semana tipo</h3><p class="vs-card__sub">Turnos activos · cada turno de 4 horas equivale a 8 bloques</p></div>
+            <div class="vs-legend"><span><i style="background:var(--vs-sky-50);border-color:var(--vs-sky-200)"></i>Mañana</span><span><i style="background:var(--vs-teal-50);border-color:var(--vs-teal-200)"></i>Tarde</span><span><i style="border-style:dashed"></i>Sin atención</span><span><i style="border-color:var(--vs-forest);border-style:dashed"></i>Nuevo (sin guardar)</span></div>
+          </div>
+          <div class="vs-card__body">
+            <div class="vs-week">
+              <div class="vs-week__day"><div class="vs-week__head">Lunes</div><div class="vs-week__shift"><div class="vs-week__time">08:00 – 12:00</div><div class="vs-week__blocks">8 bloques</div></div><div class="vs-week__shift vs-week__shift--off">—</div></div>
+              <div class="vs-week__day"><div class="vs-week__head">Martes</div><div class="vs-week__shift vs-week__shift--off">Sin atención</div><div class="vs-week__shift vs-week__shift--off">—</div></div>
+              <div class="vs-week__day"><div class="vs-week__head">Miércoles</div><div class="vs-week__shift"><div class="vs-week__time">08:00 – 12:00</div><div class="vs-week__blocks">8 bloques</div></div><div class="vs-week__shift vs-week__shift--off">—</div></div>
+              <div class="vs-week__day"><div class="vs-week__head">Jueves</div><div class="vs-week__shift vs-week__shift--off">Sin atención</div><div class="vs-week__shift vs-week__shift--new"><div class="vs-week__time">14:00 – 18:00</div><div class="vs-week__blocks">Nuevo · 8 bloques</div></div></div>
+              <div class="vs-week__day"><div class="vs-week__head">Viernes</div><div class="vs-week__shift"><div class="vs-week__time">08:00 – 12:00</div><div class="vs-week__blocks">8 bloques</div></div><div class="vs-week__shift vs-week__shift--off">—</div></div>
+              <div class="vs-week__day"><div class="vs-week__head">Sábado</div><div class="vs-week__shift vs-week__shift--off">Sin atención</div><div class="vs-week__shift vs-week__shift--off">—</div></div>
+            </div>
+          </div>
+          <div class="vs-card__foot"><span>Los cambios aplican a las fechas futuras; las citas ya programadas no se mueven.</span><span class="vs-xs">Semana laboral: lunes a sábado</span></div>
+        </section>
+
+        <section class="vs-split">
+          <form class="vs-card" data-demo="Jornada guardada" data-demo-sub="Jueves 14:00–18:00 añadido · 8 bloques nuevos disponibles" novalidate>
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Nueva jornada</h3><p class="vs-card__sub">Agrega un turno al médico seleccionado</p></div></div>
+            <div class="vs-card__body vs-form">
+              <div class="vs-field">
+                <span class="vs-label">Días de la semana <span class="vs-req">*</span></span>
+                <div class="vs-pills">
+                  <label class="vs-pill"><input type="checkbox" name="dia" value="1"><span>Lun</span></label>
+                  <label class="vs-pill"><input type="checkbox" name="dia" value="2"><span>Mar</span></label>
+                  <label class="vs-pill"><input type="checkbox" name="dia" value="3"><span>Mié</span></label>
+                  <label class="vs-pill"><input type="checkbox" name="dia" value="4" checked><span>Jue</span></label>
+                  <label class="vs-pill"><input type="checkbox" name="dia" value="5"><span>Vie</span></label>
+                  <label class="vs-pill"><input type="checkbox" name="dia" value="6"><span>Sáb</span></label>
+                </div>
+              </div>
+              <div class="vs-form-grid vs-form-grid--3" data-time-range>
+                <div class="vs-field"><label class="vs-label" for="h-ini">Hora de inicio <span class="vs-req">*</span></label><input id="h-ini" class="vs-input vs-input--mono" type="time" value="14:00" step="1800" min="07:00" max="20:00" data-time-start required></div>
+                <div class="vs-field"><label class="vs-label" for="h-fin">Hora de fin <span class="vs-req">*</span></label><input id="h-fin" class="vs-input vs-input--mono" type="time" value="18:00" step="1800" min="07:30" max="20:30" data-time-end required><span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>La hora de fin debe ser posterior a la de inicio</span></div>
+                <div class="vs-field"><label class="vs-label" for="h-dur">Duración del bloque</label><select id="h-dur" class="vs-select"><option selected>30 minutos (estándar)</option></select><p class="vs-hint"><strong data-time-blocks>8 bloques de 30 min</strong> por turno</p></div>
+              </div>
+              <div class="vs-alert vs-alert--warn"><svg class="vs-i"><use href="#i-alert"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Superposición (A1)</span>Si el nuevo turno se cruza con uno existente del mismo día, el sistema lo rechaza: “El horario se superpone con un turno ya registrado”.</div></div>
+            </div>
+            <div class="vs-card__foot">
+              <span>Las horas deben ser múltiplos de 30 minutos.</span>
+              <div class="vs-row"><button type="reset" class="vs-btn vs-btn--ghost">Descartar</button><button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Guardar jornada</button></div>
+            </div>
+          </form>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Turnos registrados</h3><p class="vs-card__sub">Tabla <span class="vs-code">horario</span> del médico</p></div></div>
+              <div class="vs-table-wrap">
+                <table class="vs-table vs-table--compact">
+                  <thead><tr><th>Día</th><th>Turno</th><th>Bloques</th><th>Estado</th><th class="vs-td-actions"></th></tr></thead>
+                  <tbody>
+                    <tr><td>Lunes</td><td class="vs-td-num">08:00–12:00</td><td class="vs-td-num">8</td><td><span class="vs-badge vs-badge--ok">Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-toast="Edición cargada" data-toast-sub="Lunes 08:00–12:00 en el formulario"><svg class="vs-i"><use href="#i-edit"/></svg></button><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar turno" data-open-dialog="dlg-turno"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                    <tr><td>Miércoles</td><td class="vs-td-num">08:00–12:00</td><td class="vs-td-num">8</td><td><span class="vs-badge vs-badge--ok">Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-toast="Edición cargada" data-toast-sub="Miércoles 08:00–12:00 en el formulario"><svg class="vs-i"><use href="#i-edit"/></svg></button><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar turno" data-open-dialog="dlg-turno"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                    <tr><td>Viernes</td><td class="vs-td-num">08:00–12:00</td><td class="vs-td-num">8</td><td><span class="vs-badge vs-badge--ok">Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-toast="Edición cargada" data-toast-sub="Viernes 08:00–12:00 en el formulario"><svg class="vs-i"><use href="#i-edit"/></svg></button><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar turno" data-open-dialog="dlg-turno"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Cómo se generan los bloques</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule"><span class="vs-rule__k">Cálculo</span>(hora fin − hora inicio) ÷ 30 min. Un turno 08:00–12:00 produce 08:00, 08:30 … 11:30.</div>
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Disponibilidad</span>CU22 cruza estos bloques con las citas existentes y los bloqueos (CU23) para mostrar lo libre.</div>
+                <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">Desactivar un turno</span>Si hay citas futuras en ese turno, deben reprogramarse antes (CU26).</div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-turno" class="vs-modal">
+    <div class="vs-modal__head">
+      <span class="vs-modal__icon vs-modal__icon--warn"><svg class="vs-i"><use href="#i-alert"/></svg></span>
+      <div><h2 class="vs-modal__title">Desactivar turno de lunes 08:00–12:00</h2><p class="vs-modal__text">Hay 4 citas futuras programadas en este turno (la más próxima: hoy 08:30, CM-0283). Debes reprogramarlas antes de desactivarlo.</p></div>
+    </div>
+    <div class="vs-modal__foot">
+      <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cerrar</button>
+      <a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-repeat"/></svg>Ir a reprogramar</a>
+    </div>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

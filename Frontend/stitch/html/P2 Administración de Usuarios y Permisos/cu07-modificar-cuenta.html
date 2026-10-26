@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modificar cuenta · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU07">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Modificar cuenta</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P2 · Administración de Usuarios y Permisos</p>
+            <h2 class="vs-h1">Modificar datos de cuenta</h2>
+            <p class="vs-lead">Actualiza los datos personales (nombre, teléfono, correo) o la contraseña. El rol se cambia desde <a href="cu08-roles-permisos.html" class="vs-link">Roles y permisos</a>.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU07</span><span class="vs-trace__actor">Administrador · Usuario (propia cuenta)</span></span>
+            <a href="cu06-catalogo-usuarios.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-arrow-left"/></svg>Volver al catálogo</a>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight vs-row vs-row--between">
+            <div class="vs-row" style="gap:.85rem">
+              <span class="vs-avatar vs-avatar--lg vs-avatar--sky">JM</span>
+              <div>
+                <div class="vs-h3">Editando: Jorge Luis Mendoza Paz</div>
+                <div class="vs-xs vs-muted">Recepcionista turno tarde · usuario <span class="vs-mono">jmendoza</span> · creado el 01/08/2026</div>
+              </div>
+            </div>
+            <div class="vs-row">
+              <span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Bloqueado temporal</span>
+              <a href="#" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Modo cambiado" data-toast-sub="Ahora editas tu propia cuenta (scolque)"><svg class="vs-i"><use href="#i-user"/></svg>Editar mi perfil</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="vs-split">
+          <div class="vs-card">
+            <nav class="vs-tabs" data-tabs="cuenta" role="tablist" style="padding:0 1.25rem">
+              <button type="button" class="vs-tab is-active" role="tab" data-tab="datos" aria-selected="true"><svg class="vs-i"><use href="#i-id-card"/></svg>Datos de la cuenta</button>
+              <button type="button" class="vs-tab" role="tab" data-tab="clave" aria-selected="false"><svg class="vs-i"><use href="#i-key"/></svg>Cambiar contraseña</button>
+            </nav>
+
+            <form class="vs-tabpanel" data-panel="datos" data-tabs-for="cuenta" data-demo="Cambios guardados" data-demo-sub="Los datos de jmendoza se actualizaron en PostgreSQL" novalidate>
+              <div class="vs-card__body vs-form">
+                <div class="vs-form-grid">
+                  <div class="vs-field"><label class="vs-label" for="m-ci">Cédula de identidad</label><input id="m-ci" class="vs-input vs-input--mono" type="text" value="7668705" readonly><p class="vs-hint">El CI identifica a la persona y no se edita desde aquí.</p></div>
+                  <div class="vs-field"><label class="vs-label" for="m-usuario">Nombre de usuario</label><input id="m-usuario" class="vs-input vs-input--mono" type="text" value="jmendoza" readonly></div>
+                  <div class="vs-field"><label class="vs-label" for="m-nombres">Nombres <span class="vs-req">*</span></label><input id="m-nombres" class="vs-input" type="text" value="Jorge Luis" required></div>
+                  <div class="vs-field"><label class="vs-label" for="m-apellidos">Apellidos <span class="vs-req">*</span></label><input id="m-apellidos" class="vs-input" type="text" value="Mendoza Paz" required></div>
+                  <div class="vs-field"><label class="vs-label" for="m-email">Correo electrónico <span class="vs-req">*</span></label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-mail"/></svg><input id="m-email" class="vs-input" type="email" value="jmendoza@vidasalud.com.bo" required></div></div>
+                  <div class="vs-field"><label class="vs-label" for="m-tel">Teléfono <span class="vs-req">*</span></label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-phone"/></svg><input id="m-tel" class="vs-input vs-input--mono" type="tel" value="71128245" pattern="[0-9]{7,8}" required></div></div>
+                  <div class="vs-field vs-col-2"><label class="vs-label" for="m-cargo">Cargo</label><select id="m-cargo" class="vs-select"><option>Recepcionista turno mañana</option><option selected>Recepcionista turno tarde</option></select></div>
+                </div>
+                <div class="vs-alert vs-alert--info"><svg class="vs-i"><use href="#i-info"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Rol actual: Recepcionista</span>Para asignar otro rol usa la matriz de permisos (CU08). Allí se audita el cambio como evento de seguridad.</div></div>
+              </div>
+              <div class="vs-card__foot">
+                <span>Última modificación: 14/09/2026 por scolque</span>
+                <div class="vs-row"><a href="cu06-catalogo-usuarios.html" class="vs-btn vs-btn--ghost">Descartar</a><button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Guardar cambios</button></div>
+              </div>
+            </form>
+
+            <form class="vs-tabpanel" data-panel="clave" data-tabs-for="cuenta" data-demo="Contraseña actualizada" data-demo-sub="Se aplicó password_hash() y se revocaron las otras sesiones" hidden novalidate>
+              <div class="vs-card__body vs-form">
+                <div class="vs-form-grid">
+                  <div class="vs-field vs-col-2"><label class="vs-label" for="p-actual">Contraseña actual del administrador <span class="vs-req">*</span></label><input id="p-actual" class="vs-input" type="password" autocomplete="current-password" required><p class="vs-hint">Confirmas tu identidad antes de cambiar la clave de otra cuenta.</p></div>
+                  <div class="vs-field"><div class="vs-row vs-row--between"><label class="vs-label" for="p-nueva">Nueva contraseña <span class="vs-req">*</span></label><button type="button" class="vs-link vs-xs" data-toggle-pass="p-nueva" aria-pressed="false">Mostrar</button></div><input id="p-nueva" class="vs-input vs-input--mono" type="password" minlength="8" autocomplete="new-password" required>
+                    <ul class="vs-pass-rules" data-pass-rules="p-nueva"><li data-rule="len">Mínimo 8 caracteres</li><li data-rule="upper">Una mayúscula</li><li data-rule="num">Un número</li><li data-rule="sym">Un símbolo</li></ul></div>
+                  <div class="vs-field"><label class="vs-label" for="p-nueva2">Confirmar nueva contraseña <span class="vs-req">*</span></label><input id="p-nueva2" class="vs-input vs-input--mono" type="password" minlength="8" autocomplete="new-password" required></div>
+                </div>
+                <label class="vs-check vs-check--sm"><input type="checkbox" checked>Cerrar las demás sesiones activas del usuario al guardar</label>
+              </div>
+              <div class="vs-card__foot">
+                <span>La clave se guarda con hash; nadie puede leerla después.</span>
+                <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-key"/></svg>Actualizar contraseña</button>
+              </div>
+            </form>
+          </div>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Ficha de la cuenta</h3></div></div>
+              <div class="vs-card__body">
+                <dl class="vs-dl">
+                  <dt>Estado</dt><dd><span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Bloqueado hasta 08:14</span></dd>
+                  <dt>Rol</dt><dd><span class="vs-badge vs-badge--info">Recepcionista</span></dd>
+                  <dt>Creada</dt><dd class="vs-mono">01/08/2026 08:12</dd>
+                  <dt>Último acceso</dt><dd class="vs-mono">25/10/2026 09:37</dd>
+                  <dt>Sesiones activas</dt><dd>0</dd>
+                </dl>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

@@ -375,4 +375,49 @@ class ClinicaCasosDeUsoTest extends TestCase
             'formato' => 'PDF',
         ]);
     }
+
+    /**
+     * INTEGRACIÓN FRONTEND & BACKEND: Token Bearer y Assets Estáticos de Stitch
+     */
+    public function test_frontend_stitch_integration_and_bearer_token_authentication(): void
+    {
+        // 1. Iniciar sesión usando las claves del frontend (usuario y clave)
+        $loginRes = $this->postJson('/api/auth/login', [
+            'usuario' => 'admin',
+            'clave' => 'Admin123*',
+        ]);
+        $loginRes->assertOk();
+        $loginRes->assertJsonStructure([
+            'success',
+            'token',
+            'redireccion',
+            'usuario',
+        ]);
+
+        $token = $loginRes->json('token');
+        $this->assertNotEmpty($token);
+
+        // 2. Acceder a un endpoint protegido usando Bearer token
+        $usuariosRes = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->getJson('/api/usuarios');
+        $usuariosRes->assertOk();
+
+        // 3. Verificar que las rutas de assets de Frontend se sirven correctamente
+        $htmlRes = $this->get('/frontend/stitch/html/inicio.html');
+        $htmlRes->assertOk();
+        $this->assertStringContainsString('text/html', $htmlRes->headers->get('Content-Type'));
+
+        $jsRes = $this->get('/frontend/stitch/js/vida-salud-api.js');
+        $jsRes->assertOk();
+        $this->assertStringContainsString('application/javascript', $jsRes->headers->get('Content-Type'));
+
+        $cssRes = $this->get('/frontend/stitch/css/vida-salud-theme.css');
+        $cssRes->assertOk();
+        $this->assertStringContainsString('text/css', $cssRes->headers->get('Content-Type'));
+
+        // 4. Revocar token vía logout
+        $logoutRes = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/auth/logout');
+        $logoutRes->assertOk();
+    }
 }

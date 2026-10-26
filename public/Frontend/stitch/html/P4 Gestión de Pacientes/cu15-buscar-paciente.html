@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buscar y modificar paciente · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU15">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Buscar paciente</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P4 · Gestión de Pacientes</p>
+            <h2 class="vs-h1">Buscar y modificar paciente</h2>
+            <p class="vs-lead">Localiza pacientes por CI, nombre, apellido o código y actualiza sus datos personales. Desde aquí accedes a la información médica, el contacto de emergencia y el historial.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU15</span><span class="vs-trace__actor">Recepcionista · Médico (consulta)</span></span>
+            <a href="cu12-registrar-paciente.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-user-plus"/></svg>Nuevo paciente</a>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body">
+            <form class="vs-row vs-row--nowrap" onsubmit="event.preventDefault()" style="gap:.75rem">
+              <div class="vs-input-icon vs-input-icon--lg vs-grow">
+                <svg class="vs-i"><use href="#i-search"/></svg>
+                <input class="vs-input vs-input--lg" type="search" value="Égüez" placeholder="CI, nombres, apellidos o código PAC-####" aria-label="Buscar paciente">
+              </div>
+              <button type="submit" class="vs-btn vs-btn--primary vs-btn--lg"><svg class="vs-i"><use href="#i-search"/></svg><span class="vs-hide-sm">Buscar</span></button>
+            </form>
+            <div class="vs-row vs-row--between" style="margin-top:.75rem">
+              <div class="vs-pills">
+                <label class="vs-pill"><input type="radio" name="est" value="activos" checked><span>Activos</span></label>
+                <label class="vs-pill"><input type="radio" name="est" value="todos"><span>Incluir inactivos</span></label>
+                <label class="vs-pill"><input type="checkbox" name="menores"><span>Solo menores de edad</span></label>
+              </div>
+              <span class="vs-small vs-muted">3 coincidencias para “Égüez”</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="vs-split">
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Resultados</h3><p class="vs-card__sub">Selecciona una fila para editar sus datos</p></div></div>
+            <div class="vs-table-wrap">
+              <table class="vs-table" data-selectable>
+                <thead><tr><th>Código</th><th>Paciente</th><th class="vs-hide-md">Edad / Sexo</th><th class="vs-hide-md">Teléfono</th><th>Estado</th><th class="vs-td-actions">Acciones</th></tr></thead>
+                <tbody>
+                  <tr class="is-selected">
+                    <td class="vs-td-num">PAC-0016</td>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">JE</span><div><div class="vs-cell-person__name">Jimena Égüez Choque</div><div class="vs-cell-person__sub vs-mono">CI 12181643</div></div></div></td>
+                    <td class="vs-hide-md">50 años · F</td>
+                    <td class="vs-hide-md vs-td-num">75666779</td>
+                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td>
+                    <td class="vs-td-actions"><a href="cu13-informacion-medica.html" class="vs-icon-btn vs-icon-btn--teal" title="Información médica"><svg class="vs-i"><use href="#i-heart"/></svg></a><a href="cu16-historial-citas.html" class="vs-icon-btn" title="Historial de citas"><svg class="vs-i"><use href="#i-calendar"/></svg></a><a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-icon-btn" title="Programar cita"><svg class="vs-i"><use href="#i-plus"/></svg></a></td>
+                  </tr>
+                  <tr>
+                    <td class="vs-td-num">PAC-0001</td>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--amber">MS</span><div><div class="vs-cell-person__name">Mauricio Suárez Égüez <span class="vs-badge vs-badge--warn">Menor</span></div><div class="vs-cell-person__sub vs-mono">CI 9802455</div></div></div></td>
+                    <td class="vs-hide-md">9 años · M</td>
+                    <td class="vs-hide-md vs-td-num">73222777</td>
+                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td>
+                    <td class="vs-td-actions"><a href="cu13-informacion-medica.html" class="vs-icon-btn vs-icon-btn--teal" title="Información médica"><svg class="vs-i"><use href="#i-heart"/></svg></a><a href="cu16-historial-citas.html" class="vs-icon-btn" title="Historial de citas"><svg class="vs-i"><use href="#i-calendar"/></svg></a><a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-icon-btn" title="Programar cita"><svg class="vs-i"><use href="#i-plus"/></svg></a></td>
+                  </tr>
+                  <tr>
+                    <td class="vs-td-num">PAC-0033</td>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">RE</span><div><div class="vs-cell-person__name">Rodrigo Égüez Salvatierra</div><div class="vs-cell-person__sub vs-mono">CI 6471120</div></div></div></td>
+                    <td class="vs-hide-md">42 años · M</td>
+                    <td class="vs-hide-md vs-td-num">70918264</td>
+                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td>
+                    <td class="vs-td-actions"><a href="cu13-informacion-medica.html" class="vs-icon-btn vs-icon-btn--teal" title="Información médica"><svg class="vs-i"><use href="#i-heart"/></svg></a><a href="cu16-historial-citas.html" class="vs-icon-btn" title="Historial de citas"><svg class="vs-i"><use href="#i-calendar"/></svg></a><a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-icon-btn" title="Programar cita"><svg class="vs-i"><use href="#i-plus"/></svg></a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="vs-card__foot">
+              <span>¿No aparece? Verifica el CI o <a href="cu12-registrar-paciente.html" class="vs-link">regístralo como nuevo</a>.</span>
+              <span class="vs-xs">La búsqueda ignora tildes y mayúsculas</span>
+            </div>
+          </article>
+
+          <form class="vs-card vs-card--accent" data-demo="Datos actualizados" data-demo-sub="PAC-0016 · teléfono y dirección modificados" novalidate>
+            <div class="vs-card__head">
+              <div class="vs-row" style="gap:.85rem">
+                <span class="vs-avatar vs-avatar--lg vs-avatar--sky">JE</span>
+                <div><h3 class="vs-card__title">Jimena Égüez Choque</h3><p class="vs-card__sub"><span class="vs-mono">PAC-0016</span> · registrada el 05/08/2026 por rvaca</p></div>
+              </div>
+            </div>
+            <nav class="vs-tabs" aria-label="Secciones del paciente" style="padding:0 1.25rem">
+              <a class="vs-tab is-active" href="cu15-buscar-paciente.html" aria-current="page"><span class="vs-tab__code">CU15</span>Datos</a>
+              <a class="vs-tab" href="cu13-informacion-medica.html"><span class="vs-tab__code">CU13</span>Médica</a>
+              <a class="vs-tab" href="cu14-contacto-emergencia.html"><span class="vs-tab__code">CU14</span>Contacto</a>
+              <a class="vs-tab" href="cu16-historial-citas.html"><span class="vs-tab__code">CU16</span>Historial</a>
+            </nav>
+            <div class="vs-card__body vs-form">
+              <div class="vs-form-grid">
+                <div class="vs-field"><label class="vs-label" for="e-ci">Cédula de identidad</label><input id="e-ci" class="vs-input vs-input--mono" type="text" value="12181643" readonly></div>
+                <div class="vs-field"><label class="vs-label" for="e-nac">Fecha de nacimiento</label><input id="e-nac" class="vs-input vs-input--mono" type="date" value="1976-02-20" required></div>
+                <div class="vs-field"><label class="vs-label" for="e-nombres">Nombres <span class="vs-req">*</span></label><input id="e-nombres" class="vs-input" type="text" value="Jimena" required></div>
+                <div class="vs-field"><label class="vs-label" for="e-apellidos">Apellidos <span class="vs-req">*</span></label><input id="e-apellidos" class="vs-input" type="text" value="Égüez Choque" required></div>
+                <div class="vs-field"><label class="vs-label" for="e-tel">Teléfono <span class="vs-req">*</span></label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-phone"/></svg><input id="e-tel" class="vs-input vs-input--mono" type="tel" value="75666779" pattern="[0-9]{7,8}" required></div></div>
+                <div class="vs-field"><label class="vs-label" for="e-email">Correo</label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-mail"/></svg><input id="e-email" class="vs-input" type="email" value="jeguez@outlook.com"></div></div>
+                <div class="vs-field vs-col-2"><label class="vs-label" for="e-dir">Dirección <span class="vs-req">*</span></label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-map-pin"/></svg><input id="e-dir" class="vs-input" type="text" value="Av. Virgen de Cotoca, 5to anillo" required></div></div>
+                <div class="vs-field vs-col-2">
+                  <span class="vs-label">Sexo</span>
+                  <div class="vs-pills">
+                    <label class="vs-pill"><input type="radio" name="e-sexo" value="F" checked><span>Femenino</span></label>
+                    <label class="vs-pill"><input type="radio" name="e-sexo" value="M"><span>Masculino</span></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="vs-card__foot">
+              <a href="cu17-desactivar-paciente.html" class="vs-link" style="color:var(--vs-rose-700)">Desactivar paciente…</a>
+              <div class="vs-row"><button type="reset" class="vs-btn vs-btn--ghost">Descartar</button><button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Guardar cambios</button></div>
+            </div>
+          </form>
+        </section>
+
+        <section class="vs-card" hidden>
+          <div class="vs-empty">
+            <span class="vs-empty__icon"><svg class="vs-i"><use href="#i-search"/></svg></span>
+            <p class="vs-empty__title">No se encontraron pacientes</p>
+            <p>Revisa el CI o el nombre. Si es la primera visita, regístralo.</p>
+            <a href="cu12-registrar-paciente.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-user-plus"/></svg>Registrar paciente</a>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

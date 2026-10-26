@@ -23,23 +23,19 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse|RedirectResponse
     {
-        $validator = Validator::make($request->all(), [
-            'identificador' => 'required|string', // CI, correo electrónico o nombre de usuario
-            'password' => 'required|string',
-        ], [
-            'identificador.required' => 'El correo electrónico, CI o nombre de usuario es obligatorio.',
-            'password.required' => 'La contraseña es obligatoria.',
-        ]);
+        $identificador = trim($request->input('identificador') ?? $request->input('usuario') ?? $request->input('email') ?? $request->input('login') ?? '');
+        $password = (string) ($request->input('password') ?? $request->input('clave') ?? $request->input('contrasena') ?? '');
 
-        if ($validator->fails()) {
+        if (empty($identificador) || empty($password)) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors(),
+                'message' => 'El usuario/correo y la contraseña son obligatorios.',
+                'errors' => [
+                    'identificador' => empty($identificador) ? ['El usuario, CI o correo electrónico es obligatorio.'] : [],
+                    'password' => empty($password) ? ['La contraseña es obligatoria.'] : [],
+                ],
             ], 422);
         }
-
-        $identificador = trim($request->input('identificador'));
-        $password = $request->input('password');
 
         // Buscar usuario por nombre_usuario o a través de su registro en persona (email o CI)
         $user = Usuario::with(['persona', 'rol'])
@@ -124,6 +120,16 @@ class AuthController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
 
+        $token = bin2hex(random_bytes(32));
+        Sesion::create([
+            'id_sesion' => $token,
+            'id_usuario' => $user->id_usuario,
+            'fecha_inicio' => now(),
+            'ultima_actividad' => now(),
+            'activa' => true,
+            'ip' => $request->ip(),
+        ]);
+
         if ($request->hasSession()) {
             $request->session()->regenerate();
             $sessionId = $request->session()->getId();
@@ -144,10 +150,10 @@ class AuthController extends Controller
         // Determinar destino según Rol (CU01 Paso 6)
         $rolNombre = strtoupper($user->rol?->nombre ?? 'USUARIO');
         $redireccion = match ($rolNombre) {
-            'ADMINISTRADOR' => '/admin/dashboard',
-            'RECEPCIONISTA' => '/recepcion/dashboard',
-            'MEDICO' => '/medico/dashboard',
-            default => '/dashboard',
+            'ADMINISTRADOR' => '/Frontend/stitch/html/inicio.html',
+            'RECEPCIONISTA' => '/Frontend/stitch/html/inicio.html',
+            'MEDICO' => '/Frontend/stitch/html/inicio.html',
+            default => '/Frontend/stitch/html/inicio.html',
         };
 
         // CU01 Paso 7: Registrar evento de LOGIN en bitácora de auditoría (CU10)
@@ -163,6 +169,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Inicio de sesión exitoso.',
+                'token' => $token,
                 'redireccion' => $redireccion,
                 'usuario' => [
                     'id_usuario' => $user->id_usuario,
@@ -199,7 +206,18 @@ class AuthController extends Controller
                 "Cierre de sesión y revocación de sesión exitosa del usuario [{$user->nombre_usuario}]."
             );
 
-            // Inactivar sesión en la tabla sesion
+            // Inactivar sesión en la tabla sesion (por cookie de sesión o bearer token)
+            $token = $request->bearerToken() 
+                ?: $request->header('X-Auth-Token') 
+                ?: $request->query('api_token');
+
+            if ($token) {
+                Sesion::where('id_sesion', $token)->update([
+                    'activa' => false,
+                    'fecha_cierre' => now(),
+                ]);
+            }
+
             if ($request->hasSession()) {
                 Sesion::where('id_sesion', $request->session()->getId())->update([
                     'activa' => false,

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Exportar reportes PDF / CSV · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU35">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Exportar reportes</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P7 · Reportes Administrativos</p>
+            <h2 class="vs-h1">Exportar reportes en PDF o CSV</h2>
+            <p class="vs-lead">Genera el archivo de cualquier reporte con los filtros aplicados. El PDF incluye encabezado institucional y gráficos; el CSV entrega los datos crudos para análisis externo.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU35</span><span class="vs-trace__actor">Administrador</span></span>
+          </div>
+        </header>
+
+        <section class="vs-split">
+          <form class="vs-card" data-demo="Exportación generada" data-demo-sub="reporte_citas_2026-10-01_2026-10-26.csv · 204 filas · 18 KB" novalidate>
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Configurar exportación</h3><p class="vs-card__sub">Se registra en la tabla <span class="vs-code">reporte</span> con el usuario y los filtros usados</p></div></div>
+            <div class="vs-card__body vs-form">
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">1</span>Reporte</legend>
+                <div class="vs-choice-grid vs-choice-grid--2">
+                  <label class="vs-choice"><input type="radio" name="rep" value="citas" checked><div><div class="vs-choice__title">Citas por período <span class="vs-code">CU32</span></div><div class="vs-choice__desc">Listado y totales por estado y especialidad.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="rep" value="atenciones"><div><div class="vs-choice__title">Atenciones por médico <span class="vs-code">CU33</span></div><div class="vs-choice__desc">Productividad y ocupación por profesional.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="rep" value="asistencia"><div><div class="vs-choice__title">Control de asistencia <span class="vs-code">CU34</span></div><div class="vs-choice__desc">Tasas de asistencia, inasistencia y cancelación.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="rep" value="padron"><div><div class="vs-choice__title">Padrón de pacientes <span class="vs-code">CU36</span></div><div class="vs-choice__desc">Pacientes activos con sus datos de contacto.</div></div></label>
+                </div>
+              </fieldset>
+              <hr class="vs-divider">
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">2</span>Filtros</legend>
+                <div class="vs-form-grid vs-form-grid--3">
+                  <div class="vs-field"><label class="vs-label" for="ex-desde">Desde</label><input id="ex-desde" class="vs-input vs-input--mono" type="date" value="2026-10-01"></div>
+                  <div class="vs-field"><label class="vs-label" for="ex-hasta">Hasta</label><input id="ex-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+                  <div class="vs-field"><label class="vs-label" for="ex-esp">Especialidad</label><select id="ex-esp" class="vs-select"><option>Todas</option><option>Medicina General</option><option>Pediatría</option><option>Ginecología</option><option>Odontología</option><option>Cardiología</option><option>Traumatología</option><option>Dermatología</option></select></div>
+                </div>
+              </fieldset>
+              <hr class="vs-divider">
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">3</span>Formato</legend>
+                <div class="vs-choice-grid vs-choice-grid--2">
+                  <label class="vs-choice"><input type="radio" name="fmt" value="csv" data-switch checked><div><div class="vs-choice__title"><svg class="vs-i" style="vertical-align:-3px"><use href="#i-file-csv"/></svg> CSV</div><div class="vs-choice__desc">UTF-8 con BOM, separador “;”, compatible con Excel.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="fmt" value="pdf" data-switch><div><div class="vs-choice__title"><svg class="vs-i" style="vertical-align:-3px"><use href="#i-file-pdf"/></svg> PDF</div><div class="vs-choice__desc">Tamaño carta, encabezado institucional, gráficos y firma.</div></div></label>
+                </div>
+                <div class="vs-row" data-show-when="fmt" data-show-value="pdf" hidden>
+                  <label class="vs-check vs-check--sm"><input type="checkbox" checked>Incluir gráficos</label>
+                  <label class="vs-check vs-check--sm"><input type="checkbox" checked>Incluir tabla de detalle</label>
+                  <label class="vs-check vs-check--sm"><input type="checkbox">Orientación horizontal</label>
+                </div>
+                <div class="vs-row" data-show-when="fmt" data-show-value="csv">
+                  <label class="vs-check vs-check--sm"><input type="checkbox" checked>Incluir fila de encabezados</label>
+                  <label class="vs-check vs-check--sm"><input type="checkbox">Solo totales (sin detalle)</label>
+                </div>
+              </fieldset>
+            </div>
+            <div class="vs-card__foot">
+              <span>Vista previa: <span class="vs-mono">reporte_citas_2026-10-01_2026-10-26.csv</span> · ~204 filas</span>
+              <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-download"/></svg>Generar y descargar</button>
+            </div>
+          </form>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Historial de exportaciones</h3><p class="vs-card__sub">Últimos 30 días</p></div></div>
+              <ul class="vs-list vs-list--boxed">
+                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--teal" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-file-csv"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Citas por período · 01–24/10</div><div class="vs-list-row__sub">CSV · scolque · 24/10 18:02 · 198 filas</div></div><button type="button" class="vs-icon-btn" title="Descargar de nuevo" data-toast="Descarga iniciada" data-toast-sub="reporte_citas_2026-10-01_2026-10-24.csv"><svg class="vs-i"><use href="#i-download"/></svg></button></li>
+                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--rose" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-file-pdf"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Atenciones por médico · septiembre</div><div class="vs-list-row__sub">PDF · scolque · 01/10 09:15 · 6 páginas</div></div><button type="button" class="vs-icon-btn" title="Descargar de nuevo" data-toast="Descarga iniciada" data-toast-sub="atenciones_medico_2026-09.pdf"><svg class="vs-i"><use href="#i-download"/></svg></button></li>
+                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--rose" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-file-pdf"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Control de asistencia · septiembre</div><div class="vs-list-row__sub">PDF · scolque · 01/10 09:12 · 4 páginas</div></div><button type="button" class="vs-icon-btn" title="Descargar de nuevo" data-toast="Descarga iniciada" data-toast-sub="asistencia_2026-09.pdf"><svg class="vs-i"><use href="#i-download"/></svg></button></li>
+                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--teal" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-file-csv"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Padrón de pacientes</div><div class="vs-list-row__sub">CSV · scolque · 28/09 16:40 · 68 filas</div></div><button type="button" class="vs-icon-btn" title="Descargar de nuevo" data-toast="Descarga iniciada" data-toast-sub="padron_pacientes_2026-09-28.csv"><svg class="vs-i"><use href="#i-download"/></svg></button></li>
+              </ul>
+            </article>
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule"><span class="vs-rule__k">Trazabilidad</span>Cada exportación guarda usuario, fecha, tipo y filtros en <span class="vs-code">reporte</span> y en la bitácora.</div>
+                <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">Sin datos (A1)</span>Si los filtros no devuelven filas, se avisa y no se genera el archivo vacío.</div>
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Datos personales</span>El padrón solo se exporta con rol Administrador; el CSV no incluye información médica.</div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

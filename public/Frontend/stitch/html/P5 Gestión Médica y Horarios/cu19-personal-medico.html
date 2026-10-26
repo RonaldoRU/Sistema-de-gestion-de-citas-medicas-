@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal médico · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU19">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Personal médico</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P5 · Gestión Médica y Horarios</p>
+            <h2 class="vs-h1">Registrar y administrar personal médico</h2>
+            <p class="vs-lead">Cada médico tiene código <span class="vs-code">MED-###</span>, matrícula profesional única y una o más especialidades. Al crearlo se genera también su cuenta de usuario con rol Médico.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU19</span><span class="vs-trace__actor">Administrador</span></span>
+            <button type="button" class="vs-btn vs-btn--primary" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-user-plus"/></svg>Nuevo médico</button>
+          </div>
+        </header>
+
+        <section class="vs-grid vs-grid--4">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Médicos activos</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span></div><p class="vs-kpi__value">9</p><p class="vs-kpi__hint">1 inactivo (Dr. Flores, 10/10)</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Con horario configurado</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">9</p><p class="vs-kpi__hint vs-kpi__hint--ok">26 turnos semanales activos</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Atendiendo hoy</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-calendar"/></svg></span></div><p class="vs-kpi__value">5</p><p class="vs-kpi__hint">Lunes: Rojas, Gutiérrez, Montero, Moreno, Égüez</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Doble especialidad</span><span class="vs-kpi__icon vs-kpi__icon--slate"><svg class="vs-i"><use href="#i-sparkle"/></svg></span></div><p class="vs-kpi__value">2</p><p class="vs-kpi__hint">Arteaga · Peña</p></article>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head">
+            <div><h3 class="vs-card__title">Plantel médico</h3><p class="vs-card__sub">Ordenado por código</p></div>
+            <form class="vs-row" onsubmit="event.preventDefault()">
+              <div class="vs-input-icon" style="min-width:14rem"><svg class="vs-i"><use href="#i-search"/></svg><input class="vs-input" type="search" placeholder="Nombre, matrícula o código"></div>
+              <select class="vs-select" aria-label="Especialidad"><option>Todas las especialidades</option><option>Medicina General</option><option>Pediatría</option><option>Ginecología</option><option>Odontología</option><option>Cardiología</option><option>Traumatología</option><option>Dermatología</option></select>
+              <label class="vs-check vs-check--sm"><input type="checkbox" checked>Mostrar inactivos</label>
+            </form>
+          </div>
+          <div class="vs-table-wrap">
+            <table class="vs-table">
+              <thead><tr><th>Código</th><th>Médico</th><th class="vs-hide-md">Matrícula</th><th>Especialidades</th><th class="vs-hide-md">Horario</th><th>Estado</th><th class="vs-td-actions">Acciones</th></tr></thead>
+              <tbody>
+                <tr><td class="vs-td-num">MED-001</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">JR</span><div><div class="vs-cell-person__name">Dr. Juan Ronaldo Rojas Ugarte</div><div class="vs-cell-person__sub vs-mono">CI 10039156 · jrojas</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1422</td><td><span class="vs-badge vs-badge--info">Medicina General</span></td><td class="vs-hide-md vs-xs">Lun · Mié · Vie 08:00–12:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr><td class="vs-td-num">MED-002</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">PG</span><div><div class="vs-cell-person__name">Dra. Patricia Gutiérrez Melgar</div><div class="vs-cell-person__sub vs-mono">CI 8325677 · pgutierrez</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1459</td><td><span class="vs-badge vs-badge--info">Pediatría</span></td><td class="vs-hide-md vs-xs">Lun · Mar · Jue 14:00–18:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr><td class="vs-td-num">MED-003</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">FA</span><div><div class="vs-cell-person__name">Dr. Fernando Arteaga Ribera</div><div class="vs-cell-person__sub vs-mono">CI 7761198 · farteaga</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1496</td><td><span class="vs-badge vs-badge--info">Pediatría</span> <span class="vs-badge vs-badge--info">Medicina General</span></td><td class="vs-hide-md vs-xs">Mar · Jue · Sáb 08:00–12:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr><td class="vs-td-num">MED-004</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">CM</span><div><div class="vs-cell-person__name">Dra. Claudia Montero Saucedo</div><div class="vs-cell-person__sub vs-mono">CI 6297813 · cmontero</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1533</td><td><span class="vs-badge vs-badge--info">Ginecología</span></td><td class="vs-hide-md vs-xs">Lun · Vie 08:00–12:00 · Mié 14:00–18:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr><td class="vs-td-num">MED-005</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">MT</span><div><div class="vs-cell-person__name">Dr. Marcelo Terceros Chávez</div><div class="vs-cell-person__sub vs-mono">CI 9114820 · mterceros</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1570</td><td><span class="vs-badge vs-badge--info">Odontología</span></td><td class="vs-hide-md vs-xs">Mar · Mié · Sáb 08:00–12:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr><td class="vs-td-num">MED-006</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">GP</span><div><div class="vs-cell-person__name">Dra. Gabriela Peña Salvatierra</div><div class="vs-cell-person__sub vs-mono">CI 8807431 · gpena</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1607</td><td><span class="vs-badge vs-badge--info">Cardiología</span> <span class="vs-badge vs-badge--info">Medicina General</span></td><td class="vs-hide-md vs-xs">Mar · Jue 14:00–18:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr><td class="vs-td-num">MED-007</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">AM</span><div><div class="vs-cell-person__name">Dr. Álvaro Moreno Durán</div><div class="vs-cell-person__sub vs-mono">CI 7390265 · amoreno</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1644</td><td><span class="vs-badge vs-badge--info">Traumatología</span></td><td class="vs-hide-md vs-xs">Lun · Sáb 08:00–12:00 · Jue 14:00–18:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr><td class="vs-td-num">MED-008</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">LA</span><div><div class="vs-cell-person__name">Dra. Lorena Antelo Barba</div><div class="vs-cell-person__sub vs-mono">CI 9542318 · lantelo</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1681</td><td><span class="vs-badge vs-badge--info">Dermatología</span></td><td class="vs-hide-md vs-xs">Mié 08:00–12:00 · Vie 14:00–18:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr><td class="vs-td-num">MED-009</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">RE</span><div><div class="vs-cell-person__name">Dr. Ricardo Égüez Parada</div><div class="vs-cell-person__sub vs-mono">CI 10954052 · reguez</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1718</td><td><span class="vs-badge vs-badge--info">Medicina General</span></td><td class="vs-hide-md vs-xs">Lun · Mié · Vie 14:00–18:00 · Sáb 08:00–12:00</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu20-horarios.html" class="vs-icon-btn vs-icon-btn--teal" title="Horarios"><svg class="vs-i"><use href="#i-clock"/></svg></a><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar"><svg class="vs-i"><use href="#i-ban"/></svg></a></td></tr>
+                <tr class="is-muted"><td class="vs-td-num">MED-010</td><td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--slate">HF</span><div><div class="vs-cell-person__name">Dr. Hugo Flores Mamani</div><div class="vs-cell-person__sub vs-mono">CI 9856412 · hflores</div></div></div></td><td class="vs-hide-md vs-td-num">MP-SCZ-1755</td><td><span class="vs-badge vs-badge--muted">Traumatología</span> <span class="vs-badge vs-badge--muted">Medicina General</span></td><td class="vs-hide-md vs-xs">Horarios inactivos</td><td><span class="vs-badge vs-badge--muted"><span class="vs-badge__dot"></span>Inactivo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Ver ficha" data-open-dialog="dlg-medico"><svg class="vs-i"><use href="#i-eye"/></svg></button><a href="cu21-desactivar-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Reactivar"><svg class="vs-i"><use href="#i-undo"/></svg></a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vs-card__foot"><span>10 médicos · 9 activos</span><span class="vs-xs">La matrícula profesional es única (A1)</span></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-medico" class="vs-modal vs-modal--lg">
+    <form data-demo="Médico registrado" data-demo-sub="MED-011 creado con cuenta de usuario y rol Médico" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span>
+        <div><h2 class="vs-modal__title">Nuevo médico</h2><p class="vs-modal__text">Datos personales, matrícula y especialidades. El código MED-011 y la cuenta de acceso se generan al guardar.</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-form-grid">
+          <div class="vs-field"><label class="vs-label" for="md-ci">Cédula de identidad <span class="vs-req">*</span></label><input id="md-ci" class="vs-input vs-input--mono" type="text" inputmode="numeric" pattern="[0-9]{5,10}" placeholder="8123456" required></div>
+          <div class="vs-field"><label class="vs-label" for="md-mat">Matrícula profesional <span class="vs-req">*</span></label><input id="md-mat" class="vs-input vs-input--mono" type="text" placeholder="MP-SCZ-1792" required><span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>Debe ser única</span></div>
+          <div class="vs-field"><label class="vs-label" for="md-nombres">Nombres <span class="vs-req">*</span></label><input id="md-nombres" class="vs-input" type="text" placeholder="Andrea" required></div>
+          <div class="vs-field"><label class="vs-label" for="md-apellidos">Apellidos <span class="vs-req">*</span></label><input id="md-apellidos" class="vs-input" type="text" placeholder="Villarroel Soria" required></div>
+          <div class="vs-field"><label class="vs-label" for="md-tel">Teléfono <span class="vs-req">*</span></label><input id="md-tel" class="vs-input vs-input--mono" type="tel" pattern="[0-9]{7,8}" placeholder="7XXXXXXX" required></div>
+          <div class="vs-field"><label class="vs-label" for="md-email">Correo <span class="vs-req">*</span></label><input id="md-email" class="vs-input" type="email" placeholder="avillarroel@vidasalud.com.bo" required></div>
+        </div>
+        <div class="vs-field">
+          <span class="vs-label">Especialidades <span class="vs-req">*</span> <span class="vs-label__opt">una o varias</span></span>
+          <div class="vs-pills">
+            <label class="vs-pill"><input type="checkbox" name="esp" value="1"><span>Medicina General</span></label>
+            <label class="vs-pill"><input type="checkbox" name="esp" value="2"><span>Pediatría</span></label>
+            <label class="vs-pill"><input type="checkbox" name="esp" value="3"><span>Ginecología</span></label>
+            <label class="vs-pill"><input type="checkbox" name="esp" value="4"><span>Odontología</span></label>
+            <label class="vs-pill"><input type="checkbox" name="esp" value="5"><span>Cardiología</span></label>
+            <label class="vs-pill"><input type="checkbox" name="esp" value="6"><span>Traumatología</span></label>
+            <label class="vs-pill"><input type="checkbox" name="esp" value="7"><span>Dermatología</span></label>
+          </div>
+        </div>
+        <div class="vs-alert vs-alert--info"><svg class="vs-i"><use href="#i-info"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Cuenta de acceso</span>Se creará el usuario <span class="vs-mono">avillarroel</span> con rol Médico y contraseña temporal. Luego configura sus horarios en CU20.</div></div>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+        <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Registrar médico</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

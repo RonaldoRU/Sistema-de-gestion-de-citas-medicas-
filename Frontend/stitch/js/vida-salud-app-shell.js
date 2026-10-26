@@ -1,4 +1,11 @@
+/* =====================================================================
+   Vida Salud — comportamiento del shell
+   Drawer móvil, colapso en escritorio y cierre de sesión (CU02).
+   Debe cargarse después de vida-salud-nav.js.
+   ===================================================================== */
 (function () {
+  'use strict';
+
   var sidebar = document.getElementById('app-sidebar');
   var overlay = document.getElementById('sidebar-overlay');
   var toggle = document.getElementById('sidebar-toggle');
@@ -13,6 +20,10 @@
     return sidebar.classList.contains('is-collapsed');
   }
 
+  function isDrawerOpen() {
+    return sidebar.classList.contains('is-drawer-open');
+  }
+
   function setToggleLabel(drawerOpen) {
     toggle.setAttribute('aria-expanded', drawerOpen ? 'true' : 'false');
     if (drawerOpen) {
@@ -22,24 +33,19 @@
     toggle.setAttribute('aria-label', mqDesktop.matches && isCollapsed() ? 'Expandir menú' : 'Abrir menú');
   }
 
-  function openSidebar() {
-    sidebar.classList.remove('-translate-x-full');
+  function openDrawer() {
     sidebar.classList.add('is-drawer-open');
     overlay.classList.add('is-open');
-    overlay.classList.remove('opacity-0', 'pointer-events-none');
     overlay.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('overflow-hidden');
+    document.body.classList.add('vs-no-scroll');
     setToggleLabel(true);
   }
 
-  function closeSidebar() {
-    if (mqDesktop.matches) return;
-    sidebar.classList.add('-translate-x-full');
+  function closeDrawer() {
     sidebar.classList.remove('is-drawer-open');
     overlay.classList.remove('is-open');
-    overlay.classList.add('opacity-0', 'pointer-events-none');
     overlay.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('overflow-hidden');
+    document.body.classList.remove('vs-no-scroll');
     setToggleLabel(false);
   }
 
@@ -53,21 +59,16 @@
 
   function syncLayout() {
     if (mqDesktop.matches) {
-      sidebar.classList.remove('-translate-x-full', 'is-drawer-open');
-      overlay.classList.remove('is-open');
-      overlay.classList.add('opacity-0', 'pointer-events-none');
-      overlay.setAttribute('aria-hidden', 'true');
-      document.body.classList.remove('overflow-hidden');
+      closeDrawer();
       var collapsed = false;
       try {
         collapsed = sessionStorage.getItem(storageKey) === '1';
       } catch (e) {}
       sidebar.classList.toggle('is-collapsed', collapsed);
-      setToggleLabel(false);
-    } else if (sidebar.classList.contains('-translate-x-full')) {
-      sidebar.classList.remove('is-drawer-open');
-      setToggleLabel(false);
+    } else {
+      sidebar.classList.remove('is-collapsed');
     }
+    setToggleLabel(isDrawerOpen());
   }
 
   toggle.addEventListener('click', function () {
@@ -75,30 +76,36 @@
       applyCollapsed(!isCollapsed());
       return;
     }
-    if (sidebar.classList.contains('-translate-x-full')) openSidebar();
-    else closeSidebar();
+    if (isDrawerOpen()) closeDrawer();
+    else openDrawer();
   });
 
-  if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
-  overlay.addEventListener('click', closeSidebar);
+  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !mqDesktop.matches && !sidebar.classList.contains('-translate-x-full')) {
-      closeSidebar();
-    }
+    if (e.key === 'Escape' && !mqDesktop.matches && isDrawerOpen()) closeDrawer();
   });
 
-  mqDesktop.addEventListener('change', syncLayout);
+  if (mqDesktop.addEventListener) mqDesktop.addEventListener('change', syncLayout);
+  else mqDesktop.addListener(syncLayout);
 
   sidebar.querySelectorAll('nav a').forEach(function (link) {
     link.addEventListener('click', function () {
-      if (!mqDesktop.matches) closeSidebar();
+      if (!mqDesktop.matches) closeDrawer();
     });
   });
 
+  /* CU02 — Cerrar sesión: confirmación y redirección */
+  var logoutDialog = document.getElementById('vs-logout-dialog');
   document.querySelectorAll('[data-logout]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      window.location.href = 'login-stitch.html';
+      if (logoutDialog && typeof logoutDialog.showModal === 'function') {
+        if (!mqDesktop.matches) closeDrawer();
+        logoutDialog.showModal();
+      } else {
+        window.location.href = 'cu02-sesion-cerrada.html';
+      }
     });
   });
 

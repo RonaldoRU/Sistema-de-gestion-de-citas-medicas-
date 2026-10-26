@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de asistencia y estados · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU29">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Asistencia y estados</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
+            <h2 class="vs-h1">Controlar asistencia y estados de la cita</h2>
+            <p class="vs-lead">Cada cita recorre un ciclo de vida controlado. Recepción registra la llegada del paciente o su inasistencia; el médico cierra la atención. Toda transición queda en el historial.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU29</span><span class="vs-trace__actor">Recepcionista · Médico</span></span>
+            <a href="cu30-agenda-diaria.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-calendar"/></svg>Agenda de hoy</a>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__head"><div><h3 class="vs-card__title">Máquina de estados de la cita</h3><p class="vs-card__sub">Catálogo <span class="vs-code">estado_cita</span> · transiciones permitidas</p></div></div>
+          <div class="vs-card__body">
+            <div class="vs-fsm">
+              <div class="vs-fsm-row">
+                <span class="vs-fsm-node vs-fsm-node--programada">PROGRAMADA<small>Reserva creada (CU24)</small></span>
+                <span class="vs-fsm-arrow"><span>recordatorio / llegada</span><span class="vs-fsm-arrow__line"></span></span>
+                <span class="vs-fsm-node vs-fsm-node--confirmada">CONFIRMADA<small>Paciente confirmó o llegó</small></span>
+                <span class="vs-fsm-arrow"><span>médico cierra (CU31)</span><span class="vs-fsm-arrow__line"></span></span>
+                <span class="vs-fsm-node vs-fsm-node--atendida">ATENDIDA<small>Estado final</small></span>
+              </div>
+              <div class="vs-fsm-branch">
+                <div><span class="vs-fsm-branch__from">desde Programada o Confirmada · CU27</span><span class="vs-fsm-node vs-fsm-node--cancelada">CANCELADA<small>Estado final · libera el bloque</small></span></div>
+                <div><span class="vs-fsm-branch__from">desde Programada o Confirmada · tras la hora</span><span class="vs-fsm-node vs-fsm-node--inasistencia">INASISTENCIA<small>Estado final · paciente no llegó</small></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="vs-card__foot"><span>Los estados finales no admiten nuevas transiciones (A1): se programa una cita nueva.</span><span class="vs-xs">Reprogramar (CU26) no cambia el estado, solo fecha y hora</span></div>
+        </section>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head">
+              <div><h3 class="vs-card__title">Citas de hoy · lunes 26/10/2026</h3><p class="vs-card__sub">Marca la llegada o la inasistencia desde recepción</p></div>
+              <select class="vs-select" aria-label="Médico" style="min-width:14rem"><option>Todos los médicos</option><option selected>Dr. Rojas · Medicina General</option><option>Dra. Gutiérrez · Pediatría</option><option>Dra. Montero · Ginecología</option></select>
+            </div>
+            <div class="vs-table-wrap">
+              <table class="vs-table">
+                <thead><tr><th>Hora</th><th>Cita</th><th>Paciente</th><th>Estado</th><th class="vs-hide-md">Última transición</th><th class="vs-td-actions">Acción</th></tr></thead>
+                <tbody>
+                  <tr class="is-muted"><td class="vs-td-num">08:00</td><td class="vs-td-num">CM-0281</td><td>Ronald Saucedo Mendoza</td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Atendida</span></td><td class="vs-hide-md vs-xs">08:26 · jrojas · Confirmada → Atendida</td><td class="vs-td-actions"><span class="vs-xs vs-muted">Final</span></td></tr>
+                  <tr><td class="vs-td-num">08:30</td><td class="vs-td-num">CM-0283</td><td>Jimena Égüez Choque</td><td><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span></td><td class="vs-hide-md vs-xs">08:29 · csuarez · Programada → Confirmada</td><td class="vs-td-actions"><span class="vs-badge vs-badge--info">En consultorio</span></td></tr>
+                  <tr><td class="vs-td-num">09:00</td><td class="vs-td-num">CM-0286</td><td>Fernando Wilson Roca Barba</td><td><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span></td><td class="vs-hide-md vs-xs">25/10 08:40 · rvaca · recordatorio</td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--teal vs-btn--sm" data-toast="Llegada registrada" data-toast-sub="CM-0286 · paciente en sala de espera 08:52"><svg class="vs-i"><use href="#i-check"/></svg>Llegó</button></td></tr>
+                  <tr><td class="vs-td-num">10:00</td><td class="vs-td-num">CM-0288</td><td>Paola Paz Terceros</td><td><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span></td><td class="vs-hide-md vs-xs">19/10 · djustiniano · creada</td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--teal vs-btn--sm" data-toast="Asistencia confirmada" data-toast-sub="CM-0288 · Programada → Confirmada"><svg class="vs-i"><use href="#i-check"/></svg>Llegó</button><button type="button" class="vs-btn vs-btn--warn-soft vs-btn--sm" data-open-dialog="dlg-inasistencia"><svg class="vs-i"><use href="#i-x-circle"/></svg>No asistió</button></td></tr>
+                  <tr><td class="vs-td-num">10:30</td><td class="vs-td-num">CM-0290</td><td>Iván Cuéllar Arteaga</td><td><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span></td><td class="vs-hide-md vs-xs">Hoy 08:31 · rvaca · creada</td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--teal vs-btn--sm" data-toast="Asistencia confirmada" data-toast-sub="CM-0290 · Programada → Confirmada"><svg class="vs-i"><use href="#i-check"/></svg>Llegó</button><button type="button" class="vs-btn vs-btn--warn-soft vs-btn--sm" data-open-dialog="dlg-inasistencia"><svg class="vs-i"><use href="#i-x-circle"/></svg>No asistió</button></td></tr>
+                  <tr class="is-muted"><td class="vs-td-num">11:00</td><td class="vs-td-num">CM-0279</td><td>Daniel Vargas Soliz</td><td><span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Cancelada</span></td><td class="vs-hide-md vs-xs">08:09 · csuarez · “Paciente viajó”</td><td class="vs-td-actions"><span class="vs-xs vs-muted">Final</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="vs-card__foot"><span>Inasistencia solo se puede marcar después de la hora de la cita (A2).</span></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Quién puede cambiar qué</h3></div></div>
+              <div class="vs-table-wrap">
+                <table class="vs-table vs-table--compact">
+                  <thead><tr><th>Transición</th><th>Actor</th><th>CU</th></tr></thead>
+                  <tbody>
+                    <tr><td>Programada → Confirmada</td><td>Recepcionista</td><td class="vs-td-num">CU28 / CU29</td></tr>
+                    <tr><td>Confirmada → Atendida</td><td>Médico</td><td class="vs-td-num">CU31</td></tr>
+                    <tr><td>Prog./Conf. → Cancelada</td><td>Recepcionista</td><td class="vs-td-num">CU27</td></tr>
+                    <tr><td>Prog./Conf. → Inasistencia</td><td>Recepcionista</td><td class="vs-td-num">CU29</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Historial de estados · CM-0283</h3></div></div>
+              <div class="vs-card__body">
+                <ol class="vs-timeline">
+                  <li class="vs-tl-item vs-tl-item--ok"><span class="vs-tl-time">26/10 08:29</span><div class="vs-tl-title">Programada → Confirmada</div><div class="vs-tl-sub">csuarez · confirmación telefónica</div></li>
+                  <li class="vs-tl-item vs-tl-item--info"><span class="vs-tl-time">25/10 08:00</span><div class="vs-tl-title">Recordatorio generado</div><div class="vs-tl-sub">Sistema · notificación PENDIENTE</div></li>
+                  <li class="vs-tl-item vs-tl-item--muted"><span class="vs-tl-time">19/10 10:12</span><div class="vs-tl-title">Creada en estado Programada</div><div class="vs-tl-sub">rvaca · CU24</div></li>
+                </ol>
+              </div>
+            </article>
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Distribución · octubre</h3></div></div>
+              <div class="vs-card__body vs-bars">
+                <div class="vs-bars__row"><span class="vs-bars__label">Atendidas</span><div class="vs-bar vs-bar--teal"><i style="width:100%"></i></div><span class="vs-bars__val">112</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Programadas</span><div class="vs-bar"><i style="width:30%"></i></div><span class="vs-bars__val">34</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Confirmadas</span><div class="vs-bar vs-bar--cyan"><i style="width:16%"></i></div><span class="vs-bars__val">18</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Canceladas</span><div class="vs-bar vs-bar--rose"><i style="width:28%"></i></div><span class="vs-bars__val">31</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Inasistencias</span><div class="vs-bar vs-bar--amber"><i style="width:8%"></i></div><span class="vs-bars__val">9</span></div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-inasistencia" class="vs-modal">
+    <form data-demo="Inasistencia registrada" data-demo-sub="CM-0288 → INASISTENCIA · bloque cerrado · cuenta en el reporte CU34" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon vs-modal__icon--warn"><svg class="vs-i"><use href="#i-x-circle"/></svg></span>
+        <div><h2 class="vs-modal__title">Marcar inasistencia · CM-0288</h2><p class="vs-modal__text">Paola Paz Terceros · Dr. Rojas · 10:00. Son las 10:21 y la paciente no se presentó ni avisó.</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-field">
+          <label class="vs-label" for="in-obs">Observación <span class="vs-label__opt">opcional</span></label>
+          <input id="in-obs" class="vs-input" type="text" placeholder="Ej. Se intentó llamar a las 10:10 sin respuesta">
+        </div>
+        <label class="vs-check vs-check--sm"><input type="checkbox" checked>Registrar intento de contacto telefónico</label>
+        <div class="vs-alert vs-alert--info"><svg class="vs-i"><use href="#i-info"/></svg><div class="vs-alert__body">La inasistencia es un estado final. Si el paciente llega más tarde, deberá programarse una nueva cita.</div></div>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+        <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Confirmar inasistencia</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

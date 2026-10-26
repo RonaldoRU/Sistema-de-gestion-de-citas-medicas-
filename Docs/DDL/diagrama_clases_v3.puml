@@ -1,0 +1,364 @@
+@startuml
+title Diagrama de Clases - Sistema Web de Gestion de Citas Medicas - Clinica "Vida Salud" (36 CU - v3)
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classFontStyle bold
+skinparam nodesep 60
+skinparam ranksep 80
+skinparam packageStyle rectangle
+hide empty members
+
+package "P1 - Seguridad y Autenticacion (CU01-CU04)" #DAE8FC {
+  enum EstadoUsuario {
+    ACTIVO
+    INACTIVO
+    BLOQUEADO
+  }
+  class Sesion {
+    -idSesion : String <<PK>>
+    -fechaInicio : DateTime
+    -ultimaActividad : DateTime
+    -fechaCierre : DateTime
+    -activa : boolean
+    -ip : String
+    -idUsuario : int <<FK>>
+    --
+    +validar() : boolean
+    +revocar() : void
+  }
+  class RecuperacionContrasena {
+    -idRecuperacion : int <<PK>>
+    -codigoVerificacion : String
+    -fechaExpiracion : DateTime
+    -usado : boolean
+    -idUsuario : int <<FK>>
+    --
+    +generarCodigo() : String
+    +validarCodigo(codigo) : boolean
+  }
+}
+
+package "P2 - Administracion de Usuarios RBAC (CU05-CU09)" #D0CEE2 {
+  class PersonalAdministrativo {
+    -cargo : String
+    --
+  }
+  class Usuario {
+    -idUsuario : int <<PK>>
+    -nombreUsuario : String <<UK>>
+    -contrasenaHash : String
+    -estado : EstadoUsuario
+    -intentosFallidos : int
+    -bloqueadoHasta : DateTime
+    -fechaCreacion : DateTime
+    -idPersona : int <<FK,UK>>
+    -idRol : int <<FK>>
+    --
+    +iniciarSesion(usuario, clave) : Sesion
+    +cerrarSesion() : void
+    +verificarContrasena(clave) : boolean
+    +registrarIntentoFallido() : void
+    +bloquear() : void
+    +restablecerContrasena(codigo, nueva) : void
+    +registrar() : void
+    +modificar() : void
+    +cambiarRol(rol) : void
+    +inactivar() : void
+    +listar(filtro) : List<Usuario>
+  }
+  class Rol {
+    -idRol : int <<PK>>
+    -nombre : String <<UK>>
+    -descripcion : String
+    --
+    +asignarPermiso(p) : void
+    +revocarPermiso(p) : void
+    +tienePermiso(p) : boolean
+  }
+  class Permiso {
+    -idPermiso : int <<PK>>
+    -nombre : String <<UK>>
+    -modulo : String
+    -rutaMenu : String
+    --
+  }
+  class RolPermiso {
+    -idRol : int <<PK, FK>>
+    -idPermiso : int <<PK, FK>>
+    -fechaAsignacion : DateTime
+    --
+  }
+}
+
+package "P3 - Auditoria y Bitacora (CU10-CU11)" #F8CECC {
+  class Bitacora {
+    -idBitacora : long <<PK>>
+    -fechaHora : DateTime
+    -modulo : String
+    -tipoAccion : TipoAccion
+    -tablaAfectada : String
+    -idRegistroAfectado : int
+    -detalle : String
+    -ip : String
+    -idUsuario : int <<FK>>
+    --
+    {static} +registrarAccion(usuario, accion, tabla, detalle) : void
+    {static} +filtrar(usuario, modulo, accion, desde, hasta) : List<Bitacora>
+  }
+  enum TipoAccion {
+    CREAR
+    MODIFICAR
+    ELIMINAR
+    LOGIN
+    LOGOUT
+    BLOQUEO
+  }
+}
+
+package "P4 - Gestion de Pacientes (CU12-CU15, CU31-CU32)" #D5E8D4 {
+  abstract class Persona {
+    #idPersona : int <<PK>>
+    #ci : String <<UK>>
+    #nombres : String
+    #apellidos : String
+    #telefono : String
+    #email : String
+    #activo : boolean
+    --
+    +getNombreCompleto() : String
+    +actualizarContacto(telefono, email) : void
+    +desactivar() : void
+  }
+  class Paciente {
+    -codigo : String <<UK>>
+    -sexo : char
+    -fechaNacimiento : Date
+    -direccion : String
+    -fechaRegistro : DateTime
+    --
+    +registrar() : void
+    +buscar(criterio) : List<Paciente>
+    +modificar() : void
+    +consultarHistorial() : List<Cita>
+    +validarCiUnico() : boolean
+  }
+  class InformacionMedica {
+    -idInformacion : int <<PK>>
+    -tipoSangre : String
+    -alergias : String
+    -enfermedadesCronicas : String
+    -observaciones : String
+    -medicamentosHabituales : String
+    -antecedentesRelevantes : String
+    -fechaActualizacion : DateTime
+    -idPaciente : int <<FK,UK>>
+    --
+    +registrar() : void
+    +actualizar() : void
+  }
+  class ContactoEmergencia {
+    -idContacto : int <<PK>>
+    -nombreCompleto : String
+    -parentesco : String
+    -telefono : String
+    -idPaciente : int <<FK>>
+    --
+    +registrar() : void
+    +modificar() : void
+  }
+}
+
+package "P5 - Gestion Medica y Horarios (CU16-CU19, CU33)" #E1D5E7 {
+  class Medico {
+    -codigo : String <<UK>>
+    -matricula : String <<UK>>
+    --
+    +registrar() : void
+    +modificar() : void
+    +asignarEspecialidad(e) : void
+    +quitarEspecialidad(e) : void
+    +bloquearAgenda(fechaInicio, fechaFin, tipo) : void
+    +consultarAgendaDiaria(fecha) : List<Cita>
+    +estaDisponible(fecha, hora) : boolean
+  }
+  class Especialidad {
+    -idEspecialidad : int <<PK>>
+    -nombre : String <<UK>>
+    -descripcion : String
+    -activo : boolean
+    --
+    +registrar() : void
+    +modificar() : void
+    +activar() : void
+    +desactivar() : void
+    +listar() : List<Especialidad>
+  }
+  class Horario {
+    -idHorario : int <<PK>>
+    -diaSemana : int
+    -horaInicio : Time
+    -horaFin : Time
+    -duracionBloqueMin : int = 30
+    -activo : boolean
+    -idMedico : int <<FK>>
+    --
+    +configurar() : void
+    +validarFranja() : boolean
+    +validarSuperposicion() : boolean
+    +generarBloques(fecha) : List<Time>
+  }
+  class BloqueoAgenda {
+    -idBloqueo : int <<PK>>
+    -fechaInicio : Date
+    -fechaFin : Date
+    -motivo : String
+    -tipo : TipoBloqueo
+    -aplicaATodos : boolean
+    -idMedico : Integer = feriado <<FK>> ((null  general))
+    --
+    +registrar() : void
+    +estaBloqueado(fecha) : boolean
+  }
+  enum TipoBloqueo {
+    FERIADO
+    LICENCIA
+    OTRO
+  }
+  class MedicoEspecialidad {
+    -idMedico : int <<PK, FK>>
+    -idEspecialidad : int <<PK, FK>>
+    -fechaAsignacion : DateTime
+    --
+  }
+}
+
+package "P6 - Gestion de Citas (CU20-CU26, CU34-CU35)" #FFE6CC {
+  class Cita {
+    -idCita : int <<PK>>
+    -codigo : String <<UK>> (CM-0001)
+    -fecha : Date
+    -horaInicio : Time
+    -horaFin : Time
+    -motivoConsulta : String
+    -estado : EstadoCita
+    -motivoCancelacion : String
+    -observacionAtencion : String
+    -fechaCreacion : DateTime
+    -fechaHoraAtencion : DateTime
+    -idPaciente : int <<FK>>
+    -idMedico : int <<FK>>
+    -idEspecialidad : int <<FK>>
+    -idUsuarioRegistro : int <<FK>>
+    -idCitaOrigen : int <<FK>>
+    --
+    {static} +consultarDisponibilidad(esp, med, fecha) : List<Time>
+    +programar() : void
+    +validarNoDuplicada() : boolean
+    +reprogramar(fecha, hora) : Cita
+    +cancelar(motivo) : void
+    +confirmar() : void
+    +marcarAtendida(observacion) : void
+    +marcarInasistencia() : void
+    +enviarRecordatorio() : void
+    -cambiarEstado(nuevo) : void
+  }
+  enum EstadoCita {
+    PROGRAMADA
+    CONFIRMADA
+    ATENDIDA
+    CANCELADA
+    INASISTENCIA
+  }
+  class HistorialEstadoCita {
+    -idHistorial : int <<PK>>
+    -estadoAnterior : EstadoCita
+    -estadoNuevo : EstadoCita
+    -fechaAnterior : Date
+    -horaAnterior : Time
+    -motivo : String
+    -fechaCambio : DateTime
+    -idCita : int <<FK>>
+    -idUsuario : int <<FK>>
+    --
+  }
+  class Notificacion {
+    -idNotificacion : int <<PK>>
+    -mensaje : String
+    -fechaProgramada : DateTime
+    -fechaEnvio : DateTime
+    -estado : EstadoNotificacion
+    -idCita : int <<FK>>
+    -idUsuarioGestion : int <<FK>>
+    --
+    +generarListaLlamadas() : void
+    +registrarLlamada() : void
+    +reintentar() : void
+  }
+  enum EstadoNotificacion {
+    PENDIENTE
+    ENVIADA
+    FALLIDA
+  }
+}
+
+package "P7 - Reportes (CU27-CU30, CU36)" #EEEEEE {
+  class Reporte {
+    -idReporte : int <<PK>>
+    -tipo : TipoReporte
+    -fechaDesde : Date
+    -fechaHasta : Date
+    -filtros : String
+    -fechaGeneracion : DateTime
+    -idUsuario : int <<FK>>
+    --
+    +generarCitasPorPeriodo() : void
+    +generarAtencionesPorMedicoEspecialidad() : void
+    +generarControlAsistencia() : void
+    +generarPacientesRegistrados() : void
+    +exportarPDF() : File
+    +exportarCSV() : File
+  }
+  enum TipoReporte {
+    CITAS_PERIODO
+    ATENCIONES_MEDICO_ESPECIALIDAD
+    CONTROL_ASISTENCIA
+    PACIENTES_REGISTRADOS
+  }
+}
+
+Persona <|-- PersonalAdministrativo
+Persona <|-- Paciente
+Persona <|-- Medico
+Persona "1" -- "0..1" Usuario : tiene cuenta
+Rol "1" -- "1..*" Usuario : asignado a
+Rol "0..*" -- "0..*" Permiso : agrupa
+Usuario ..> EstadoUsuario
+Usuario "1" -- "0..*" Bitacora : genera
+Usuario "1" *-- "0..*" Sesion : abre
+Usuario "1" *-- "0..*" RecuperacionContrasena : solicita
+Usuario "1" -- "0..*" Cita : registra
+Usuario "1" -- "0..*" HistorialEstadoCita : realiza
+Usuario "1" -- "0..*" Notificacion : gestiona
+Usuario "1" -- "0..*" Reporte : genera
+Paciente "1" *-- "0..1" InformacionMedica : tiene
+Paciente "1" *-- "0..*" ContactoEmergencia : tiene
+Paciente "1" -- "0..*" Cita : solicita
+Medico "1" -- "0..*" Cita : atiende
+Medico "0..*" -- "1..*" Especialidad : ejerce
+Medico "1" *-- "0..*" Horario : define
+Medico "0..1" -- "0..*" BloqueoAgenda : bloquea
+BloqueoAgenda ..> TipoBloqueo
+Especialidad "1" -- "0..*" Cita : corresponde
+Reporte ..> Cita : consulta
+Reporte ..> TipoReporte
+Cita "0..1" -- "0..*" Cita : reprogramadaDe
+Cita ..> EstadoCita
+Cita "1" *-- "0..*" Notificacion : notifica
+Notificacion ..> EstadoNotificacion
+Cita "1" *-- "1..*" HistorialEstadoCita : registra cambios
+Bitacora ..> TipoAccion
+(Rol, Permiso) .. RolPermiso
+(Medico, Especialidad) .. MedicoEspecialidad
+@enduml

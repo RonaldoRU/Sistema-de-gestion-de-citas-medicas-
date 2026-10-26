@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Especialidades médicas · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU18">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Especialidades</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P5 · Gestión Médica y Horarios</p>
+            <h2 class="vs-h1">Catálogo de especialidades médicas</h2>
+            <p class="vs-lead">Las especialidades organizan la oferta de la clínica: cada médico se asocia a una o más, y el paciente elige la especialidad antes de ver la disponibilidad.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU18</span><span class="vs-trace__actor">Administrador</span></span>
+            <button type="button" class="vs-btn vs-btn--primary" data-open-dialog="dlg-nueva"><svg class="vs-i"><use href="#i-plus"/></svg>Nueva especialidad</button>
+          </div>
+        </header>
+
+        <section class="vs-grid vs-grid--3">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Especialidades activas</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span></div><p class="vs-kpi__value">7</p><p class="vs-kpi__hint">Todas con al menos un médico asignado</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Más demandada (octubre)</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-pulse"/></svg></span></div><p class="vs-kpi__value" style="font-size:1.5rem">Medicina General</p><p class="vs-kpi__hint">41 % de las citas del mes</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Médicos asignados</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-users"/></svg></span></div><p class="vs-kpi__value">9</p><p class="vs-kpi__hint">3 médicos cubren dos especialidades</p></article>
+        </section>
+
+        <section class="vs-split">
+          <article class="vs-card">
+            <div class="vs-card__head">
+              <div><h3 class="vs-card__title">Especialidades registradas</h3><p class="vs-card__sub">Tabla <span class="vs-code">especialidad</span> · nombre único</p></div>
+              <div class="vs-input-icon" style="max-width:15rem"><svg class="vs-i"><use href="#i-search"/></svg><input class="vs-input" type="search" placeholder="Buscar especialidad"></div>
+            </div>
+            <div class="vs-table-wrap">
+              <table class="vs-table">
+                <thead><tr><th>#</th><th>Especialidad</th><th class="vs-hide-md">Descripción</th><th>Médicos</th><th>Estado</th><th class="vs-td-actions">Acciones</th></tr></thead>
+                <tbody>
+                  <tr><td class="vs-td-num">1</td><td><strong class="vs-strong">Medicina General</strong></td><td class="vs-hide-md vs-muted">Atención primaria y consulta general</td><td><span class="vs-badge vs-badge--info">4</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                  <tr><td class="vs-td-num">2</td><td><strong class="vs-strong">Pediatría</strong></td><td class="vs-hide-md vs-muted">Atención de niños y adolescentes</td><td><span class="vs-badge vs-badge--info">2</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                  <tr><td class="vs-td-num">3</td><td><strong class="vs-strong">Ginecología</strong></td><td class="vs-hide-md vs-muted">Salud de la mujer y control prenatal</td><td><span class="vs-badge vs-badge--info">1</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                  <tr><td class="vs-td-num">4</td><td><strong class="vs-strong">Odontología</strong></td><td class="vs-hide-md vs-muted">Salud bucal y tratamientos dentales</td><td><span class="vs-badge vs-badge--info">1</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                  <tr><td class="vs-td-num">5</td><td><strong class="vs-strong">Cardiología</strong></td><td class="vs-hide-md vs-muted">Diagnóstico y control de enfermedades del corazón</td><td><span class="vs-badge vs-badge--info">1</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                  <tr><td class="vs-td-num">6</td><td><strong class="vs-strong">Traumatología</strong></td><td class="vs-hide-md vs-muted">Lesiones del sistema músculo-esquelético</td><td><span class="vs-badge vs-badge--info">1</span> <span class="vs-xs vs-muted">(+1 inactivo)</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                  <tr><td class="vs-td-num">7</td><td><strong class="vs-strong">Dermatología</strong></td><td class="vs-hide-md vs-muted">Enfermedades de la piel, pelo y uñas</td><td><span class="vs-badge vs-badge--info">1</span></td><td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-open-dialog="dlg-editar"><svg class="vs-i"><use href="#i-edit"/></svg></button><a href="cu19-personal-medico.html" class="vs-icon-btn vs-icon-btn--teal" title="Ver médicos"><svg class="vs-i"><use href="#i-users"/></svg></a><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Inactivar" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="vs-card__foot"><span>7 especialidades · 0 inactivas</span><span class="vs-xs">Una especialidad con médicos activos no puede inactivarse</span></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Citas por especialidad</h3><p class="vs-card__sub">Octubre 2026</p></div></div>
+              <div class="vs-card__body vs-bars">
+                <div class="vs-bars__row"><span class="vs-bars__label">Medicina General</span><div class="vs-bar"><i style="width:100%"></i></div><span class="vs-bars__val">58</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Pediatría</span><div class="vs-bar vs-bar--teal"><i style="width:55%"></i></div><span class="vs-bars__val">32</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Ginecología</span><div class="vs-bar vs-bar--cyan"><i style="width:31%"></i></div><span class="vs-bars__val">18</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Odontología</span><div class="vs-bar vs-bar--cyan"><i style="width:26%"></i></div><span class="vs-bars__val">15</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Cardiología</span><div class="vs-bar vs-bar--amber"><i style="width:17%"></i></div><span class="vs-bars__val">10</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Traumatología</span><div class="vs-bar vs-bar--amber"><i style="width:9%"></i></div><span class="vs-bars__val">5</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Dermatología</span><div class="vs-bar vs-bar--rose"><i style="width:7%"></i></div><span class="vs-bars__val">4</span></div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-nueva" class="vs-modal">
+    <form data-demo="Especialidad creada" data-demo-sub="Nutrición ya puede asignarse a médicos" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span>
+        <div><h2 class="vs-modal__title">Nueva especialidad</h2><p class="vs-modal__text">Define el nombre y una descripción breve visible para recepción.</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-field"><label class="vs-label" for="n-nombre">Nombre <span class="vs-req">*</span></label><input id="n-nombre" class="vs-input" type="text" placeholder="Ej. Nutrición" required></div>
+        <div class="vs-field"><label class="vs-label" for="n-desc">Descripción</label><textarea id="n-desc" class="vs-textarea" rows="2" placeholder="Ej. Evaluación nutricional y planes alimentarios"></textarea></div>
+        <div class="vs-alert vs-alert--danger" hidden><svg class="vs-i"><use href="#i-alert-octagon"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Ya existe una especialidad con ese nombre</span>Revisa el catálogo antes de crear otra.</div></div>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+        <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-editar" class="vs-modal">
+    <form data-demo="Especialidad actualizada" data-demo-sub="Los cambios se reflejan en disponibilidad y reportes" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon"><svg class="vs-i"><use href="#i-edit"/></svg></span>
+        <div><h2 class="vs-modal__title">Editar especialidad</h2><p class="vs-modal__text">Medicina General · 4 médicos asignados</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-field"><label class="vs-label" for="e-nombre">Nombre <span class="vs-req">*</span></label><input id="e-nombre" class="vs-input" type="text" value="Medicina General" required></div>
+        <div class="vs-field"><label class="vs-label" for="e-desc">Descripción</label><textarea id="e-desc" class="vs-textarea" rows="2">Atención primaria y consulta general</textarea></div>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+        <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Guardar cambios</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-inactivar" class="vs-modal">
+    <div class="vs-modal__head">
+      <span class="vs-modal__icon vs-modal__icon--danger"><svg class="vs-i"><use href="#i-ban"/></svg></span>
+      <div><h2 class="vs-modal__title">No se puede inactivar</h2><p class="vs-modal__text">La especialidad tiene médicos activos asociados. Reasigna o desactiva a los médicos (CU21) antes de inactivarla.</p></div>
+    </div>
+    <div class="vs-modal__foot">
+      <a href="cu19-personal-medico.html" class="vs-btn vs-btn--ghost">Ver médicos</a>
+      <button type="button" class="vs-btn vs-btn--primary" data-close-dialog>Entendido</button>
+    </div>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

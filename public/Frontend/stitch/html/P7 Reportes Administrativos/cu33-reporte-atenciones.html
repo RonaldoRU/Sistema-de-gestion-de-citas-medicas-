@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte de atenciones por médico · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU33">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Atenciones por médico</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P7 · Reportes Administrativos</p>
+            <h2 class="vs-h1">Reporte de atenciones por médico y especialidad</h2>
+            <p class="vs-lead">Productividad del plantel: citas atendidas, ocupación de bloques y tiempo medio de consulta por médico. Permite comparar especialidades y detectar capacidad ociosa.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU33</span><span class="vs-trace__actor">Administrador</span></span>
+            <a href="cu35-exportar-reportes.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-file-pdf"/></svg>PDF</a>
+            <a href="cu35-exportar-reportes.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-file-csv"/></svg>Exportar CSV</a>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight">
+            <form class="vs-filters" onsubmit="event.preventDefault()">
+              <div class="vs-field vs-f-2"><label class="vs-label" for="ra-desde">Desde</label><input id="ra-desde" class="vs-input vs-input--mono" type="date" value="2026-10-01"></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="ra-hasta">Hasta</label><input id="ra-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="ra-esp">Especialidad</label><select id="ra-esp" class="vs-select"><option>Todas</option><option>Medicina General</option><option>Pediatría</option><option>Ginecología</option><option>Odontología</option><option>Cardiología</option><option>Traumatología</option><option>Dermatología</option></select></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="ra-med">Médico</label><select id="ra-med" class="vs-select"><option>Todos los médicos</option><option>Dr. Rojas</option><option>Dra. Gutiérrez</option><option>Dr. Arteaga</option><option>Dra. Montero</option><option>Dr. Terceros</option><option>Dra. Peña</option><option>Dr. Moreno</option><option>Dra. Antelo</option><option>Dr. Égüez</option></select></div>
+              <div class="vs-row vs-f-2" style="justify-content:flex-end"><button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-chart"/></svg>Generar</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="vs-grid vs-grid--4">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Atenciones concluidas</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">112</p><p class="vs-kpi__hint">9 médicos activos · octubre</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Ocupación de bloques</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-pulse"/></svg></span></div><p class="vs-kpi__value">63 %</p><p class="vs-kpi__hint">De 832 bloques ofertados</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Más atenciones</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-sparkle"/></svg></span></div><p class="vs-kpi__value" style="font-size:1.4rem">Dr. Rojas</p><p class="vs-kpi__hint">27 atendidas · Medicina General</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Duración media</span><span class="vs-kpi__icon vs-kpi__icon--slate"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">24 <span class="vs-small vs-muted" style="font-family:var(--vs-font-sans);font-weight:600">min</span></p><p class="vs-kpi__hint">Entre llegada y cierre de la cita</p></article>
+        </section>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Atenciones por médico</h3><p class="vs-card__sub">Octubre 2026 · citas en estado Atendida</p></div></div>
+            <div class="vs-card__body">
+              <div class="vs-cols" style="height:13rem">
+                <div class="vs-col"><span class="vs-col__val">27</span><i style="height:100%"></i><small>Rojas</small></div>
+                <div class="vs-col"><span class="vs-col__val">19</span><i class="alt" style="height:70%"></i><small>Gutiérrez</small></div>
+                <div class="vs-col"><span class="vs-col__val">16</span><i class="alt" style="height:59%"></i><small>Arteaga</small></div>
+                <div class="vs-col"><span class="vs-col__val">13</span><i style="height:48%"></i><small>Montero</small></div>
+                <div class="vs-col"><span class="vs-col__val">11</span><i style="height:41%"></i><small>Terceros</small></div>
+                <div class="vs-col"><span class="vs-col__val">10</span><i style="height:37%"></i><small>Peña</small></div>
+                <div class="vs-col"><span class="vs-col__val">7</span><i style="height:26%"></i><small>Moreno</small></div>
+                <div class="vs-col"><span class="vs-col__val">5</span><i class="soft" style="height:19%"></i><small>Antelo</small></div>
+                <div class="vs-col"><span class="vs-col__val">4</span><i class="soft" style="height:15%"></i><small>Égüez</small></div>
+              </div>
+            </div>
+            <div class="vs-card__foot"><span>Barras verdes: Pediatría · azules: resto · claras: menos de 6 atenciones.</span></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Por especialidad</h3><p class="vs-card__sub">% de atenciones</p></div></div>
+              <div class="vs-card__body vs-row" style="gap:1.25rem;align-items:center">
+                <div class="vs-donut" style="background:conic-gradient(var(--vs-forest) 0 28%, var(--vs-moss) 28% 59%, var(--vs-clay) 59% 71%, #0ea5e9 71% 81%, #f59e0b 81% 90%, var(--vs-rose-500) 90% 96%, #a855f7 96% 100%)"><div class="vs-donut__center"><div class="vs-donut__val">7</div><div class="vs-donut__lbl">especialidades</div></div></div>
+                <ul class="vs-stack vs-stack--xs vs-small" style="list-style:none;padding:0;margin:0">
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-forest)"></span>Med. General · 28 %</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-moss)"></span>Pediatría · 31 %</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-clay)"></span>Ginecología · 12 %</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:#0ea5e9"></span>Odontología · 10 %</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:#f59e0b"></span>Cardiología · 9 %</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-rose-500)"></span>Traumatología · 6 %</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:#a855f7"></span>Dermatología · 4 %</li>
+                </ul>
+              </div>
+            </article>
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Lectura</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Capacidad ociosa</span>Dra. Antelo y Dr. Égüez atienden menos del 40 % de sus bloques; conviene revisar sus turnos (CU20).</div>
+                <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">Alta demanda</span>Medicina General y Pediatría concentran el 59 % de las atenciones.</div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head"><div><h3 class="vs-card__title">Tabla resumen por médico</h3><p class="vs-card__sub">Octubre 2026</p></div></div>
+          <div class="vs-table-wrap">
+            <table class="vs-table vs-table--compact">
+              <thead><tr><th>Médico</th><th class="vs-hide-md">Especialidad</th><th>Bloques ofertados</th><th>Programadas</th><th>Atendidas</th><th>Canceladas</th><th>Inasist.</th><th>Ocupación</th></tr></thead>
+              <tbody>
+                <tr><td>Dr. Juan Ronaldo Rojas Ugarte</td><td class="vs-hide-md">Medicina General</td><td class="vs-td-num">96</td><td class="vs-td-num">38</td><td class="vs-td-num"><strong class="vs-strong">27</strong></td><td class="vs-td-num">7</td><td class="vs-td-num">2</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow"><i style="width:81%"></i></div><span class="vs-xs vs-mono">81 %</span></div></td></tr>
+                <tr><td>Dra. Patricia Gutiérrez Melgar</td><td class="vs-hide-md">Pediatría</td><td class="vs-td-num">96</td><td class="vs-td-num">27</td><td class="vs-td-num"><strong class="vs-strong">19</strong></td><td class="vs-td-num">5</td><td class="vs-td-num">1</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow vs-bar--teal"><i style="width:74%"></i></div><span class="vs-xs vs-mono">74 %</span></div></td></tr>
+                <tr><td>Dr. Fernando Arteaga Ribera</td><td class="vs-hide-md">Pediatría · Med. General</td><td class="vs-td-num">96</td><td class="vs-td-num">24</td><td class="vs-td-num"><strong class="vs-strong">16</strong></td><td class="vs-td-num">4</td><td class="vs-td-num">2</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow vs-bar--teal"><i style="width:69%"></i></div><span class="vs-xs vs-mono">69 %</span></div></td></tr>
+                <tr><td>Dra. Claudia Montero Saucedo</td><td class="vs-hide-md">Ginecología</td><td class="vs-td-num">88</td><td class="vs-td-num">25</td><td class="vs-td-num"><strong class="vs-strong">13</strong></td><td class="vs-td-num">6</td><td class="vs-td-num">1</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow"><i style="width:62%"></i></div><span class="vs-xs vs-mono">62 %</span></div></td></tr>
+                <tr><td>Dr. Marcelo Terceros Chávez</td><td class="vs-hide-md">Odontología</td><td class="vs-td-num">96</td><td class="vs-td-num">21</td><td class="vs-td-num"><strong class="vs-strong">11</strong></td><td class="vs-td-num">4</td><td class="vs-td-num">1</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow"><i style="width:58%"></i></div><span class="vs-xs vs-mono">58 %</span></div></td></tr>
+                <tr><td>Dra. Gabriela Peña Salvatierra</td><td class="vs-hide-md">Cardiología · Med. General</td><td class="vs-td-num">64</td><td class="vs-td-num">14</td><td class="vs-td-num"><strong class="vs-strong">10</strong></td><td class="vs-td-num">2</td><td class="vs-td-num">1</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow"><i style="width:55%"></i></div><span class="vs-xs vs-mono">55 %</span></div></td></tr>
+                <tr><td>Dr. Álvaro Moreno Durán</td><td class="vs-hide-md">Traumatología</td><td class="vs-td-num">96</td><td class="vs-td-num">9</td><td class="vs-td-num"><strong class="vs-strong">7</strong></td><td class="vs-td-num">1</td><td class="vs-td-num">1</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow vs-bar--amber"><i style="width:44%"></i></div><span class="vs-xs vs-mono">44 %</span></div></td></tr>
+                <tr><td>Dra. Lorena Antelo Barba</td><td class="vs-hide-md">Dermatología</td><td class="vs-td-num">64</td><td class="vs-td-num">5</td><td class="vs-td-num"><strong class="vs-strong">5</strong></td><td class="vs-td-num">0</td><td class="vs-td-num">0</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow vs-bar--rose"><i style="width:36%"></i></div><span class="vs-xs vs-mono">36 %</span></div></td></tr>
+                <tr><td>Dr. Ricardo Égüez Parada</td><td class="vs-hide-md">Medicina General</td><td class="vs-td-num">128</td><td class="vs-td-num">8</td><td class="vs-td-num"><strong class="vs-strong">4</strong></td><td class="vs-td-num">2</td><td class="vs-td-num">0</td><td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow vs-bar--rose"><i style="width:31%"></i></div><span class="vs-xs vs-mono">31 %</span></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vs-card__foot"><span>Ocupación = (programadas + confirmadas + atendidas) ÷ bloques ofertados en el período.</span></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

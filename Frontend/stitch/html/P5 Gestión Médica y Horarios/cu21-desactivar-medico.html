@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Desactivar médico · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU21">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Desactivar médico</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P5 · Gestión Médica y Horarios</p>
+            <h2 class="vs-h1">Desactivar médico</h2>
+            <p class="vs-lead">La baja de un médico es lógica: deja de aparecer en la disponibilidad y su cuenta se inactiva, pero sus atenciones pasadas permanecen. Antes, todas sus citas futuras deben reprogramarse o cancelarse.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU21</span><span class="vs-trace__actor">Administrador</span></span>
+            <a href="cu19-personal-medico.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-arrow-left"/></svg>Personal médico</a>
+          </div>
+        </header>
+
+        <section class="vs-split">
+          <div class="vs-stack">
+            <article class="vs-card vs-card--danger">
+              <div class="vs-card__head">
+                <div class="vs-row" style="gap:.85rem">
+                  <span class="vs-avatar vs-avatar--lg vs-avatar--teal">JR</span>
+                  <div><h3 class="vs-card__title">Dr. Juan Ronaldo Rojas Ugarte</h3><p class="vs-card__sub"><span class="vs-mono">MED-001</span> · MP-SCZ-1422 · Medicina General · Lun · Mié · Vie 08:00–12:00</p></div>
+                </div>
+                <span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>
+              </div>
+              <div class="vs-card__body vs-stack vs-stack--sm">
+                <div class="vs-alert vs-alert--warn">
+                  <svg class="vs-i"><use href="#i-alert"/></svg>
+                  <div class="vs-alert__body"><span class="vs-alert__title">Tiene 6 citas futuras (A1)</span>El sistema no permite desactivar al médico mientras existan citas Programadas o Confirmadas. Reprográmalas con otro médico de Medicina General o cancélalas.</div>
+                </div>
+                <div class="vs-table-wrap">
+                  <table class="vs-table vs-table--compact">
+                    <thead><tr><th>Código</th><th>Fecha y hora</th><th>Paciente</th><th>Estado</th><th class="vs-td-actions">Resolver</th></tr></thead>
+                    <tbody>
+                      <tr><td class="vs-td-num">CM-0283</td><td class="vs-td-num">26/10 08:30</td><td>Jimena Égüez Choque</td><td><span class="vs-badge vs-badge--cyan">Confirmada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
+                      <tr><td class="vs-td-num">CM-0286</td><td class="vs-td-num">26/10 09:00</td><td>Fernando Wilson Roca Barba</td><td><span class="vs-badge vs-badge--cyan">Confirmada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
+                      <tr><td class="vs-td-num">CM-0288</td><td class="vs-td-num">26/10 10:00</td><td>Paola Paz Terceros</td><td><span class="vs-badge vs-badge--info">Programada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
+                      <tr><td class="vs-td-num">CM-0290</td><td class="vs-td-num">26/10 10:30</td><td>Iván Cuéllar Arteaga</td><td><span class="vs-badge vs-badge--info">Programada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
+                      <tr><td class="vs-td-num">CM-0293</td><td class="vs-td-num">28/10 08:00</td><td>Ronald Saucedo Mendoza</td><td><span class="vs-badge vs-badge--info">Programada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
+                      <tr><td class="vs-td-num">CM-0295</td><td class="vs-td-num">30/10 09:30</td><td>Camila Choque Peña</td><td><span class="vs-badge vs-badge--info">Programada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="vs-card__foot">
+                <span>Médicos alternativos en Medicina General: Arteaga, Peña, Égüez</span>
+                <button type="button" class="vs-btn vs-btn--danger" disabled title="Reprograma o cancela las citas futuras primero"><svg class="vs-i"><use href="#i-ban"/></svg>Desactivar médico</button>
+              </div>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head">
+                <div class="vs-row" style="gap:.85rem">
+                  <span class="vs-avatar vs-avatar--lg vs-avatar--teal">LA</span>
+                  <div><h3 class="vs-card__title">Dra. Lorena Antelo Barba</h3><p class="vs-card__sub"><span class="vs-mono">MED-008</span> · MP-SCZ-1681 · Dermatología · Mié 08:00–12:00 · Vie 14:00–18:00</p></div>
+                </div>
+                <span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>
+              </div>
+              <div class="vs-card__body">
+                <div class="vs-alert vs-alert--ok"><svg class="vs-i"><use href="#i-check-circle"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Sin citas futuras</span>Puede desactivarse. Sus 2 turnos semanales pasarán a inactivos y su cuenta <span class="vs-mono">lantelo</span> quedará suspendida.</div></div>
+              </div>
+              <div class="vs-card__foot">
+                <span>4 atenciones históricas se conservan</span>
+                <button type="button" class="vs-btn vs-btn--danger" data-open-dialog="dlg-baja"><svg class="vs-i"><use href="#i-ban"/></svg>Desactivar médico</button>
+              </div>
+            </article>
+          </div>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Médicos inactivos</h3></div></div>
+              <ul class="vs-list vs-list--boxed">
+                <li class="vs-list-row">
+                  <span class="vs-avatar vs-avatar--sm vs-avatar--slate">HF</span>
+                  <div class="vs-list-row__body"><div class="vs-list-row__title">Dr. Hugo Flores Mamani</div><div class="vs-list-row__sub">MED-010 · Traumatología + Med. General · baja el 10/10/2026 · “Renuncia voluntaria”</div></div>
+                  <button type="button" class="vs-btn vs-btn--teal vs-btn--sm" data-toast="Médico reactivado" data-toast-sub="MED-010 activo · recuerda reactivar sus horarios en CU20"><svg class="vs-i"><use href="#i-undo"/></svg>Reactivar</button>
+                </li>
+              </ul>
+            </article>
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Efectos de la baja</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule vs-rule--danger"><span class="vs-rule__k">Bloqueo (A1)</span>Con citas futuras activas, la operación se rechaza y se listan para reprogramar (CU26) o cancelar (CU27).</div>
+                <div class="vs-rule"><span class="vs-rule__k">Horarios</span>Sus turnos pasan a <span class="vs-code">activo = false</span>; dejan de generar bloques.</div>
+                <div class="vs-rule"><span class="vs-rule__k">Cuenta</span>El usuario queda Inactivo (misma regla que CU09).</div>
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Historial</span>Las citas atendidas siguen en reportes y en el historial de cada paciente.</div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-baja" class="vs-modal">
+    <form data-demo="Médico desactivado" data-demo-sub="MED-008 inactivo · horarios y cuenta suspendidos" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon vs-modal__icon--danger"><svg class="vs-i"><use href="#i-ban"/></svg></span>
+        <div><h2 class="vs-modal__title">Desactivar a la Dra. Lorena Antelo Barba</h2><p class="vs-modal__text">Dermatología quedará temporalmente sin médico asignado. Podrás reactivarla más adelante.</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-field">
+          <label class="vs-label" for="m-motivo">Motivo <span class="vs-req">*</span></label>
+          <select id="m-motivo" class="vs-select" required>
+            <option value="">Selecciona un motivo…</option>
+            <option>Renuncia voluntaria</option>
+            <option>Fin de contrato</option>
+            <option>Licencia prolongada</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="vs-field">
+          <label class="vs-label" for="m-fecha">Fecha efectiva</label>
+          <input id="m-fecha" class="vs-input vs-input--mono" type="date" value="2026-10-26" min="2026-10-26">
+        </div>
+        <div class="vs-field">
+          <label class="vs-label" for="m-confirm">Escribe <span class="vs-mono">DESACTIVAR</span> para confirmar</label>
+          <input id="m-confirm" class="vs-input vs-input--mono" type="text" autocomplete="off" data-confirm-text="DESACTIVAR" data-confirm-target="btn-baja">
+        </div>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+        <button type="submit" id="btn-baja" class="vs-btn vs-btn--danger"><svg class="vs-i"><use href="#i-ban"/></svg>Confirmar baja</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
