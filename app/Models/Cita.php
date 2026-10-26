@@ -13,6 +13,7 @@ class Cita extends Model
 
     protected $table = 'cita';
     protected $primaryKey = 'id_cita';
+    public $timestamps = false;
 
     protected $fillable = [
         'codigo',

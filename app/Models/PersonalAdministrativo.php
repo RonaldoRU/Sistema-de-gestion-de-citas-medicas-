@@ -13,6 +13,7 @@ class PersonalAdministrativo extends Model
     protected $table = 'personal_administrativo';
     protected $primaryKey = 'id_persona';
     public $incrementing = false;
+    public $timestamps = false;
 
     protected $fillable = [
         'id_persona',

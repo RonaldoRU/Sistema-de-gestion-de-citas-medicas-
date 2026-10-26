@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/vida-salud-theme.css">
 </head>
-<body>
+<body data-cu="CU01">
   <div class="vs-auth">
     <section class="vs-auth__hero" aria-label="Presentación">
       <div class="vs-auth__pattern" aria-hidden="true"></div>
@@ -50,7 +50,7 @@
           <button type="button" class="vs-alert__close" data-dismiss aria-label="Cerrar aviso"><svg class="vs-i vs-i--sm"><use href="#i-close"/></svg></button>
         </div>
 
-        <form class="vs-form" action="inicio.html" method="get" novalidate>
+        <form class="vs-form" id="form-login" action="../inicio.html" method="POST" novalidate>
           <div class="vs-field">
             <label class="vs-label" for="usuario">Usuario o correo</label>
             <div class="vs-input-icon">
@@ -84,8 +84,9 @@
     </main>
   </div>
 
-  <!-- Sprite de iconos (sin shell autenticado) -->
+  <!-- Sprite de iconos y scripts -->
   <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
   <script src="../../js/vida-salud-ui.js"></script>
 </body>
 </html>

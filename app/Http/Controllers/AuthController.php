@@ -23,7 +23,7 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse|RedirectResponse
     {
-        $identificador = trim($request->input('identificador') ?? $request->input('usuario') ?? $request->input('email') ?? $request->input('login') ?? '');
+        $identificador = trim($request->input('identificador') ?? $request->input('usuario') ?? $request->input('nombre_usuario') ?? $request->input('email') ?? $request->input('login') ?? '');
         $password = (string) ($request->input('password') ?? $request->input('clave') ?? $request->input('contrasena') ?? '');
 
         if (empty($identificador) || empty($password)) {

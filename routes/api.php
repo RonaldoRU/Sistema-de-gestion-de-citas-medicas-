@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
     // =====================================================================
     Route::prefix('bitacora')->middleware('rol:ADMINISTRADOR')->group(function () {
         Route::get('/', [BitacoraController::class, 'index'])->name('api.bitacora.index');
+        Route::get('/live', [BitacoraController::class, 'live'])->name('api.bitacora.live');
         Route::get('/resumen', [BitacoraController::class, 'resumen'])->name('api.bitacora.resumen');
         Route::get('/{id}', [BitacoraController::class, 'show'])->name('api.bitacora.show');
     });

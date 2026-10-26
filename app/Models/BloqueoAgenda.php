@@ -12,6 +12,7 @@ class BloqueoAgenda extends Model
 
     protected $table = 'bloqueo_agenda';
     protected $primaryKey = 'id_bloqueo';
+    public $timestamps = false;
 
     protected $fillable = [
         'id_medico',

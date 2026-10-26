@@ -64,8 +64,9 @@
           <div class="vs-card__head">
             <div><h3 class="vs-card__title">Eventos registrados</h3><p class="vs-card__sub">Lunes 26/10/2026 · ordenados por fecha y hora descendente</p></div>
             <div class="vs-row">
-              <span class="vs-badge vs-badge--muted vs-badge--lg">148 eventos</span>
-              <span class="vs-badge vs-badge--danger vs-badge--lg">1 alerta</span>
+              <span class="vs-live" id="vs-live-indicator"><i></i>En vivo</span>
+              <span class="vs-badge vs-badge--muted vs-badge--lg" id="vs-badge-total">Cargando eventos...</span>
+              <span class="vs-badge vs-badge--danger vs-badge--lg" id="vs-badge-alertas">0 alertas</span>
             </div>
           </div>
           <div class="vs-table-wrap">
@@ -129,6 +130,8 @@
 
   <script src="../../js/vida-salud-nav.js"></script>
   <script src="../../js/vida-salud-app-shell.js"></script>
-  <script src="../../js/vida-salud-ui.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
 </body>
 </html>
+

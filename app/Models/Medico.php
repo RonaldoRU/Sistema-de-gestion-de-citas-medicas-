@@ -15,6 +15,7 @@ class Medico extends Model
     protected $table = 'medico';
     protected $primaryKey = 'id_persona';
     public $incrementing = false;
+    public $timestamps = false;
 
     protected $fillable = [
         'id_persona',

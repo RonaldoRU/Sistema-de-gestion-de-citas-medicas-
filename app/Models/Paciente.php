@@ -15,6 +15,7 @@ class Paciente extends Model
     protected $table = 'paciente';
     protected $primaryKey = 'id_persona';
     public $incrementing = false;
+    public $timestamps = false;
 
     protected $fillable = [
         'id_persona',

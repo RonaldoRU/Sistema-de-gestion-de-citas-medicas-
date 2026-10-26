@@ -11,13 +11,14 @@
 
   // Detección automática de la URL base de la API
   function resolveApiBase() {
+    var origin = location.origin;
     var path = (location.pathname || '').replace(/\\/g, '/');
-    var idx = path.indexOf('/citamedicaclinicavidasalud');
-    if (idx !== -1) {
-      return path.substring(0, idx) + '/citamedicaclinicavidasalud/citamedicaclinicavidasalud/public/api';
+    var lower = path.toLowerCase();
+    var idx = lower.indexOf('/frontend');
+    if (idx > 0) {
+      return origin + path.substring(0, idx).replace(/\/$/, '') + '/api';
     }
-    // Si corre en localhost:8000 o servidor raíz
-    return '/api';
+    return origin + '/api';
   }
 
   var API_BASE = resolveApiBase();
@@ -199,6 +200,11 @@
       return this.request('/bitacora' + query, { method: 'GET' });
     },
 
+    getBitacoraLive: function (params) {
+      var query = params ? '?' + new URLSearchParams(params).toString() : '';
+      return this.request('/bitacora/live' + query, { method: 'GET' });
+    },
+
     getBitacoraResumen: function () {
       return this.request('/bitacora/resumen', { method: 'GET' });
     },
@@ -321,7 +327,7 @@
   /* =====================================================================
      SINCRONIZACIÓN AUTOMÁTICA DE VISTAS (DOM Ready)
      ===================================================================== */
-  document.addEventListener('DOMContentLoaded', function () {
+  function initApp() {
     // 1. Sincronizar barra superior con el usuario logueado
     var currentUser = VS_API.getUser();
     if (currentUser) {
@@ -358,7 +364,7 @@
     });
 
     // 3. Vincular pantalla de Inicio de Sesión (CU01)
-    var loginForm = document.querySelector('body[data-cu="CU01"] .vs-form, .vs-auth .vs-form');
+    var loginForm = document.getElementById('form-login') || document.querySelector('body[data-cu="CU01"] .vs-form, .vs-auth .vs-form, form.vs-form');
     if (loginForm && !loginForm.getAttribute('data-bound')) {
       loginForm.setAttribute('data-bound', 'true');
       var userInput = loginForm.querySelector('#usuario, input[name="usuario"], input[name="identificador"]');
@@ -399,10 +405,10 @@
             window.vsToast('Bienvenido al sistema', (res.usuario ? res.usuario.nombres : ''));
           }
 
-          // Redirección al panel principal
           setTimeout(function () {
-            window.location.href = '../inicio.html';
-          }, 400);
+            var target = location.pathname.includes('/P1') ? '../inicio.html' : 'inicio.html';
+            window.location.href = target;
+          }, 300);
         } catch (err) {
           if (submitBtn) {
             submitBtn.disabled = false;
@@ -487,40 +493,430 @@
       }
     }
 
-    // 5. Vincular Bitácora de Auditoría (CU11)
-    var cu11Page = document.querySelector('body[data-cu="CU11"]');
-    if (cu11Page) {
-      cargarBitacora();
+    // =========================================================================
+    // 5. BITÁCORA DE AUDITORÍA EN VIVO (CU10, CU11 y Stitch)
+    // =========================================================================
+
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
-    async function cargarBitacora() {
+    function formatFechaHora(isoStr) {
+      if (!isoStr) return '—';
+      try {
+        var d = new Date(isoStr);
+        if (isNaN(d.getTime())) return isoStr;
+        var day = String(d.getDate()).padStart(2, '0');
+        var mon = String(d.getMonth() + 1).padStart(2, '0');
+        var hh = String(d.getHours()).padStart(2, '0');
+        var mm = String(d.getMinutes()).padStart(2, '0');
+        var ss = String(d.getSeconds()).padStart(2, '0');
+        return day + '/' + mon + ' ' + hh + ':' + mm + ':' + ss;
+      } catch (e) {
+        return isoStr;
+      }
+    }
+
+    function getBadgeAccion(accion) {
+      var a = (accion || '').toUpperCase();
+      if (a.includes('LOGIN')) return '<span class="vs-badge vs-badge--ok vs-badge--mono">LOGIN</span>';
+      if (a.includes('LOGOUT')) return '<span class="vs-badge vs-badge--muted vs-badge--mono">LOGOUT</span>';
+      if (a.includes('BLOQUEO')) return '<span class="vs-badge vs-badge--danger vs-badge--mono">BLOQUEO</span>';
+      if (a.includes('ELIMINAR')) return '<span class="vs-badge vs-badge--warn vs-badge--mono">ELIMINAR</span>';
+      if (a.includes('MODIFICAR')) return '<span class="vs-badge vs-badge--cyan vs-badge--mono">MODIFICAR</span>';
+      return '<span class="vs-badge vs-badge--info vs-badge--mono">' + (a || 'CREAR') + '</span>';
+    }
+
+    function mostrarModalDetalle(rec) {
+      var modalId = 'vs-bitacora-modal';
+      var oldModal = document.getElementById(modalId);
+      if (oldModal) oldModal.remove();
+
+      var usuarioStr = rec.usuario ? (rec.usuario.nombre_usuario || 'Usuario #' + rec.id_usuario) : 'Sistema';
+      var rolStr = rec.usuario && rec.usuario.rol ? rec.usuario.rol.nombre : '—';
+      var detalleFormateado = rec.detalle || 'Sin detalle adicional';
+
+      var modalHtml = '<div id="' + modalId + '" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);padding:1rem;">' +
+        '<div style="background:#fff;border-radius:14px;max-width:640px;width:100%;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden;border:1px solid #e2e8f0;display:flex;flex-direction:column;max-height:90vh;">' +
+          '<div style="padding:1.25rem 1.5rem;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:between;">' +
+            '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+              '<span class="vs-live"><i></i>En vivo</span>' +
+              '<h3 style="margin:0;font-size:1.1rem;font-weight:700;color:#0f172a;">Evento de Auditoría #' + rec.id_bitacora + '</h3>' +
+            '</div>' +
+            '<button type="button" id="vs-modal-close" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:#64748b;padding:0.25rem 0.5rem;border-radius:6px;">✕</button>' +
+          '</div>' +
+          '<div style="padding:1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem;font-size:0.875rem;">' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">' +
+              '<div><strong style="color:#64748b;font-size:0.75rem;text-transform:uppercase;">Fecha y Hora:</strong><div style="font-weight:600;color:#0f172a;margin-top:2px;">' + formatFechaHora(rec.fecha_hora) + '</div></div>' +
+              '<div><strong style="color:#64748b;font-size:0.75rem;text-transform:uppercase;">IP de Origen:</strong><div style="font-family:monospace;font-weight:600;color:#0f172a;margin-top:2px;">' + (rec.ip || '127.0.0.1') + '</div></div>' +
+              '<div><strong style="color:#64748b;font-size:0.75rem;text-transform:uppercase;">Usuario:</strong><div style="font-weight:600;color:#0f172a;margin-top:2px;">' + escapeHtml(usuarioStr) + ' (' + escapeHtml(rolStr) + ')</div></div>' +
+              '<div><strong style="color:#64748b;font-size:0.75rem;text-transform:uppercase;">Módulo:</strong><div style="font-weight:600;color:#0f172a;margin-top:2px;">' + escapeHtml(rec.modulo || 'GENERAL') + '</div></div>' +
+              '<div><strong style="color:#64748b;font-size:0.75rem;text-transform:uppercase;">Acción:</strong><div style="margin-top:4px;">' + getBadgeAccion(rec.tipo_accion) + '</div></div>' +
+              '<div><strong style="color:#64748b;font-size:0.75rem;text-transform:uppercase;">Tabla / Registro:</strong><div style="font-family:monospace;color:#0f172a;margin-top:2px;">' + (rec.tabla_afectada ? (rec.tabla_afectada + ' · ' + (rec.id_registro_afectado || '—')) : '—') + '</div></div>' +
+            '</div>' +
+            '<div>' +
+              '<strong style="color:#64748b;font-size:0.75rem;text-transform:uppercase;">Detalle de la Operación:</strong>' +
+              '<pre style="background:#0f172a;color:#f8fafc;padding:0.875rem;border-radius:8px;font-size:0.785rem;white-space:pre-wrap;word-break:break-word;margin-top:0.35rem;max-height:220px;overflow-y:auto;">' + escapeHtml(detalleFormateado) + '</pre>' +
+            '</div>' +
+          '</div>' +
+          '<div style="padding:1rem 1.5rem;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;">' +
+            '<button type="button" id="vs-modal-close-btn" class="vs-btn vs-btn--primary" style="padding:0.4rem 1.2rem;font-size:0.875rem;">Cerrar</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+      function cerrarModal() {
+        var m = document.getElementById(modalId);
+        if (m) m.remove();
+      }
+
+      var btnX = document.getElementById('vs-modal-close');
+      if (btnX) btnX.addEventListener('click', cerrarModal);
+      var btnC = document.getElementById('vs-modal-close-btn');
+      if (btnC) btnC.addEventListener('click', cerrarModal);
+    }
+
+    // --- CU11: Consultar bitácora en vivo ---
+    var cu11Page = document.querySelector('body[data-cu="CU11"]');
+    if (cu11Page) {
+      initBitacoraCU11();
+    }
+
+    function initBitacoraCU11() {
       var tableBody = document.querySelector('.vs-table tbody');
       if (!tableBody) return;
 
-      try {
-        var res = await VS_API.getBitacora();
-        var logs = res.data || res || [];
-        if (!Array.isArray(logs) || !logs.length) return;
+      var badgeTotal = document.getElementById('vs-badge-total');
+      var badgeAlertas = document.getElementById('vs-badge-alertas');
+      var filterForm = document.querySelector('.vs-filters');
+      var paginationLabel = document.querySelector('.vs-pagination span');
+      var exportBtn = document.querySelector('[data-toast="Exportación generada"]') || document.querySelector('.vs-page-head__side button');
 
-        var html = '';
-        logs.forEach(function (item) {
-          var usuario = item.usuario ? (item.usuario.nombre_usuario || 'Sistema') : 'Sistema';
-          var accion = item.accion || 'OPERACION';
-          var accionBadge = accion.includes('LOGIN') ? 'vs-badge--ok' : (accion.includes('BLOQUEO') ? 'vs-badge--danger' : 'vs-badge--info');
+      var lastId = 0;
+      var isFiltering = false;
+      var currentRecords = [];
 
-          html += '<tr>' +
-            '<td class="vs-td-num">' + (item.fecha_hora || item.created_at || '—') + '</td>' +
-            '<td><div class="vs-cell-person__name">' + usuario + '</div><div class="vs-cell-person__sub vs-mono">IP: ' + (item.ip_origen || '127.0.0.1') + '</div></td>' +
-            '<td><span class="vs-badge vs-badge--muted">' + (item.modulo || 'GENERAL') + '</span></td>' +
-            '<td><span class="vs-badge ' + accionBadge + '">' + accion + '</span></td>' +
-            '<td><div class="vs-xs">' + (item.descripcion || '—') + '</div></td>' +
-            '</tr>';
+      function buildRowHtml(item, isNew) {
+        var usuario = item.usuario ? (item.usuario.nombre_usuario || 'Sistema') : 'Sistema';
+        var tablaReg = item.tabla_afectada ? (item.tabla_afectada + (item.id_registro_afectado ? ' · ' + item.id_registro_afectado : '')) : '—';
+        var detalle = item.detalle || '—';
+        var ip = item.ip || '127.0.0.1';
+        var trStyle = isNew ? ' style="background-color: rgba(16, 185, 129, 0.12); transition: background-color 2s;"' : '';
+
+        return '<tr' + trStyle + ' data-id="' + item.id_bitacora + '">' +
+          '<td class="vs-td-num">' + formatFechaHora(item.fecha_hora) + '</td>' +
+          '<td><span class="vs-mono">' + escapeHtml(usuario) + '</span></td>' +
+          '<td class="vs-hide-md">' + escapeHtml(item.modulo || 'GENERAL') + '</td>' +
+          '<td>' + getBadgeAccion(item.tipo_accion) + '</td>' +
+          '<td class="vs-hide-md vs-mono vs-xs">' + escapeHtml(tablaReg) + '</td>' +
+          '<td class="vs-truncate" style="max-width:340px;cursor:pointer;text-decoration:underline dotted;" title="Click para ver detalle">' + escapeHtml(detalle) + '</td>' +
+          '<td class="vs-hide-md vs-td-num">' + escapeHtml(ip) + '</td>' +
+          '</tr>';
+      }
+
+      async function cargarBitacora(params) {
+        try {
+          var res = await VS_API.getBitacora(params);
+          var pagData = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+          if (!Array.isArray(pagData)) pagData = [];
+
+          currentRecords = pagData;
+          if (pagData.length > 0) {
+            pagData.forEach(function (r) {
+              if (r.id_bitacora > lastId) lastId = r.id_bitacora;
+            });
+          }
+
+          var html = '';
+          pagData.forEach(function (item) {
+            html += buildRowHtml(item, false);
+          });
+
+          if (!html) {
+            html = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">No se encontraron registros de auditoría para los criterios seleccionados.</td></tr>';
+          }
+
+          tableBody.innerHTML = html;
+
+          var total = (res && res.data && res.data.total != null) ? res.data.total : (res.total_hoy || pagData.length);
+          if (badgeTotal) badgeTotal.textContent = total + ' eventos';
+          if (badgeAlertas && res.alertas_hoy != null) {
+            badgeAlertas.textContent = res.alertas_hoy + (res.alertas_hoy === 1 ? ' alerta' : ' alertas');
+          }
+          if (paginationLabel) {
+            paginationLabel.innerHTML = 'Mostrando <strong class="vs-strong">1–' + pagData.length + '</strong> de <strong class="vs-strong">' + total + '</strong> eventos';
+          }
+        } catch (e) {
+          console.warn('Error al cargar bitácora:', e);
+        }
+      }
+
+      // Polling en vivo cada 3 segundos
+      setInterval(async function () {
+        if (isFiltering) return;
+        try {
+          var liveRes = await VS_API.getBitacoraLive({ after_id: lastId });
+          if (liveRes && liveRes.data && liveRes.data.length > 0) {
+            var newRows = '';
+            liveRes.data.forEach(function (newItem) {
+              if (newItem.id_bitacora > lastId) {
+                lastId = newItem.id_bitacora;
+              }
+              currentRecords.unshift(newItem);
+              newRows += buildRowHtml(newItem, true);
+            });
+
+            if (newRows) {
+              var emptyRow = tableBody.querySelector('.vs-td-empty');
+              if (emptyRow) tableBody.innerHTML = '';
+              tableBody.insertAdjacentHTML('afterbegin', newRows);
+            }
+
+            if (liveRes.kpis) {
+              if (badgeTotal && liveRes.kpis.total_hoy != null) {
+                badgeTotal.textContent = liveRes.kpis.total_hoy + ' eventos';
+              }
+              if (badgeAlertas && liveRes.kpis.alertas_hoy != null) {
+                badgeAlertas.textContent = liveRes.kpis.alertas_hoy + (liveRes.kpis.alertas_hoy === 1 ? ' alerta' : ' alertas');
+              }
+            }
+          }
+        } catch (err) {}
+      }, 3000);
+
+      // Ver detalle al hacer click
+      tableBody.addEventListener('click', function (ev) {
+        var tr = ev.target.closest('tr');
+        if (!tr || !tr.getAttribute('data-id')) return;
+        var id = parseInt(tr.getAttribute('data-id'), 10);
+        var rec = currentRecords.find(function (r) { return r.id_bitacora === id; });
+        if (rec) {
+          mostrarModalDetalle(rec);
+        }
+      });
+
+      // Filtros
+      if (filterForm) {
+        filterForm.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          isFiltering = true;
+
+          var userEl = document.getElementById('b-usuario');
+          var usuarioVal = userEl ? userEl.value.split('—')[0].trim() : '';
+
+          var modEl = document.getElementById('b-modulo');
+          var moduloVal = modEl ? modEl.value.split('·')[0].trim() : '';
+
+          var accionVal = document.getElementById('b-accion') ? document.getElementById('b-accion').value : '';
+          var desdeVal = document.getElementById('b-desde') ? document.getElementById('b-desde').value : '';
+          var hastaVal = document.getElementById('b-hasta') ? document.getElementById('b-hasta').value : '';
+          var qVal = document.getElementById('b-q') ? document.getElementById('b-q').value : '';
+
+          var params = {};
+          if (usuarioVal && !usuarioVal.includes('Todos')) params.usuario = usuarioVal;
+          if (moduloVal && !moduloVal.includes('Todos')) params.modulo = moduloVal;
+          if (accionVal && !accionVal.includes('Todas')) params.tipo_accion = accionVal;
+          if (desdeVal) params.fecha_desde = desdeVal;
+          if (hastaVal) params.fecha_hasta = hastaVal;
+          if (qVal) params.q = qVal;
+
+          cargarBitacora(params);
         });
 
-        if (html) tableBody.innerHTML = html;
-      } catch (e) {
-        console.warn('Error cargando bitácora:', e);
+        filterForm.addEventListener('reset', function () {
+          setTimeout(function () {
+            isFiltering = false;
+            cargarBitacora();
+          }, 50);
+        });
       }
+
+      // Exportar CSV
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function () {
+          if (!currentRecords.length) {
+            alert('No hay eventos cargados para exportar.');
+            return;
+          }
+          var csv = 'ID,Fecha_Hora,Usuario,Modulo,Tipo_Accion,Tabla,Registro_ID,Detalle,IP\n';
+          currentRecords.forEach(function (r) {
+            var usr = r.usuario ? (r.usuario.nombre_usuario || 'Sistema') : 'Sistema';
+            var det = (r.detalle || '').replace(/"/g, '""');
+            csv += [
+              r.id_bitacora,
+              '"' + (r.fecha_hora || '') + '"',
+              '"' + usr + '"',
+              '"' + (r.modulo || '') + '"',
+              '"' + (r.tipo_accion || '') + '"',
+              '"' + (r.tabla_afectada || '') + '"',
+              r.id_registro_afectado || '',
+              '"' + det + '"',
+              '"' + (r.ip || '') + '"'
+            ].join(',') + '\n';
+          });
+
+          var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          var link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.setAttribute('download', 'bitacora_vida_salud_' + new Date().toISOString().slice(0, 10) + '.csv');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      }
+
+      cargarBitacora();
+    }
+
+    // --- CU10: Registro automático y Dashboard en vivo ---
+    var cu10Page = document.querySelector('body[data-cu="CU10"]');
+    if (cu10Page) {
+      initBitacoraCU10();
+    }
+
+    function initBitacoraCU10() {
+      var kpiHoy = document.getElementById('kpi-hoy');
+      var kpiHoyHint = document.getElementById('kpi-hoy-hint');
+      var kpiMes = document.getElementById('kpi-mes');
+      var kpiAlertas = document.getElementById('kpi-alertas');
+      var timelineEl = document.getElementById('bitacora-timeline');
+      var barsEl = document.getElementById('bitacora-bars');
+
+      async function actualizarCU10() {
+        try {
+          var liveRes = await VS_API.getBitacoraLive({ limit: 8 });
+          var resumenRes = await VS_API.getBitacoraResumen();
+
+          if (liveRes && liveRes.kpis) {
+            var k = liveRes.kpis;
+            if (kpiHoy) kpiHoy.textContent = k.total_hoy != null ? k.total_hoy : '0';
+            if (kpiHoyHint) {
+              var seg = k.segundos_desde_ultimo || 0;
+              kpiHoyHint.textContent = seg < 60 ? ('Último hace ' + seg + ' segundos') : ('Último hace ' + Math.floor(seg / 60) + ' min');
+            }
+            if (kpiMes) kpiMes.textContent = k.total_mes != null ? k.total_mes : '0';
+            if (kpiAlertas) kpiAlertas.textContent = k.alertas_hoy != null ? k.alertas_hoy : '0';
+          }
+
+          var events = (liveRes && liveRes.data && liveRes.data.length) ? liveRes.data : ((resumenRes && resumenRes.resumen && resumenRes.resumen.ultimos_eventos) || []);
+          if (timelineEl && events.length) {
+            var tlHtml = '';
+            events.slice(0, 6).forEach(function (ev) {
+              var act = (ev.tipo_accion || 'CREAR').toUpperCase();
+              var cls = 'vs-tl-item--info';
+              if (act.includes('LOGIN') || act.includes('ATENDIDA') || act.includes('CONFIRMADA')) cls = 'vs-tl-item--ok';
+              else if (act.includes('BLOQUEO') || act.includes('ELIMINAR')) cls = 'vs-tl-item--danger';
+              else if (act.includes('FALLIDO') || act.includes('CANCEL')) cls = 'vs-tl-item--warn';
+
+              var timeStr = '—';
+              try {
+                var d = new Date(ev.fecha_hora);
+                timeStr = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+              } catch (e) {}
+
+              var usr = ev.usuario ? (ev.usuario.nombre_usuario || 'Sistema') : 'Sistema';
+              var title = act + (ev.tabla_afectada ? ' · ' + ev.tabla_afectada : '');
+              var sub = usr + ' · ' + (ev.detalle || 'Acción registrada');
+
+              tlHtml += '<li class="vs-tl-item ' + cls + '">' +
+                '<span class="vs-tl-time">' + timeStr + '</span>' +
+                '<div class="vs-tl-title">' + escapeHtml(title) + '</div>' +
+                '<div class="vs-tl-sub">' + escapeHtml(sub) + '</div>' +
+                '</li>';
+            });
+            timelineEl.innerHTML = tlHtml;
+          }
+
+          if (barsEl && resumenRes && resumenRes.resumen && resumenRes.resumen.por_accion) {
+            var arr = resumenRes.resumen.por_accion;
+            var maxVal = Math.max.apply(null, arr.map(function (x) { return parseInt(x.total, 10); })) || 1;
+            var barsHtml = '';
+            var colorMap = {
+              'CREAR': '',
+              'MODIFICAR': 'vs-bar--cyan',
+              'LOGIN': 'vs-bar--teal',
+              'LOGOUT': 'vs-bar--teal',
+              'ELIMINAR': 'vs-bar--amber',
+              'BLOQUEO': 'vs-bar--rose'
+            };
+            arr.forEach(function (item) {
+              var count = parseInt(item.total, 10);
+              var pct = Math.min(100, Math.round((count / maxVal) * 100));
+              var col = colorMap[item.tipo_accion] || '';
+              barsHtml += '<div class="vs-bars__row">' +
+                '<span class="vs-bars__label">' + escapeHtml(item.tipo_accion) + '</span>' +
+                '<div class="vs-bar ' + col + '"><i style="width:' + pct + '%"></i></div>' +
+                '<span class="vs-bars__val">' + count + '</span>' +
+                '</div>';
+            });
+            if (barsHtml) barsEl.innerHTML = barsHtml;
+          }
+        } catch (e) {
+          console.warn('Error sincronizando CU10:', e);
+        }
+      }
+
+      actualizarCU10();
+      setInterval(actualizarCU10, 3000);
+    }
+
+    // --- Stitch Bitácora de Auditoría ---
+    if (location.pathname.includes('bitacora-auditoria-stitch')) {
+      initBitacoraStitch();
+    }
+
+    function initBitacoraStitch() {
+      var tableBody = document.querySelector('table tbody');
+      if (!tableBody) return;
+
+      var kpiCards = document.querySelectorAll('.text-3xl.font-extrabold');
+      var badgeTotal = document.querySelector('.bg-teal-50\\/70');
+
+      async function actualizarStitch() {
+        try {
+          var liveRes = await VS_API.getBitacoraLive({ limit: 15 });
+          if (!liveRes) return;
+
+          if (liveRes.kpis && kpiCards.length >= 3) {
+            var k = liveRes.kpis;
+            if (kpiCards[0]) kpiCards[0].textContent = k.total_hoy || '0';
+            if (kpiCards[1]) kpiCards[1].textContent = k.total_mes || '0';
+            if (kpiCards[2]) kpiCards[2].textContent = k.alertas_hoy || '0';
+            if (badgeTotal) badgeTotal.textContent = (k.total_hoy || 0) + ' eventos hoy';
+          }
+
+          if (liveRes.data && liveRes.data.length) {
+            var html = '';
+            liveRes.data.forEach(function (item) {
+              var usr = item.usuario ? (item.usuario.nombre_usuario || 'Sistema') : 'Sistema';
+              var rol = item.usuario && item.usuario.rol ? item.usuario.rol.nombre : 'Personal';
+              var dt = formatFechaHora(item.fecha_hora);
+
+              html += '<tr class="hover:bg-slate-50/40 transition-colors">' +
+                '<td class="py-3 px-4 font-medium text-vs-ink whitespace-nowrap">' + dt + '</td>' +
+                '<td class="py-3 px-4"><div class="font-semibold text-vs-ink">' + escapeHtml(usr) + '</div><div class="text-slate-500 text-[11px]">' + escapeHtml(rol) + ' · ' + (item.ip || '127.0.0.1') + '</div></td>' +
+                '<td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">' + escapeHtml(item.modulo || 'GENERAL') + '</span></td>' +
+                '<td class="py-3 px-4">' + getBadgeAccion(item.tipo_accion) + '</td>' +
+                '<td class="py-3 px-4 text-slate-600 max-w-xs truncate" title="' + escapeHtml(item.detalle || '') + '">' + escapeHtml(item.detalle || '—') + '</td>' +
+                '</tr>';
+            });
+            tableBody.innerHTML = html;
+          }
+        } catch (e) {
+          console.warn('Error bitácora stitch:', e);
+        }
+      }
+
+      actualizarStitch();
+      setInterval(actualizarStitch, 3000);
     }
 
     // 6. Actualizar Dashboard Principal (inicio.html)
@@ -557,9 +953,52 @@
             if (html) tableBody.innerHTML = html;
           }
         }
+
+        // Cargar últimos movimientos de auditoría en vivo en inicio.html
+        var timelineEl = document.querySelector('.vs-timeline');
+        if (timelineEl) {
+          try {
+            var bRes = await VS_API.getBitacoraLive({ limit: 4 });
+            if (bRes && bRes.data && bRes.data.length) {
+              var tHtml = '';
+              bRes.data.slice(0, 4).forEach(function (ev) {
+                var act = (ev.tipo_accion || 'CREAR').toUpperCase();
+                var cls = 'vs-tl-item--info';
+                if (act.includes('LOGIN') || act.includes('ATENDIDA') || act.includes('CONFIRMADA')) cls = 'vs-tl-item--ok';
+                else if (act.includes('BLOQUEO') || act.includes('ELIMINAR')) cls = 'vs-tl-item--danger';
+                else if (act.includes('FALLIDO') || act.includes('CANCEL')) cls = 'vs-tl-item--warn';
+
+                var timeStr = '—';
+                try {
+                  var d = new Date(ev.fecha_hora);
+                  timeStr = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+                } catch (e) {}
+
+                var usr = ev.usuario ? (ev.usuario.nombre_usuario || 'Sistema') : 'Sistema';
+                var title = act + (ev.tabla_afectada ? ' · ' + ev.tabla_afectada : '');
+                var sub = usr + ' · ' + (ev.detalle || 'Acción registrada');
+
+                tHtml += '<li class="vs-tl-item ' + cls + '">' +
+                  '<span class="vs-tl-time">' + timeStr + '</span>' +
+                  '<div class="vs-tl-title">' + escapeHtml(title) + '</div>' +
+                  '<div class="vs-tl-sub">' + escapeHtml(sub) + '</div>' +
+                  '</li>';
+              });
+              if (tHtml) timelineEl.innerHTML = tHtml;
+            }
+          } catch (eb) {
+            console.warn('Auditoría para inicio:', eb);
+          }
+        }
       } catch (e) {
         console.warn('Citas para dashboard:', e);
       }
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 })();

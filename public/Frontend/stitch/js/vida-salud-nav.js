@@ -233,6 +233,15 @@
     return path.slice(i + marker.length).indexOf('/') === -1 ? '' : '../';
   }
 
+  /* Auto-cargar conector de backend API si no existe */
+  (function ensureBackendApi() {
+    if (window.VS_API) return;
+    var script = document.createElement('script');
+    script.src = pagePrefix() + '../js/vida-salud-api.js';
+    script.defer = true;
+    document.head.appendChild(script);
+  })();
+
   /* ---------- Render del sidebar ---------- */
   function renderSidebar(sidebar) {
     var activeCu = (document.body.getAttribute('data-cu') || '').toUpperCase();

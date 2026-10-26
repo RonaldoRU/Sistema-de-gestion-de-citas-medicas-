@@ -12,6 +12,7 @@ class Horario extends Model
 
     protected $table = 'horario';
     protected $primaryKey = 'id_horario';
+    public $timestamps = false;
 
     protected $fillable = [
         'id_medico',
