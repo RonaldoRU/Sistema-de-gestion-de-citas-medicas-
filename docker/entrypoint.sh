@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+# Asegurar que las dependencias de Composer existan si el volumen local montado las ocultó
+if [ ! -f /var/www/html/vendor/autoload.php ]; then
+    echo "Instalando dependencias de Composer..."
+    composer install --no-dev --optimize-autoloader --no-interaction
+fi
+
 # Crear archivo .env si no existe
 if [ ! -f /var/www/html/.env ]; then
     if [ -f /var/www/html/.env.docker.example ]; then

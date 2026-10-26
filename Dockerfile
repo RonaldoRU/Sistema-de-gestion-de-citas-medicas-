@@ -36,8 +36,17 @@ COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Copiar código fuente de la aplicación (para Docker standalone y despliegues en Railway)
+# Copiar definiciones de dependencias de Composer primero
+COPY composer.json composer.lock* /var/www/html/
+
+# Instalar dependencias de producción de Composer
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+
+# Copiar todo el código fuente de la aplicación
 COPY . /var/www/html
+
+# Regenerar autoload optimizado
+RUN composer dump-autoload --optimize --no-dev
 
 # Permisos para storage y cache
 RUN mkdir -p /var/www/html/storage/framework/cache/data \
