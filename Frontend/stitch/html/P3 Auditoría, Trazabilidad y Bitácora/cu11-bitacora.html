@@ -49,8 +49,8 @@
               <div class="vs-field vs-f-3"><label class="vs-label" for="b-usuario">Usuario</label><select id="b-usuario" class="vs-select"><option value="">Todos los usuarios</option><option>scolque — Silvia Colque</option><option>rvaca — Rosa Vaca</option><option>csuarez — Carla Suárez</option><option>jmendoza — Jorge Mendoza</option><option>djustiniano — Daniela Justiniano</option><option>jrojas — Dr. Juan Rojas</option><option>Sistema</option></select></div>
               <div class="vs-field vs-f-3"><label class="vs-label" for="b-modulo">Módulo</label><select id="b-modulo" class="vs-select"><option value="">Todos</option><option>P1 · Seguridad y Autenticación</option><option>P2 · Usuarios y Permisos</option><option>P3 · Auditoría</option><option>P4 · Pacientes</option><option>P5 · Gestión Médica y Horarios</option><option>P6 · Citas Médicas</option><option>P7 · Reportes</option></select></div>
               <div class="vs-field vs-f-2"><label class="vs-label" for="b-accion">Acción</label><select id="b-accion" class="vs-select"><option value="">Todas</option><option value="REGISTRAR">REGISTRAR</option><option value="INACTIVAR">INACTIVAR</option><option value="RENOVAR">RENOVAR</option><option value="MODIFICAR">MODIFICAR</option><option value="ELIMINAR">ELIMINAR</option><option value="LOGIN">LOGIN</option><option value="LOGOUT">LOGOUT</option><option value="BLOQUEO">BLOQUEO</option><option value="CREAR">CREAR</option></select></div>
-              <div class="vs-field vs-f-2"><label class="vs-label" for="b-desde">Desde</label><input id="b-desde" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
-              <div class="vs-field vs-f-2"><label class="vs-label" for="b-hasta">Hasta</label><input id="b-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-desde">Desde</label><input id="b-desde" class="vs-input vs-input--mono" type="date"></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-hasta">Hasta</label><input id="b-hasta" class="vs-input vs-input--mono" type="date"></div>
               <div class="vs-field vs-f-6"><label class="vs-label" for="b-q">Texto en el detalle</label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-search"/></svg><input id="b-q" class="vs-input" type="search" placeholder="Ej. CM-0283, PAC-0071, jmendoza"></div></div>
               <div class="vs-row vs-f-6" style="justify-content:flex-end;align-self:end">
                 <button type="reset" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-refresh"/></svg>Limpiar</button>
@@ -132,5 +132,6 @@
   <script src="../../js/vida-salud-app-shell.js"></script>
   <script src="../../js/vida-salud-api.js"></script>
 <script src="../../js/vida-salud-ui.js"></script>
+<script>(function () { var hoy = new Date().toISOString().slice(0, 10); var desde = document.getElementById('b-desde'); var hasta = document.getElementById('b-hasta'); if (desde) desde.value = hoy; if (hasta) hasta.value = hoy; })();</script>
 </body>
 </html>
