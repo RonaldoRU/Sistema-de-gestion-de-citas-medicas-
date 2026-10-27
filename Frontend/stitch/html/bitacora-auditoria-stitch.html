@@ -292,24 +292,11 @@
 </div>
 <!-- Table Pagination Footer -->
 <div class="px-5 py-3.5 bg-slate-50/40 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-between gap-3">
-<div class="text-xs text-slate-500">
-            Mostrando <span class="font-semibold text-vs-ink">1-6</span> de <span class="font-semibold text-vs-ink">189</span> eventos registrados
-          </div>
-<div class="flex items-center gap-1">
-<button class="px-2.5 py-1 text-slate-500/40 rounded border border-slate-200/60 bg-white text-[11px] font-semibold flex items-center gap-1 cursor-not-allowed" disabled="">
-<span class="material-symbols-outlined text-[16px]">chevron_left</span>
-              Anterior
-            </button>
-<button class="w-7 h-7 rounded bg-primary text-on-primary text-[11px] font-semibold font-semibold flex items-center justify-center">1</button>
-<button class="w-7 h-7 rounded hover:bg-slate-50 text-vs-ink text-[11px] font-semibold flex items-center justify-center transition-colors">2</button>
-<button class="w-7 h-7 rounded hover:bg-slate-50 text-vs-ink text-[11px] font-semibold flex items-center justify-center transition-colors">3</button>
-<span class="px-1 text-slate-500 text-label-sm">...</span>
-<button class="w-7 h-7 rounded hover:bg-slate-50 text-vs-ink text-[11px] font-semibold flex items-center justify-center transition-colors">19</button>
-<button class="px-2.5 py-1 text-vs-ink hover:bg-slate-50 rounded border border-slate-200 bg-white text-[11px] font-semibold flex items-center gap-1 transition-colors">
-              Siguiente
-              <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-</button>
-</div>
+  <div class="text-xs text-slate-500" id="stitch-bitacora-pag-info">
+    Mostrando registros reales de auditoría...
+  </div>
+  <div class="flex items-center gap-1" id="stitch-bitacora-pager">
+  </div>
 </div>
 </section>
 </div>

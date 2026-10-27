@@ -197,6 +197,35 @@ class AuthController extends Controller
     {
         $user = Auth::user();
 
+        $ahora = now();
+        $sesionModel = null;
+        $token = $request->bearerToken() 
+            ?: $request->header('X-Auth-Token') 
+            ?: $request->query('api_token');
+
+        if ($token) {
+            $sesionModel = Sesion::where('id_sesion', $token)->first();
+        }
+        if (!$sesionModel && $request->hasSession()) {
+            $sesionModel = Sesion::where('id_sesion', $request->session()->getId())->first();
+        }
+        if (!$sesionModel && $user) {
+            $sesionModel = Sesion::where('id_usuario', $user->id_usuario)
+                ->where('activa', true)
+                ->orderByDesc('fecha_inicio')
+                ->first();
+        }
+
+        if ($sesionModel) {
+            $fechaInicio = Carbon::parse($sesionModel->fecha_inicio);
+            $sesionModel->update([
+                'activa' => false,
+                'fecha_cierre' => $ahora,
+            ]);
+        } else {
+            $fechaInicio = $user?->ultimo_acceso ? Carbon::parse($user->ultimo_acceso) : $ahora;
+        }
+
         if ($user) {
             // CU02 Paso 5: Registrar evento LOGOUT en bitácora de auditoría (CU10)
             AuditoriaService::registrar(
@@ -204,27 +233,8 @@ class AuthController extends Controller
                 'LOGOUT',
                 'usuario',
                 $user->id_usuario,
-                "Cierre de sesión y revocación de sesión exitosa del usuario [{$user->nombre_usuario}]."
+                "Cierre de sesión y revocación exitosa del usuario [{$user->nombre_usuario}] (inicio: {$fechaInicio->format('d/m/Y H:i:s')}, cierre: {$ahora->format('d/m/Y H:i:s')})."
             );
-
-            // Inactivar sesión en la tabla sesion (por cookie de sesión o bearer token)
-            $token = $request->bearerToken() 
-                ?: $request->header('X-Auth-Token') 
-                ?: $request->query('api_token');
-
-            if ($token) {
-                Sesion::where('id_sesion', $token)->update([
-                    'activa' => false,
-                    'fecha_cierre' => now(),
-                ]);
-            }
-
-            if ($request->hasSession()) {
-                Sesion::where('id_sesion', $request->session()->getId())->update([
-                    'activa' => false,
-                    'fecha_cierre' => now(),
-                ]);
-            }
         }
 
         // CU02 Paso 4: Destruir la sesión activa
@@ -234,14 +244,16 @@ class AuthController extends Controller
             $request->session()->regenerateToken();
         }
 
-        $ahora = now();
+        $duracionTexto = $fechaInicio->diffForHumans($ahora, true);
+
         $logoutInfo = [
             'usuario' => $user?->nombre_usuario ?? 'scolque',
             'nombres' => $user?->persona?->nombres ?? 'Silvia Irene',
             'apellidos' => $user?->persona?->apellidos ?? 'Colque López',
-            'rol' => $user?->rol?->nombre ?? 'Administradora',
-            'inicio_sesion' => $user?->ultimo_acceso ? Carbon::parse($user->ultimo_acceso)->format('d/m/Y H:i') : $ahora->copy()->subMinutes(18)->format('d/m/Y H:i'),
-            'cierre' => $ahora->format('d/m/Y H:i'),
+            'rol' => $user?->rol?->nombre ?? 'Administrador',
+            'inicio_sesion' => $fechaInicio->format('d/m/Y H:i:s'),
+            'cierre' => $ahora->format('d/m/Y H:i:s'),
+            'duracion' => $duracionTexto,
             'ip' => $request->ip() ?: '127.0.0.1',
             'equipo' => 'Terminal activa · ' . ($request->ip() ?: '127.0.0.1'),
         ];
@@ -262,30 +274,42 @@ class AuthController extends Controller
      */
     public function logoutSummary(Request $request): JsonResponse
     {
-        $ultimoLogout = Bitacora::where('tipo_accion', 'LOGOUT')
-            ->orderByDesc('id_bitacora')
+        $ultimaSesion = Sesion::whereNotNull('fecha_cierre')
+            ->orderByDesc('fecha_cierre')
+            ->with(['usuario.persona', 'usuario.rol'])
             ->first();
 
-        $ultimoLogin = Bitacora::where('tipo_accion', 'LOGIN')
+        $ultimoLogoutBitacora = Bitacora::where('tipo_accion', 'LOGOUT')
             ->orderByDesc('id_bitacora')
+            ->with(['usuario.persona', 'usuario.rol'])
             ->first();
 
-        $usuario = $ultimoLogout?->usuario ?? $ultimoLogin?->usuario ?? Usuario::with(['persona', 'rol'])->find(1);
+        $usuario = $ultimaSesion?->usuario 
+            ?? $ultimoLogoutBitacora?->usuario 
+            ?? (Auth::user() ?: Usuario::with(['persona', 'rol'])->find(1));
 
         $ahora = now();
-        $fechaCierre = $ultimoLogout?->fecha_hora ? Carbon::parse($ultimoLogout->fecha_hora) : $ahora;
-        $fechaInicio = $ultimoLogin?->fecha_hora ? Carbon::parse($ultimoLogin->fecha_hora) : $fechaCierre->copy()->subMinutes(18);
+        $fechaCierre = $ultimaSesion?->fecha_cierre 
+            ? Carbon::parse($ultimaSesion->fecha_cierre) 
+            : ($ultimoLogoutBitacora?->fecha_hora ? Carbon::parse($ultimoLogoutBitacora->fecha_hora) : $ahora);
+
+        $fechaInicio = $ultimaSesion?->fecha_inicio 
+            ? Carbon::parse($ultimaSesion->fecha_inicio) 
+            : ($usuario?->ultimo_acceso ? Carbon::parse($usuario->ultimo_acceso) : $fechaCierre);
+
+        $duracion = $fechaInicio->diffForHumans($fechaCierre, true);
 
         return response()->json([
             'success' => true,
             'usuario' => $usuario?->nombre_usuario ?? 'scolque',
             'nombres' => $usuario?->persona?->nombres ?? 'Silvia Irene',
             'apellidos' => $usuario?->persona?->apellidos ?? 'Colque López',
-            'rol' => $usuario?->rol?->nombre ?? 'Administradora',
-            'inicio_sesion' => $fechaInicio->format('d/m/Y H:i'),
-            'cierre' => $fechaCierre->format('d/m/Y H:i'),
-            'ip' => $ultimoLogout?->ip ?: ($request->ip() ?: '127.0.0.1'),
-            'equipo' => 'Terminal activa · ' . ($ultimoLogout?->ip ?: ($request->ip() ?: '127.0.0.1')),
+            'rol' => $usuario?->rol?->nombre ?? 'Administrador',
+            'inicio_sesion' => $fechaInicio->format('d/m/Y H:i:s'),
+            'cierre' => $fechaCierre->format('d/m/Y H:i:s'),
+            'duracion' => $duracion,
+            'ip' => $ultimaSesion?->ip ?: ($ultimoLogoutBitacora?->ip ?: ($request->ip() ?: '127.0.0.1')),
+            'equipo' => 'Terminal activa · ' . ($ultimaSesion?->ip ?: ($ultimoLogoutBitacora?->ip ?: ($request->ip() ?: '127.0.0.1'))),
         ]);
     }
 

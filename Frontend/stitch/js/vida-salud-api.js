@@ -154,13 +154,18 @@
     },
 
     logout: async function () {
+      var res = null;
       try {
-        await this.request('/auth/logout', { method: 'POST' });
+        res = await this.request('/auth/logout', { method: 'POST' });
+        if (res && res.logout_info) {
+          sessionStorage.setItem('vs_last_logout', JSON.stringify(res.logout_info));
+        }
       } catch (e) {
         console.warn('Error cerrando sesión en servidor:', e);
       } finally {
         this.clearAuth();
       }
+      return res;
     },
 
     solicitarRecuperacion: function (identificador) {
@@ -1019,6 +1024,7 @@
       var lastId = 0;
       var isFiltering = false;
       var currentRecords = [];
+      var activeFilterParams = {};
 
       function buildStitchRowHtml(item, isNew) {
         var usr = item.usuario ? (item.usuario.nombre_usuario || 'Sistema') : 'Sistema';
@@ -1038,6 +1044,7 @@
 
       async function cargarBitacora(params) {
         try {
+          activeFilterParams = params || {};
           var res = await VS_API.getBitacora(params);
           var pagData = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
           if (!Array.isArray(pagData)) pagData = [];
@@ -1059,6 +1066,46 @@
           }
 
           tableBody.innerHTML = html;
+
+          // Render paginación dinámica Stitch (sin páginas ficticias)
+          var totalCount = (res && res.data && res.data.total != null) ? res.data.total : (res.total_hoy != null ? res.total_hoy : pagData.length);
+          var curPage = (res && res.data && res.data.current_page) ? res.data.current_page : 1;
+          var lastPage = (res && res.data && res.data.last_page) ? res.data.last_page : 1;
+          var fromRec = (res && res.data && res.data.from != null) ? res.data.from : (pagData.length > 0 ? 1 : 0);
+          var toRec = (res && res.data && res.data.to != null) ? res.data.to : pagData.length;
+
+          var pagInfoEl = document.getElementById('stitch-bitacora-pag-info');
+          if (pagInfoEl) {
+            if (totalCount === 0) {
+              pagInfoEl.textContent = 'Sin eventos de auditoría registrados';
+            } else {
+              pagInfoEl.innerHTML = 'Mostrando <span class="font-semibold text-slate-800">' + fromRec + '–' + toRec + '</span> de <span class="font-semibold text-slate-800">' + totalCount + '</span> eventos registrados';
+            }
+          }
+
+          var pagerEl = document.getElementById('stitch-bitacora-pager');
+          if (pagerEl) {
+            if (totalCount === 0 || lastPage <= 1) {
+              pagerEl.innerHTML = '';
+            } else {
+              var spHtml = '';
+              var prevDis = curPage <= 1 ? ' opacity-40 cursor-not-allowed' : ' hover:bg-slate-50 cursor-pointer';
+              spHtml += '<button type="button" class="px-2.5 py-1 text-slate-500 rounded border border-slate-200/60 bg-white text-[11px] font-semibold flex items-center gap-1' + prevDis + '"' + (curPage <= 1 ? ' disabled' : '') + ' data-page="' + (curPage - 1) + '"><span class="material-symbols-outlined text-[16px]">chevron_left</span> Anterior</button>';
+
+              for (var p = 1; p <= lastPage; p++) {
+                if (lastPage > 7 && Math.abs(p - curPage) > 2 && p !== 1 && p !== lastPage) {
+                  if (p === 2 || p === lastPage - 1) spHtml += '<span class="px-1 text-slate-400 text-xs">…</span>';
+                  continue;
+                }
+                var isCur = p === curPage ? ' bg-primary text-white font-bold' : ' hover:bg-slate-50 text-slate-700 cursor-pointer';
+                spHtml += '<button type="button" class="w-7 h-7 rounded text-[11px] font-semibold flex items-center justify-center' + isCur + '" data-page="' + p + '">' + p + '</button>';
+              }
+
+              var nextDis = curPage >= lastPage ? ' opacity-40 cursor-not-allowed' : ' hover:bg-slate-50 cursor-pointer';
+              spHtml += '<button type="button" class="px-2.5 py-1 text-slate-500 rounded border border-slate-200/60 bg-white text-[11px] font-semibold flex items-center gap-1' + nextDis + '"' + (curPage >= lastPage ? ' disabled' : '') + ' data-page="' + (curPage + 1) + '">Siguiente <span class="material-symbols-outlined text-[16px]">chevron_right</span></button>';
+              pagerEl.innerHTML = spHtml;
+            }
+          }
 
           // Cargar KPIs reales
           var liveRes = await VS_API.getBitacoraLive({ limit: 1 });
@@ -1201,18 +1248,20 @@
     }
 
     function initBitacoraCU11Completa() {
-      var tableBody = document.querySelector('.vs-table tbody');
+      var tableBody = document.getElementById('vs-bitacora-tbody') || document.querySelector('.vs-table tbody');
       if (!tableBody) return;
 
       var badgeTotal = document.getElementById('vs-badge-total');
       var badgeAlertas = document.getElementById('vs-badge-alertas');
       var filterForm = document.querySelector('.vs-filters');
-      var paginationLabel = document.querySelector('.vs-pagination span');
+      var paginationLabel = document.getElementById('vs-bitacora-pag-info') || document.querySelector('.vs-pagination span');
+      var pagerContainer = document.getElementById('vs-bitacora-pager') || document.querySelector('.vs-pagination .vs-pager');
       var exportBtn = document.querySelector('[data-toast="Exportación generada"]') || document.querySelector('.vs-page-head__side button');
 
       var lastId = 0;
       var isFiltering = false;
       var currentRecords = [];
+      var activeCU11Params = {};
 
       function buildRowHtml(item, isNew) {
         var usuario = item.usuario ? (item.usuario.nombre_usuario || 'Sistema') : 'Sistema';
@@ -1234,6 +1283,7 @@
 
       async function cargarBitacora(params) {
         try {
+          activeCU11Params = params || {};
           var res = await VS_API.getBitacora(params);
           var pagData = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
           if (!Array.isArray(pagData)) pagData = [];
@@ -1257,12 +1307,44 @@
           tableBody.innerHTML = html;
 
           var total = (res && res.data && res.data.total != null) ? res.data.total : (res.total_hoy || pagData.length);
+          var curPage = (res && res.data && res.data.current_page) ? res.data.current_page : 1;
+          var lastPage = (res && res.data && res.data.last_page) ? res.data.last_page : 1;
+          var fromRec = (res && res.data && res.data.from != null) ? res.data.from : (pagData.length > 0 ? 1 : 0);
+          var toRec = (res && res.data && res.data.to != null) ? res.data.to : pagData.length;
+
           if (badgeTotal) badgeTotal.textContent = total + ' eventos';
           if (badgeAlertas && res.alertas_hoy != null) {
             badgeAlertas.textContent = res.alertas_hoy + (res.alertas_hoy === 1 ? ' alerta' : ' alertas');
           }
           if (paginationLabel) {
-            paginationLabel.innerHTML = 'Mostrando <strong class="vs-strong">1–' + pagData.length + '</strong> de <strong class="vs-strong">' + total + '</strong> eventos';
+            if (total === 0) {
+              paginationLabel.innerHTML = 'Sin eventos registrados';
+            } else {
+              paginationLabel.innerHTML = 'Mostrando <strong class="vs-strong">' + fromRec + '–' + toRec + '</strong> de <strong class="vs-strong">' + total + '</strong> eventos';
+            }
+          }
+
+          if (pagerContainer) {
+            if (total === 0 || lastPage <= 1) {
+              pagerContainer.innerHTML = '';
+            } else {
+              var pBtnHtml = '';
+              var prevDis = curPage <= 1 ? ' disabled' : '';
+              pBtnHtml += '<button type="button"' + prevDis + ' data-page="' + (curPage - 1) + '" aria-label="Anterior"><svg class="vs-i vs-i--sm"><use href="#i-chevron-left"/></svg></button>';
+
+              for (var p = 1; p <= lastPage; p++) {
+                if (lastPage > 7 && Math.abs(p - curPage) > 2 && p !== 1 && p !== lastPage) {
+                  if (p === 2 || p === lastPage - 1) pBtnHtml += '<span>…</span>';
+                  continue;
+                }
+                var isCur = p === curPage ? ' class="is-current"' : '';
+                pBtnHtml += '<button type="button"' + isCur + ' data-page="' + p + '">' + p + '</button>';
+              }
+
+              var nextDis = curPage >= lastPage ? ' disabled' : '';
+              pBtnHtml += '<button type="button"' + nextDis + ' data-page="' + (curPage + 1) + '" aria-label="Siguiente"><svg class="vs-i vs-i--sm"><use href="#i-chevron-right"/></svg></button>';
+              pagerContainer.innerHTML = pBtnHtml;
+            }
           }
         } catch (e) {
           console.warn('Error al cargar bitácora:', e);
@@ -1299,6 +1381,18 @@
         var rec = currentRecords.find(function (r) { return r.id_bitacora === id; });
         if (rec) mostrarModalDetalle(rec);
       });
+
+      if (pagerContainer) {
+        pagerContainer.addEventListener('click', function (ev) {
+          var btn = ev.target.closest('button[data-page]');
+          if (!btn || btn.disabled) return;
+          var targetPage = parseInt(btn.getAttribute('data-page'), 10);
+          if (targetPage > 0) {
+            activeCU11Params.page = targetPage;
+            cargarBitacora(activeCU11Params);
+          }
+        });
+      }
 
       if (filterForm) {
         filterForm.addEventListener('submit', function (ev) {
@@ -1366,6 +1460,189 @@
       }
 
       cargarBitacora();
+    }
+
+    // 8.1. Vincular Catálogo de Usuarios Clásico (CU06)
+    var cu06Page = document.querySelector('body[data-cu="CU06"]') || document.getElementById('vs-usuarios-tbody');
+    if (cu06Page) {
+      initUsuariosCU06Catalogo();
+    }
+
+    function initUsuariosCU06Catalogo() {
+      var tableBody = document.getElementById('vs-usuarios-tbody') || document.querySelector('.vs-table tbody');
+      if (!tableBody) return;
+
+      var badgeTotal = document.getElementById('vs-usuarios-badge-total') || document.querySelector('.vs-card__head .vs-badge');
+      var filterForm = document.querySelector('.vs-filters');
+      var paginationLabel = document.getElementById('vs-usuarios-pag-info') || document.querySelector('.vs-pagination span');
+      var pagerContainer = document.getElementById('vs-usuarios-pager') || document.querySelector('.vs-pagination .vs-pager');
+
+      var currentFilterParams = {};
+
+      function buildUserRowHtml(u) {
+        var pers = u.persona || {};
+        var nombre = (pers.nombres ? (pers.nombres + ' ' + (pers.apellidos || '')) : u.nombre_usuario) || 'Sin nombre';
+        var ci = pers.ci || '—';
+        var email = pers.email || '—';
+        var tel = pers.telefono || '—';
+        var rol = u.rol ? (u.rol.nombre || u.rol) : 'Personal';
+        var rolUpper = rol.toUpperCase();
+        var estado = (u.estado || 'ACTIVO').toUpperCase();
+        var esActivo = estado === 'ACTIVO';
+        var esBloqueado = estado === 'BLOQUEADO';
+
+        var rolBadgeClass = rolUpper.includes('ADMIN') ? 'vs-badge--warn' : (rolUpper.includes('MEDIC') ? 'vs-badge--ok' : 'vs-badge--info');
+        var estadoBadge = esActivo
+          ? '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>'
+          : (esBloqueado ? '<span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Bloqueado</span>' : '<span class="vs-badge vs-badge--muted"><span class="vs-badge__dot"></span>Inactivo</span>');
+
+        var inits = ((pers.nombres ? pers.nombres.charAt(0) : 'U') + (pers.apellidos ? pers.apellidos.charAt(0) : '')).toUpperCase();
+        var avatarClass = rolUpper.includes('ADMIN') ? 'vs-avatar--amber' : (rolUpper.includes('MEDIC') ? 'vs-avatar--teal' : 'vs-avatar--sky');
+
+        var actionBtns = '<a href="cu07-modificar-cuenta.html?id=' + u.id_usuario + '" class="vs-icon-btn" title="Modificar cuenta"><svg class="vs-i"><use href="#i-edit"/></svg></a>' +
+          '<a href="cu08-roles-permisos.html?id=' + u.id_usuario + '" class="vs-icon-btn vs-icon-btn--warn" title="Cambiar rol"><svg class="vs-i"><use href="#i-shield"/></svg></a>';
+
+        if (esActivo) {
+          actionBtns += '<button type="button" class="vs-icon-btn vs-icon-btn--danger btn-inactivar-cu06" title="Inactivar cuenta" data-id="' + u.id_usuario + '" data-name="' + escapeHtml(nombre) + '"><svg class="vs-i"><use href="#i-ban"/></svg></button>';
+        } else {
+          actionBtns += '<button type="button" class="vs-icon-btn vs-icon-btn--teal btn-reactivar-cu06" title="Reactivar cuenta" data-id="' + u.id_usuario + '" data-name="' + escapeHtml(nombre) + '"><svg class="vs-i"><use href="#i-undo"/></svg></button>';
+        }
+
+        var ultimoAccesoStr = u.ultimo_acceso ? formatFechaHora(u.ultimo_acceso) : '—';
+
+        return '<tr>' +
+          '<td class="vs-td-num font-mono">' + escapeHtml(ci) + '</td>' +
+          '<td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm ' + avatarClass + '">' + inits + '</span><div><div class="vs-cell-person__name">' + escapeHtml(nombre) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(u.nombre_usuario) + '</div></div></div></td>' +
+          '<td class="vs-hide-md"><div class="vs-xs">' + escapeHtml(email) + '</div><div class="vs-xs vs-muted vs-mono">' + escapeHtml(tel) + '</div></td>' +
+          '<td><span class="vs-badge ' + rolBadgeClass + '">' + escapeHtml(rol) + '</span></td>' +
+          '<td>' + estadoBadge + '</td>' +
+          '<td class="vs-hide-md vs-td-num font-mono">' + ultimoAccesoStr + '</td>' +
+          '<td class="vs-td-actions">' + actionBtns + '</td>' +
+          '</tr>';
+      }
+
+      async function cargarUsuarios(params) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2.5rem;color:var(--vs-muted);">Consultando usuarios en base de datos...</td></tr>';
+        try {
+          var res = await VS_API.getUsuarios(params);
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+          if (!Array.isArray(list)) list = [];
+
+          var total = (res && res.data && res.data.total != null) ? res.data.total : list.length;
+          var curPage = (res && res.data && res.data.current_page) ? res.data.current_page : 1;
+          var lastPage = (res && res.data && res.data.last_page) ? res.data.last_page : 1;
+          var fromRec = (res && res.data && res.data.from != null) ? res.data.from : (list.length > 0 ? 1 : 0);
+          var toRec = (res && res.data && res.data.to != null) ? res.data.to : list.length;
+
+          if (badgeTotal) badgeTotal.textContent = total + ' registros reales';
+
+          if (paginationLabel) {
+            if (total === 0) {
+              paginationLabel.innerHTML = 'Sin usuarios registrados';
+            } else {
+              paginationLabel.innerHTML = 'Mostrando <strong class="vs-strong">' + fromRec + '–' + toRec + '</strong> de <strong class="vs-strong">' + total + '</strong> usuarios';
+            }
+          }
+
+          if (pagerContainer) {
+            if (total === 0 || lastPage <= 1) {
+              pagerContainer.innerHTML = '';
+            } else {
+              var pHtml = '';
+              var prevDis = curPage <= 1 ? ' disabled' : '';
+              pHtml += '<button type="button"' + prevDis + ' data-page="' + (curPage - 1) + '" aria-label="Anterior"><svg class="vs-i vs-i--sm"><use href="#i-chevron-left"/></svg></button>';
+              for (var p = 1; p <= lastPage; p++) {
+                var isCur = p === curPage ? ' class="is-current"' : '';
+                pHtml += '<button type="button"' + isCur + ' data-page="' + p + '">' + p + '</button>';
+              }
+              var nextDis = curPage >= lastPage ? ' disabled' : '';
+              pHtml += '<button type="button"' + nextDis + ' data-page="' + (curPage + 1) + '" aria-label="Siguiente"><svg class="vs-i vs-i--sm"><use href="#i-chevron-right"/></svg></button>';
+              pagerContainer.innerHTML = pHtml;
+            }
+          }
+
+          if (list.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2.5rem;color:var(--vs-muted);">No se encontraron usuarios registrados para el filtro aplicado.</td></tr>';
+            return;
+          }
+
+          var html = '';
+          list.forEach(function (u) {
+            html += buildUserRowHtml(u);
+          });
+          tableBody.innerHTML = html;
+        } catch (err) {
+          tableBody.innerHTML = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-danger);">Error al cargar usuarios: ' + err.message + '</td></tr>';
+        }
+      }
+
+      // Inactivar / reactivar
+      tableBody.addEventListener('click', async function (ev) {
+        var btnInact = ev.target.closest('.btn-inactivar-cu06');
+        if (btnInact) {
+          var id = btnInact.getAttribute('data-id');
+          var name = btnInact.getAttribute('data-name');
+          if (confirm('¿Confirmas inactivar la cuenta de ' + name + '?\nLa acción quedará auditada en la bitácora.')) {
+            try {
+              await VS_API.inactivarUsuario(id, 'Inactivado por administrador desde CU06');
+              if (window.vsToast) window.vsToast('Cuenta inactivada', name + ' ahora está inactivo');
+              cargarUsuarios(currentFilterParams);
+            } catch (e) {
+              alert('Error al inactivar usuario: ' + (e.data && e.data.message ? e.data.message : e.message));
+            }
+          }
+          return;
+        }
+
+        var btnReact = ev.target.closest('.btn-reactivar-cu06');
+        if (btnReact) {
+          var idR = btnReact.getAttribute('data-id');
+          var nameR = btnReact.getAttribute('data-name');
+          if (confirm('¿Confirmas reactivar la cuenta de ' + nameR + '?\nLa acción quedará auditada en la bitácora.')) {
+            try {
+              await VS_API.reactivarUsuario(idR);
+              if (window.vsToast) window.vsToast('Cuenta reactivada', nameR + ' ahora está activo');
+              cargarUsuarios(currentFilterParams);
+            } catch (eR) {
+              alert('Error al reactivar usuario: ' + (eR.data && eR.data.message ? eR.data.message : eR.message));
+            }
+          }
+          return;
+        }
+      });
+
+      if (pagerContainer) {
+        pagerContainer.addEventListener('click', function (ev) {
+          var btn = ev.target.closest('button[data-page]');
+          if (!btn || btn.disabled) return;
+          var targetPage = parseInt(btn.getAttribute('data-page'), 10);
+          if (targetPage > 0) {
+            currentFilterParams.page = targetPage;
+            cargarUsuarios(currentFilterParams);
+          }
+        });
+      }
+
+      if (filterForm) {
+        filterForm.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          var rolEl = document.getElementById('f-rol');
+          var estEl = document.getElementById('f-est');
+          currentFilterParams = {};
+          if (rolEl && rolEl.value && !rolEl.value.includes('Todos')) currentFilterParams.rol = rolEl.value;
+          if (estEl && estEl.value && !estEl.value.includes('Todos')) currentFilterParams.estado = estEl.value;
+          cargarUsuarios(currentFilterParams);
+        });
+
+        filterForm.addEventListener('reset', function () {
+          setTimeout(function () {
+            currentFilterParams = {};
+            cargarUsuarios();
+          }, 50);
+        });
+      }
+
+      cargarUsuarios();
     }
 
     // 9. Vincular Dashboard Principal (inicio.html)

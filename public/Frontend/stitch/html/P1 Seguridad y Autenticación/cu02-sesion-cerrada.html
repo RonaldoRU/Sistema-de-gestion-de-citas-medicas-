@@ -36,19 +36,19 @@
         </div>
 
         <div class="vs-row" style="gap:1rem">
-          <span class="vs-avatar vs-avatar--lg vs-avatar--teal" id="logoutAvatar">SC</span>
+          <span class="vs-avatar vs-avatar--lg vs-avatar--teal" id="logoutAvatar">--</span>
           <div>
             <h2 class="vs-h1">Sesión cerrada</h2>
-            <p class="vs-lead" id="logoutSalutation" style="margin-top:.25rem">Gracias. Hasta la próxima.</p>
+            <p class="vs-lead" id="logoutSalutation" style="margin-top:.25rem">Cerrando sesión...</p>
           </div>
         </div>
 
         <article class="vs-card">
           <div class="vs-card__body">
             <dl class="vs-dl">
-              <dt>Usuario</dt><dd id="logoutUsuario">scolque · Administradora</dd>
-              <dt>Inicio de sesión</dt><dd class="vs-mono" id="logoutInicio">--/--/---- --:--</dd>
-              <dt>Cierre</dt><dd class="vs-mono" id="logoutCierre">--/--/---- --:--</dd>
+              <dt>Usuario</dt><dd id="logoutUsuario">Cargando datos de sesión...</dd>
+              <dt>Inicio de sesión</dt><dd class="vs-mono" id="logoutInicio">--/--/---- --:--:--</dd>
+              <dt>Cierre</dt><dd class="vs-mono" id="logoutCierre">--/--/---- --:--:--</dd>
               <dt>Equipo</dt><dd id="logoutEquipo">Terminal activa · 127.0.0.1</dd>
               <dt>Registro</dt><dd><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Evento LOGOUT en bitácora</span></dd>
             </dl>
@@ -90,14 +90,6 @@
       var cierreEl = document.getElementById('logoutCierre');
       var equipoEl = document.getElementById('logoutEquipo');
 
-      // 1. Mostrar de inmediato la hora exacta real actual
-      var now = new Date();
-      var sessionStartEst = new Date(now.getTime() - 25 * 60 * 1000);
-
-      cierreEl.textContent = formatDateTime(now);
-      inicioEl.textContent = formatDateTime(sessionStartEst);
-      equipoEl.textContent = 'Terminal activa · ' + (location.hostname || '127.0.0.1');
-
       function updateWithData(data) {
         if (!data) return;
         if (data.inicio_sesion) inicioEl.textContent = data.inicio_sesion;
@@ -106,14 +98,24 @@
         else if (data.ip) equipoEl.textContent = 'Terminal activa · ' + data.ip;
 
         var nombre = data.nombres ? data.nombres.split(' ')[0] : (data.usuario || 'Usuario');
-        salutationEl.textContent = 'Gracias, ' + nombre + '. Hasta la próxima.';
+        var duracionTxt = data.duracion ? ' (Sesión activa durante ' + data.duracion + ')' : '';
+        salutationEl.textContent = 'Gracias, ' + nombre + '. Hasta la próxima.' + duracionTxt;
 
-        var usr = (data.usuario || 'scolque') + ' · ' + (data.rol || 'Administradora');
+        var usr = (data.usuario || 'scolque') + ' · ' + (data.rol || 'Administrador');
         usuarioEl.textContent = usr;
 
         var inits = ((data.nombres ? data.nombres.charAt(0) : 'S') + (data.apellidos ? data.apellidos.charAt(0) : 'C')).toUpperCase();
         avatarEl.textContent = inits;
       }
+
+      // 1. Cargar inmediatamente si existe el registro real guardado en sessionStorage al hacer logout
+      try {
+        var rawSaved = sessionStorage.getItem('vs_last_logout');
+        if (rawSaved) {
+          var parsed = JSON.parse(rawSaved);
+          if (parsed) updateWithData(parsed);
+        }
+      } catch (err) {}
 
       // 2. Consultar al endpoint en tiempo real de la API
       var apiEndpoint = (window.VS_API && window.VS_API.base) ? (window.VS_API.base + '/auth/logout-summary') : '/api/auth/logout-summary';
