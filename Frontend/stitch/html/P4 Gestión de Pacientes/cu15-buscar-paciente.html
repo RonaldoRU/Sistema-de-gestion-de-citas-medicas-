@@ -45,10 +45,10 @@
 
         <section class="vs-card">
           <div class="vs-card__body">
-            <form class="vs-row vs-row--nowrap" onsubmit="event.preventDefault()" style="gap:.75rem">
+            <form id="paciente-buscar-form" class="vs-row vs-row--nowrap" onsubmit="event.preventDefault()" style="gap:.75rem">
               <div class="vs-input-icon vs-input-icon--lg vs-grow">
                 <svg class="vs-i"><use href="#i-search"/></svg>
-                <input class="vs-input vs-input--lg" type="search" value="Égüez" placeholder="CI, nombres, apellidos o código PAC-####" aria-label="Buscar paciente">
+                <input id="paciente-buscar-input" class="vs-input vs-input--lg" type="search" placeholder="CI, nombres, apellidos o código PAC-####" aria-label="Buscar paciente">
               </div>
               <button type="submit" class="vs-btn vs-btn--primary vs-btn--lg"><svg class="vs-i"><use href="#i-search"/></svg><span class="vs-hide-sm">Buscar</span></button>
             </form>
@@ -56,9 +56,8 @@
               <div class="vs-pills">
                 <label class="vs-pill"><input type="radio" name="est" value="activos" checked><span>Activos</span></label>
                 <label class="vs-pill"><input type="radio" name="est" value="todos"><span>Incluir inactivos</span></label>
-                <label class="vs-pill"><input type="checkbox" name="menores"><span>Solo menores de edad</span></label>
               </div>
-              <span class="vs-small vs-muted">3 coincidencias para “Égüez”</span>
+              <span id="paciente-conteo" class="vs-small vs-muted">Padrón de pacientes registrado</span>
             </div>
           </div>
         </section>
@@ -69,7 +68,7 @@
             <div class="vs-table-wrap">
               <table class="vs-table" data-selectable>
                 <thead><tr><th>Código</th><th>Paciente</th><th class="vs-hide-md">Edad / Sexo</th><th class="vs-hide-md">Teléfono</th><th>Estado</th><th class="vs-td-actions">Acciones</th></tr></thead>
-                <tbody>
+                <tbody id="vs-pacientes-tbody">
                   <tr class="is-selected">
                     <td class="vs-td-num">PAC-0016</td>
                     <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">JE</span><div><div class="vs-cell-person__name">Jimena Égüez Choque</div><div class="vs-cell-person__sub vs-mono">CI 12181643</div></div></div></td>
@@ -156,6 +155,7 @@
 
   <script src="../../js/vida-salud-nav.js"></script>
   <script src="../../js/vida-salud-app-shell.js"></script>
-  <script src="../../js/vida-salud-ui.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
 </body>
 </html>

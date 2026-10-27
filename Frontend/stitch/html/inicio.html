@@ -9,6 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/vida-salud-theme.css">
   <link rel="stylesheet" href="../css/vida-salud-shell.css">
+  <script>
+    if (!sessionStorage.getItem('vs_user') && !localStorage.getItem('vs_user') && !sessionStorage.getItem('vs_token') && !localStorage.getItem('vs_token')) {
+      window.location.replace('P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
+    }
+  </script>
 </head>
 <body class="vs-app" data-page="inicio">
   <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
@@ -46,23 +51,23 @@
         <section class="vs-grid vs-grid--4" aria-label="Indicadores del día">
           <article class="vs-card vs-kpi">
             <div class="vs-kpi__top"><span class="vs-kpi__label">Citas de hoy</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-calendar"/></svg></span></div>
-            <p class="vs-kpi__value">38</p>
-            <p class="vs-kpi__hint"><strong class="vs-strong">12</strong> atendidas · 21 programadas · 5 confirmadas</p>
+            <p class="vs-kpi__value" id="kpi-citas-hoy">38</p>
+            <p class="vs-kpi__hint" id="kpi-citas-hint"><strong class="vs-strong">12</strong> atendidas · 21 programadas · 5 confirmadas</p>
           </article>
           <article class="vs-card vs-kpi">
             <div class="vs-kpi__top"><span class="vs-kpi__label">Pacientes activos</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-heart"/></svg></span></div>
-            <p class="vs-kpi__value">69</p>
-            <p class="vs-kpi__hint vs-kpi__hint--ok">+3 registrados esta semana</p>
+            <p class="vs-kpi__value" id="kpi-pacientes-activos">69</p>
+            <p class="vs-kpi__hint vs-kpi__hint--ok" id="kpi-pacientes-hint">+3 registrados esta semana</p>
           </article>
           <article class="vs-card vs-kpi">
             <div class="vs-kpi__top"><span class="vs-kpi__label">Médicos en agenda</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span></div>
-            <p class="vs-kpi__value">9</p>
-            <p class="vs-kpi__hint">7 especialidades · 1 licencia esta semana</p>
+            <p class="vs-kpi__value" id="kpi-medicos-agenda">9</p>
+            <p class="vs-kpi__hint" id="kpi-medicos-hint">7 especialidades · 1 licencia esta semana</p>
           </article>
           <article class="vs-card vs-kpi">
             <div class="vs-kpi__top"><span class="vs-kpi__label">Alertas de seguridad</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-shield"/></svg></span></div>
-            <p class="vs-kpi__value vs-kpi__value--rose">1</p>
-            <p class="vs-kpi__hint vs-kpi__hint--danger">Cuenta bloqueada por intentos fallidos</p>
+            <p class="vs-kpi__value vs-kpi__value--rose" id="kpi-alertas-seguridad">1</p>
+            <p class="vs-kpi__hint vs-kpi__hint--danger" id="kpi-alertas-hint">Cuenta bloqueada por intentos fallidos</p>
           </article>
         </section>
 
@@ -78,7 +83,7 @@
             <div class="vs-card__body--flush vs-table-wrap">
               <table class="vs-table">
                 <thead><tr><th>Hora</th><th>Paciente</th><th class="vs-hide-sm">Médico</th><th>Estado</th></tr></thead>
-                <tbody>
+                <tbody id="vs-inicio-citas-tbody">
                   <tr><td class="vs-td-num">08:30</td><td><div class="vs-cell-person__name">Jimena Égüez Choque</div><div class="vs-cell-person__sub">CM-0283 · Dolor de cabeza recurrente</div></td><td class="vs-hide-sm">Dr. Rojas Ugarte · Med. General</td><td><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span></td></tr>
                   <tr><td class="vs-td-num">09:00</td><td><div class="vs-cell-person__name">Fernando W. Roca Barba</div><div class="vs-cell-person__sub">CM-0286 · Resultados de laboratorio</div></td><td class="vs-hide-sm">Dr. Rojas Ugarte · Med. General</td><td><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span></td></tr>
                   <tr><td class="vs-td-num">09:00</td><td><div class="vs-cell-person__name">Camila Choque Peña</div><div class="vs-cell-person__sub">CM-0284 · Control prenatal</div></td><td class="vs-hide-sm">Dra. Montero Saucedo · Ginecología</td><td><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span></td></tr>
@@ -87,7 +92,7 @@
                 </tbody>
               </table>
             </div>
-            <div class="vs-card__foot"><span>38 citas · 6 consultorios activos</span><span class="vs-live"><i></i>Actualizado hace 1 min</span></div>
+            <div class="vs-card__foot"><span id="vs-inicio-citas-total">38 citas · 6 consultorios activos</span><span class="vs-live"><i></i>Actualizado hace 1 min</span></div>
           </article>
 
           <div class="vs-stack">
@@ -120,7 +125,7 @@
                 <a href="P3 Auditoría, Trazabilidad y Bitácora/cu11-bitacora.html" class="vs-link">Ver todo</a>
               </div>
               <div class="vs-card__body">
-                <ol class="vs-timeline">
+                <ol class="vs-timeline" id="vs-inicio-timeline">
                   <li class="vs-tl-item vs-tl-item--ok"><span class="vs-tl-time">08:31</span><div class="vs-tl-title">Cita CM-0283 confirmada</div><div class="vs-tl-sub">Rosa María Vaca · módulo P6</div></li>
                   <li class="vs-tl-item vs-tl-item--danger"><span class="vs-tl-time">08:12</span><div class="vs-tl-title">Bloqueo temporal de cuenta</div><div class="vs-tl-sub">jmendoza · 3 intentos fallidos · P1</div></li>
                   <li class="vs-tl-item vs-tl-item--info"><span class="vs-tl-time">08:04</span><div class="vs-tl-title">Inicio de sesión</div><div class="vs-tl-sub">Dr. Juan Ronaldo Rojas · 192.168.1.41</div></li>
@@ -205,6 +210,7 @@
 
   <script src="../js/vida-salud-nav.js"></script>
   <script src="../js/vida-salud-app-shell.js"></script>
+  <script src="../js/vida-salud-api.js"></script>
   <script src="../js/vida-salud-ui.js"></script>
 </body>
 </html>

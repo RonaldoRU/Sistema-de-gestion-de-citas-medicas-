@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cancelar cita · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU27">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Cancelar cita</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
+            <h2 class="vs-h1">Cancelar cita</h2>
+            <p class="vs-lead">La cancelación cambia el estado a <strong>Cancelada</strong>, libera el bloque para otros pacientes y exige un motivo. La cita no se borra: queda en el historial y en los reportes.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU27</span><span class="vs-trace__actor">Recepcionista</span></span>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight">
+            <form class="vs-filters" onsubmit="event.preventDefault()">
+              <div class="vs-field vs-f-4"><label class="vs-label" for="cx-q">Paciente o código</label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-search"/></svg><input id="cx-q" class="vs-input" type="search" placeholder="CM-####, CI o nombre"></div></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="cx-med">Médico</label><select id="cx-med" class="vs-select"><option>Todos</option><option selected>Dr. Juan Ronaldo Rojas Ugarte</option><option>Dra. Patricia Gutiérrez Melgar</option><option>Dra. Claudia Montero Saucedo</option></select></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="cx-desde">Desde</label><input id="cx-desde" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="cx-hasta">Hasta</label><input id="cx-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-30"></div>
+              <div class="vs-row" style="justify-content:flex-end"><button type="submit" class="vs-btn vs-btn--soft"><svg class="vs-i"><use href="#i-filter"/></svg>Filtrar</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Citas cancelables</h3><p class="vs-card__sub">Dr. Rojas · 26/10 al 30/10 · estados Programada y Confirmada</p></div><span class="vs-badge vs-badge--muted">6 citas</span></div>
+            <div class="vs-table-wrap">
+              <table class="vs-table">
+                <thead><tr><th>Código</th><th>Fecha y hora</th><th>Paciente</th><th class="vs-hide-md">Motivo</th><th>Estado</th><th class="vs-td-actions">Acción</th></tr></thead>
+                <tbody>
+                  <tr><td class="vs-td-num">CM-0283</td><td class="vs-td-num">26/10 08:30</td><td><div class="vs-cell-person__name">Jimena Égüez Choque</div><div class="vs-cell-person__sub vs-mono">75666779</div></td><td class="vs-hide-md">Control de presión arterial</td><td><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span></td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-cancelar"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Cancelar</button></td></tr>
+                  <tr><td class="vs-td-num">CM-0286</td><td class="vs-td-num">26/10 09:00</td><td><div class="vs-cell-person__name">Fernando Wilson Roca Barba</div><div class="vs-cell-person__sub vs-mono">78251059</div></td><td class="vs-hide-md">Dolor lumbar</td><td><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span></td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-cancelar"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Cancelar</button></td></tr>
+                  <tr><td class="vs-td-num">CM-0288</td><td class="vs-td-num">26/10 10:00</td><td><div class="vs-cell-person__name">Paola Paz Terceros</div><div class="vs-cell-person__sub vs-mono">76840518</div></td><td class="vs-hide-md">Dolor de cabeza recurrente</td><td><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span></td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-cancelar"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Cancelar</button></td></tr>
+                  <tr><td class="vs-td-num">CM-0290</td><td class="vs-td-num">26/10 10:30</td><td><div class="vs-cell-person__name">Iván Cuéllar Arteaga</div><div class="vs-cell-person__sub vs-mono">73413816</div></td><td class="vs-hide-md">Chequeo general</td><td><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span></td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-cancelar"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Cancelar</button></td></tr>
+                  <tr><td class="vs-td-num">CM-0293</td><td class="vs-td-num">28/10 08:00</td><td><div class="vs-cell-person__name">Ronald Saucedo Mendoza</div><div class="vs-cell-person__sub vs-mono">71640267</div></td><td class="vs-hide-md">Resultados de laboratorio</td><td><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span></td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-cancelar"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Cancelar</button></td></tr>
+                  <tr><td class="vs-td-num">CM-0295</td><td class="vs-td-num">30/10 09:30</td><td><div class="vs-cell-person__name">Camila Choque Peña</div><div class="vs-cell-person__sub vs-mono">75975326</div></td><td class="vs-hide-md">Control de rutina</td><td><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span></td><td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-cancelar"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Cancelar</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="vs-card__foot"><span>Las citas Atendidas, Canceladas o con Inasistencia no aparecen aquí (A1).</span></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Canceladas hoy</h3></div><span class="vs-badge vs-badge--danger">1</span></div>
+              <ul class="vs-list vs-list--boxed">
+                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--rose" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-calendar-x"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">CM-0279 · 26/10 11:00</div><div class="vs-list-row__sub">Dr. Rojas · “Paciente viajó” · csuarez 08:09</div></div><span class="vs-badge vs-badge--danger">Cancelada</span></li>
+              </ul>
+            </article>
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule vs-rule--danger"><span class="vs-rule__k">Motivo obligatorio</span>Sin motivo no se confirma; se guarda en <span class="vs-code">cita.motivo_cancelacion</span>.</div>
+                <div class="vs-rule"><span class="vs-rule__k">Bloque liberado</span>El índice único excluye las canceladas, así que el horario vuelve a estar disponible al instante.</div>
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Recordatorio</span>La llamada pendiente (CU28) se descarta automáticamente.</div>
+                <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">Irreversible</span>Una cita cancelada no se reactiva: se programa una nueva (CU24).</div>
+              </div>
+            </article>
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Motivos frecuentes · octubre</h3></div></div>
+              <div class="vs-card__body vs-bars">
+                <div class="vs-bars__row"><span class="vs-bars__label">Solicitud del paciente</span><div class="vs-bar vs-bar--rose"><i style="width:100%"></i></div><span class="vs-bars__val">17</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Paciente viajó</span><div class="vs-bar vs-bar--rose"><i style="width:41%"></i></div><span class="vs-bars__val">7</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Bloqueo de agenda</span><div class="vs-bar vs-bar--amber"><i style="width:29%"></i></div><span class="vs-bars__val">5</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Error de registro</span><div class="vs-bar vs-bar--amber"><i style="width:12%"></i></div><span class="vs-bars__val">2</span></div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-cancelar" class="vs-modal">
+    <form data-demo="Cita cancelada" data-demo-sub="CM-0288 · bloque 26/10 10:00 liberado · motivo registrado" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon vs-modal__icon--danger"><svg class="vs-i"><use href="#i-calendar-x"/></svg></span>
+        <div><h2 class="vs-modal__title">Cancelar cita CM-0288</h2><p class="vs-modal__text">Paola Paz Terceros · Dr. Rojas · lunes 26/10/2026 10:00. El bloque quedará libre para otro paciente.</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-field">
+          <label class="vs-label" for="cx-motivo">Motivo de cancelación <span class="vs-req">*</span></label>
+          <select id="cx-motivo" class="vs-select" required>
+            <option value="">Selecciona un motivo…</option>
+            <option>Solicitud del paciente</option>
+            <option>Paciente viajó</option>
+            <option>Bloqueo de agenda del médico</option>
+            <option>Error de registro</option>
+            <option>Otro</option>
+          </select>
+          <span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>Debes indicar el motivo</span>
+        </div>
+        <div class="vs-field">
+          <label class="vs-label" for="cx-detalle">Detalle <span class="vs-label__opt">opcional</span></label>
+          <textarea id="cx-detalle" class="vs-textarea" rows="2" placeholder="Ej. La paciente llamó a las 08:50 y pidió nueva fecha"></textarea>
+        </div>
+        <label class="vs-check vs-check--sm"><input type="checkbox">Ofrecer reprogramación inmediata al cerrar (abre CU26)</label>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Volver</button>
+        <button type="submit" class="vs-btn vs-btn--danger"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Confirmar cancelación</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

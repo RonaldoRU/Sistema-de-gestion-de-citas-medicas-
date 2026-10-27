@@ -66,9 +66,11 @@
     closeDialog(btn.closest('dialog'));
   });
 
-  /* Formularios de demostración: validan lo nativo y muestran el toast */
+  /* Formularios de demostración: validan lo nativo y muestran el toast SOLO si no están conectados a la API real */
   document.querySelectorAll('form[data-demo]').forEach(function (form) {
+    if (form.getAttribute('data-api-bound') === 'true') return;
     form.addEventListener('submit', function (e) {
+      if (form.getAttribute('data-api-bound') === 'true') return;
       e.preventDefault();
       if (!form.checkValidity()) {
         form.reportValidity();

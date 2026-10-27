@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="../js/vida-salud-tailwind-config.js"></script>
+  <link rel="stylesheet" href="../css/vida-salud-theme.css">
+</head>
+<body class="vs-app min-h-full antialiased">
+  <div class="vs-login-split">
+    <section class="vs-login-hero hidden md:flex flex-col justify-between p-10 lg:p-14 relative">
+      <div class="vs-login-pattern absolute inset-0" aria-hidden="true"></div>
+      <div class="relative z-10 vs-login-hero-content">
+        <span class="vs-mark">VS</span>
+        <p class="mt-8 text-sm font-semibold tracking-wide text-sky-100/90 uppercase">Clínica Vida Salud</p>
+        <h1 class="font-display text-3xl lg:text-4xl font-semibold leading-tight mt-3 max-w-sm">
+          Agenda y personal, en un solo lugar
+        </h1>
+        <p class="mt-4 text-sm text-sky-50/85 max-w-md leading-relaxed">
+          Acceso reservado al personal autorizado. Si no tienes credenciales, solicítalas en recepción o con soporte interno.
+        </p>
+      </div>
+      <p class="relative z-10 text-xs text-sky-100/70">La Paz · Sede central</p>
+    </section>
+
+    <main class="flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-16 bg-vs-paper">
+      <div class="vs-page-stack w-full max-w-md mx-auto">
+        <div class="md:hidden mb-8 flex items-center gap-3">
+          <span class="vs-mark">VS</span>
+          <div>
+            <p class="font-display font-semibold text-lg text-vs-ink">Vida Salud</p>
+            <p class="text-xs text-vs-muted">Inicio de sesión</p>
+          </div>
+        </div>
+
+        <h2 class="font-display text-2xl font-semibold text-vs-ink tracking-tight">Bienvenido</h2>
+        <p class="text-sm text-vs-muted mt-1 mb-6">Ingresa con tu usuario institucional.</p>
+
+        <!-- Alert error (oculto por defecto) -->
+        <div id="stitch-login-alert" class="mb-5 rounded-lg border border-rose-200/80 bg-rose-50/90 px-3 py-2.5 text-sm text-rose-900" role="alert" style="display:none;">
+          <p class="font-semibold" id="stitch-login-alert-title">No pudimos validar tus datos</p>
+          <p class="text-rose-800/90 mt-0.5 text-[13px]" id="stitch-login-alert-desc">Revisa usuario y contraseña.</p>
+        </div>
+
+        <form id="stitch-form-login" class="space-y-4" action="dashboard-admin-stitch.html" method="post">
+          <div>
+            <label class="block text-sm font-semibold text-vs-ink mb-1.5" for="username">Usuario o correo</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              required
+              placeholder="scolque o usuario"
+              class="vs-field block w-full rounded-lg border border-vs-line bg-vs-card px-3 py-2.5 text-sm text-vs-ink placeholder:text-slate-400 focus:border-vs-forest focus:ring-2 focus:ring-vs-forest/15"
+            />
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-sm font-semibold text-vs-ink" for="password">Contraseña</label>
+              <a href="#recuperar" class="text-xs font-semibold text-vs-clay hover:underline">¿Olvidaste la contraseña?</a>
+            </div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="vs-field block w-full rounded-lg border border-vs-line bg-vs-card px-3 py-2.5 text-sm text-vs-ink focus:border-vs-forest focus:ring-2 focus:ring-vs-forest/15"
+            />
+          </div>
+          <label class="flex items-center gap-2 text-sm text-vs-muted cursor-pointer select-none">
+            <input type="checkbox" name="remember" class="rounded border-vs-line text-vs-forest focus:ring-vs-forest/30">
+            Recordarme en este equipo
+          </label>
+          <button type="submit" class="vs-btn-primary w-full py-2.5 text-sm mt-1">
+            Entrar al sistema
+          </button>
+        </form>
+
+        <p class="mt-8 text-xs text-vs-muted leading-relaxed">
+          ¿Problemas para entrar? Escríbenos a
+          <a href="mailto:soporte@vidasalud.bo" class="font-semibold text-vs-forest hover:underline">soporte@vidasalud.bo</a>
+          · interno 402
+        </p>
+      </div>
+      <footer class="mt-auto pt-10 text-center text-[11px] text-stone-400">
+        © 2026 Clínica Vida Salud
+      </footer>
+    </main>
+  </div>
+  <script src="../js/vida-salud-api.js"></script>
+</body>
+</html>
+

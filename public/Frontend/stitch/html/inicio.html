@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inicio · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../css/vida-salud-shell.css">
+  <script>
+    if (!sessionStorage.getItem('vs_user') && !localStorage.getItem('vs_user') && !sessionStorage.getItem('vs_token') && !localStorage.getItem('vs_token')) {
+      window.location.replace('P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
+    }
+  </script>
+</head>
+<body class="vs-app" data-page="inicio">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Inicio</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">Lunes 26 de octubre de 2026 · Santa Cruz</p>
+            <h2 class="vs-h1">Buenos días, Silvia</h2>
+            <p class="vs-lead">Resumen operativo de la clínica: agenda del día, pacientes, accesos y lo último registrado en la bitácora.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <a href="P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-plus"/></svg>Programar cita</a>
+            <a href="P4 Gestión de Pacientes/cu12-registrar-paciente.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-user-plus"/></svg>Registrar paciente</a>
+          </div>
+        </header>
+
+        <section class="vs-grid vs-grid--4" aria-label="Indicadores del día">
+          <article class="vs-card vs-kpi">
+            <div class="vs-kpi__top"><span class="vs-kpi__label">Citas registradas</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-calendar"/></svg></span></div>
+            <p class="vs-kpi__value" id="kpi-citas-hoy">—</p>
+            <p class="vs-kpi__hint" id="kpi-citas-hint">Citas médicas del sistema</p>
+          </article>
+          <article class="vs-card vs-kpi">
+            <div class="vs-kpi__top"><span class="vs-kpi__label">Pacientes activos</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-heart"/></svg></span></div>
+            <p class="vs-kpi__value" id="kpi-pacientes-activos">—</p>
+            <p class="vs-kpi__hint vs-kpi__hint--ok" id="kpi-pacientes-hint">Padrón de pacientes</p>
+          </article>
+          <article class="vs-card vs-kpi">
+            <div class="vs-kpi__top"><span class="vs-kpi__label">Médicos en agenda</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span></div>
+            <p class="vs-kpi__value" id="kpi-medicos-agenda">—</p>
+            <p class="vs-kpi__hint" id="kpi-medicos-hint">Plantel médico activo</p>
+          </article>
+          <article class="vs-card vs-kpi">
+            <div class="vs-kpi__top"><span class="vs-kpi__label">Alertas de seguridad</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-shield"/></svg></span></div>
+            <p class="vs-kpi__value vs-kpi__value--rose" id="kpi-alertas-seguridad">—</p>
+            <p class="vs-kpi__hint vs-kpi__hint--danger" id="kpi-alertas-hint">Eventos y bloqueos</p>
+          </article>
+        </section>
+
+        <section class="vs-split">
+          <article class="vs-card">
+            <div class="vs-card__head">
+              <div>
+                <h3 class="vs-card__title">Agenda de citas</h3>
+                <p class="vs-card__sub">Atenciones agendadas en la clínica</p>
+              </div>
+              <a href="P6 Gestión de Citas Médicas/cu30-agenda-diaria.html" class="vs-link">Ver agenda completa<svg class="vs-i vs-i--sm"><use href="#i-arrow-right"/></svg></a>
+            </div>
+            <div class="vs-card__body--flush vs-table-wrap">
+              <table class="vs-table">
+                <thead><tr><th>Hora</th><th>Paciente</th><th class="vs-hide-sm">Médico</th><th>Estado</th></tr></thead>
+                <tbody id="vs-inicio-citas-tbody">
+                  <tr><td colspan="4" class="vs-td-empty" style="text-align:center;padding:1.5rem;color:var(--vs-muted);">Cargando citas médicas desde la base de datos...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="vs-card__foot"><span id="vs-inicio-citas-total">Consultando base de datos...</span><span class="vs-live"><i></i>En vivo</span></div>
+          </article>
+
+          <div class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head">
+                <div><h3 class="vs-card__title">Accesos rápidos</h3><p class="vs-card__sub">Operaciones de la clínica</p></div>
+              </div>
+              <ul class="vs-list vs-list--boxed">
+                <li class="vs-list-row">
+                  <span class="vs-avatar vs-avatar--sm vs-avatar--teal"><svg class="vs-i vs-i--sm"><use href="#i-calendar-plus"/></svg></span>
+                  <div class="vs-list-row__body"><div class="vs-list-row__title">Programar nueva cita</div><div class="vs-list-row__sub">Agendamiento médico</div></div>
+                  <a href="P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-icon-btn" aria-label="Programar cita"><svg class="vs-i"><use href="#i-chevron-right"/></svg></a>
+                </li>
+                <li class="vs-list-row">
+                  <span class="vs-avatar vs-avatar--sm vs-avatar--sky"><svg class="vs-i vs-i--sm"><use href="#i-user-plus"/></svg></span>
+                  <div class="vs-list-row__body"><div class="vs-list-row__title">Registrar nuevo paciente</div><div class="vs-list-row__sub">Alta en el padrón con CI</div></div>
+                  <a href="P4 Gestión de Pacientes/cu12-registrar-paciente.html" class="vs-icon-btn" aria-label="Nuevo paciente"><svg class="vs-i"><use href="#i-chevron-right"/></svg></a>
+                </li>
+                <li class="vs-list-row">
+                  <span class="vs-avatar vs-avatar--sm vs-avatar--amber"><svg class="vs-i vs-i--sm"><use href="#i-shield"/></svg></span>
+                  <div class="vs-list-row__body"><div class="vs-list-row__title">Auditoría y Bitácora</div><div class="vs-list-row__sub">Trazabilidad de operaciones</div></div>
+                  <a href="P3 Auditoría, Trazabilidad y Bitácora/cu11-bitacora.html" class="vs-icon-btn" aria-label="Ver bitácora"><svg class="vs-i"><use href="#i-chevron-right"/></svg></a>
+                </li>
+              </ul>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head">
+                <div><h3 class="vs-card__title">Últimos movimientos</h3><p class="vs-card__sub">Bitácora de auditoría en vivo</p></div>
+                <a href="P3 Auditoría, Trazabilidad y Bitácora/cu11-bitacora.html" class="vs-link">Ver todo</a>
+              </div>
+              <div class="vs-card__body">
+                <ol class="vs-timeline" id="vs-inicio-timeline">
+                  <li class="vs-tl-item vs-tl-item--info"><span class="vs-tl-time">—</span><div class="vs-tl-title">Cargando eventos de auditoría...</div></li>
+                </ol>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="vs-row vs-row--between" style="margin-bottom: .9rem">
+            <div>
+              <p class="vs-eyebrow">Arquitectura del sistema</p>
+              <h3 class="vs-h2" style="margin-top:.25rem">Mapa de paquetes y casos de uso</h3>
+            </div>
+            <span class="vs-badge vs-badge--muted vs-badge--lg">7 paquetes · 36 casos de uso</span>
+          </div>
+          <div class="vs-grid vs-grid--3">
+            <a href="P1 Seguridad y Autenticación/cu04-bloqueo-intentos.html" class="vs-card vs-card--hover vs-module">
+              <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-shield"/></svg></span>
+              <div class="vs-grow">
+                <div class="vs-module__name">Seguridad y Autenticación</div>
+                <p class="vs-module__desc">Credenciales cifradas, sesiones, recuperación de clave y bloqueo automático.</p>
+                <div class="vs-module__cus"><span class="vs-code">CU01</span><span class="vs-code">CU02</span><span class="vs-code">CU03</span><span class="vs-code">CU04</span></div>
+              </div>
+            </a>
+            <a href="P2 Administración de Usuarios y Permisos/cu06-catalogo-usuarios.html" class="vs-card vs-card--hover vs-module">
+              <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-users"/></svg></span>
+              <div class="vs-grow">
+                <div class="vs-module__name">Administración de Usuarios y Permisos</div>
+                <p class="vs-module__desc">Cuentas del personal, roles RBAC, modificación y baja lógica.</p>
+                <div class="vs-module__cus"><span class="vs-code">CU05</span><span class="vs-code">CU06</span><span class="vs-code">CU07</span><span class="vs-code">CU08</span><span class="vs-code">CU09</span></div>
+              </div>
+            </a>
+            <a href="P3 Auditoría, Trazabilidad y Bitácora/cu11-bitacora.html" class="vs-card vs-card--hover vs-module">
+              <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-book"/></svg></span>
+              <div class="vs-grow">
+                <div class="vs-module__name">Auditoría, Trazabilidad y Bitácora</div>
+                <p class="vs-module__desc">Registro automático e inmutable de eventos y consulta filtrada.</p>
+                <div class="vs-module__cus"><span class="vs-code">CU10</span><span class="vs-code">CU11</span></div>
+              </div>
+            </a>
+            <a href="P4 Gestión de Pacientes/cu15-buscar-paciente.html" class="vs-card vs-card--hover vs-module">
+              <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-heart"/></svg></span>
+              <div class="vs-grow">
+                <div class="vs-module__name">Gestión de Pacientes</div>
+                <p class="vs-module__desc">Padrón con CI único, ficha médica, contactos de emergencia e historial.</p>
+                <div class="vs-module__cus"><span class="vs-code">CU12</span><span class="vs-code">CU13</span><span class="vs-code">CU14</span><span class="vs-code">CU15</span><span class="vs-code">CU16</span><span class="vs-code">CU17</span></div>
+              </div>
+            </a>
+            <a href="P5 Gestión Médica y Horarios/cu19-personal-medico.html" class="vs-card vs-card--hover vs-module">
+              <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span>
+              <div class="vs-grow">
+                <div class="vs-module__name">Gestión Médica y Horarios</div>
+                <p class="vs-module__desc">Especialidades, personal médico y jornadas en bloques de 30 minutos.</p>
+                <div class="vs-module__cus"><span class="vs-code">CU18</span><span class="vs-code">CU19</span><span class="vs-code">CU20</span><span class="vs-code">CU21</span></div>
+              </div>
+            </a>
+            <a href="P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-card vs-card--hover vs-module">
+              <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-calendar"/></svg></span>
+              <div class="vs-grow">
+                <div class="vs-module__name">Gestión de Citas Médicas</div>
+                <p class="vs-module__desc">Disponibilidad, reserva sin traslapes, reprogramación, cancelación y estados.</p>
+                <div class="vs-module__cus"><span class="vs-code">CU22</span><span class="vs-code">CU23</span><span class="vs-code">CU24</span><span class="vs-code">CU25</span><span class="vs-code">CU26</span><span class="vs-code">CU27</span><span class="vs-code">CU28</span><span class="vs-code">CU29</span><span class="vs-code">CU30</span><span class="vs-code">CU31</span></div>
+              </div>
+            </a>
+            <a href="P7 Reportes Administrativos/cu32-reporte-citas-periodo.html" class="vs-card vs-card--hover vs-module">
+              <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-chart"/></svg></span>
+              <div class="vs-grow">
+                <div class="vs-module__name">Reportes Administrativos</div>
+                <p class="vs-module__desc">Citas por período, atenciones, asistencia, padrón y exportación PDF / CSV.</p>
+                <div class="vs-module__cus"><span class="vs-code">CU32</span><span class="vs-code">CU33</span><span class="vs-code">CU34</span><span class="vs-code">CU35</span><span class="vs-code">CU36</span></div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/vida-salud-nav.js"></script>
+  <script src="../js/vida-salud-app-shell.js"></script>
+    <script src="../js/vida-salud-api.js"></script>
+<script src="../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

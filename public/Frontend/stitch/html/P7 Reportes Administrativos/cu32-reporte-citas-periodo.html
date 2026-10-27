@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte de citas por período · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU32">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Citas por período</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P7 · Reportes Administrativos</p>
+            <h2 class="vs-h1">Reporte de citas por período</h2>
+            <p class="vs-lead">Volumen de citas en un rango de fechas, desglosado por estado, especialidad y día. Sirve para dimensionar la demanda y planificar los turnos médicos.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU32</span><span class="vs-trace__actor">Administrador</span></span>
+            <a href="cu35-exportar-reportes.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-file-pdf"/></svg>PDF</a>
+            <a href="cu35-exportar-reportes.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-file-csv"/></svg>Exportar CSV</a>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight">
+            <form class="vs-filters" onsubmit="event.preventDefault()">
+              <div class="vs-field vs-f-2"><label class="vs-label" for="rp-desde">Desde <span class="vs-req">*</span></label><input id="rp-desde" class="vs-input vs-input--mono" type="date" value="2026-10-01" required></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="rp-hasta">Hasta <span class="vs-req">*</span></label><input id="rp-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26" required></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="rp-esp">Especialidad</label><select id="rp-esp" class="vs-select"><option>Todas</option><option>Medicina General</option><option>Pediatría</option><option>Ginecología</option><option>Odontología</option><option>Cardiología</option><option>Traumatología</option><option>Dermatología</option></select></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="rp-estado">Estado</label><select id="rp-estado" class="vs-select"><option>Todos</option><option>Programada</option><option>Confirmada</option><option>Atendida</option><option>Cancelada</option><option>Inasistencia</option></select></div>
+              <div class="vs-row vs-f-3" style="justify-content:flex-end">
+                <div class="vs-pills"><label class="vs-pill"><input type="radio" name="rng" value="mes" checked><span>Este mes</span></label><label class="vs-pill"><input type="radio" name="rng" value="sem"><span>Semana</span></label></div>
+                <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-chart"/></svg>Generar</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="vs-grid vs-grid--4">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Citas en el período</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-calendar"/></svg></span></div><p class="vs-kpi__value">204</p><p class="vs-kpi__hint">01/10 – 26/10/2026 · 20 días hábiles</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Atendidas</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">112</p><p class="vs-kpi__hint vs-kpi__hint--ok">55 % del total</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Canceladas</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-calendar-x"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--rose">31</p><p class="vs-kpi__hint vs-kpi__hint--danger">15 % · 3 pts más que septiembre</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Promedio diario</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-activity"/></svg></span></div><p class="vs-kpi__value">10,2</p><p class="vs-kpi__hint">Pico: lunes 19/10 con 17 citas</p></article>
+        </section>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Citas por semana</h3><p class="vs-card__sub">Octubre 2026 · barras: total · claras: canceladas</p></div></div>
+            <div class="vs-card__body">
+              <div class="vs-cols">
+                <div class="vs-col"><span class="vs-col__val">46</span><i style="height:62%"></i><small>Sem 1 · 01–03</small></div>
+                <div class="vs-col"><span class="vs-col__val">52</span><i style="height:70%"></i><small>Sem 2 · 05–10</small></div>
+                <div class="vs-col"><span class="vs-col__val">38</span><i style="height:51%"></i><small>Sem 3 · 12–17</small></div>
+                <div class="vs-col"><span class="vs-col__val">58</span><i style="height:78%"></i><small>Sem 4 · 19–24</small></div>
+                <div class="vs-col"><span class="vs-col__val">10</span><i class="soft" style="height:14%"></i><small>Sem 5 · 26</small></div>
+              </div>
+            </div>
+            <div class="vs-card__foot"><span>La semana 3 incluye el congreso de la Dra. Montero (12/10) con agenda bloqueada.</span></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Por estado</h3></div></div>
+              <div class="vs-card__body vs-row" style="gap:1.25rem;align-items:center">
+                <div class="vs-donut" style="background:conic-gradient(var(--vs-moss) 0 55%, var(--vs-forest) 55% 72%, var(--vs-clay) 72% 81%, var(--vs-rose-500) 81% 96%, #f59e0b 96% 100%)"><div class="vs-donut__center"><div class="vs-donut__val">204</div><div class="vs-donut__lbl">citas</div></div></div>
+                <ul class="vs-stack vs-stack--xs vs-small" style="list-style:none;padding:0;margin:0">
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-moss)"></span>Atendidas · 112</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-forest)"></span>Programadas · 34</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-clay)"></span>Confirmadas · 18</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-rose-500)"></span>Canceladas · 31</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:#f59e0b"></span>Inasistencias · 9</li>
+                </ul>
+              </div>
+            </article>
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Por especialidad</h3></div></div>
+              <div class="vs-card__body vs-bars">
+                <div class="vs-bars__row"><span class="vs-bars__label">Medicina General</span><div class="vs-bar"><i style="width:100%"></i></div><span class="vs-bars__val">84</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Pediatría</span><div class="vs-bar vs-bar--teal"><i style="width:55%"></i></div><span class="vs-bars__val">46</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Ginecología</span><div class="vs-bar vs-bar--cyan"><i style="width:30%"></i></div><span class="vs-bars__val">25</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Odontología</span><div class="vs-bar vs-bar--cyan"><i style="width:25%"></i></div><span class="vs-bars__val">21</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Cardiología</span><div class="vs-bar vs-bar--amber"><i style="width:17%"></i></div><span class="vs-bars__val">14</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Traumatología</span><div class="vs-bar vs-bar--amber"><i style="width:11%"></i></div><span class="vs-bars__val">9</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Dermatología</span><div class="vs-bar vs-bar--rose"><i style="width:6%"></i></div><span class="vs-bars__val">5</span></div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head"><div><h3 class="vs-card__title">Detalle del período</h3><p class="vs-card__sub">Las primeras 8 de 204 filas · el CSV incluye todas</p></div><span class="vs-badge vs-badge--muted vs-badge--lg">204 filas</span></div>
+          <div class="vs-table-wrap">
+            <table class="vs-table vs-table--compact">
+              <thead><tr><th>Código</th><th>Fecha</th><th>Hora</th><th>Paciente</th><th class="vs-hide-md">Especialidad</th><th class="vs-hide-md">Médico</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td class="vs-td-num">CM-0290</td><td class="vs-td-num">26/10/2026</td><td class="vs-td-num">10:30</td><td>Iván Cuéllar Arteaga</td><td class="vs-hide-md">Medicina General</td><td class="vs-hide-md">Dr. Rojas</td><td><span class="vs-badge vs-badge--info">Programada</span></td></tr>
+                <tr><td class="vs-td-num">CM-0288</td><td class="vs-td-num">26/10/2026</td><td class="vs-td-num">10:00</td><td>Paola Paz Terceros</td><td class="vs-hide-md">Medicina General</td><td class="vs-hide-md">Dr. Rojas</td><td><span class="vs-badge vs-badge--info">Programada</span></td></tr>
+                <tr><td class="vs-td-num">CM-0286</td><td class="vs-td-num">26/10/2026</td><td class="vs-td-num">09:00</td><td>Fernando Wilson Roca Barba</td><td class="vs-hide-md">Medicina General</td><td class="vs-hide-md">Dr. Rojas</td><td><span class="vs-badge vs-badge--cyan">Confirmada</span></td></tr>
+                <tr><td class="vs-td-num">CM-0284</td><td class="vs-td-num">26/10/2026</td><td class="vs-td-num">09:00</td><td>Camila Choque Peña</td><td class="vs-hide-md">Ginecología</td><td class="vs-hide-md">Dra. Montero</td><td><span class="vs-badge vs-badge--info">Programada</span></td></tr>
+                <tr><td class="vs-td-num">CM-0283</td><td class="vs-td-num">26/10/2026</td><td class="vs-td-num">08:30</td><td>Jimena Égüez Choque</td><td class="vs-hide-md">Medicina General</td><td class="vs-hide-md">Dr. Rojas</td><td><span class="vs-badge vs-badge--cyan">Confirmada</span></td></tr>
+                <tr><td class="vs-td-num">CM-0281</td><td class="vs-td-num">26/10/2026</td><td class="vs-td-num">08:00</td><td>Ronald Saucedo Mendoza</td><td class="vs-hide-md">Medicina General</td><td class="vs-hide-md">Dr. Rojas</td><td><span class="vs-badge vs-badge--ok">Atendida</span></td></tr>
+                <tr><td class="vs-td-num">CM-0279</td><td class="vs-td-num">26/10/2026</td><td class="vs-td-num">11:00</td><td>Daniel Vargas Soliz</td><td class="vs-hide-md">Medicina General</td><td class="vs-hide-md">Dr. Rojas</td><td><span class="vs-badge vs-badge--danger">Cancelada</span></td></tr>
+                <tr><td class="vs-td-num">CM-0278</td><td class="vs-td-num">24/10/2026</td><td class="vs-td-num">11:30</td><td>Mauricio Suárez Égüez</td><td class="vs-hide-md">Pediatría</td><td class="vs-hide-md">Dr. Arteaga</td><td><span class="vs-badge vs-badge--ok">Atendida</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vs-pagination"><span>Mostrando <strong class="vs-strong">1–8</strong> de <strong class="vs-strong">204</strong></span><div class="vs-pager"><button type="button" disabled aria-label="Anterior"><svg class="vs-i vs-i--sm"><use href="#i-chevron-left"/></svg></button><button type="button" class="is-current">1</button><button type="button">2</button><button type="button">3</button><span>…</span><button type="button">26</button><button type="button" aria-label="Siguiente"><svg class="vs-i vs-i--sm"><use href="#i-chevron-right"/></svg></button></div></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

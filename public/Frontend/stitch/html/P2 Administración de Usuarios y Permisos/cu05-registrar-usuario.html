@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registrar usuario · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU05">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Registrar usuario</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P2 · Administración de Usuarios y Permisos</p>
+            <h2 class="vs-h1">Nuevo usuario del sistema</h2>
+            <p class="vs-lead">Registra al personal de la clínica con sus credenciales iniciales y su rol operativo. El CI y el correo deben ser únicos.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU05</span><span class="vs-trace__actor">Administrador</span></span>
+            <a href="cu06-catalogo-usuarios.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-users"/></svg>Ver catálogo</a>
+          </div>
+        </header>
+
+        <section>
+          <form class="vs-card" data-demo="Usuario registrado" data-demo-sub="La cuenta queda Activa y el evento se registró en bitácora" novalidate>
+            <div class="vs-card__body vs-form">
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">1</span>Datos personales</legend>
+                <div class="vs-form-grid">
+                  <div class="vs-field">
+                    <label class="vs-label" for="u-ci">Cédula de identidad <span class="vs-req">*</span></label>
+                    <input id="u-ci" class="vs-input vs-input--mono" type="text" inputmode="numeric" placeholder="7668705" pattern="[0-9]{5,10}" required>
+                    <span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>Ingresa un CI válido (solo números)</span>
+                  </div>
+                  <div class="vs-field">
+                    <label class="vs-label" for="u-tel">Teléfono <span class="vs-req">*</span></label>
+                    <input id="u-tel" class="vs-input vs-input--mono" type="tel" inputmode="numeric" placeholder="7XXXXXXX" pattern="[0-9]{7,8}" required>
+                    <span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>Teléfono de 7 u 8 dígitos</span>
+                  </div>
+                  <div class="vs-field">
+                    <label class="vs-label" for="u-nombres">Nombres <span class="vs-req">*</span></label>
+                    <input id="u-nombres" class="vs-input" type="text" placeholder="María Fernanda" required>
+                  </div>
+                  <div class="vs-field">
+                    <label class="vs-label" for="u-apellidos">Apellidos <span class="vs-req">*</span></label>
+                    <input id="u-apellidos" class="vs-input" type="text" placeholder="Rivero Soliz" required>
+                  </div>
+                  <div class="vs-field vs-col-2">
+                    <label class="vs-label" for="u-email">Correo electrónico <span class="vs-req">*</span></label>
+                    <div class="vs-input-icon">
+                      <svg class="vs-i"><use href="#i-mail"/></svg>
+                      <input id="u-email" class="vs-input" type="email" placeholder="mrivero@vidasalud.com.bo" required>
+                    </div>
+                    <p class="vs-hint">Se valida sin distinguir mayúsculas: una sola cuenta por casilla.</p>
+                  </div>
+                </div>
+              </fieldset>
+
+              <hr class="vs-divider">
+
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">2</span>Rol operativo</legend>
+                <div class="vs-choice-grid vs-choice-grid--3">
+                  <label class="vs-choice"><input type="radio" name="rol" value="admin"><div><div class="vs-choice__title">Administrador <span class="vs-badge vs-badge--warn">Superusuario</span></div><div class="vs-choice__desc">Usuarios, roles, catálogos, bitácora y reportes.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="rol" value="recep" checked><div><div class="vs-choice__title">Recepcionista</div><div class="vs-choice__desc">Pacientes, disponibilidad, programación y control de citas.</div></div></label>
+                  <label class="vs-choice"><input type="radio" name="rol" value="medico"><div><div class="vs-choice__title">Médico</div><div class="vs-choice__desc">Agenda diaria, datos del paciente y marcar atendida.</div></div></label>
+                </div>
+                <div class="vs-form-grid">
+                  <div class="vs-field">
+                    <label class="vs-label" for="u-cargo">Cargo <span class="vs-label__opt">opcional</span></label>
+                    <select id="u-cargo" class="vs-select">
+                      <option>Recepcionista turno mañana</option>
+                      <option>Recepcionista turno tarde</option>
+                      <option>Administradora del sistema</option>
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+
+              <hr class="vs-divider">
+
+              <fieldset class="vs-fieldset">
+                <legend class="vs-legend"><span class="vs-legend__num">3</span>Credenciales de acceso</legend>
+                <div class="vs-form-grid">
+                  <div class="vs-field">
+                    <label class="vs-label" for="u-usuario">Nombre de usuario <span class="vs-req">*</span></label>
+                    <input id="u-usuario" class="vs-input vs-input--mono" type="text" placeholder="mrivero" pattern="[a-z0-9._-]{4,50}" required>
+                    <p class="vs-hint">Se sugiere automáticamente: inicial del nombre + primer apellido.</p>
+                  </div>
+                  <div class="vs-field">
+                    <div class="vs-row vs-row--between">
+                      <label class="vs-label" for="u-pass">Contraseña asignada <span class="vs-req">*</span></label>
+                      <button type="button" class="vs-link vs-xs" data-toggle-pass="u-pass" aria-pressed="false">Mostrar</button>
+                    </div>
+                    <input id="u-pass" class="vs-input vs-input--mono" type="password" minlength="8" autocomplete="new-password" required>
+                    <ul class="vs-pass-rules" data-pass-rules="u-pass">
+                      <li data-rule="len">Mínimo 8 caracteres</li>
+                      <li data-rule="upper">Una mayúscula</li>
+                      <li data-rule="num">Un número</li>
+                    </ul>
+                  </div>
+                </div>
+                <label class="vs-check vs-check--sm"><input type="checkbox" checked>Exigir cambio de contraseña en el primer ingreso</label>
+              </fieldset>
+            </div>
+            <div class="vs-card__foot">
+              <span>Los campos con <span class="vs-req">*</span> son obligatorios</span>
+              <div class="vs-row">
+                <a href="cu06-catalogo-usuarios.html" class="vs-btn vs-btn--ghost">Cancelar</a>
+                <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-user-plus"/></svg>Crear usuario</button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

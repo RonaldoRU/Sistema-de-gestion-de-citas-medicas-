@@ -36,20 +36,20 @@
         </div>
 
         <div class="vs-row" style="gap:1rem">
-          <span class="vs-avatar vs-avatar--lg vs-avatar--teal"><svg class="vs-i vs-i--lg"><use href="#i-check-circle"/></svg></span>
+          <span class="vs-avatar vs-avatar--lg vs-avatar--teal" id="logoutAvatar">SC</span>
           <div>
             <h2 class="vs-h1">Sesión cerrada</h2>
-            <p class="vs-lead" style="margin-top:.25rem">Gracias, Silvia. Hasta la próxima.</p>
+            <p class="vs-lead" id="logoutSalutation" style="margin-top:.25rem">Gracias. Hasta la próxima.</p>
           </div>
         </div>
 
         <article class="vs-card">
           <div class="vs-card__body">
             <dl class="vs-dl">
-              <dt>Usuario</dt><dd>scolque · Administradora</dd>
-              <dt>Inicio de sesión</dt><dd class="vs-mono">26/10/2026 07:52</dd>
-              <dt>Cierre</dt><dd class="vs-mono">26/10/2026 12:08</dd>
-              <dt>Equipo</dt><dd>Recepción central · 192.168.1.20</dd>
+              <dt>Usuario</dt><dd id="logoutUsuario">scolque · Administradora</dd>
+              <dt>Inicio de sesión</dt><dd class="vs-mono" id="logoutInicio">--/--/---- --:--</dd>
+              <dt>Cierre</dt><dd class="vs-mono" id="logoutCierre">--/--/---- --:--</dd>
+              <dt>Equipo</dt><dd id="logoutEquipo">Terminal activa · 127.0.0.1</dd>
               <dt>Registro</dt><dd><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Evento LOGOUT en bitácora</span></dd>
             </dl>
           </div>
@@ -73,6 +73,65 @@
   </div>
 
   <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
   <script src="../../js/vida-salud-ui.js"></script>
+  <script>
+    (function () {
+      function pad(n) { return n < 10 ? '0' + n : n; }
+      function formatDateTime(d) {
+        var date = (d instanceof Date && !isNaN(d.getTime())) ? d : new Date();
+        return pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear() + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+      }
+
+      var avatarEl = document.getElementById('logoutAvatar');
+      var salutationEl = document.getElementById('logoutSalutation');
+      var usuarioEl = document.getElementById('logoutUsuario');
+      var inicioEl = document.getElementById('logoutInicio');
+      var cierreEl = document.getElementById('logoutCierre');
+      var equipoEl = document.getElementById('logoutEquipo');
+
+      // 1. Mostrar de inmediato la hora exacta real actual
+      var now = new Date();
+      var sessionStartEst = new Date(now.getTime() - 25 * 60 * 1000);
+
+      cierreEl.textContent = formatDateTime(now);
+      inicioEl.textContent = formatDateTime(sessionStartEst);
+      equipoEl.textContent = 'Terminal activa · ' + (location.hostname || '127.0.0.1');
+
+      function updateWithData(data) {
+        if (!data) return;
+        if (data.inicio_sesion) inicioEl.textContent = data.inicio_sesion;
+        if (data.cierre) cierreEl.textContent = data.cierre;
+        if (data.equipo) equipoEl.textContent = data.equipo;
+        else if (data.ip) equipoEl.textContent = 'Terminal activa · ' + data.ip;
+
+        var nombre = data.nombres ? data.nombres.split(' ')[0] : (data.usuario || 'Usuario');
+        salutationEl.textContent = 'Gracias, ' + nombre + '. Hasta la próxima.';
+
+        var usr = (data.usuario || 'scolque') + ' · ' + (data.rol || 'Administradora');
+        usuarioEl.textContent = usr;
+
+        var inits = ((data.nombres ? data.nombres.charAt(0) : 'S') + (data.apellidos ? data.apellidos.charAt(0) : 'C')).toUpperCase();
+        avatarEl.textContent = inits;
+      }
+
+      // 2. Consultar al endpoint en tiempo real de la API
+      var apiEndpoint = (window.VS_API && window.VS_API.base) ? (window.VS_API.base + '/auth/logout-summary') : '/api/auth/logout-summary';
+      fetch(apiEndpoint, {
+        headers: { 'Accept': 'application/json' }
+      }).then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res && res.success) {
+            updateWithData(res);
+          }
+        }).catch(function () {
+          if (window.VS_API && typeof window.VS_API.request === 'function') {
+            window.VS_API.request('/auth/logout-summary')
+              .then(function (res) { if (res) updateWithData(res); })
+              .catch(function () {});
+          }
+        });
+    })();
+  </script>
 </body>
 </html>

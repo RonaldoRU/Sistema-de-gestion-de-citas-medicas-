@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recordatorios de citas · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU28">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Recordatorios</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
+            <h2 class="vs-h1">Recordatorios telefónicos de citas</h2>
+            <p class="vs-lead">Cada mañana el sistema genera la lista de llamadas para las citas del día siguiente. Recepción llama al paciente, registra el resultado y, si confirma, la cita pasa a <strong>Confirmada</strong>.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU28</span><span class="vs-trace__actor">Sistema → Recepcionista</span></span>
+            <button type="button" class="vs-btn vs-btn--ghost" data-toast="Lista regenerada" data-toast-sub="9 recordatorios para el martes 27/10"><svg class="vs-i"><use href="#i-refresh"/></svg>Regenerar lista</button>
+          </div>
+        </header>
+
+        <section class="vs-grid vs-grid--4">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Llamadas de hoy</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-phone"/></svg></span></div><p class="vs-kpi__value">9</p><p class="vs-kpi__hint">Citas del martes 27/10/2026</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Confirmaron</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">4</p><p class="vs-kpi__hint vs-kpi__hint--ok">Pasaron a estado Confirmada</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Pendientes</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">3</p><p class="vs-kpi__hint vs-kpi__hint--warn">1 sin respuesta · reintentar 15:00</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Efectividad (mes)</span><span class="vs-kpi__icon vs-kpi__icon--slate"><svg class="vs-i"><use href="#i-pulse"/></svg></span></div><p class="vs-kpi__value">88 %</p><p class="vs-kpi__hint">Inasistencias bajaron de 14 % a 6 %</p></article>
+        </section>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head">
+              <div><h3 class="vs-card__title">Lista de llamadas · martes 27 de octubre</h3><p class="vs-card__sub">Tabla <span class="vs-code">notificacion</span> · generada hoy 08:00</p></div>
+              <div class="vs-pills">
+                <label class="vs-pill"><input type="radio" name="f" value="todas" checked><span>Todas (9)</span></label>
+                <label class="vs-pill"><input type="radio" name="f" value="pend"><span>Pendientes (3)</span></label>
+                <label class="vs-pill"><input type="radio" name="f" value="env"><span>Realizadas (6)</span></label>
+              </div>
+            </div>
+            <div class="vs-table-wrap">
+              <table class="vs-table">
+                <thead><tr><th>Cita</th><th>Paciente</th><th class="vs-hide-md">Médico</th><th>Teléfono</th><th>Estado llamada</th><th class="vs-td-actions">Resultado</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><div class="vs-cell-person__name vs-mono">CM-0298</div><div class="vs-cell-person__sub">27/10 08:00</div></td>
+                    <td><div class="vs-cell-person__name">Mauricio Suárez Égüez</div><div class="vs-cell-person__sub">Menor · tutor: Carla Égüez</div></td>
+                    <td class="vs-hide-md">Dr. Arteaga · Pediatría</td>
+                    <td class="vs-td-num"><a href="tel:73222777" class="vs-link">73222777</a></td>
+                    <td><span class="vs-badge vs-badge--warn"><span class="vs-badge__dot"></span>Pendiente</span></td>
+                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--teal vs-btn--sm" data-toast="Asistencia confirmada" data-toast-sub="CM-0298 → CONFIRMADA · llamada ENVIADA"><svg class="vs-i"><use href="#i-check"/></svg>Confirmó</button><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-open-dialog="dlg-resultado"><svg class="vs-i"><use href="#i-more"/></svg></button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="vs-cell-person__name vs-mono">CM-0299</div><div class="vs-cell-person__sub">27/10 08:30</div></td>
+                    <td><div class="vs-cell-person__name">Ronald Saucedo Mendoza</div><div class="vs-cell-person__sub">PAC-0017</div></td>
+                    <td class="vs-hide-md">Dr. Arteaga · Med. General</td>
+                    <td class="vs-td-num"><a href="tel:71640267" class="vs-link">71640267</a></td>
+                    <td><span class="vs-badge vs-badge--warn"><span class="vs-badge__dot"></span>Pendiente</span></td>
+                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--teal vs-btn--sm" data-toast="Asistencia confirmada" data-toast-sub="CM-0299 → CONFIRMADA · llamada ENVIADA"><svg class="vs-i"><use href="#i-check"/></svg>Confirmó</button><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-open-dialog="dlg-resultado"><svg class="vs-i"><use href="#i-more"/></svg></button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="vs-cell-person__name vs-mono">CM-0300</div><div class="vs-cell-person__sub">27/10 14:00</div></td>
+                    <td><div class="vs-cell-person__name">Camila Choque Peña</div><div class="vs-cell-person__sub">PAC-0047</div></td>
+                    <td class="vs-hide-md">Dra. Gutiérrez · Pediatría</td>
+                    <td class="vs-td-num"><a href="tel:75975326" class="vs-link">75975326</a></td>
+                    <td><span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Fallida · sin respuesta</span></td>
+                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--soft vs-btn--sm" data-toast="Reintento programado" data-toast-sub="CM-0300 · nueva llamada a las 15:00"><svg class="vs-i"><use href="#i-refresh"/></svg>Reintentar</button><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-open-dialog="dlg-resultado"><svg class="vs-i"><use href="#i-more"/></svg></button></td>
+                  </tr>
+                  <tr class="is-muted">
+                    <td><div class="vs-cell-person__name vs-mono">CM-0302</div><div class="vs-cell-person__sub">27/10 14:30</div></td>
+                    <td><div class="vs-cell-person__name">Fernando Wilson Roca Barba</div><div class="vs-cell-person__sub">PAC-0058</div></td>
+                    <td class="vs-hide-md">Dra. Peña · Cardiología</td>
+                    <td class="vs-td-num">78251059</td>
+                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Enviada · confirmó</span></td>
+                    <td class="vs-td-actions"><span class="vs-xs vs-muted">rvaca · 08:22</span></td>
+                  </tr>
+                  <tr class="is-muted">
+                    <td><div class="vs-cell-person__name vs-mono">CM-0303</div><div class="vs-cell-person__sub">27/10 15:00</div></td>
+                    <td><div class="vs-cell-person__name">Iván Cuéllar Arteaga</div><div class="vs-cell-person__sub">PAC-0049</div></td>
+                    <td class="vs-hide-md">Dra. Peña · Med. General</td>
+                    <td class="vs-td-num">73413816</td>
+                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Enviada · confirmó</span></td>
+                    <td class="vs-td-actions"><span class="vs-xs vs-muted">rvaca · 08:25</span></td>
+                  </tr>
+                  <tr class="is-muted">
+                    <td><div class="vs-cell-person__name vs-mono">CM-0304</div><div class="vs-cell-person__sub">27/10 16:00</div></td>
+                    <td><div class="vs-cell-person__name">Paola Paz Terceros</div><div class="vs-cell-person__sub">PAC-0033</div></td>
+                    <td class="vs-hide-md">Dr. Terceros · Odontología</td>
+                    <td class="vs-td-num">76840518</td>
+                    <td><span class="vs-badge vs-badge--muted"><span class="vs-badge__dot"></span>Enviada · pidió reprogramar</span></td>
+                    <td class="vs-td-actions"><a href="cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="vs-card__foot"><span>Mostrando 6 de 9 llamadas</span><span class="vs-xs">Las canceladas se excluyen automáticamente de la lista</span></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Guion sugerido</h3><p class="vs-card__sub">Para la llamada</p></div></div>
+              <div class="vs-card__body">
+                <p class="vs-small" style="line-height:1.6">“Buenos días, le llamamos de la Clínica Vida Salud para recordarle su cita de <strong>mañana martes 27 a las 08:00</strong> con el <strong>Dr. Arteaga</strong> (Pediatría). ¿Confirma su asistencia? Recuerde llegar 10 minutos antes con su carnet.”</p>
+              </div>
+            </article>
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Estados de la notificación</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">PENDIENTE</span>Generada por el sistema; aún no se llamó.</div>
+                <div class="vs-rule"><span class="vs-rule__k">ENVIADA</span>Llamada realizada; se guarda el resultado (confirmó, avisado, pidió reprogramar).</div>
+                <div class="vs-rule vs-rule--danger"><span class="vs-rule__k">FALLIDA</span>Sin respuesta o número inválido (A1); se agenda un reintento.</div>
+              </div>
+            </article>
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Resultados del mes</h3></div></div>
+              <div class="vs-card__body vs-row" style="gap:1.25rem;align-items:center">
+                <div class="vs-donut" style="background:conic-gradient(var(--vs-moss) 0 71%, var(--vs-clay) 71% 88%, var(--vs-rose-500) 88% 100%)"><div class="vs-donut__center"><div class="vs-donut__val">88 %</div><div class="vs-donut__lbl">Contactados</div></div></div>
+                <ul class="vs-stack vs-stack--xs vs-small" style="list-style:none;padding:0;margin:0">
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-moss)"></span>Confirmaron · 71 %</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-clay)"></span>Avisados / reprogramaron · 17 %</li>
+                  <li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-rose-500)"></span>Sin respuesta · 12 %</li>
+                </ul>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-resultado" class="vs-modal">
+    <form data-demo="Resultado registrado" data-demo-sub="La notificación pasó a ENVIADA con el detalle de la llamada" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon"><svg class="vs-i"><use href="#i-phone"/></svg></span>
+        <div><h2 class="vs-modal__title">Registrar resultado de la llamada</h2><p class="vs-modal__text">CM-0298 · Mauricio Suárez Égüez · 27/10 08:00 · Dr. Arteaga</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-choice-grid vs-choice-grid--2">
+          <label class="vs-choice"><input type="radio" name="res" value="confirmo" checked><div><div class="vs-choice__title">Confirmó asistencia</div><div class="vs-choice__desc">La cita pasa a Confirmada</div></div></label>
+          <label class="vs-choice"><input type="radio" name="res" value="avisado"><div><div class="vs-choice__title">Avisado, sin confirmar</div><div class="vs-choice__desc">Se mantiene Programada</div></div></label>
+          <label class="vs-choice"><input type="radio" name="res" value="repro"><div><div class="vs-choice__title">Pide reprogramar</div><div class="vs-choice__desc">Abre CU26 al guardar</div></div></label>
+          <label class="vs-choice"><input type="radio" name="res" value="fallida"><div><div class="vs-choice__title">No contestó / número inválido</div><div class="vs-choice__desc">Marca FALLIDA y agenda reintento</div></div></label>
+        </div>
+        <div class="vs-field"><label class="vs-label" for="res-obs">Observación</label><input id="res-obs" class="vs-input" type="text" placeholder="Ej. Contestó la madre; llegarán 10 minutos antes"></div>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+        <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Guardar resultado</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

@@ -48,7 +48,7 @@
             <form class="vs-filters" onsubmit="event.preventDefault()">
               <div class="vs-field vs-f-3"><label class="vs-label" for="b-usuario">Usuario</label><select id="b-usuario" class="vs-select"><option value="">Todos los usuarios</option><option>scolque — Silvia Colque</option><option>rvaca — Rosa Vaca</option><option>csuarez — Carla Suárez</option><option>jmendoza — Jorge Mendoza</option><option>djustiniano — Daniela Justiniano</option><option>jrojas — Dr. Juan Rojas</option><option>Sistema</option></select></div>
               <div class="vs-field vs-f-3"><label class="vs-label" for="b-modulo">Módulo</label><select id="b-modulo" class="vs-select"><option value="">Todos</option><option>P1 · Seguridad y Autenticación</option><option>P2 · Usuarios y Permisos</option><option>P3 · Auditoría</option><option>P4 · Pacientes</option><option>P5 · Gestión Médica y Horarios</option><option>P6 · Citas Médicas</option><option>P7 · Reportes</option></select></div>
-              <div class="vs-field vs-f-2"><label class="vs-label" for="b-accion">Acción</label><select id="b-accion" class="vs-select"><option value="">Todas</option><option>CREAR</option><option>MODIFICAR</option><option>ELIMINAR</option><option>LOGIN</option><option>LOGOUT</option><option>BLOQUEO</option></select></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-accion">Acción</label><select id="b-accion" class="vs-select"><option value="">Todas</option><option value="REGISTRAR">REGISTRAR</option><option value="INACTIVAR">INACTIVAR</option><option value="RENOVAR">RENOVAR</option><option value="MODIFICAR">MODIFICAR</option><option value="ELIMINAR">ELIMINAR</option><option value="LOGIN">LOGIN</option><option value="LOGOUT">LOGOUT</option><option value="BLOQUEO">BLOQUEO</option><option value="CREAR">CREAR</option></select></div>
               <div class="vs-field vs-f-2"><label class="vs-label" for="b-desde">Desde</label><input id="b-desde" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
               <div class="vs-field vs-f-2"><label class="vs-label" for="b-hasta">Hasta</label><input id="b-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
               <div class="vs-field vs-f-6"><label class="vs-label" for="b-q">Texto en el detalle</label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-search"/></svg><input id="b-q" class="vs-input" type="search" placeholder="Ej. CM-0283, PAC-0071, jmendoza"></div></div>
@@ -64,8 +64,9 @@
           <div class="vs-card__head">
             <div><h3 class="vs-card__title">Eventos registrados</h3><p class="vs-card__sub">Lunes 26/10/2026 · ordenados por fecha y hora descendente</p></div>
             <div class="vs-row">
-              <span class="vs-badge vs-badge--muted vs-badge--lg">148 eventos</span>
-              <span class="vs-badge vs-badge--danger vs-badge--lg">1 alerta</span>
+              <span class="vs-live" id="vs-live-indicator"><i></i>En vivo</span>
+              <span class="vs-badge vs-badge--muted vs-badge--lg" id="vs-badge-total">Cargando eventos...</span>
+              <span class="vs-badge vs-badge--danger vs-badge--lg" id="vs-badge-alertas">0 alertas</span>
             </div>
           </div>
           <div class="vs-table-wrap">
@@ -129,6 +130,7 @@
 
   <script src="../../js/vida-salud-nav.js"></script>
   <script src="../../js/vida-salud-app-shell.js"></script>
-  <script src="../../js/vida-salud-ui.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
 </body>
 </html>

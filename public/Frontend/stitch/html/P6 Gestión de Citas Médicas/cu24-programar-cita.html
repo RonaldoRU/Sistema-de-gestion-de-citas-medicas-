@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programar cita · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU24">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Programar cita</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
+            <h2 class="vs-h1">Programar cita médica</h2>
+            <p class="vs-lead">Reserva un bloque de 30 minutos para un paciente registrado. Al confirmar, el sistema genera el código <span class="vs-code">CM-####</span> y la cita nace en estado <strong>Programada</strong>.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU24</span><span class="vs-trace__actor">Recepcionista</span></span>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight">
+            <ol class="vs-steps">
+              <li class="vs-step is-done"><span class="vs-step__dot"><svg class="vs-i"><use href="#i-check"/></svg></span><div><div class="vs-step__title">Paciente</div><div class="vs-step__sub">Jimena Égüez Choque</div></div></li>
+              <li class="vs-step is-done"><span class="vs-step__dot"><svg class="vs-i"><use href="#i-check"/></svg></span><div><div class="vs-step__title">Especialidad y médico</div><div class="vs-step__sub">Medicina General · Dr. Rojas</div></div></li>
+              <li class="vs-step is-current"><span class="vs-step__dot">3</span><div><div class="vs-step__title">Fecha y bloque</div><div class="vs-step__sub">Mié 28/10/2026</div></div></li>
+              <li class="vs-step"><span class="vs-step__dot">4</span><div><div class="vs-step__title">Confirmación</div><div class="vs-step__sub">Comprobante CM-0297</div></div></li>
+            </ol>
+          </div>
+        </section>
+
+        <form class="vs-split" data-demo="Cita programada" data-demo-sub="CM-0297 registrada" data-demo-dialog="dlg-comprobante" novalidate>
+          <div class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">1 · Paciente</h3><p class="vs-card__sub">Busca por CI, nombre o código</p></div><a href="../P4 Gestión de Pacientes/cu12-registrar-paciente.html" class="vs-link">¿No está registrado?</a></div>
+              <div class="vs-card__body vs-form">
+                <div class="vs-input-icon"><svg class="vs-i"><use href="#i-search"/></svg><input class="vs-input" type="search" value="12181643" aria-label="Buscar paciente"></div>
+                <div class="vs-list-row" style="padding:.75rem 1rem;border:1px solid var(--vs-sky-200);border-radius:.6rem;background:var(--vs-sky-50)">
+                  <span class="vs-avatar vs-avatar--sm vs-avatar--sky">JE</span>
+                  <div class="vs-list-row__body"><div class="vs-list-row__title">Jimena Égüez Choque</div><div class="vs-list-row__sub"><span class="vs-mono">PAC-0016</span> · CI 12181643 · 50 años · <span class="vs-mono">75666779</span> · Alergia: Ibuprofeno</div></div>
+                  <a href="../P4 Gestión de Pacientes/cu16-historial-citas.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-calendar"/></svg>Historial</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">2 · Especialidad, médico y fecha</h3></div></div>
+              <div class="vs-card__body vs-form">
+                <div class="vs-form-grid vs-form-grid--3">
+                  <div class="vs-field"><label class="vs-label" for="c-esp">Especialidad <span class="vs-req">*</span></label><select id="c-esp" class="vs-select" required><option selected>Medicina General</option><option>Pediatría</option><option>Ginecología</option><option>Odontología</option><option>Cardiología</option><option>Traumatología</option><option>Dermatología</option></select></div>
+                  <div class="vs-field"><label class="vs-label" for="c-med">Médico <span class="vs-req">*</span></label><select id="c-med" class="vs-select" required><option selected>MED-001 · Dr. Juan Ronaldo Rojas Ugarte</option><option>MED-003 · Dr. Fernando Arteaga Ribera</option><option>MED-006 · Dra. Gabriela Peña Salvatierra</option><option>MED-009 · Dr. Ricardo Égüez Parada</option></select></div>
+                  <div class="vs-field"><label class="vs-label" for="c-fecha">Fecha <span class="vs-req">*</span></label><input id="c-fecha" class="vs-input vs-input--mono" type="date" value="2026-10-28" min="2026-10-26" required></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head">
+                <div><h3 class="vs-card__title">3 · Bloque horario</h3><p class="vs-card__sub">Miércoles 28/10 · Dr. Rojas · 08:00–12:00</p></div>
+                <div class="vs-legend"><span><i class="free"></i>Libre</span><span><i class="busy"></i>Reservado</span><span><i class="sel"></i>Elegido</span></div>
+              </div>
+              <div class="vs-card__body">
+                <div class="vs-slots" data-slots="cita">
+                  <button type="button" class="vs-slot vs-slot--busy" disabled>08:00<small>CM-0293</small></button>
+                  <button type="button" class="vs-slot vs-slot--free" data-time="08:30" aria-pressed="false">08:30<small>Libre</small></button>
+                  <button type="button" class="vs-slot vs-slot--free" data-time="09:00" aria-pressed="false">09:00<small>Libre</small></button>
+                  <button type="button" class="vs-slot vs-slot--busy" disabled>09:30<small>CM-0294</small></button>
+                  <button type="button" class="vs-slot vs-slot--free is-selected" data-time="10:00" aria-pressed="true">10:00<small>Libre</small></button>
+                  <button type="button" class="vs-slot vs-slot--free" data-time="10:30" aria-pressed="false">10:30<small>Libre</small></button>
+                  <button type="button" class="vs-slot vs-slot--busy" disabled>11:00<small>CM-0292</small></button>
+                  <button type="button" class="vs-slot vs-slot--free" data-time="11:30" aria-pressed="false">11:30<small>Libre</small></button>
+                </div>
+                <div class="vs-field" style="margin-top:1rem">
+                  <label class="vs-label" for="c-motivo">Motivo de la consulta <span class="vs-req">*</span></label>
+                  <textarea id="c-motivo" class="vs-textarea" rows="2" required>Control de presión arterial</textarea>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <aside class="vs-stack">
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Resumen de la reserva</h3></div><span class="vs-badge vs-badge--info">Programada</span></div>
+              <div class="vs-card__body">
+                <dl class="vs-dl">
+                  <dt>Código</dt><dd class="vs-mono">CM-0297 <span class="vs-xs vs-muted">(se asigna al confirmar)</span></dd>
+                  <dt>Paciente</dt><dd>Jimena Égüez Choque</dd>
+                  <dt>Especialidad</dt><dd>Medicina General</dd>
+                  <dt>Médico</dt><dd>Dr. Juan Ronaldo Rojas Ugarte</dd>
+                  <dt>Fecha</dt><dd class="vs-mono">Mié 28/10/2026</dd>
+                  <dt>Bloque</dt><dd class="vs-mono"><strong data-slot-summary="cita" data-empty="Selecciona un bloque">10:00</strong> – 10:30</dd>
+                  <dt>Registra</dt><dd>scolque · 26/10/2026</dd>
+                </dl>
+              </div>
+              <div class="vs-card__foot" style="flex-direction:column;align-items:stretch;gap:.5rem">
+                <button type="submit" class="vs-btn vs-btn--primary vs-btn--block" data-slot-confirm="cita"><svg class="vs-i"><use href="#i-check"/></svg>Confirmar y generar comprobante</button>
+                <a href="cu22-disponibilidad.html" class="vs-btn vs-btn--ghost vs-btn--block">Ver otra disponibilidad</a>
+              </div>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Si el bloque ya fue tomado</h3><p class="vs-card__sub">Flujo alternativo A1 · CU25</p></div></div>
+              <div class="vs-card__body">
+                <div class="vs-alert vs-alert--danger"><svg class="vs-i"><use href="#i-alert-octagon"/></svg><div class="vs-alert__body"><span class="vs-alert__title">El bloque 10:00 acaba de ser reservado</span>Otra recepcionista confirmó CM-0296 hace 4 segundos. Elige otro bloque; la disponibilidad se actualizó.</div></div>
+              </div>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule"><span class="vs-rule__k">Un paciente, un bloque</span>No puede tener dos citas en el mismo horario, aunque sean con médicos distintos.</div>
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Índice único</span><span class="vs-code">cita_medico_bloque_unico</span> impide dos citas activas para el mismo médico, fecha y hora.</div>
+                <div class="vs-rule"><span class="vs-rule__k">Recordatorio</span>Se crea una notificación PENDIENTE para la llamada de la víspera (CU28).</div>
+              </div>
+            </article>
+          </aside>
+        </form>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-comprobante" class="vs-modal vs-modal--lg">
+    <div class="vs-modal__body" style="padding-top:1.25rem">
+      <div class="vs-receipt">
+        <div class="vs-receipt__head">
+          <div><div class="vs-receipt__kicker">Comprobante de cita · Clínica Vida Salud</div><div class="vs-receipt__code">CM-0297</div></div>
+          <span class="vs-badge vs-badge--solid"><svg class="vs-i vs-i--sm"><use href="#i-check"/></svg>Programada</span>
+        </div>
+        <div class="vs-receipt__body">
+          <dl class="vs-dl vs-dl--cols">
+            <dt>Paciente</dt><dd>Jimena Égüez Choque · CI 12181643</dd>
+            <dt>Médico</dt><dd>Dr. Juan Ronaldo Rojas Ugarte · MP-SCZ-1422</dd>
+            <dt>Especialidad</dt><dd>Medicina General</dd>
+            <dt>Fecha y hora</dt><dd class="vs-mono">Miércoles 28/10/2026 · 10:00 – 10:30</dd>
+            <dt>Motivo</dt><dd>Control de presión arterial</dd>
+            <dt>Registrada por</dt><dd>Silvia Colque · 26/10/2026 08:41</dd>
+          </dl>
+        </div>
+        <div class="vs-receipt__cut"></div>
+        <div class="vs-receipt__body vs-xs vs-muted">Presentarse 10 minutos antes con su carnet de identidad. Para reprogramar o cancelar comuníquese con recepción al 3-345-6780 con al menos 2 horas de anticipación.</div>
+      </div>
+    </div>
+    <div class="vs-modal__foot">
+      <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cerrar</button>
+      <button type="button" class="vs-btn vs-btn--soft" data-toast="Enviado al navegador" data-toast-sub="Comprobante CM-0297 listo para imprimir"><svg class="vs-i"><use href="#i-printer"/></svg>Imprimir</button>
+      <a href="cu30-agenda-diaria.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-calendar"/></svg>Ver agenda</a>
+    </div>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

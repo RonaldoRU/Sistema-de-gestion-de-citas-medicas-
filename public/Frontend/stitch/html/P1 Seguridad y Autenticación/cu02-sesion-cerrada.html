@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sesión cerrada · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+</head>
+<body>
+  <div class="vs-auth">
+    <section class="vs-auth__hero" aria-label="Presentación">
+      <div class="vs-auth__pattern" aria-hidden="true"></div>
+      <div class="vs-auth__hero-content">
+        <span class="vs-mark vs-mark--lg">VS</span>
+        <p class="vs-auth__kicker">Clínica Vida Salud</p>
+        <h1 class="vs-auth__title">Tu sesión se cerró de forma segura</h1>
+        <p class="vs-auth__text">La sesión fue destruida y revocada en el servidor. Ninguna ruta protegida es accesible desde este navegador hasta un nuevo inicio de sesión.</p>
+      </div>
+      <div class="vs-auth__foot">
+        <span>Santa Cruz de la Sierra · Sede central</span>
+        <span class="vs-mono">CU02 · Cerrar y Revocar Sesión</span>
+      </div>
+    </section>
+
+    <main class="vs-auth__main">
+      <div class="vs-auth__card vs-page-stack">
+        <div class="vs-auth__brand-mobile">
+          <span class="vs-mark">VS</span>
+          <div>
+            <p class="vs-h2">Vida Salud</p>
+            <p class="vs-xs vs-muted">Sesión cerrada</p>
+          </div>
+        </div>
+
+        <div class="vs-row" style="gap:1rem">
+          <span class="vs-avatar vs-avatar--lg vs-avatar--teal" id="logoutAvatar">SC</span>
+          <div>
+            <h2 class="vs-h1">Sesión cerrada</h2>
+            <p class="vs-lead" id="logoutSalutation" style="margin-top:.25rem">Gracias. Hasta la próxima.</p>
+          </div>
+        </div>
+
+        <article class="vs-card">
+          <div class="vs-card__body">
+            <dl class="vs-dl">
+              <dt>Usuario</dt><dd id="logoutUsuario">scolque · Administradora</dd>
+              <dt>Inicio de sesión</dt><dd class="vs-mono" id="logoutInicio">--/--/---- --:--</dd>
+              <dt>Cierre</dt><dd class="vs-mono" id="logoutCierre">--/--/---- --:--</dd>
+              <dt>Equipo</dt><dd id="logoutEquipo">Terminal activa · 127.0.0.1</dd>
+              <dt>Registro</dt><dd><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Evento LOGOUT en bitácora</span></dd>
+            </dl>
+          </div>
+        </article>
+
+        <div class="vs-rules">
+          <div class="vs-rule">
+            <span class="vs-rule__k">Qué ocurrió en el servidor</span>
+            Se ejecutó <span class="vs-code">session_unset()</span> y <span class="vs-code">session_destroy()</span>; la fila de la sesión quedó marcada como <em>inactiva</em> con su fecha de cierre.
+          </div>
+          <div class="vs-rule vs-rule--warn">
+            <span class="vs-rule__k">Equipos compartidos</span>
+            Si usas una terminal de recepción, cierra también la ventana del navegador. Las sesiones inactivas por más de 20 minutos expiran automáticamente y verás esta misma pantalla.
+          </div>
+        </div>
+
+        <a href="cu01-iniciar-sesion.html" class="vs-btn vs-btn--primary vs-btn--lg vs-btn--block"><svg class="vs-i"><use href="#i-log-in"/></svg>Volver a iniciar sesión</a>
+      </div>
+      <footer class="vs-auth__copyright">© 2026 Clínica Vida Salud · Sistema web de gestión de citas</footer>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+  <script>
+    (function () {
+      function pad(n) { return n < 10 ? '0' + n : n; }
+      function formatDateTime(d) {
+        var date = (d instanceof Date && !isNaN(d.getTime())) ? d : new Date();
+        return pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear() + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+      }
+
+      var avatarEl = document.getElementById('logoutAvatar');
+      var salutationEl = document.getElementById('logoutSalutation');
+      var usuarioEl = document.getElementById('logoutUsuario');
+      var inicioEl = document.getElementById('logoutInicio');
+      var cierreEl = document.getElementById('logoutCierre');
+      var equipoEl = document.getElementById('logoutEquipo');
+
+      // 1. Mostrar de inmediato la hora exacta real actual
+      var now = new Date();
+      var sessionStartEst = new Date(now.getTime() - 25 * 60 * 1000);
+
+      cierreEl.textContent = formatDateTime(now);
+      inicioEl.textContent = formatDateTime(sessionStartEst);
+      equipoEl.textContent = 'Terminal activa · ' + (location.hostname || '127.0.0.1');
+
+      function updateWithData(data) {
+        if (!data) return;
+        if (data.inicio_sesion) inicioEl.textContent = data.inicio_sesion;
+        if (data.cierre) cierreEl.textContent = data.cierre;
+        if (data.equipo) equipoEl.textContent = data.equipo;
+        else if (data.ip) equipoEl.textContent = 'Terminal activa · ' + data.ip;
+
+        var nombre = data.nombres ? data.nombres.split(' ')[0] : (data.usuario || 'Usuario');
+        salutationEl.textContent = 'Gracias, ' + nombre + '. Hasta la próxima.';
+
+        var usr = (data.usuario || 'scolque') + ' · ' + (data.rol || 'Administradora');
+        usuarioEl.textContent = usr;
+
+        var inits = ((data.nombres ? data.nombres.charAt(0) : 'S') + (data.apellidos ? data.apellidos.charAt(0) : 'C')).toUpperCase();
+        avatarEl.textContent = inits;
+      }
+
+      // 2. Consultar al endpoint en tiempo real de la API
+      var apiEndpoint = (window.VS_API && window.VS_API.base) ? (window.VS_API.base + '/auth/logout-summary') : '/api/auth/logout-summary';
+      fetch(apiEndpoint, {
+        headers: { 'Accept': 'application/json' }
+      }).then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res && res.success) {
+            updateWithData(res);
+          }
+        }).catch(function () {
+          if (window.VS_API && typeof window.VS_API.request === 'function') {
+            window.VS_API.request('/auth/logout-summary')
+              .then(function (res) { if (res) updateWithData(res); })
+              .catch(function () {});
+          }
+        });
+    })();
+  </script>
+</body>
+</html>
+

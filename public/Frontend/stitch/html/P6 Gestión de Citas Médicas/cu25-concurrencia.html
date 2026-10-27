@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de concurrencia · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU25">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Control de concurrencia</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
+            <h2 class="vs-h1">Control de concurrencia en la reserva</h2>
+            <p class="vs-lead">Dos recepcionistas pueden intentar reservar el mismo bloque a la vez. El sistema garantiza que solo una reserva prospere: la segunda recibe un aviso y la disponibilidad se refresca.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU25</span><span class="vs-trace__actor">Sistema (actor automático)</span></span>
+          </div>
+        </header>
+
+        <section class="vs-grid vs-grid--4">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Conflictos evitados (mes)</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-shield"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">7</p><p class="vs-kpi__hint vs-kpi__hint--ok">0 citas duplicadas en la base</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Reservas simultáneas</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-users"/></svg></span></div><p class="vs-kpi__value">4</p><p class="vs-kpi__hint">Recepcionistas operando en paralelo</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Tiempo medio de bloqueo</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">38 <span class="vs-small vs-muted" style="font-family:var(--vs-font-sans);font-weight:600">ms</span></p><p class="vs-kpi__hint">Transacción INSERT con índice único</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Último conflicto</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-alert"/></svg></span></div><p class="vs-kpi__value" style="font-size:1.4rem">Hoy 08:31</p><p class="vs-kpi__hint">Dr. Rojas · 26/10 10:30 · rvaca vs csuarez</p></article>
+        </section>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Secuencia del último conflicto</h3><p class="vs-card__sub">Bloque 10:30 · Dr. Rojas · lunes 26/10/2026</p></div><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Resuelto</span></div>
+            <div class="vs-card__body">
+              <div class="vs-seq">
+                <div class="vs-seq__actor">Recepción A · rvaca</div>
+                <div class="vs-seq__actor vs-seq__actor--db">PostgreSQL · tabla cita</div>
+                <div class="vs-seq__actor">Recepción B · csuarez</div>
+
+                <div class="vs-seq__msg"><span class="vs-seq__t">08:31:02.114</span>Consulta disponibilidad: 10:30 libre</div>
+                <div class="vs-seq__gap"></div>
+                <div class="vs-seq__msg"><span class="vs-seq__t">08:31:02.690</span>Consulta disponibilidad: 10:30 libre</div>
+
+                <div class="vs-seq__msg vs-seq__msg--lock"><span class="vs-seq__t">08:31:07.021</span>BEGIN · INSERT cita (MED-001, 26/10, 10:30)</div>
+                <div class="vs-seq__msg vs-seq__msg--lock"><span class="vs-seq__t">08:31:07.040</span>Bloqueo de fila por índice <span class="vs-mono">cita_medico_bloque_unico</span></div>
+                <div class="vs-seq__msg vs-seq__msg--lock"><span class="vs-seq__t">08:31:07.233</span>BEGIN · INSERT cita (MED-001, 26/10, 10:30) · espera</div>
+
+                <div class="vs-seq__msg vs-seq__msg--ok"><span class="vs-seq__t">08:31:07.059</span>COMMIT · CM-0296 creada</div>
+                <div class="vs-seq__msg vs-seq__msg--ok"><span class="vs-seq__t">08:31:07.059</span>Fila confirmada · índice satisfecho</div>
+                <div class="vs-seq__msg vs-seq__msg--fail"><span class="vs-seq__t">08:31:07.262</span>ERROR 23505 unique_violation · ROLLBACK</div>
+
+                <div class="vs-seq__gap"></div>
+                <div class="vs-seq__gap"></div>
+                <div class="vs-seq__msg vs-seq__msg--fail"><span class="vs-seq__t">08:31:07.280</span>“El bloque acaba de ser reservado. Elige otro horario.”</div>
+              </div>
+            </div>
+            <div class="vs-card__foot"><span>La segunda transacción espera a la primera y falla de forma controlada; nunca se insertan dos filas para el mismo bloque.</span></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Mecanismos</h3><p class="vs-card__sub">Dos capas de protección</p></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule"><span class="vs-rule__k">1 · Índice único parcial</span><span class="vs-code">cita_medico_bloque_unico</span> sobre (médico, fecha, hora_inicio) para citas no canceladas.</div>
+                <div class="vs-rule"><span class="vs-rule__k">2 · Transacción</span>El INSERT corre dentro de una transacción; la violación del índice produce ROLLBACK automático.</div>
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">3 · Interfaz</span>La pantalla captura el error, muestra el aviso (A1 de CU24) y vuelve a consultar la disponibilidad.</div>
+                <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">Canceladas</span>Un bloque cuya cita fue CANCELADA vuelve a estar libre: el índice excluye ese estado.</div>
+              </div>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Lo que ve la recepcionista B</h3></div></div>
+              <div class="vs-card__body vs-stack vs-stack--sm">
+                <div class="vs-alert vs-alert--danger"><svg class="vs-i"><use href="#i-alert-octagon"/></svg><div class="vs-alert__body"><span class="vs-alert__title">El bloque 10:30 acaba de ser reservado</span>CM-0296 fue confirmada por rvaca hace 4 segundos. Selecciona otro horario.</div></div>
+                <div class="vs-slots">
+                  <span class="vs-slot vs-slot--busy">10:00<small>CM-0288</small></span>
+                  <span class="vs-slot vs-slot--busy">10:30<small>CM-0296</small></span>
+                  <span class="vs-slot vs-slot--free">11:00<small>Libre</small></span>
+                  <span class="vs-slot vs-slot--free">11:30<small>Libre</small></span>
+                </div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head"><div><h3 class="vs-card__title">Registro de conflictos</h3><p class="vs-card__sub">Octubre 2026 · generados automáticamente en bitácora</p></div><a href="../P3 Auditoría, Trazabilidad y Bitácora/cu11-bitacora.html" class="vs-link">Ver en bitácora</a></div>
+          <div class="vs-table-wrap">
+            <table class="vs-table vs-table--compact">
+              <thead><tr><th>Fecha y hora</th><th>Médico</th><th>Bloque disputado</th><th>Ganó</th><th>Rechazado</th><th class="vs-hide-md">Resolución</th></tr></thead>
+              <tbody>
+                <tr><td class="vs-td-num">26/10 08:31:07</td><td>Dr. Rojas</td><td class="vs-td-num">26/10 10:30</td><td><span class="vs-mono">rvaca</span> · CM-0296</td><td><span class="vs-mono">csuarez</span></td><td class="vs-hide-md">Reservó 11:00 (CM-0297 pendiente)</td></tr>
+                <tr><td class="vs-td-num">21/10 15:02:44</td><td>Dra. Gutiérrez</td><td class="vs-td-num">22/10 16:00</td><td><span class="vs-mono">djustiniano</span> · CM-0271</td><td><span class="vs-mono">jmendoza</span></td><td class="vs-hide-md">Reservó 16:30</td></tr>
+                <tr><td class="vs-td-num">14/10 09:17:10</td><td>Dra. Montero</td><td class="vs-td-num">16/10 09:00</td><td><span class="vs-mono">rvaca</span> · CM-0233</td><td><span class="vs-mono">csuarez</span></td><td class="vs-hide-md">Eligió otro médico</td></tr>
+                <tr><td class="vs-td-num">07/10 11:40:55</td><td>Dr. Terceros</td><td class="vs-td-num">10/10 08:00</td><td><span class="vs-mono">csuarez</span> · CM-0196</td><td><span class="vs-mono">rvaca</span></td><td class="vs-hide-md">Reservó 08:30</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

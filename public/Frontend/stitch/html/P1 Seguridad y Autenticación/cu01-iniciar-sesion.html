@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+</head>
+<body data-cu="CU01">
+  <div class="vs-auth">
+    <section class="vs-auth__hero" aria-label="Presentación">
+      <div class="vs-auth__pattern" aria-hidden="true"></div>
+      <div class="vs-auth__hero-content">
+        <span class="vs-mark vs-mark--lg">VS</span>
+        <p class="vs-auth__kicker">Clínica Vida Salud</p>
+        <h1 class="vs-auth__title">Agenda, pacientes y personal en un solo lugar</h1>
+        <p class="vs-auth__text">Acceso reservado al personal autorizado: administración, recepción y cuerpo médico. Cada ingreso queda registrado en la bitácora de auditoría.</p>
+      </div>
+      <div class="vs-auth__foot">
+        <span>Santa Cruz de la Sierra · Sede central</span>
+        <span class="vs-mono">CU01 · Iniciar Sesión</span>
+      </div>
+    </section>
+
+    <main class="vs-auth__main">
+      <div class="vs-auth__card vs-page-stack">
+        <div class="vs-auth__brand-mobile">
+          <span class="vs-mark">VS</span>
+          <div>
+            <p class="vs-h2">Vida Salud</p>
+            <p class="vs-xs vs-muted">Inicio de sesión</p>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="vs-h1">Bienvenido</h2>
+          <p class="vs-lead" style="margin-top:.35rem">Ingresa con tu usuario institucional para acceder según tu rol.</p>
+        </div>
+
+        <!-- A1 · Credenciales inválidas (ejemplo de estado) -->
+        <div class="vs-alert vs-alert--danger" role="alert">
+          <svg class="vs-i"><use href="#i-alert-octagon"/></svg>
+          <div class="vs-alert__body">
+            <span class="vs-alert__title">No pudimos validar tus datos</span>
+            Revisa usuario y contraseña. Llevas <strong>1 de 3</strong> intentos; al tercer intento fallido la cuenta se bloquea por 1 minuto.
+          </div>
+          <button type="button" class="vs-alert__close" data-dismiss aria-label="Cerrar aviso"><svg class="vs-i vs-i--sm"><use href="#i-close"/></svg></button>
+        </div>
+
+        <form class="vs-form" id="form-login" action="../inicio.html" method="POST" novalidate>
+          <div class="vs-field">
+            <label class="vs-label" for="usuario">Usuario o correo</label>
+            <div class="vs-input-icon">
+              <svg class="vs-i"><use href="#i-user"/></svg>
+              <input id="usuario" name="usuario" type="text" class="vs-input" placeholder="scolque o scolque@vidasalud.com.bo" autocomplete="username" required>
+            </div>
+          </div>
+          <div class="vs-field">
+            <div class="vs-row vs-row--between">
+              <label class="vs-label" for="clave">Contraseña</label>
+              <a href="cu03-recuperar-contrasena.html" class="vs-link">¿Olvidaste tu contraseña?</a>
+            </div>
+            <div class="vs-input-icon">
+              <svg class="vs-i"><use href="#i-lock"/></svg>
+              <input id="clave" name="clave" type="password" class="vs-input" autocomplete="current-password" required>
+            </div>
+            <p class="vs-hint">Tu clave se verifica contra el hash almacenado; nunca viaja ni se guarda en claro.</p>
+          </div>
+          <label class="vs-check vs-check--sm"><input type="checkbox" name="recordar">Recordarme en este equipo</label>
+          <button type="submit" class="vs-btn vs-btn--primary vs-btn--lg vs-btn--block"><svg class="vs-i"><use href="#i-log-in"/></svg>Entrar al sistema</button>
+        </form>
+
+        <div class="vs-rule">
+          <span class="vs-rule__k">Al ingresar</span>
+          Se crea la sesión y se redirige al panel según el rol: <strong>Administrador</strong>, <strong>Recepcionista</strong> o <strong>Médico</strong>. Las cuentas inactivas no pueden ingresar: consulta con el Administrador.
+        </div>
+
+        <p class="vs-xs vs-muted">¿Problemas para entrar? Escribe a <a href="mailto:soporte@vidasalud.com.bo" class="vs-link vs-xs">soporte@vidasalud.com.bo</a> · interno 402</p>
+      </div>
+      <footer class="vs-auth__copyright">© 2026 Clínica Vida Salud · Sistema web de gestión de citas</footer>
+    </main>
+  </div>
+
+  <!-- Sprite de iconos y scripts -->
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>

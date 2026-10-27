@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte de control de asistencia · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU34">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Control de asistencia</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P7 · Reportes Administrativos</p>
+            <h2 class="vs-h1">Reporte de control de asistencia</h2>
+            <p class="vs-lead">Tasas de asistencia, inasistencia y cancelación por período, especialidad y día de la semana. Mide el impacto de los recordatorios y detecta pacientes con inasistencias repetidas.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU34</span><span class="vs-trace__actor">Administrador</span></span>
+            <a href="cu35-exportar-reportes.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-file-pdf"/></svg>PDF</a>
+            <a href="cu35-exportar-reportes.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-file-csv"/></svg>Exportar CSV</a>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight">
+            <form class="vs-filters" onsubmit="event.preventDefault()">
+              <div class="vs-field vs-f-2"><label class="vs-label" for="as-desde">Desde</label><input id="as-desde" class="vs-input vs-input--mono" type="date" value="2026-09-01"></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="as-hasta">Hasta</label><input id="as-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="as-esp">Especialidad</label><select id="as-esp" class="vs-select"><option>Todas</option><option>Medicina General</option><option>Pediatría</option><option>Ginecología</option><option>Odontología</option><option>Cardiología</option><option>Traumatología</option><option>Dermatología</option></select></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="as-agr">Agrupar por</label><select id="as-agr" class="vs-select"><option selected>Mes</option><option>Semana</option><option>Día de la semana</option><option>Médico</option></select></div>
+              <div class="vs-row vs-f-2" style="justify-content:flex-end"><button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-chart"/></svg>Generar</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="vs-grid vs-grid--4">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Tasa de asistencia</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">86 %</p><p class="vs-kpi__hint vs-kpi__hint--ok">+5 pts vs. septiembre</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Inasistencias</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-x-circle"/></svg></span></div><p class="vs-kpi__value">6 %</p><p class="vs-kpi__hint">9 citas en octubre · 21 en septiembre</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Cancelaciones</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-calendar-x"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--rose">15 %</p><p class="vs-kpi__hint vs-kpi__hint--danger">31 citas · 55 % por solicitud del paciente</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Recordatorios efectivos</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-phone"/></svg></span></div><p class="vs-kpi__value">88 %</p><p class="vs-kpi__hint">Pacientes contactados la víspera</p></article>
+        </section>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Asistencia vs. inasistencia por mes</h3><p class="vs-card__sub">Citas concluidas (atendidas + inasistencias)</p></div><div class="vs-legend"><span><i style="background:var(--vs-forest);border-color:var(--vs-forest)"></i>Atendidas</span><span><i style="background:#fb7185;border-color:#fb7185"></i>Inasistencias</span></div></div>
+            <div class="vs-card__body">
+              <div class="vs-cols" style="height:12rem;gap:1.5rem">
+                <div class="vs-col"><span class="vs-col__val">94 · 21</span><div class="vs-row vs-row--nowrap" style="gap:.25rem;align-items:flex-end;height:100%;width:100%;justify-content:center"><i style="height:78%;width:2rem;border-radius:.35rem .35rem 0 0;background:linear-gradient(180deg,#0ea5e9,var(--vs-forest))"></i><i class="rose" style="height:18%;width:2rem;border-radius:.35rem .35rem 0 0;background:linear-gradient(180deg,#fb7185,var(--vs-rose-700))"></i></div><small>Septiembre</small></div>
+                <div class="vs-col"><span class="vs-col__val">112 · 9</span><div class="vs-row vs-row--nowrap" style="gap:.25rem;align-items:flex-end;height:100%;width:100%;justify-content:center"><i style="height:93%;width:2rem;border-radius:.35rem .35rem 0 0;background:linear-gradient(180deg,#0ea5e9,var(--vs-forest))"></i><i class="rose" style="height:8%;width:2rem;border-radius:.35rem .35rem 0 0;background:linear-gradient(180deg,#fb7185,var(--vs-rose-700))"></i></div><small>Octubre</small></div>
+                <div class="vs-col"><span class="vs-col__val vs-muted">proy.</span><div class="vs-row vs-row--nowrap" style="gap:.25rem;align-items:flex-end;height:100%;width:100%;justify-content:center"><i style="height:60%;width:2rem;border-radius:.35rem .35rem 0 0;background:var(--vs-sky-200)"></i><i style="height:5%;width:2rem;border-radius:.35rem .35rem 0 0;background:var(--vs-rose-200)"></i></div><small>Noviembre</small></div>
+              </div>
+            </div>
+            <div class="vs-card__foot"><span>Los recordatorios telefónicos (CU28) empezaron el 15/09: la inasistencia cayó de 18 % a 6 %.</span></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Inasistencia por día de la semana</h3><p class="vs-card__sub">Octubre</p></div></div>
+              <div class="vs-card__body vs-bars">
+                <div class="vs-bars__row"><span class="vs-bars__label">Lunes</span><div class="vs-bar vs-bar--amber"><i style="width:80%"></i></div><span class="vs-bars__val">8 %</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Martes</span><div class="vs-bar vs-bar--amber"><i style="width:40%"></i></div><span class="vs-bars__val">4 %</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Miércoles</span><div class="vs-bar vs-bar--amber"><i style="width:50%"></i></div><span class="vs-bars__val">5 %</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Jueves</span><div class="vs-bar vs-bar--amber"><i style="width:30%"></i></div><span class="vs-bars__val">3 %</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Viernes</span><div class="vs-bar vs-bar--amber"><i style="width:70%"></i></div><span class="vs-bars__val">7 %</span></div>
+                <div class="vs-bars__row"><span class="vs-bars__label">Sábado</span><div class="vs-bar vs-bar--rose"><i style="width:100%"></i></div><span class="vs-bars__val">10 %</span></div>
+              </div>
+            </article>
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Pacientes con inasistencias repetidas</h3><p class="vs-card__sub">2 o más en 60 días</p></div></div>
+              <ul class="vs-list vs-list--boxed">
+                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--amber">DV</span><div class="vs-list-row__body"><div class="vs-list-row__title">Daniel Vargas Soliz</div><div class="vs-list-row__sub">PAC-0041 · 3 inasistencias · última 14/10</div></div><span class="vs-badge vs-badge--warn">3</span></li>
+                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--amber">LQ</span><div class="vs-list-row__body"><div class="vs-list-row__title">Lucía Quiroga Méndez</div><div class="vs-list-row__sub">PAC-0029 · 2 inasistencias · última 07/10</div></div><span class="vs-badge vs-badge--warn">2</span></li>
+              </ul>
+            </article>
+          </aside>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head"><div><h3 class="vs-card__title">Tabla por especialidad</h3><p class="vs-card__sub">01/09 – 26/10/2026</p></div></div>
+          <div class="vs-table-wrap">
+            <table class="vs-table vs-table--compact">
+              <thead><tr><th>Especialidad</th><th>Citas</th><th>Atendidas</th><th>Inasistencias</th><th>Canceladas</th><th>Asistencia</th><th class="vs-hide-md">Tendencia</th></tr></thead>
+              <tbody>
+                <tr><td>Medicina General</td><td class="vs-td-num">168</td><td class="vs-td-num">121</td><td class="vs-td-num">11</td><td class="vs-td-num">24</td><td class="vs-td-num"><strong class="vs-strong">92 %</strong></td><td class="vs-hide-md"><span class="vs-badge vs-badge--ok">▲ +4 pts</span></td></tr>
+                <tr><td>Pediatría</td><td class="vs-td-num">94</td><td class="vs-td-num">68</td><td class="vs-td-num">9</td><td class="vs-td-num">12</td><td class="vs-td-num"><strong class="vs-strong">88 %</strong></td><td class="vs-hide-md"><span class="vs-badge vs-badge--ok">▲ +6 pts</span></td></tr>
+                <tr><td>Ginecología</td><td class="vs-td-num">51</td><td class="vs-td-num">36</td><td class="vs-td-num">4</td><td class="vs-td-num">9</td><td class="vs-td-num"><strong class="vs-strong">90 %</strong></td><td class="vs-hide-md"><span class="vs-badge vs-badge--muted">= 0 pts</span></td></tr>
+                <tr><td>Odontología</td><td class="vs-td-num">43</td><td class="vs-td-num">30</td><td class="vs-td-num">3</td><td class="vs-td-num">8</td><td class="vs-td-num"><strong class="vs-strong">91 %</strong></td><td class="vs-hide-md"><span class="vs-badge vs-badge--ok">▲ +2 pts</span></td></tr>
+                <tr><td>Cardiología</td><td class="vs-td-num">27</td><td class="vs-td-num">19</td><td class="vs-td-num">2</td><td class="vs-td-num">5</td><td class="vs-td-num"><strong class="vs-strong">90 %</strong></td><td class="vs-hide-md"><span class="vs-badge vs-badge--ok">▲ +3 pts</span></td></tr>
+                <tr><td>Traumatología</td><td class="vs-td-num">18</td><td class="vs-td-num">12</td><td class="vs-td-num">1</td><td class="vs-td-num">4</td><td class="vs-td-num"><strong class="vs-strong">92 %</strong></td><td class="vs-hide-md"><span class="vs-badge vs-badge--muted">= 0 pts</span></td></tr>
+                <tr><td>Dermatología</td><td class="vs-td-num">11</td><td class="vs-td-num">9</td><td class="vs-td-num">0</td><td class="vs-td-num">1</td><td class="vs-td-num"><strong class="vs-strong">100 %</strong></td><td class="vs-hide-md"><span class="vs-badge vs-badge--ok">▲ +9 pts</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vs-card__foot"><span>Asistencia = atendidas ÷ (atendidas + inasistencias). Las canceladas no cuentan como inasistencia.</span></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

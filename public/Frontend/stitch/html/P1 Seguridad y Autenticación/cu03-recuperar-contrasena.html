@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recuperar contraseña · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+</head>
+<body>
+  <div class="vs-auth">
+    <section class="vs-auth__hero" aria-label="Presentación">
+      <div class="vs-auth__pattern" aria-hidden="true"></div>
+      <div class="vs-auth__hero-content">
+        <span class="vs-mark vs-mark--lg">VS</span>
+        <p class="vs-auth__kicker">Recuperación de acceso</p>
+        <h1 class="vs-auth__title">Restablece tu contraseña en tres pasos</h1>
+        <ol class="vs-steps-v" style="margin-top:2rem">
+          <li><span class="vs-steps-v__dot">1</span><div><div class="vs-steps-v__title">Identifica tu cuenta</div><div class="vs-steps-v__sub">Cédula de identidad o correo institucional</div></div></li>
+          <li><span class="vs-steps-v__dot">2</span><div><div class="vs-steps-v__title">Ingresa el código temporal</div><div class="vs-steps-v__sub">Seis dígitos, válido por 15 minutos y de un solo uso</div></div></li>
+          <li><span class="vs-steps-v__dot">3</span><div><div class="vs-steps-v__title">Define una nueva contraseña</div><div class="vs-steps-v__sub">Se guarda con hash seguro (password_hash)</div></div></li>
+        </ol>
+      </div>
+      <div class="vs-auth__foot">
+        <span>Santa Cruz de la Sierra · Sede central</span>
+        <span class="vs-mono">CU03 · Recuperar / Restablecer Contraseña</span>
+      </div>
+    </section>
+
+    <main class="vs-auth__main">
+      <div class="vs-auth__card vs-auth__card--wide vs-page-stack" data-stepper>
+        <div class="vs-auth__brand-mobile">
+          <span class="vs-mark">VS</span>
+          <div>
+            <p class="vs-h2">Vida Salud</p>
+            <p class="vs-xs vs-muted">Recuperar contraseña</p>
+          </div>
+        </div>
+
+        <ol class="vs-steps" aria-label="Progreso">
+          <li class="vs-step is-current"><span class="vs-step__dot">1</span><span class="vs-step__title">Cuenta</span><span class="vs-step__sub">CI o correo</span></li>
+          <li class="vs-step"><span class="vs-step__dot">2</span><span class="vs-step__title">Código</span><span class="vs-step__sub">Verificación</span></li>
+          <li class="vs-step"><span class="vs-step__dot">3</span><span class="vs-step__title">Nueva clave</span><span class="vs-step__sub">Confirmación</span></li>
+        </ol>
+
+        <!-- Paso 1 -->
+        <section data-step-panel>
+          <form class="vs-form" novalidate>
+            <div>
+              <h2 class="vs-h1">¿Olvidaste tu contraseña?</h2>
+              <p class="vs-lead" style="margin-top:.35rem">Indícanos la cédula de identidad o el correo asociado a tu cuenta.</p>
+            </div>
+            <div class="vs-field">
+              <label class="vs-label" for="rec-id">Cédula de identidad o correo</label>
+              <div class="vs-input-icon">
+                <svg class="vs-i"><use href="#i-id-card"/></svg>
+                <input id="rec-id" class="vs-input" type="text" placeholder="7668705 o jmendoza@vidasalud.com.bo" required>
+              </div>
+              <span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>Ingresa tu CI o correo para continuar</span>
+            </div>
+            <div class="vs-rule vs-rule--info">
+              <span class="vs-rule__k">Por tu seguridad</span>
+              Si el dato no corresponde a ninguna cuenta, el proceso finaliza sin revelar si existe o no un registro en la base de datos.
+            </div>
+            <div class="vs-form-actions vs-form-actions--between">
+              <a href="cu01-iniciar-sesion.html" class="vs-link"><svg class="vs-i vs-i--sm"><use href="#i-arrow-left"/></svg>Volver al inicio de sesión</a>
+              <button type="button" class="vs-btn vs-btn--primary" data-step-next>Enviar código<svg class="vs-i"><use href="#i-arrow-right"/></svg></button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Paso 2 -->
+        <section data-step-panel hidden>
+          <form class="vs-form" novalidate>
+            <div>
+              <h2 class="vs-h1">Ingresa el código</h2>
+              <p class="vs-lead" style="margin-top:.35rem">Enviamos un código de 6 dígitos a <strong>j•••••a@vidasalud.com.bo</strong>. Vence en 15 minutos.</p>
+            </div>
+            <div class="vs-field">
+              <span class="vs-label">Código de verificación</span>
+              <div class="vs-code-inputs" role="group" aria-label="Código de 6 dígitos">
+                <input class="vs-input" type="text" inputmode="numeric" maxlength="1" aria-label="Dígito 1" required>
+                <input class="vs-input" type="text" inputmode="numeric" maxlength="1" aria-label="Dígito 2" required>
+                <input class="vs-input" type="text" inputmode="numeric" maxlength="1" aria-label="Dígito 3" required>
+                <input class="vs-input" type="text" inputmode="numeric" maxlength="1" aria-label="Dígito 4" required>
+                <input class="vs-input" type="text" inputmode="numeric" maxlength="1" aria-label="Dígito 5" required>
+                <input class="vs-input" type="text" inputmode="numeric" maxlength="1" aria-label="Dígito 6" required>
+              </div>
+              <p class="vs-hint">¿No llegó? <a href="#" class="vs-link vs-xs" data-toast="Código reenviado" data-toast-sub="Revisa tu bandeja de entrada y spam">Reenviar código</a> · disponible en 00:45</p>
+            </div>
+            <div class="vs-form-actions vs-form-actions--between">
+              <button type="button" class="vs-btn vs-btn--ghost" data-step-prev><svg class="vs-i"><use href="#i-arrow-left"/></svg>Atrás</button>
+              <button type="button" class="vs-btn vs-btn--primary" data-step-next>Validar código<svg class="vs-i"><use href="#i-arrow-right"/></svg></button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Paso 3 -->
+        <section data-step-panel hidden>
+          <form class="vs-form" data-demo="Contraseña actualizada" data-demo-sub="Ya puedes iniciar sesión con tu nueva clave" novalidate>
+            <div>
+              <h2 class="vs-h1">Nueva contraseña</h2>
+              <p class="vs-lead" style="margin-top:.35rem">Elige una clave que no hayas usado antes en la clínica.</p>
+            </div>
+            <div class="vs-form-grid">
+              <div class="vs-field vs-col-2">
+                <div class="vs-row vs-row--between">
+                  <label class="vs-label" for="rec-new">Nueva contraseña</label>
+                  <button type="button" class="vs-link vs-xs" data-toggle-pass="rec-new" aria-pressed="false">Mostrar</button>
+                </div>
+                <input id="rec-new" class="vs-input" type="password" minlength="8" autocomplete="new-password" required>
+                <ul class="vs-pass-rules" data-pass-rules="rec-new">
+                  <li data-rule="len">Mínimo 8 caracteres</li>
+                  <li data-rule="upper">Al menos una mayúscula</li>
+                  <li data-rule="num">Al menos un número</li>
+                  <li data-rule="sym">Al menos un símbolo</li>
+                </ul>
+              </div>
+              <div class="vs-field vs-col-2">
+                <label class="vs-label" for="rec-new2">Confirmar contraseña</label>
+                <input id="rec-new2" class="vs-input" type="password" minlength="8" autocomplete="new-password" required>
+              </div>
+            </div>
+            <div class="vs-rule">
+              <span class="vs-rule__k">Almacenamiento</span>
+              La clave se transforma con <span class="vs-code">password_hash()</span> antes de actualizar PostgreSQL; el código de recuperación queda marcado como usado.
+            </div>
+            <div class="vs-form-actions vs-form-actions--between">
+              <button type="button" class="vs-btn vs-btn--ghost" data-step-prev><svg class="vs-i"><use href="#i-arrow-left"/></svg>Atrás</button>
+              <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-key"/></svg>Guardar nueva contraseña</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <footer class="vs-auth__copyright">© 2026 Clínica Vida Salud · Sistema web de gestión de citas</footer>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

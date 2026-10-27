@@ -44,29 +44,29 @@
         </header>
 
         <section class="vs-grid vs-grid--4">
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Hoy</span><span class="vs-live"><i></i>En vivo</span></div><p class="vs-kpi__value">148</p><p class="vs-kpi__hint vs-kpi__hint--ok">Último hace 12 segundos</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Este mes</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-database"/></svg></span></div><p class="vs-kpi__value">3 912</p><p class="vs-kpi__hint">Unas 151 por día</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Alertas</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-alert-octagon"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--rose">1</p><p class="vs-kpi__hint vs-kpi__hint--danger">Jorge Mendoza bloqueado a las 08:13</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Hoy</span><span class="vs-live"><i></i>En vivo</span></div><p class="vs-kpi__value" id="kpi-hoy">--</p><p class="vs-kpi__hint vs-kpi__hint--ok" id="kpi-hoy-hint">Sincronizando...</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Este mes</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-database"/></svg></span></div><p class="vs-kpi__value" id="kpi-mes">--</p><p class="vs-kpi__hint">Total acumulado</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Alertas</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-alert-octagon"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--rose" id="kpi-alertas">0</p><p class="vs-kpi__hint vs-kpi__hint--danger" id="kpi-alertas-hint">Bloqueos de seguridad</p></article>
           <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Registro</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">Activo</p><p class="vs-kpi__hint">Se anota solo, sin intervención</p></article>
         </section>
 
         <section class="vs-split vs-split--reverse">
           <article class="vs-card">
-            <div class="vs-card__head"><div><h3 class="vs-card__title">Este mes, por tipo</h3><p class="vs-card__sub">Octubre 2026</p></div></div>
-            <div class="vs-card__body vs-bars">
-              <div class="vs-bars__row"><span class="vs-bars__label">Altas</span><div class="vs-bar"><i style="width:68%"></i></div><span class="vs-bars__val">1 418</span></div>
-              <div class="vs-bars__row"><span class="vs-bars__label">Cambios</span><div class="vs-bar vs-bar--cyan"><i style="width:52%"></i></div><span class="vs-bars__val">1 087</span></div>
-              <div class="vs-bars__row"><span class="vs-bars__label">Ingresos</span><div class="vs-bar vs-bar--teal"><i style="width:40%"></i></div><span class="vs-bars__val">836</span></div>
-              <div class="vs-bars__row"><span class="vs-bars__label">Salidas</span><div class="vs-bar vs-bar--teal"><i style="width:26%"></i></div><span class="vs-bars__val">541</span></div>
-              <div class="vs-bars__row"><span class="vs-bars__label">Bajas</span><div class="vs-bar vs-bar--amber"><i style="width:8%"></i></div><span class="vs-bars__val">26</span></div>
-              <div class="vs-bars__row"><span class="vs-bars__label">Bloqueos</span><div class="vs-bar vs-bar--rose"><i style="width:4%"></i></div><span class="vs-bars__val">4</span></div>
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Este mes, por tipo</h3><p class="vs-card__sub" id="bitacora-sub-mes">Octubre 2026</p></div></div>
+            <div class="vs-card__body vs-bars" id="bitacora-bars">
+              <div class="vs-bars__row"><span class="vs-bars__label">Altas (CREAR)</span><div class="vs-bar"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Cambios (MODIFICAR)</span><div class="vs-bar vs-bar--cyan"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Ingresos (LOGIN)</span><div class="vs-bar vs-bar--teal"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Salidas (LOGOUT)</span><div class="vs-bar vs-bar--teal"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Bajas (ELIMINAR)</span><div class="vs-bar vs-bar--amber"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Bloqueos</span><div class="vs-bar vs-bar--rose"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
             </div>
           </article>
 
           <article class="vs-card">
-            <div class="vs-card__head"><div><h3 class="vs-card__title">Lo último que se anotó</h3><p class="vs-card__sub">Lunes 26 de octubre</p></div><span class="vs-live"><i></i>En vivo</span></div>
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Lo último que se anotó</h3><p class="vs-card__sub" id="bitacora-sub-hoy">En vivo</p></div><span class="vs-live"><i></i>En vivo</span></div>
             <div class="vs-card__body">
-              <ol class="vs-timeline">
+              <ol class="vs-timeline" id="bitacora-timeline">
                 <li class="vs-tl-item vs-tl-item--info"><span class="vs-tl-time">08:31</span><div class="vs-tl-title">Nueva cita <span class="vs-code">CM-0296</span></div><div class="vs-tl-sub">Rosa Vaca · Iván Cuéllar con el Dr. Rojas a las 10:30</div></li>
                 <li class="vs-tl-item vs-tl-item--ok"><span class="vs-tl-time">08:29</span><div class="vs-tl-title">Cita confirmada <span class="vs-code">CM-0283</span></div><div class="vs-tl-sub">Carla Suárez · confirmación por teléfono</div></li>
                 <li class="vs-tl-item vs-tl-item--ok"><span class="vs-tl-time">08:26</span><div class="vs-tl-title">Cita atendida <span class="vs-code">CM-0281</span></div><div class="vs-tl-sub">Dr. Rojas · dejó la observación clínica</div></li>
@@ -85,6 +85,7 @@
 
   <script src="../../js/vida-salud-nav.js"></script>
   <script src="../../js/vida-salud-app-shell.js"></script>
-  <script src="../../js/vida-salud-ui.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
 </body>
 </html>

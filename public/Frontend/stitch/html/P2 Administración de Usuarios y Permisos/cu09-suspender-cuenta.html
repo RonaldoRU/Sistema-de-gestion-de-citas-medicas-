@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Suspender / inactivar cuenta · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU09">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Suspender cuenta</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P2 · Administración de Usuarios y Permisos</p>
+            <h2 class="vs-h1">Suspender o inactivar cuentas</h2>
+            <p class="vs-lead">Las cuentas no se eliminan: pasan a estado <strong>Inactivo</strong> para conservar la trazabilidad histórica. Una cuenta inactiva no puede iniciar sesión hasta que se reactive.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU09</span><span class="vs-trace__actor">Administrador</span></span>
+          </div>
+        </header>
+
+        <div class="vs-alert vs-alert--info">
+          <svg class="vs-i"><use href="#i-info"/></svg>
+          <div class="vs-alert__body"><span class="vs-alert__title">Regla de autoprotección (A1)</span>No puedes inactivar tu propia cuenta (scolque) ni la del único Administrador activo. El sistema rechaza la operación.</div>
+          <button type="button" class="vs-alert__close" aria-label="Cerrar" data-dismiss><svg class="vs-i"><use href="#i-close"/></svg></button>
+        </div>
+
+        <section class="vs-split vs-split--wide">
+          <article class="vs-card">
+            <div class="vs-card__head">
+              <div><h3 class="vs-card__title">Cuentas activas</h3><p class="vs-card__sub">Inactivar bloquea el acceso de inmediato y cierra las sesiones abiertas</p></div>
+              <div class="vs-input-icon" style="max-width:16rem"><svg class="vs-i"><use href="#i-search"/></svg><input class="vs-input" type="search" placeholder="Buscar cuenta"></div>
+            </div>
+            <div class="vs-table-wrap">
+              <table class="vs-table">
+                <thead><tr><th>Usuario</th><th>Rol</th><th class="vs-hide-md">Último acceso</th><th class="vs-hide-md">Citas futuras</th><th class="vs-td-actions">Acción</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--amber">SC</span><div><div class="vs-cell-person__name">Silvia Irene Colque López <span class="vs-badge vs-badge--muted">tú</span></div><div class="vs-cell-person__sub vs-mono">scolque</div></div></div></td>
+                    <td><span class="vs-badge vs-badge--warn">Administrador</span></td>
+                    <td class="vs-hide-md vs-td-num">Hoy 07:52</td>
+                    <td class="vs-hide-md vs-td-num">—</td>
+                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" disabled title="No puedes inactivar tu propia cuenta"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar</button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">RV</span><div><div class="vs-cell-person__name">Rosa María Vaca Cuéllar</div><div class="vs-cell-person__sub vs-mono">rvaca</div></div></div></td>
+                    <td><span class="vs-badge vs-badge--info">Recepcionista</span></td>
+                    <td class="vs-hide-md vs-td-num">Hoy 08:01</td>
+                    <td class="vs-hide-md vs-td-num">—</td>
+                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar</button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--rose">JM</span><div><div class="vs-cell-person__name">Jorge Luis Mendoza Paz</div><div class="vs-cell-person__sub vs-mono">jmendoza · bloqueado temporal</div></div></div></td>
+                    <td><span class="vs-badge vs-badge--info">Recepcionista</span></td>
+                    <td class="vs-hide-md vs-td-num">Ayer 09:37</td>
+                    <td class="vs-hide-md vs-td-num">—</td>
+                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar</button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">JR</span><div><div class="vs-cell-person__name">Dr. Juan Ronaldo Rojas Ugarte</div><div class="vs-cell-person__sub vs-mono">jrojas · Medicina General</div></div></div></td>
+                    <td><span class="vs-badge vs-badge--ok">Médico</span></td>
+                    <td class="vs-hide-md vs-td-num">Hoy 08:04</td>
+                    <td class="vs-hide-md vs-td-num"><span class="vs-badge vs-badge--warn">6 citas</span></td>
+                    <td class="vs-td-actions"><a href="../P5 Gestión Médica y Horarios/cu21-desactivar-medico.html" class="vs-btn vs-btn--ghost vs-btn--sm" title="Los médicos se desactivan desde CU21"><svg class="vs-i"><use href="#i-arrow-right"/></svg>Ver CU21</a></td>
+                  </tr>
+                  <tr>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">PG</span><div><div class="vs-cell-person__name">Dra. Patricia Gutiérrez Melgar</div><div class="vs-cell-person__sub vs-mono">pgutierrez · Pediatría</div></div></div></td>
+                    <td><span class="vs-badge vs-badge--ok">Médico</span></td>
+                    <td class="vs-hide-md vs-td-num">Ayer 12:16</td>
+                    <td class="vs-hide-md vs-td-num"><span class="vs-badge vs-badge--warn">4 citas</span></td>
+                    <td class="vs-td-actions"><a href="../P5 Gestión Médica y Horarios/cu21-desactivar-medico.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-arrow-right"/></svg>Ver CU21</a></td>
+                  </tr>
+                  <tr>
+                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">DJ</span><div><div class="vs-cell-person__name">Daniela Justiniano Áñez</div><div class="vs-cell-person__sub vs-mono">djustiniano</div></div></div></td>
+                    <td><span class="vs-badge vs-badge--info">Recepcionista</span></td>
+                    <td class="vs-hide-md vs-td-num">Ayer 14:02</td>
+                    <td class="vs-hide-md vs-td-num">—</td>
+                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="vs-card__foot"><span>14 cuentas activas</span><a href="cu06-catalogo-usuarios.html" class="vs-link">Ver catálogo completo</a></div>
+          </article>
+
+          <aside class="vs-stack">
+            <article class="vs-card vs-card--accent">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Efectos de inactivar</h3></div></div>
+              <div class="vs-card__body vs-rules">
+                <div class="vs-rule vs-rule--danger"><span class="vs-rule__k">Acceso</span>El inicio de sesión se rechaza con “Cuenta inactiva, contacte al administrador”.</div>
+                <div class="vs-rule"><span class="vs-rule__k">Historial</span>Sus registros en bitácora, citas y pacientes se mantienen intactos.</div>
+                <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Médicos</span>Si el usuario es médico con citas futuras, usa <a href="../P5 Gestión Médica y Horarios/cu21-desactivar-medico.html" class="vs-link">CU21</a>, que exige reprogramarlas antes.</div>
+                <div class="vs-rule"><span class="vs-rule__k">Auditoría</span>Se registra el administrador, fecha, hora y motivo (CU10).</div>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <dialog id="dlg-inactivar" class="vs-modal">
+    <form data-demo="Cuenta inactivada" data-demo-sub="rvaca ya no puede iniciar sesión; el evento quedó en bitácora" novalidate>
+      <div class="vs-modal__head">
+        <span class="vs-modal__icon vs-modal__icon--danger"><svg class="vs-i"><use href="#i-ban"/></svg></span>
+        <div><h2 class="vs-modal__title">Inactivar a Rosa María Vaca Cuéllar</h2><p class="vs-modal__text">La cuenta <span class="vs-mono">rvaca</span> pasará a estado Inactivo y se cerrarán sus sesiones. Podrás reactivarla después.</p></div>
+      </div>
+      <div class="vs-modal__body">
+        <div class="vs-field">
+          <label class="vs-label" for="i-motivo">Motivo <span class="vs-req">*</span></label>
+          <select id="i-motivo" class="vs-select" required>
+            <option value="">Selecciona un motivo…</option>
+            <option>Desvinculación laboral</option>
+            <option>Licencia prolongada</option>
+            <option>Cambio de funciones</option>
+            <option>Incidente de seguridad</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="vs-field">
+          <label class="vs-label" for="i-confirm">Escribe <span class="vs-mono">INACTIVAR</span> para confirmar</label>
+          <input id="i-confirm" class="vs-input vs-input--mono" type="text" autocomplete="off" data-confirm-text="INACTIVAR" data-confirm-target="btn-inactivar">
+        </div>
+      </div>
+      <div class="vs-modal__foot">
+        <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
+        <button type="submit" id="btn-inactivar" class="vs-btn vs-btn--danger"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar cuenta</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

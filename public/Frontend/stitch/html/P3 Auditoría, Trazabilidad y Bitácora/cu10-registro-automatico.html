@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro automático de bitácora · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU10">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Registro automático</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P3 · Auditoría, Trazabilidad y Bitácora</p>
+            <h2 class="vs-h1">Registro automático de acciones</h2>
+            <p class="vs-lead">El sistema anota solo cada acción importante: quién la hizo, a qué hora y qué cambió. Aquí ves lo que se está registrando ahora.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU10</span><span class="vs-trace__actor">Sistema (actor automático)</span></span>
+            <a href="cu11-bitacora.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-book"/></svg>Consultar bitácora</a>
+          </div>
+        </header>
+
+        <section class="vs-grid vs-grid--4">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Hoy</span><span class="vs-live"><i></i>En vivo</span></div><p class="vs-kpi__value" id="kpi-hoy">--</p><p class="vs-kpi__hint vs-kpi__hint--ok" id="kpi-hoy-hint">Sincronizando...</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Este mes</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-database"/></svg></span></div><p class="vs-kpi__value" id="kpi-mes">--</p><p class="vs-kpi__hint">Total acumulado</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Alertas</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-alert-octagon"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--rose" id="kpi-alertas">0</p><p class="vs-kpi__hint vs-kpi__hint--danger" id="kpi-alertas-hint">Bloqueos de seguridad</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Registro</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">Activo</p><p class="vs-kpi__hint">Se anota solo, sin intervención</p></article>
+        </section>
+
+        <section class="vs-split vs-split--reverse">
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Este mes, por tipo</h3><p class="vs-card__sub" id="bitacora-sub-mes">Octubre 2026</p></div></div>
+            <div class="vs-card__body vs-bars" id="bitacora-bars">
+              <div class="vs-bars__row"><span class="vs-bars__label">Altas (CREAR)</span><div class="vs-bar"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Cambios (MODIFICAR)</span><div class="vs-bar vs-bar--cyan"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Ingresos (LOGIN)</span><div class="vs-bar vs-bar--teal"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Salidas (LOGOUT)</span><div class="vs-bar vs-bar--teal"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Bajas (ELIMINAR)</span><div class="vs-bar vs-bar--amber"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">Bloqueos</span><div class="vs-bar vs-bar--rose"><i style="width:0%"></i></div><span class="vs-bars__val">0</span></div>
+            </div>
+          </article>
+
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Lo último que se anotó</h3><p class="vs-card__sub" id="bitacora-sub-hoy">En vivo</p></div><span class="vs-live"><i></i>En vivo</span></div>
+            <div class="vs-card__body">
+              <ol class="vs-timeline" id="bitacora-timeline">
+                <li class="vs-tl-item vs-tl-item--info"><span class="vs-tl-time">08:31</span><div class="vs-tl-title">Nueva cita <span class="vs-code">CM-0296</span></div><div class="vs-tl-sub">Rosa Vaca · Iván Cuéllar con el Dr. Rojas a las 10:30</div></li>
+                <li class="vs-tl-item vs-tl-item--ok"><span class="vs-tl-time">08:29</span><div class="vs-tl-title">Cita confirmada <span class="vs-code">CM-0283</span></div><div class="vs-tl-sub">Carla Suárez · confirmación por teléfono</div></li>
+                <li class="vs-tl-item vs-tl-item--ok"><span class="vs-tl-time">08:26</span><div class="vs-tl-title">Cita atendida <span class="vs-code">CM-0281</span></div><div class="vs-tl-sub">Dr. Rojas · dejó la observación clínica</div></li>
+                <li class="vs-tl-item vs-tl-item--info"><span class="vs-tl-time">08:14</span><div class="vs-tl-title">Nuevo paciente <span class="vs-code">PAC-0071</span></div><div class="vs-tl-sub">Rosa Vaca · Valeria Montaño Ruiz</div></li>
+                <li class="vs-tl-item vs-tl-item--danger"><span class="vs-tl-time">08:13</span><div class="vs-tl-title">Cuenta bloqueada</div><div class="vs-tl-sub">Jorge Mendoza · 3 intentos fallidos, hasta las 08:14</div></li>
+                <li class="vs-tl-item vs-tl-item--warn"><span class="vs-tl-time">08:12</span><div class="vs-tl-title">Intento de ingreso fallido</div><div class="vs-tl-sub">Jorge Mendoza · 2 de 3</div></li>
+              </ol>
+            </div>
+            <div class="vs-card__foot"><span>Los 6 más recientes</span><a href="cu11-bitacora.html" class="vs-link">Ver toda la bitácora</a></div>
+          </article>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

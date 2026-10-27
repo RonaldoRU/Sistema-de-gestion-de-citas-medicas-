@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consultar bitácora · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU11">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Consultar bitácora</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">P3 · Auditoría, Trazabilidad y Bitácora</p>
+            <h2 class="vs-h1">Consulta de la bitácora</h2>
+            <p class="vs-lead">Filtra por usuario, módulo, tipo de acción y rango de fechas para auditar qué ocurrió en el sistema. Los resultados se ordenan del más reciente al más antiguo.</p>
+          </div>
+          <div class="vs-page-head__side">
+            <span class="vs-trace"><span class="vs-trace__cu">CU11</span><span class="vs-trace__actor">Administrador</span></span>
+            <button type="button" class="vs-btn vs-btn--ghost" data-toast="Exportación generada" data-toast-sub="bitacora_2026-10-26.csv · 148 filas"><svg class="vs-i"><use href="#i-file-csv"/></svg>Exportar CSV</button>
+          </div>
+        </header>
+
+        <section class="vs-card">
+          <div class="vs-card__body vs-card__body--tight">
+            <form class="vs-filters" onsubmit="event.preventDefault()">
+              <div class="vs-field vs-f-3"><label class="vs-label" for="b-usuario">Usuario</label><select id="b-usuario" class="vs-select"><option value="">Todos los usuarios</option><option>scolque — Silvia Colque</option><option>rvaca — Rosa Vaca</option><option>csuarez — Carla Suárez</option><option>jmendoza — Jorge Mendoza</option><option>djustiniano — Daniela Justiniano</option><option>jrojas — Dr. Juan Rojas</option><option>Sistema</option></select></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="b-modulo">Módulo</label><select id="b-modulo" class="vs-select"><option value="">Todos</option><option>P1 · Seguridad y Autenticación</option><option>P2 · Usuarios y Permisos</option><option>P3 · Auditoría</option><option>P4 · Pacientes</option><option>P5 · Gestión Médica y Horarios</option><option>P6 · Citas Médicas</option><option>P7 · Reportes</option></select></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-accion">Acción</label><select id="b-accion" class="vs-select"><option value="">Todas</option><option value="REGISTRAR">REGISTRAR</option><option value="INACTIVAR">INACTIVAR</option><option value="RENOVAR">RENOVAR</option><option value="MODIFICAR">MODIFICAR</option><option value="ELIMINAR">ELIMINAR</option><option value="LOGIN">LOGIN</option><option value="LOGOUT">LOGOUT</option><option value="BLOQUEO">BLOQUEO</option><option value="CREAR">CREAR</option></select></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-desde">Desde</label><input id="b-desde" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="b-hasta">Hasta</label><input id="b-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
+              <div class="vs-field vs-f-6"><label class="vs-label" for="b-q">Texto en el detalle</label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-search"/></svg><input id="b-q" class="vs-input" type="search" placeholder="Ej. CM-0283, PAC-0071, jmendoza"></div></div>
+              <div class="vs-row vs-f-6" style="justify-content:flex-end;align-self:end">
+                <button type="reset" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-refresh"/></svg>Limpiar</button>
+                <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-filter"/></svg>Aplicar filtros</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="vs-card">
+          <div class="vs-card__head">
+            <div><h3 class="vs-card__title">Eventos registrados</h3><p class="vs-card__sub">Lunes 26/10/2026 · ordenados por fecha y hora descendente</p></div>
+            <div class="vs-row">
+              <span class="vs-live" id="vs-live-indicator"><i></i>En vivo</span>
+              <span class="vs-badge vs-badge--muted vs-badge--lg" id="vs-badge-total">Cargando eventos...</span>
+              <span class="vs-badge vs-badge--danger vs-badge--lg" id="vs-badge-alertas">0 alertas</span>
+            </div>
+          </div>
+          <div class="vs-table-wrap">
+            <table class="vs-table vs-table--compact">
+              <thead><tr><th>Fecha y hora</th><th>Usuario</th><th class="vs-hide-md">Módulo</th><th>Acción</th><th class="vs-hide-md">Tabla / registro</th><th>Detalle</th><th class="vs-hide-md">IP</th></tr></thead>
+              <tbody>
+                <tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">Cargando eventos de auditoría de la base de datos...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vs-pagination">
+            <span>Mostrando <strong class="vs-strong">1–12</strong> de <strong class="vs-strong">148</strong> eventos</span>
+            <div class="vs-pager"><button type="button" disabled aria-label="Anterior"><svg class="vs-i vs-i--sm"><use href="#i-chevron-left"/></svg></button><button type="button" class="is-current">1</button><button type="button">2</button><button type="button">3</button><span>…</span><button type="button">13</button><button type="button" aria-label="Siguiente"><svg class="vs-i vs-i--sm"><use href="#i-chevron-right"/></svg></button></div>
+          </div>
+        </section>
+
+        <section class="vs-grid vs-grid--3">
+          <article class="vs-card vs-card--accent">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas de consulta</h3></div></div>
+            <div class="vs-card__body vs-rules">
+              <div class="vs-rule"><span class="vs-rule__k">Solo lectura</span>La bitácora no se edita ni se borra desde la interfaz; es evidencia.</div>
+              <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Sin resultados (A1)</span>Si los filtros no coinciden, se informa “No se encontraron registros” y se sugiere ampliar el rango.</div>
+              <div class="vs-rule"><span class="vs-rule__k">Rango máximo</span>Hasta 90 días por consulta para mantener el rendimiento.</div>
+            </div>
+          </article>
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Consultas frecuentes</h3></div></div>
+            <ul class="vs-list vs-list--boxed">
+              <li class="vs-list-row"><svg class="vs-i vs-muted"><use href="#i-lock"/></svg><div class="vs-list-row__body"><div class="vs-list-row__title">Bloqueos del mes</div><div class="vs-list-row__sub">Acción BLOQUEO · últimos 30 días</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Filtro aplicado" data-toast-sub="4 eventos BLOQUEO en octubre">Aplicar</button></li>
+              <li class="vs-list-row"><svg class="vs-i vs-muted"><use href="#i-calendar-x"/></svg><div class="vs-list-row__body"><div class="vs-list-row__title">Cancelaciones de citas</div><div class="vs-list-row__sub">P6 · MODIFICAR → CANCELADA</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Filtro aplicado" data-toast-sub="31 cancelaciones en octubre">Aplicar</button></li>
+              <li class="vs-list-row"><svg class="vs-i vs-muted"><use href="#i-shield"/></svg><div class="vs-list-row__body"><div class="vs-list-row__title">Cambios de rol</div><div class="vs-list-row__sub">P2 · tabla usuario · campo id_rol</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Filtro aplicado" data-toast-sub="1 cambio de rol en el periodo">Aplicar</button></li>
+            </ul>
+          </article>
+          <article class="vs-card">
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Actividad por módulo hoy</h3></div></div>
+            <div class="vs-card__body vs-bars">
+              <div class="vs-bars__row"><span class="vs-bars__label">P6 Citas</span><div class="vs-bar"><i style="width:58%"></i></div><span class="vs-bars__val">86</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">P1 Seguridad</span><div class="vs-bar vs-bar--teal"><i style="width:22%"></i></div><span class="vs-bars__val">33</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">P4 Pacientes</span><div class="vs-bar vs-bar--cyan"><i style="width:14%"></i></div><span class="vs-bars__val">21</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">P5 Médicos</span><div class="vs-bar vs-bar--amber"><i style="width:4%"></i></div><span class="vs-bars__val">6</span></div>
+              <div class="vs-bars__row"><span class="vs-bars__label">P2 Usuarios</span><div class="vs-bar vs-bar--rose"><i style="width:1%"></i></div><span class="vs-bars__val">2</span></div>
+            </div>
+          </article>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+    <script src="../../js/vida-salud-api.js"></script>
+<script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+
