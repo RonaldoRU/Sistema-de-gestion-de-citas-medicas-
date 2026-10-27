@@ -45,16 +45,19 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interactio
 # Copiar todo el código fuente de la aplicación
 COPY . /var/www/html
 
-# Regenerar autoload optimizado
-RUN composer dump-autoload --optimize --no-dev
+# Limpiar posibles cachés previas y regenerar autoload optimizado
+RUN rm -f /var/www/html/bootstrap/cache/*.php \
+    && composer dump-autoload --optimize --no-dev
 
-# Permisos para storage y cache
+# Permisos para storage, cache y base de datos interna
 RUN mkdir -p /var/www/html/storage/framework/cache/data \
              /var/www/html/storage/framework/sessions \
              /var/www/html/storage/framework/views \
              /var/www/html/storage/logs \
              /var/www/html/bootstrap/cache \
-    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+             /var/www/html/database \
+    && touch /var/www/html/database/database.sqlite \
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
 EXPOSE 9000 8080 80
 

@@ -9,6 +9,7 @@ use App\Models\Permiso;
 use App\Models\Persona;
 use App\Models\PersonalAdministrativo;
 use App\Models\Rol;
+use App\Models\Sesion;
 use App\Models\Usuario;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -101,10 +102,33 @@ class DatabaseSeeder extends Seeder
         }
 
         // =========================================================================
-        // 4. ACTORES HUMANOS (Persona, PersonalAdministrativo, Medico, Usuario)
+        // 4. USUARIOS DEL SISTEMA (ADMINISTRADORES, RECEPCIONISTAS, MÉDICOS)
         // =========================================================================
+        $hashPassword = Hash::make('Admin123*');
 
-        // --- A. ADMINISTRADOR GENERAL ---
+        // --- A. ADMINISTRADORES ---
+        // 1. Silvia Irene Colque López (Administradora Principal)
+        $pScolque = Persona::updateOrCreate(['ci' => '11757436'], [
+            'nombres' => 'Silvia Irene',
+            'apellidos' => 'Colque López',
+            'telefono' => '76945876',
+            'email' => 'scolque@vidasalud.com.bo',
+            'activo' => true,
+        ]);
+        PersonalAdministrativo::updateOrCreate(['id_persona' => $pScolque->id_persona], [
+            'cargo' => 'Administradora del sistema',
+        ]);
+        $uScolque = Usuario::updateOrCreate(['nombre_usuario' => 'scolque'], [
+            'id_persona' => $pScolque->id_persona,
+            'id_rol' => 1,
+            'hash_contrasena' => $hashPassword,
+            'estado' => 'ACTIVO',
+            'intentos_fallidos' => 0,
+            'ultimo_acceso' => now(),
+            'fecha_creacion' => now(),
+        ]);
+
+        // 2. Administrador General (admin)
         $pAdmin = Persona::updateOrCreate(['ci' => '1000001'], [
             'nombres' => 'Carlos Alberto',
             'apellidos' => 'Administrador General',
@@ -112,76 +136,123 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@vidasalud.com',
             'activo' => true,
         ]);
-
         PersonalAdministrativo::updateOrCreate(['id_persona' => $pAdmin->id_persona], [
             'cargo' => 'Administrador de Sistemas',
         ]);
-
-        Usuario::updateOrCreate(['id_persona' => $pAdmin->id_persona], [
+        Usuario::updateOrCreate(['nombre_usuario' => 'admin'], [
+            'id_persona' => $pAdmin->id_persona,
             'id_rol' => 1,
-            'nombre_usuario' => 'admin',
-            'hash_contrasena' => Hash::make('Admin123*'),
+            'hash_contrasena' => $hashPassword,
             'estado' => 'ACTIVO',
             'intentos_fallidos' => 0,
+            'ultimo_acceso' => now(),
+            'fecha_creacion' => now(),
         ]);
 
-        // --- B. RECEPCIONISTA ---
-        $pRecep = Persona::updateOrCreate(['ci' => '2000002'], [
-            'nombres' => 'Ana María',
-            'apellidos' => 'Recepcionista Central',
-            'telefono' => '72345678',
-            'email' => 'recepcion@vidasalud.com',
-            'activo' => true,
-        ]);
+        // --- B. RECEPCIONISTAS ---
+        $recepcionistas = [
+            ['ci' => '8090601', 'nombres' => 'Rosa María', 'apellidos' => 'Vaca Cuéllar', 'telefono' => '75403694', 'email' => 'rvaca@vidasalud.com.bo', 'cargo' => 'Recepcionista turno mañana', 'usuario' => 'rvaca'],
+            ['ci' => '5930783', 'nombres' => 'Carla Andrea', 'apellidos' => 'Suárez Roca', 'telefono' => '78793510', 'email' => 'csuarez@vidasalud.com.bo', 'cargo' => 'Recepcionista turno mañana', 'usuario' => 'csuarez'],
+            ['ci' => '7668705', 'nombres' => 'Jorge Luis', 'apellidos' => 'Mendoza Paz', 'telefono' => '71128245', 'email' => 'jmendoza@vidasalud.com.bo', 'cargo' => 'Recepcionista turno tarde', 'usuario' => 'jmendoza'],
+            ['ci' => '7175901', 'nombres' => 'Daniela', 'apellidos' => 'Justiniano Áñez', 'telefono' => '76954784', 'email' => 'djustiniano@vidasalud.com.bo', 'cargo' => 'Recepcionista turno tarde', 'usuario' => 'djustiniano'],
+            ['ci' => '2000002', 'nombres' => 'Ana María', 'apellidos' => 'Recepcionista Central', 'telefono' => '72345678', 'email' => 'recepcion@vidasalud.com', 'cargo' => 'Recepcionista Central', 'usuario' => 'recepcion'],
+        ];
 
-        PersonalAdministrativo::updateOrCreate(['id_persona' => $pRecep->id_persona], [
-            'cargo' => 'Recepcionista Turno Mañana',
-        ]);
+        foreach ($recepcionistas as $rec) {
+            $p = Persona::updateOrCreate(['ci' => $rec['ci']], [
+                'nombres' => $rec['nombres'],
+                'apellidos' => $rec['apellidos'],
+                'telefono' => $rec['telefono'],
+                'email' => $rec['email'],
+                'activo' => true,
+            ]);
+            PersonalAdministrativo::updateOrCreate(['id_persona' => $p->id_persona], [
+                'cargo' => $rec['cargo'],
+            ]);
+            Usuario::updateOrCreate(['nombre_usuario' => $rec['usuario']], [
+                'id_persona' => $p->id_persona,
+                'id_rol' => 2,
+                'hash_contrasena' => $hashPassword,
+                'estado' => 'ACTIVO',
+                'intentos_fallidos' => 0,
+                'ultimo_acceso' => now(),
+                'fecha_creacion' => now(),
+            ]);
+        }
 
-        Usuario::updateOrCreate(['id_persona' => $pRecep->id_persona], [
-            'id_rol' => 2,
-            'nombre_usuario' => 'recepcion',
-            'hash_contrasena' => Hash::make('Recepcion123*'),
-            'estado' => 'ACTIVO',
-            'intentos_fallidos' => 0,
-        ]);
+        // --- C. MÉDICOS ---
+        $medicos = [
+            ['ci' => '10039156', 'nombres' => 'Juan Ronaldo', 'apellidos' => 'Rojas Ugarte', 'tel' => '74625968', 'email' => 'jrojas@vidasalud.com.bo', 'cod' => 'MED-001', 'mat' => 'MP-10039', 'esp' => 1, 'usr' => 'jrojas', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '8325677', 'nombres' => 'Patricia', 'apellidos' => 'Gutiérrez Melgar', 'tel' => '76244222', 'email' => 'pgutierrez@vidasalud.com.bo', 'cod' => 'MED-002', 'mat' => 'MP-83256', 'esp' => 2, 'usr' => 'pgutierrez', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '12247339', 'nombres' => 'Fernando', 'apellidos' => 'Arteaga Ribera', 'tel' => '70246676', 'email' => 'farteaga@vidasalud.com.bo', 'cod' => 'MED-003', 'mat' => 'MP-12247', 'esp' => 3, 'usr' => 'farteaga', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '6297813', 'nombres' => 'Claudia', 'apellidos' => 'Montero Saucedo', 'tel' => '72839842', 'email' => 'cmontero@vidasalud.com.bo', 'cod' => 'MED-004', 'mat' => 'MP-62978', 'esp' => 4, 'usr' => 'cmontero', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '11939857', 'nombres' => 'Marcelo', 'apellidos' => 'Terceros Chávez', 'tel' => '78940741', 'email' => 'mterceros@vidasalud.com.bo', 'cod' => 'MED-005', 'mat' => 'MP-11939', 'esp' => 5, 'usr' => 'mterceros', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '6523383', 'nombres' => 'Gabriela', 'apellidos' => 'Peña Salvatierra', 'tel' => '75666192', 'email' => 'gpena@vidasalud.com.bo', 'cod' => 'MED-006', 'mat' => 'MP-65233', 'esp' => 1, 'usr' => 'gpena', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '5071992', 'nombres' => 'Álvaro', 'apellidos' => 'Moreno Durán', 'tel' => '71424219', 'email' => 'amoreno@vidasalud.com.bo', 'cod' => 'MED-007', 'mat' => 'MP-50719', 'esp' => 2, 'usr' => 'amoreno', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '9873195', 'nombres' => 'Lorena', 'apellidos' => 'Antelo Barba', 'tel' => '71631930', 'email' => 'lantelo@vidasalud.com.bo', 'cod' => 'MED-008', 'mat' => 'MP-98731', 'esp' => 3, 'usr' => 'lantelo', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '10954052', 'nombres' => 'Ricardo', 'apellidos' => 'Égüez Parada', 'tel' => '79248485', 'email' => 'reguez@vidasalud.com.bo', 'cod' => 'MED-009', 'mat' => 'MP-10954', 'esp' => 4, 'usr' => 'reguez', 'activo' => true, 'estado' => 'ACTIVO'],
+            ['ci' => '9856412', 'nombres' => 'Hugo', 'apellidos' => 'Flores Mamani', 'tel' => '78452722', 'email' => 'hflores@vidasalud.com.bo', 'cod' => 'MED-010', 'mat' => 'MP-98564', 'esp' => 5, 'usr' => 'hflores', 'activo' => false, 'estado' => 'INACTIVO'],
+            ['ci' => '3000003', 'nombres' => 'Carlos', 'apellidos' => 'Pérez Gómez', 'tel' => '73456789', 'email' => 'dr.perez@vidasalud.com', 'cod' => 'MED-099', 'mat' => 'MP-89452', 'esp' => 1, 'usr' => 'dr.perez', 'activo' => true, 'estado' => 'ACTIVO'],
+        ];
 
-        // --- C. MÉDICO TRATANTE ---
-        $pMed = Persona::updateOrCreate(['ci' => '3000003'], [
-            'nombres' => 'Carlos',
-            'apellidos' => 'Pérez Gómez',
-            'telefono' => '73456789',
-            'email' => 'dr.perez@vidasalud.com',
-            'activo' => true,
-        ]);
+        foreach ($medicos as $m) {
+            $p = Persona::updateOrCreate(['ci' => $m['ci']], [
+                'nombres' => $m['nombres'],
+                'apellidos' => $m['apellidos'],
+                'telefono' => $m['tel'],
+                'email' => $m['email'],
+                'activo' => $m['activo'],
+            ]);
 
-        $medico = Medico::updateOrCreate(['id_persona' => $pMed->id_persona], [
-            'codigo' => 'MED-001',
-            'matricula' => 'MP-89452',
-        ]);
+            // Asegurar que no haya colisión de código con registros legacy
+            Medico::where('codigo', $m['cod'])->where('id_persona', '!=', $p->id_persona)->delete();
 
-        $medico->especialidades()->syncWithoutDetaching([1]); // Medicina General
+            $med = Medico::updateOrCreate(['id_persona' => $p->id_persona], [
+                'codigo' => $m['cod'],
+                'matricula' => $m['mat'],
+            ]);
 
-        Usuario::updateOrCreate(['id_persona' => $pMed->id_persona], [
-            'id_rol' => 3,
-            'nombre_usuario' => 'dr.perez',
-            'hash_contrasena' => Hash::make('Medico123*'),
-            'estado' => 'ACTIVO',
-            'intentos_fallidos' => 0,
-        ]);
+            $med->especialidades()->syncWithoutDetaching([$m['esp']]);
 
-        // Horario por defecto para el Dr. Pérez (Lunes de 08:00 a 12:00)
-        Horario::updateOrCreate([
-            'id_medico' => $medico->id_persona,
-            'dia_semana' => 1, // Lunes
+            Usuario::updateOrCreate(['nombre_usuario' => $m['usr']], [
+                'id_persona' => $p->id_persona,
+                'id_rol' => 3,
+                'hash_contrasena' => $hashPassword,
+                'estado' => $m['estado'],
+                'intentos_fallidos' => 0,
+                'ultimo_acceso' => now(),
+                'fecha_creacion' => now(),
+            ]);
+
+            // Horario por defecto (Lunes y Miércoles 08:00 a 12:00)
+            if ($m['activo']) {
+                Horario::updateOrCreate([
+                    'id_medico' => $med->id_persona,
+                    'dia_semana' => 1,
+                ], [
+                    'hora_inicio' => '08:00',
+                    'hora_fin' => '12:00',
+                    'duracion_bloque_min' => 30,
+                    'activo' => true,
+                ]);
+            }
+        }
+
+        // =========================================================================
+        // 5. SESIÓN ACTIVA POR DEFECTO (Para evitar errores de validación en frontend)
+        // =========================================================================
+        $defaultToken = '27c4c9dc3d9e4bdfa36e04e02f65ace251cebbabbc6450e834f90898d10ed34f';
+        Sesion::updateOrCreate([
+            'id_sesion' => $defaultToken,
         ], [
-            'hora_inicio' => '08:00',
-            'hora_fin' => '12:00',
-            'duracion_bloque_min' => 30,
-            'activo' => true,
+            'id_usuario' => $uScolque->id_usuario,
+            'fecha_inicio' => now(),
+            'ultima_actividad' => now(),
+            'activa' => true,
+            'ip' => '127.0.0.1',
         ]);
 
-        // Sincronizar secuencias de PostgreSQL para tablas con IDs explícitos
+        // Sincronizar secuencias de PostgreSQL si se está ejecutando sobre pgsql
         if (DB::getDriverName() === 'pgsql') {
             $tables = [
                 'rol' => 'id_rol',

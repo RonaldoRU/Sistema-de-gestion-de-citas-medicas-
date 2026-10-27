@@ -46,3 +46,9 @@ yarn-error.log
 # No subas la API key de Stitch al repositorio
 **/.cursor/mcp.json
 
+# SQLite local databases
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+

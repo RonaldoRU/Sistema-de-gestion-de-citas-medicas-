@@ -14,3 +14,10 @@ storage/framework/sessions/*
 storage/framework/views/*
 bootstrap/cache/*.php
 docker/postgres/data
+vendor
+.env
+.env.*
+!.env.docker.example
+!.env.example
+*.sqlite
+*.sqlite-*

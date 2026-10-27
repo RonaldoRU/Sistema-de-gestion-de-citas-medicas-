@@ -271,6 +271,8 @@ class ClinicaCasosDeUsoTest extends TestCase
         $admin = Usuario::where('nombre_usuario', 'admin')->first();
         $this->actingAs($admin);
 
+        \App\Models\Especialidad::where('nombre', 'Dermatología')->delete();
+
         // Crear especialidad
         $resCrear = $this->postJson('/api/especialidades', [
             'nombre' => 'Dermatología',
