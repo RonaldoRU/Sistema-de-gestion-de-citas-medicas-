@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Cita;
 use App\Models\Paciente;
 use App\Models\Persona;
+use App\Models\Rol;
+use App\Models\Usuario;
 use App\Services\AuditoriaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -287,5 +290,104 @@ class PacienteController extends Controller
             'message' => 'Paciente reactivado exitosamente a estado activo.',
             'paciente' => $paciente->fresh('persona'),
         ]);
+    }
+
+    /**
+     * Registra mediante auto-registro web a un nuevo paciente junto con su cuenta de acceso y código PAC-XXXX.
+     */
+    public function autoRegistroWeb(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'ci' => 'required|string|max:20|unique:persona,ci',
+            'nombres' => 'required|string|max:80',
+            'apellidos' => 'required|string|max:80',
+            'sexo' => 'required|string|in:M,F',
+            'fecha_nacimiento' => 'required|date',
+            'telefono' => 'nullable|string|max:20',
+            'email' => 'required|email|max:150|unique:persona,email',
+            'direccion' => 'nullable|string|max:200',
+            'password' => 'required|string|min:6',
+        ], [
+            'ci.unique' => 'La Cédula de Identidad (CI) ya se encuentra registrada en el sistema.',
+            'email.unique' => 'El correo electrónico ya se encuentra registrado en el sistema.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación en auto-registro de paciente.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        return DB::transaction(function () use ($request) {
+            $persona = Persona::create([
+                'ci' => trim($request->input('ci')),
+                'nombres' => trim($request->input('nombres')),
+                'apellidos' => trim($request->input('apellidos')),
+                'telefono' => $request->input('telefono'),
+                'email' => trim($request->input('email')),
+                'activo' => true,
+            ]);
+
+            $ultimoId = Paciente::max('id_persona') ?? 0;
+            $codigoCorrelativo = 'PAC-'.str_pad((string) ($ultimoId + 1), 4, '0', STR_PAD_LEFT);
+
+            $paciente = Paciente::create([
+                'id_persona' => $persona->id_persona,
+                'codigo' => $codigoCorrelativo,
+                'sexo' => strtoupper($request->input('sexo')),
+                'fecha_nacimiento' => $request->input('fecha_nacimiento'),
+                'direccion' => $request->input('direccion'),
+            ]);
+
+            $rolPaciente = Rol::where('nombre', 'PACIENTE')->first() ?? Rol::find(2) ?? Rol::first();
+            $requestedUsername = trim((string) $request->input('nombre_usuario', ''));
+            if ($requestedUsername !== '') {
+                $baseUser = strtolower(preg_replace('/[^a-z0-9._-]/i', '', $requestedUsername));
+            } else {
+                $baseUser = strtolower(preg_replace('/[^a-z0-9]/i', '', explode(' ', $persona->nombres)[0]).'.'.preg_replace('/[^a-z0-9]/i', '', explode(' ', $persona->apellidos)[0]));
+            }
+            $username = $baseUser;
+            $c = 1;
+            while (Usuario::where('nombre_usuario', $username)->exists()) {
+                $username = $baseUser.$c++;
+            }
+
+            $usuario = Usuario::create([
+                'id_persona' => $persona->id_persona,
+                'id_rol' => $rolPaciente?->id_rol ?? 2,
+                'nombre_usuario' => $username,
+                'hash_contrasena' => Hash::make($request->input('password')),
+                'estado' => 'ACTIVO',
+                'intentos_fallidos' => 0,
+            ]);
+
+            AuditoriaService::registrar(
+                'P1_SEGURIDAD',
+                'REGISTRAR',
+                'paciente',
+                $paciente->id_persona,
+                "Auto-registro web de paciente [{$persona->nombres} {$persona->apellidos}] (CI {$persona->ci}, código {$paciente->codigo}, usuario {$usuario->nombre_usuario}).",
+                $usuario->id_usuario
+            );
+
+            $pacienteCargado = $paciente->load('persona');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Auto-registro de paciente y cuenta web completado exitosamente.',
+                'paciente' => $pacienteCargado,
+                'usuario' => $usuario,
+                'data' => [
+                    'paciente' => [
+                        'id_persona' => $paciente->id_persona,
+                        'codigo' => $paciente->codigo,
+                        'codigo_paciente' => $paciente->codigo,
+                    ],
+                    'usuario' => $usuario,
+                ],
+            ], 201);
+        });
     }
 }

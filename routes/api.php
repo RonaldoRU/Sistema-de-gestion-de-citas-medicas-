@@ -52,6 +52,9 @@ Route::prefix('auth')->group(function (): void {
     Route::get('/logout-summary', [SesionController::class, 'logoutSummary'])->name('api.auth.logout-summary');
     Route::post('/logout', [SesionController::class, 'logout'])->name('api.auth.logout');
 
+    // CU37: Auto-Registro de Cuenta de Paciente Web -> PacienteController
+    Route::post('/autoregistro-paciente', [PacienteController::class, 'autoRegistroWeb'])->name('api.auth.autoregistro-paciente');
+
     // Rutas protegidas de sesión
     Route::middleware('auth')->group(function (): void {
         Route::get('/me', [SesionController::class, 'me'])->name('api.auth.me');
@@ -80,6 +83,10 @@ Route::middleware('auth')->group(function (): void {
 
     Route::prefix('sesiones')->middleware('rol:ADMINISTRADOR')->group(function (): void {
         Route::get('/', [SesionController::class, 'index'])->name('api.sesiones.index');
+    });
+
+    Route::prefix('tokens-recuperacion')->middleware('rol:ADMINISTRADOR')->group(function (): void {
+        Route::get('/', [TokenRecuperacionController::class, 'index'])->name('api.tokens-recuperacion.index');
     });
 
     // =====================================================================

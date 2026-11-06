@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personas, Personal Administrativo y Permisos RBAC · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU38">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Personas, cargos y permisos</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">Administración de Usuarios y Permisos</p>
+            <h2 class="vs-h1">Gestión de personal administrativo y permisos por rol</h2>
+            <p class="vs-lead">Administra los cargos del personal administrativo de la clínica y configura los permisos asignados a cada rol operativo del sistema.</p>
+          </div>
+        </header>
+
+        <section class="vs-split">
+          <div class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head">
+                <div><h3 class="vs-card__title">Personal administrativo y cargos</h3><p class="vs-card__sub">Nómina administrativa activa en la institución</p></div>
+                <span class="vs-badge vs-badge--info" id="cu38-badge-personal">—</span>
+              </div>
+              <div class="vs-table-wrap">
+                <table class="vs-table vs-table--compact">
+                  <thead><tr><th>ID</th><th>Persona</th><th>CI</th><th>Cargo asignado</th><th>Estado</th></tr></thead>
+                  <tbody id="cu38-personal-tbody">
+                    <tr><td colspan="5" class="vs-td-empty">Consultando personal administrativo...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head">
+                <div><h3 class="vs-card__title">Catálogo de permisos y asignación por rol</h3><p class="vs-card__sub">Selecciona un rol para actualizar sus permisos de acceso</p></div>
+                <select id="cu38-select-rol" class="vs-select" style="max-width:14rem"><option value="1">ADMINISTRADOR</option><option value="2">RECEPCIONISTA</option><option value="3">MEDICO</option></select>
+              </div>
+              <div class="vs-card__body">
+                <div class="vs-choice-grid vs-choice-grid--2" id="cu38-permisos-grid">
+                  <p class="vs-muted vs-small">Cargando catálogo de permisos...</p>
+                </div>
+              </div>
+              <div class="vs-card__foot">
+                <span class="vs-xs vs-muted">Los cambios se aplican de inmediato al rol seleccionado</span>
+                <button type="button" id="cu38-btn-sync-permisos" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Guardar permisos del rol</button>
+              </div>
+            </article>
+          </div>
+
+          <aside class="vs-stack">
+            <form class="vs-card" id="form-cu38-nuevo-permiso" novalidate>
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Registrar nuevo permiso</h3><p class="vs-card__sub">Incorporar operación al catálogo de seguridad</p></div></div>
+              <div class="vs-card__body vs-form">
+                <div class="vs-field"><label class="vs-label" for="pm-nombre">Código del permiso <span class="vs-req">*</span></label><input id="pm-nombre" class="vs-input vs-input--mono" type="text" placeholder="Ej. EXPORTAR_BITACORA" required></div>
+                <div class="vs-field"><label class="vs-label" for="pm-modulo">Módulo <span class="vs-req">*</span></label><input id="pm-modulo" class="vs-input vs-input--mono" type="text" placeholder="Ej. AUDITORIA" required></div>
+                <div class="vs-field"><label class="vs-label" for="pm-ruta">Ruta de menú</label><input id="pm-ruta" class="vs-input vs-input--mono" type="text" placeholder="/bitacora"></div>
+              </div>
+              <div class="vs-card__foot">
+                <button type="submit" class="vs-btn vs-btn--teal vs-btn--block"><svg class="vs-i"><use href="#i-plus"/></svg>Registrar permiso</button>
+              </div>
+            </form>
+
+            <form class="vs-card" id="form-cu38-cargo-admin" novalidate>
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Asignar / Modificar cargo administrativo</h3><p class="vs-card__sub">Vincular puesto operativo a una persona registrada</p></div></div>
+              <div class="vs-card__body vs-form">
+                <div class="vs-field"><label class="vs-label" for="pa-persona">Persona registrada <span class="vs-req">*</span></label><select id="pa-persona" class="vs-select"></select></div>
+                <div class="vs-field"><label class="vs-label" for="pa-cargo">Cargo administrativo <span class="vs-req">*</span></label><input id="pa-cargo" class="vs-input" type="text" placeholder="Ej. Jefa de Recepción y Admisión" required></div>
+              </div>
+              <div class="vs-card__foot">
+                <button type="submit" class="vs-btn vs-btn--soft vs-btn--block"><svg class="vs-i"><use href="#i-check"/></svg>Guardar cargo administrativo</button>
+              </div>
+            </form>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

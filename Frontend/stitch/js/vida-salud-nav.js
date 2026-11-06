@@ -19,7 +19,8 @@
           { cu: 'CU01', label: 'Iniciar sesión', href: 'P1 Seguridad y Autenticación/cu01-iniciar-sesion.html', title: 'Iniciar Sesión en la Plataforma Web', ext: true },
           { cu: 'CU02', label: 'Cerrar sesión', action: 'logout', title: 'Cerrar Sesión y Revocar Sesión', danger: true },
           { cu: 'CU03', label: 'Recuperar contraseña', href: 'P1 Seguridad y Autenticación/cu03-recuperar-contrasena.html', title: 'Recuperar / Restablecer Contraseña Olvidada', ext: true },
-          { cu: 'CU04', label: 'Bloqueo por intentos', href: 'P1 Seguridad y Autenticación/cu04-bloqueo-intentos.html', title: 'Bloqueo Automático por Intentos Fallidos' }
+          { cu: 'CU04', label: 'Bloqueo por intentos', href: 'P1 Seguridad y Autenticación/cu04-bloqueo-intentos.html', title: 'Bloqueo Automático por Intentos Fallidos' },
+          { cu: 'CU37', label: 'Auto-registro y sesiones', href: 'P1 Seguridad y Autenticación/cu37-autoregistro-paciente-web.html', title: 'Auto-Registro de Paciente Web y Control de Sesiones' }
         ]
       },
       {
@@ -31,8 +32,9 @@
           { cu: 'CU05', label: 'Registrar usuario', href: 'P2 Administración de Usuarios y Permisos/cu05-registrar-usuario.html', title: 'Registrar Nuevo Usuario del Sistema' },
           { cu: 'CU06', label: 'Catálogo de usuarios', href: 'P2 Administración de Usuarios y Permisos/cu06-catalogo-usuarios.html', title: 'Consultar Catálogo y Perfil de Usuarios' },
           { cu: 'CU07', label: 'Modificar cuenta', href: 'P2 Administración de Usuarios y Permisos/cu07-modificar-cuenta.html', title: 'Modificar Datos de Cuenta de Usuario' },
-          { cu: 'CU08', label: 'Roles y permisos (RBAC)', href: 'P2 Administración de Usuarios y Permisos/cu08-roles-permisos.html', title: 'Cambiar Rol Operativo y Permisos (RBAC)' },
-          { cu: 'CU09', label: 'Suspender cuenta', href: 'P2 Administración de Usuarios y Permisos/cu09-suspender-cuenta.html', title: 'Suspender / Inactivar Cuenta de Usuario (Baja Lógica)' }
+          { cu: 'CU08', label: 'Roles y permisos', href: 'P2 Administración de Usuarios y Permisos/cu08-roles-permisos.html', title: 'Cambiar Rol Operativo y Permisos' },
+          { cu: 'CU09', label: 'Suspender cuenta', href: 'P2 Administración de Usuarios y Permisos/cu09-suspender-cuenta.html', title: 'Suspender / Inactivar Cuenta de Usuario' },
+          { cu: 'CU38', label: 'Personal administrativo y permisos', href: 'P2 Administración de Usuarios y Permisos/cu38-personal-permisos-rbac.html', title: 'Gestión de Personal Administrativo, Personas y Permisos' }
         ]
       },
       {
@@ -41,7 +43,7 @@
         short: 'Auditoría',
         icon: 'book',
         items: [
-          { cu: 'CU10', label: 'Registro automático', href: 'P3 Auditoría, Trazabilidad y Bitácora/cu10-registro-automatico.html', title: 'Registrar Acción Automática en Bitácora (Trigger / Middleware)' },
+          { cu: 'CU10', label: 'Registro automático', href: 'P3 Auditoría, Trazabilidad y Bitácora/cu10-registro-automatico.html', title: 'Registrar Acción Automática en Bitácora' },
           { cu: 'CU11', label: 'Consultar bitácora', href: 'P3 Auditoría, Trazabilidad y Bitácora/cu11-bitacora.html', title: 'Consultar y Filtrar Bitácora de Auditoría' }
         ]
       },
@@ -56,7 +58,7 @@
           { cu: 'CU14', label: 'Contacto de emergencia', href: 'P4 Gestión de Pacientes/cu14-contacto-emergencia.html', title: 'Registrar y Gestionar Contacto de Emergencia' },
           { cu: 'CU15', label: 'Buscar y modificar', href: 'P4 Gestión de Pacientes/cu15-buscar-paciente.html', title: 'Buscar y Modificar Datos de Paciente' },
           { cu: 'CU16', label: 'Historial de citas', href: 'P4 Gestión de Pacientes/cu16-historial-citas.html', title: 'Consultar Historial de Citas del Paciente' },
-          { cu: 'CU17', label: 'Desactivar paciente', href: 'P4 Gestión de Pacientes/cu17-desactivar-paciente.html', title: 'Desactivar Registro de Paciente (Baja Lógica)' }
+          { cu: 'CU17', label: 'Desactivar paciente', href: 'P4 Gestión de Pacientes/cu17-desactivar-paciente.html', title: 'Desactivar Registro de Paciente' }
         ]
       },
       {
@@ -68,7 +70,8 @@
           { cu: 'CU18', label: 'Especialidades', href: 'P5 Gestión Médica y Horarios/cu18-especialidades.html', title: 'Gestionar Catálogo de Especialidades Médicas' },
           { cu: 'CU19', label: 'Personal médico', href: 'P5 Gestión Médica y Horarios/cu19-personal-medico.html', title: 'Registrar y Administrar Personal Médico' },
           { cu: 'CU20', label: 'Horarios y bloques', href: 'P5 Gestión Médica y Horarios/cu20-horarios.html', title: 'Configurar Horarios y Bloques de Disponibilidad' },
-          { cu: 'CU21', label: 'Desactivar médico', href: 'P5 Gestión Médica y Horarios/cu21-desactivar-medico.html', title: 'Desactivar Registro de Médico (Baja Lógica)' }
+          { cu: 'CU21', label: 'Desactivar médico', href: 'P5 Gestión Médica y Horarios/cu21-desactivar-medico.html', title: 'Desactivar Registro de Médico' },
+          { cu: 'CU39', label: 'Médicos por especialidad', href: 'P5 Gestión Médica y Horarios/cu39-medico-especialidades.html', title: 'Asignación de Especialidades por Médico' }
         ]
       },
       {
@@ -84,9 +87,12 @@
           { cu: 'CU26', label: 'Reprogramar cita', href: 'P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html', title: 'Reprogramar Cita Médica' },
           { cu: 'CU27', label: 'Cancelar cita', href: 'P6 Gestión de Citas Médicas/cu27-cancelar-cita.html', title: 'Cancelar Cita Médica con Justificación' },
           { cu: 'CU28', label: 'Recordatorios', href: 'P6 Gestión de Citas Médicas/cu28-recordatorios.html', title: 'Emitir Recordatorio / Notificación de Cita Programada' },
-          { cu: 'CU29', label: 'Asistencia y estados', href: 'P6 Gestión de Citas Médicas/cu29-asistencia-estados.html', title: 'Controlar Asistencia y Máquina de Estados' },
+          { cu: 'CU29', label: 'Asistencia y estados', href: 'P6 Gestión de Citas Médicas/cu29-asistencia-estados.html', title: 'Controlar Asistencia y Estados de Cita' },
           { cu: 'CU30', label: 'Agenda diaria', href: 'P6 Gestión de Citas Médicas/cu30-agenda-diaria.html', title: 'Consultar Agenda Médica Diaria' },
-          { cu: 'CU31', label: 'Marcar atendida', href: 'P6 Gestión de Citas Médicas/cu31-marcar-atendida.html', title: 'Registrar Atención Médica Concluida (Marcar como Atendida)' }
+          { cu: 'CU31', label: 'Marcar atendida', href: 'P6 Gestión de Citas Médicas/cu31-marcar-atendida.html', title: 'Registrar Atención Médica Concluida' },
+          { cu: 'CU40', label: 'Ficha web e historial de estados', href: 'P6 Gestión de Citas Médicas/cu40-reserva-ficha-web-historial.html', title: 'Solicitud de Ficha Web e Historial de Estados de Cita' },
+          { cu: 'CU41', label: 'Pasarela de pago y comprobante', href: 'P6 Gestión de Citas Médicas/cu41-pasarela-pago-comprobante.html', title: 'Pasarela de Pago en Línea y Comprobante Digital' },
+          { cu: 'CU42', label: 'Pagos y reembolsos', href: 'P6 Gestión de Citas Médicas/cu42-historial-pagos-reembolsos.html', title: 'Historial de Pagos del Paciente y Gestión de Reembolsos' }
         ]
       },
       {
@@ -99,7 +105,8 @@
           { cu: 'CU33', label: 'Atenciones por médico', href: 'P7 Reportes Administrativos/cu33-reporte-atenciones.html', title: 'Generar Reporte de Atenciones por Médico y Especialidad' },
           { cu: 'CU34', label: 'Control de asistencia', href: 'P7 Reportes Administrativos/cu34-reporte-asistencia.html', title: 'Generar Reporte de Control de Asistencia' },
           { cu: 'CU35', label: 'Exportar PDF / CSV', href: 'P7 Reportes Administrativos/cu35-exportar-reportes.html', title: 'Exportar Reportes Administrativos (PDF / CSV)' },
-          { cu: 'CU36', label: 'Padrón de pacientes', href: 'P7 Reportes Administrativos/cu36-reporte-padron.html', title: 'Generar Reporte de Padrón General de Pacientes Registrados' }
+          { cu: 'CU36', label: 'Padrón de pacientes', href: 'P7 Reportes Administrativos/cu36-reporte-padron.html', title: 'Generar Reporte de Padrón General de Pacientes Registrados' },
+          { cu: 'CU43', label: 'Ingresos financieros y reportes', href: 'P7 Reportes Administrativos/cu43-reporte-ingresos-financieros.html', title: 'Reporte de Ingresos Financieros y Registro de Reportes' }
         ]
       }
     ]
@@ -195,7 +202,7 @@
   }
 
   /* ---------- Utilidades ---------- */
-  var STORAGE_OPEN = 'vs-open-pkgs';
+  var STORAGE_OPEN = 'vs-open-pkgs-clean';
 
   function readOpen() {
     try {
@@ -249,8 +256,10 @@
     var found = findPackageByCu(activeCu);
     var openList = readOpen();
     var openSet = {};
-    if (openList) {
+    if (openList && openList.length) {
       openList.forEach(function (id) { openSet[id] = true; });
+    } else {
+      NAV.packages.forEach(function (p) { openSet[p.id] = true; });
     }
     if (found) openSet[found.pkg.id] = true;
 
@@ -265,7 +274,7 @@
     html += '  </div>';
     html += '  <nav class="vs-nav" aria-label="Módulos del sistema">';
     html += '    <a href="' + pagePrefix() + NAV.home.href + '" class="vs-rail-link' + (isHome ? ' is-active' : '') + '" title="Inicio"' + (isHome ? ' aria-current="page"' : '') + '>' + icon('home', 'vs-i vs-rail-icon') + '<span class="vs-rail-label">Inicio</span></a>';
-    html += '    <p class="vs-rail-section">Paquetes del sistema</p>';
+    html += '    <p class="vs-rail-section">Módulos de la clínica</p>';
 
     var currentUserRole = 'ADMINISTRADOR';
     try {
@@ -286,17 +295,17 @@
       var isOpen = !!openSet[pkg.id];
       var listId = 'pkg-' + pkg.id.toLowerCase();
       html += '<section class="vs-pkg' + (isOpen ? ' is-open' : '') + (hasActive ? ' has-active' : '') + '" data-pkg="' + pkg.id + '">';
-      html += '  <button type="button" class="vs-pkg__head" aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-controls="' + listId + '" title="' + pkg.id + ' · ' + pkg.name + '">';
+      html += '  <button type="button" class="vs-pkg__head" aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-controls="' + listId + '" title="' + pkg.name + '">';
       html += '    <span class="vs-pkg__tile">' + icon(pkg.icon) + '</span>';
       html += '    <span class="vs-pkg__name">' + pkg.name + '</span>';
-      html += '    <span class="vs-pkg__count" aria-label="' + pkg.items.length + ' casos de uso">' + pkg.items.length + '</span>';
+      html += '    <span class="vs-pkg__count" aria-label="' + pkg.items.length + ' opciones">' + pkg.items.length + '</span>';
       html += icon('chevron', 'vs-i vs-pkg__chev');
       html += '  </button>';
       html += '  <div class="vs-pkg__body"><ul class="vs-pkg__list" id="' + listId + '">';
       pkg.items.forEach(function (it) {
         var isActive = it.cu === activeCu;
         var cls = 'vs-cu' + (isActive ? ' is-active' : '') + (it.danger ? ' vs-cu--danger' : '');
-        var inner = '<span class="vs-cu__code">' + it.cu + '</span><span class="vs-cu__label">' + it.label + '</span>' + (it.ext ? icon('log-in', 'vs-i vs-cu__ext') : '');
+        var inner = '<span class="vs-cu__label">' + it.label + '</span>' + (it.ext ? icon('log-in', 'vs-i vs-cu__ext') : '');
         if (it.action === 'logout') {
           html += '<li><button type="button" class="' + cls + '" data-logout title="' + it.title + '">' + inner + '</button></li>';
         } else {
@@ -311,7 +320,7 @@
     html += '</div>';
     html += '<div class="vs-rail-foot">';
     html += '  <p class="vs-rail-meta">Atención en recepción<br><strong>Lun–Sáb · 08:00–18:00</strong></p>';
-    html += '  <button type="button" class="vs-logout-btn" data-logout title="Cerrar sesión (CU02)">' + icon('logout', 'vs-i vs-rail-icon') + '<span class="vs-rail-label">Cerrar sesión</span></button>';
+    html += '  <button type="button" class="vs-logout-btn" data-logout title="Cerrar sesión">' + icon('logout', 'vs-i vs-rail-icon') + '<span class="vs-rail-label">Cerrar sesión</span></button>';
     html += '</div>';
 
     sidebar.innerHTML = html;
@@ -373,7 +382,7 @@
         '<div class="vs-modal__head">' +
         '  <span class="vs-modal__icon vs-modal__icon--danger">' + icon('logout') + '</span>' +
         '  <div><h2 class="vs-modal__title">¿Cerrar la sesión?</h2>' +
-        '  <p class="vs-modal__text">Se destruirá la sesión en el servidor (<span class="vs-code vs-code--plain">session_destroy()</span>) y el acceso a las rutas protegidas quedará revocado. El evento se registra en la bitácora.</p></div>' +
+        '  <p class="vs-modal__text">Se finalizará tu sesión activa en el servidor y el acceso a las rutas protegidas quedará revocado. El evento se registra en la bitácora.</p></div>' +
         '</div>' +
         '<div class="vs-modal__foot">' +
         '  <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Seguir trabajando</button>' +

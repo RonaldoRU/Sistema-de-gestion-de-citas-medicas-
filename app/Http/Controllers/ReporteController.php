@@ -38,11 +38,12 @@ class ReporteController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'tipo' => 'required|string|in:CITAS_PERIODO,ATENCIONES_MEDICO_ESPECIALIDAD,CONTROL_ASISTENCIA,PACIENTES_REGISTRADOS',
+            'tipo' => 'required|string|max:60',
             'fecha_desde' => 'nullable|date',
             'fecha_hasta' => 'nullable|date|after_or_equal:fecha_desde',
             'formato' => 'nullable|string|in:PDF,CSV',
             'filtros' => 'nullable|array',
+            'parametros' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
@@ -52,11 +53,25 @@ class ReporteController extends Controller
             ], 422);
         }
 
-        $tipo = strtoupper($request->input('tipo'));
+        $tipoRaw = strtoupper(trim($request->input('tipo')));
+        $mapaTipos = [
+            'CITAS_PERIODO' => 'CITAS_PERIODO',
+            'ATENCIONES_MEDICO' => 'ATENCIONES_MEDICO_ESPECIALIDAD',
+            'ATENCIONES_MEDICO_ESPECIALIDAD' => 'ATENCIONES_MEDICO_ESPECIALIDAD',
+            'CONTROL_ASISTENCIA' => 'CONTROL_ASISTENCIA',
+            'PADRON_PACIENTES' => 'PACIENTES_REGISTRADOS',
+            'PACIENTES_REGISTRADOS' => 'PACIENTES_REGISTRADOS',
+            'EXPORTACION_GENERAL' => 'CITAS_PERIODO',
+            'INGRESOS_FINANCIEROS' => 'CITAS_PERIODO',
+        ];
+        $tipo = $mapaTipos[$tipoRaw] ?? 'CITAS_PERIODO';
         $fechaDesde = $request->input('fecha_desde');
         $fechaHasta = $request->input('fecha_hasta');
-        $filtros = $request->input('filtros', []);
-        $formato = $request->input('formato', 'PDF');
+        $filtros = $request->input('filtros', $request->input('parametros', []));
+        if ($tipoRaw !== $tipo) {
+            $filtros['subtipo'] = $tipoRaw;
+        }
+        $formato = strtoupper($request->input('formato', 'PDF'));
 
         $datos = [];
 

@@ -13,6 +13,23 @@ use Illuminate\Support\Facades\Validator;
 class TokenRecuperacionController extends Controller
 {
     /**
+     * Lista los tokens de recuperación de contraseña generados junto con el usuario solicitante.
+     */
+    public function index(): JsonResponse
+    {
+        $tokens = TokenRecuperacion::with('usuario.persona')
+            ->orderByDesc('fecha_generacion')
+            ->limit(25)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'total' => $tokens->count(),
+            'data' => $tokens,
+        ]);
+    }
+
+    /**
      * Genera un código temporal de 6 dígitos con vigencia de 15 minutos para recuperar la contraseña.
      */
     public function solicitarRecuperacion(Request $request): JsonResponse

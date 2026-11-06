@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auto-registro de paciente web y sesiones · Vida Salud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/vida-salud-theme.css">
+  <link rel="stylesheet" href="../../css/vida-salud-shell.css">
+</head>
+<body class="vs-app" data-cu="CU37">
+  <div id="sidebar-overlay" class="vs-overlay" aria-hidden="true"></div>
+  <aside id="app-sidebar" class="vs-sidebar" aria-label="Menú principal"></aside>
+
+  <div id="app-main">
+    <header class="vs-topbar">
+      <div class="vs-topbar__left">
+        <button type="button" id="sidebar-toggle" class="vs-hamburger-btn" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false"><span class="vs-hamburger" aria-hidden="true"><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span><span class="vs-hamburger__line"></span></span></button>
+        <h1 class="vs-page-title">Auto-registro y sesiones</h1>
+        <span class="vs-crumb" data-nav-crumb></span>
+      </div>
+      <div class="vs-topbar__right">
+        <div class="vs-user"><div class="vs-user__name">Silvia Colque</div><div class="vs-user__role">Administradora</div></div>
+        <span class="vs-avatar vs-avatar--ring" title="Silvia Irene Colque López">SC</span>
+        <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm vs-hide-sm" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <main class="vs-page">
+      <div class="vs-page-stack">
+
+        <header class="vs-page-head">
+          <div class="vs-page-head__text">
+            <p class="vs-eyebrow">Seguridad y Autenticación</p>
+            <h2 class="vs-h1">Auto-registro de paciente web y monitoreo de sesiones</h2>
+            <p class="vs-lead">Permite el alta directa de una cuenta de paciente con validación de cédula de identidad y correo electrónico únicos, además de supervisar las sesiones activas y solicitudes de recuperación de acceso.</p>
+          </div>
+        </header>
+
+        <section class="vs-grid vs-grid--3">
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Sesiones registradas</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-shield"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal" id="cu37-kpi-sesiones">—</p><p class="vs-kpi__hint">Accesos monitoreados en el sistema</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Tokens de recuperación</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-key"/></svg></span></div><p class="vs-kpi__value" id="cu37-kpi-tokens">—</p><p class="vs-kpi__hint">Solicitudes de restablecimiento</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Padrón de pacientes</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-heart"/></svg></span></div><p class="vs-kpi__value" id="cu37-kpi-pacientes">—</p><p class="vs-kpi__hint">Pacientes registrados en la clínica</p></article>
+        </section>
+
+        <section class="vs-split">
+          <form class="vs-card" id="form-cu37-autoregistro" novalidate>
+            <div class="vs-card__head">
+              <div><h3 class="vs-card__title">Formulario de auto-registro de paciente</h3><p class="vs-card__sub">Habilita el perfil clínico y las credenciales de acceso del paciente</p></div>
+              <span class="vs-badge vs-badge--ok">Activo al instante</span>
+            </div>
+            <div class="vs-card__body vs-form">
+              <div class="vs-form-grid">
+                <div class="vs-field"><label class="vs-label" for="ar-ci">Cédula de identidad (CI) <span class="vs-req">*</span></label><input id="ar-ci" class="vs-input vs-input--mono" type="text" placeholder="Ej. 8945120" required></div>
+                <div class="vs-field"><label class="vs-label" for="ar-nac">Fecha de nacimiento <span class="vs-req">*</span></label><input id="ar-nac" class="vs-input vs-input--mono" type="date" value="1995-06-15" required></div>
+                <div class="vs-field"><label class="vs-label" for="ar-nom">Nombres <span class="vs-req">*</span></label><input id="ar-nom" class="vs-input" type="text" placeholder="Ej. Valeria" required></div>
+                <div class="vs-field"><label class="vs-label" for="ar-ape">Apellidos <span class="vs-req">*</span></label><input id="ar-ape" class="vs-input" type="text" placeholder="Ej. Justiniano Méndez" required></div>
+                <div class="vs-field"><label class="vs-label" for="ar-email">Correo electrónico <span class="vs-req">*</span></label><input id="ar-email" class="vs-input" type="email" placeholder="valeria.justiniano@correo.bo" required></div>
+                <div class="vs-field"><label class="vs-label" for="ar-tel">Teléfono móvil <span class="vs-req">*</span></label><input id="ar-tel" class="vs-input vs-input--mono" type="tel" placeholder="76011223" required></div>
+                <div class="vs-field"><label class="vs-label" for="ar-sexo">Sexo <span class="vs-req">*</span></label><select id="ar-sexo" class="vs-select"><option value="F" selected>Femenino (F)</option><option value="M">Masculino (M)</option></select></div>
+                <div class="vs-field"><label class="vs-label" for="ar-pass">Contraseña de acceso <span class="vs-req">*</span></label><input id="ar-pass" class="vs-input" type="password" value="Paciente123*" required></div>
+              </div>
+              <div class="vs-field"><label class="vs-label" for="ar-dir">Dirección de domicilio</label><input id="ar-dir" class="vs-input" type="text" placeholder="Av. Beni 3er Anillo, Santa Cruz"></div>
+            </div>
+            <div class="vs-card__foot">
+              <span class="vs-xs vs-muted">El alta habilita inmediatamente el agendamiento de citas médicas</span>
+              <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-user-plus"/></svg>Registrar cuenta de paciente</button>
+            </div>
+          </form>
+
+          <aside class="vs-stack">
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Sesiones activas e históricas</h3><p class="vs-card__sub">Control de inicios de sesión de usuarios</p></div></div>
+              <div class="vs-table-wrap">
+                <table class="vs-table vs-table--compact">
+                  <thead><tr><th>Usuario</th><th>Inicio</th><th>IP</th><th>Estado</th></tr></thead>
+                  <tbody id="cu37-sesiones-tbody">
+                    <tr><td colspan="4" class="vs-td-empty">Cargando sesiones registradas...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="vs-card">
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Tokens de recuperación emitidos</h3><p class="vs-card__sub">Historial de solicitudes de restablecimiento de contraseña</p></div></div>
+              <div class="vs-table-wrap">
+                <table class="vs-table vs-table--compact">
+                  <thead><tr><th>Usuario</th><th>Expiración</th><th>Estado</th></tr></thead>
+                  <tbody id="cu37-tokens-tbody">
+                    <tr><td colspan="3" class="vs-td-empty">Cargando solicitudes de recuperación...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/vida-salud-nav.js"></script>
+  <script src="../../js/vida-salud-app-shell.js"></script>
+  <script src="../../js/vida-salud-api.js"></script>
+  <script src="../../js/vida-salud-ui.js"></script>
+</body>
+</html>
+

@@ -38,8 +38,8 @@
 
         <header class="vs-page-head">
           <div class="vs-page-head__text">
-            <p class="vs-eyebrow">Lunes 26 de octubre de 2026 · Santa Cruz</p>
-            <h2 class="vs-h1">Buenos días, Silvia</h2>
+            <p class="vs-eyebrow" id="vs-inicio-fecha-actual">Clínica Vida Salud · Santa Cruz</p>
+            <h2 class="vs-h1" id="vs-inicio-saludo">Panel Operativo</h2>
             <p class="vs-lead">Resumen operativo de la clínica: agenda del día, pacientes, accesos y lo último registrado en la bitácora.</p>
           </div>
           <div class="vs-page-head__side">
@@ -132,66 +132,59 @@
         <section>
           <div class="vs-row vs-row--between" style="margin-bottom: .9rem">
             <div>
-              <p class="vs-eyebrow">Arquitectura del sistema</p>
-              <h3 class="vs-h2" style="margin-top:.25rem">Mapa de paquetes y casos de uso</h3>
+              <p class="vs-eyebrow">Módulos de la plataforma</p>
+              <h3 class="vs-h2" style="margin-top:.25rem">Áreas operativas del sistema</h3>
             </div>
-            <span class="vs-badge vs-badge--muted vs-badge--lg">7 paquetes · 36 casos de uso</span>
+            <span class="vs-badge vs-badge--muted vs-badge--lg">7 áreas operativas</span>
           </div>
           <div class="vs-grid vs-grid--3">
-            <a href="P1 Seguridad y Autenticación/cu04-bloqueo-intentos.html" class="vs-card vs-card--hover vs-module">
+            <a href="P1 Seguridad y Autenticación/cu37-autoregistro-paciente-web.html" class="vs-card vs-card--hover vs-module">
               <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-shield"/></svg></span>
               <div class="vs-grow">
                 <div class="vs-module__name">Seguridad y Autenticación</div>
-                <p class="vs-module__desc">Credenciales cifradas, sesiones, recuperación de clave y bloqueo automático.</p>
-                <div class="vs-module__cus"><span class="vs-code">CU01</span><span class="vs-code">CU02</span><span class="vs-code">CU03</span><span class="vs-code">CU04</span></div>
+                <p class="vs-module__desc">Credenciales cifradas, sesiones activas, tokens de recuperación, bloqueo y auto-registro web.</p>
               </div>
             </a>
-            <a href="P2 Administración de Usuarios y Permisos/cu06-catalogo-usuarios.html" class="vs-card vs-card--hover vs-module">
+            <a href="P2 Administración de Usuarios y Permisos/cu38-personal-permisos-rbac.html" class="vs-card vs-card--hover vs-module">
               <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-users"/></svg></span>
               <div class="vs-grow">
                 <div class="vs-module__name">Administración de Usuarios y Permisos</div>
-                <p class="vs-module__desc">Cuentas del personal, roles RBAC, modificación y baja lógica.</p>
-                <div class="vs-module__cus"><span class="vs-code">CU05</span><span class="vs-code">CU06</span><span class="vs-code">CU07</span><span class="vs-code">CU08</span><span class="vs-code">CU09</span></div>
+                <p class="vs-module__desc">Cuentas del personal, personal administrativo, personas, roles y matriz de permisos.</p>
               </div>
             </a>
             <a href="P3 Auditoría, Trazabilidad y Bitácora/cu11-bitacora.html" class="vs-card vs-card--hover vs-module">
               <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-book"/></svg></span>
               <div class="vs-grow">
                 <div class="vs-module__name">Auditoría, Trazabilidad y Bitácora</div>
-                <p class="vs-module__desc">Registro automático e inmutable de eventos y consulta filtrada.</p>
-                <div class="vs-module__cus"><span class="vs-code">CU10</span><span class="vs-code">CU11</span></div>
+                <p class="vs-module__desc">Registro automático e inmutable de eventos y consulta filtrada exclusiva para Administradores.</p>
               </div>
             </a>
             <a href="P4 Gestión de Pacientes/cu15-buscar-paciente.html" class="vs-card vs-card--hover vs-module">
               <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-heart"/></svg></span>
               <div class="vs-grow">
                 <div class="vs-module__name">Gestión de Pacientes</div>
-                <p class="vs-module__desc">Padrón con CI único, ficha médica, contactos de emergencia e historial.</p>
-                <div class="vs-module__cus"><span class="vs-code">CU12</span><span class="vs-code">CU13</span><span class="vs-code">CU14</span><span class="vs-code">CU15</span><span class="vs-code">CU16</span><span class="vs-code">CU17</span></div>
+                <p class="vs-module__desc">Padrón con CI único, ficha médica, contactos de emergencia e historial clínico.</p>
               </div>
             </a>
-            <a href="P5 Gestión Médica y Horarios/cu19-personal-medico.html" class="vs-card vs-card--hover vs-module">
+            <a href="P5 Gestión Médica y Horarios/cu39-medico-especialidades.html" class="vs-card vs-card--hover vs-module">
               <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span>
               <div class="vs-grow">
                 <div class="vs-module__name">Gestión Médica y Horarios</div>
-                <p class="vs-module__desc">Especialidades, personal médico y jornadas en bloques de 30 minutos.</p>
-                <div class="vs-module__cus"><span class="vs-code">CU18</span><span class="vs-code">CU19</span><span class="vs-code">CU20</span><span class="vs-code">CU21</span></div>
+                <p class="vs-module__desc">Especialidades, personal médico, asignación múltiple médico–especialidad y bloques de atención.</p>
               </div>
             </a>
-            <a href="P6 Gestión de Citas Médicas/cu24-programar-cita.html" class="vs-card vs-card--hover vs-module">
+            <a href="P6 Gestión de Citas Médicas/cu40-reserva-ficha-web-historial.html" class="vs-card vs-card--hover vs-module">
               <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-calendar"/></svg></span>
               <div class="vs-grow">
                 <div class="vs-module__name">Gestión de Citas Médicas</div>
-                <p class="vs-module__desc">Disponibilidad, reserva sin traslapes, reprogramación, cancelación y estados.</p>
-                <div class="vs-module__cus"><span class="vs-code">CU22</span><span class="vs-code">CU23</span><span class="vs-code">CU24</span><span class="vs-code">CU25</span><span class="vs-code">CU26</span><span class="vs-code">CU27</span><span class="vs-code">CU28</span><span class="vs-code">CU29</span><span class="vs-code">CU30</span><span class="vs-code">CU31</span></div>
+                <p class="vs-module__desc">Disponibilidad, reserva web, historial de estados, pasarela de pago QR/Tarjeta y reembolsos.</p>
               </div>
             </a>
-            <a href="P7 Reportes Administrativos/cu32-reporte-citas-periodo.html" class="vs-card vs-card--hover vs-module">
+            <a href="P7 Reportes Administrativos/cu43-reporte-ingresos-financieros.html" class="vs-card vs-card--hover vs-module">
               <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-chart"/></svg></span>
               <div class="vs-grow">
                 <div class="vs-module__name">Reportes Administrativos</div>
-                <p class="vs-module__desc">Citas por período, atenciones, asistencia, padrón y exportación PDF / CSV.</p>
-                <div class="vs-module__cus"><span class="vs-code">CU32</span><span class="vs-code">CU33</span><span class="vs-code">CU34</span><span class="vs-code">CU35</span><span class="vs-code">CU36</span></div>
+                <p class="vs-module__desc">Citas por período, atenciones, asistencia, padrón, ingresos financieros y exportación en tiempo real.</p>
               </div>
             </a>
           </div>

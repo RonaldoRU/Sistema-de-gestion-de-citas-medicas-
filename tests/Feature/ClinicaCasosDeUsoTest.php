@@ -469,4 +469,48 @@ class ClinicaCasosDeUsoTest extends TestCase
             ->postJson('/api/auth/logout');
         $logoutRes->assertOk();
     }
+
+    /**
+     * NUEVOS CASOS DE USO Y CLASES SEPARADAS (CU37 - CU43) Y VISTAS STITCH
+     */
+    public function test_cu37_a_cu43_nuevos_casos_de_uso_y_clases_separadas(): void
+    {
+        $admin = Usuario::where('nombre_usuario', 'admin')->first();
+        $this->actingAs($admin);
+
+        // CU37: Auto-registro web de paciente y monitoreo de sesiones y tokens
+        $resAuto = $this->postJson('/api/auth/autoregistro-paciente', [
+            'ci' => '66778899',
+            'nombres' => 'Valeria',
+            'apellidos' => 'Justiniano Roca',
+            'fecha_nacimiento' => '1997-08-20',
+            'sexo' => 'F',
+            'telefono' => '75544332',
+            'email' => 'valeria.justiniano@correo.bo',
+            'direccion' => 'Av. Beni 3er Anillo',
+            'nombre_usuario' => 'vjustiniano',
+            'password' => 'Paciente123*',
+        ]);
+        $resAuto->assertStatus(201);
+        $this->assertDatabaseHas('usuario', ['nombre_usuario' => 'vjustiniano']);
+
+        $this->getJson('/api/sesiones')->assertOk();
+        $this->getJson('/api/tokens-recuperacion')->assertOk();
+
+        // CU38: Personal administrativo y matriz RBAC
+        $this->getJson('/api/personas')->assertOk();
+        $this->getJson('/api/personal-administrativo')->assertOk();
+        $this->getJson('/api/roles/1/permisos')->assertOk();
+
+        // CU39: Asignación múltiple médico-especialidad
+        $medico = Medico::first();
+        $esp = Especialidad::first();
+        $this->getJson("/api/medicos/{$medico->id_persona}/especialidades")->assertOk();
+        $this->putJson("/api/medicos/{$medico->id_persona}/especialidades", [
+            'especialidades' => [$esp->id_especialidad],
+        ])->assertOk();
+
+        // CU43: Catálogo de reportes en BD
+        $this->getJson('/api/reportes')->assertOk();
+    }
 }

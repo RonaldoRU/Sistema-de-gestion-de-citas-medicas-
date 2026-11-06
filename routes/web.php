@@ -38,7 +38,7 @@ Route::any('/Frontend/stitch/html/{pkg}/inicio.html', function () {
 })->where('pkg', 'P[0-9].*');
 
 // Ruta para servir archivos estáticos de Frontend si se solicita con minúscula o mayúscula
-Route::get('/frontend/{path?}', function ($path = 'stitch/html/inicio.html') {
+$serveFrontendAsset = function ($path = 'stitch/html/inicio.html') {
     $fullPath = base_path('Frontend/'.$path);
     if (! file_exists($fullPath) || is_dir($fullPath)) {
         abort(404);
@@ -55,5 +55,11 @@ Route::get('/frontend/{path?}', function ($path = 'stitch/html/inicio.html') {
         default => 'text/plain',
     };
 
-    return response()->file($fullPath, ['Content-Type' => $mimeType]);
-})->where('path', '.*');
+    return response()->file($fullPath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+};
+
+Route::get('/frontend/{path?}', $serveFrontendAsset)->where('path', '.*');
+Route::get('/Frontend/{path?}', $serveFrontendAsset)->where('path', '.*');

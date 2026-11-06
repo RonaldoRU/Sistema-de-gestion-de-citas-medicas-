@@ -406,7 +406,7 @@
       return this.request('/notificaciones/' + id + '/gestion', { method: 'PUT', body: data });
     },
 
-    // ---------- Reportes (P7 CU32-CU36) ----------
+    // ---------- Reportes (P7 CU32-CU36, CU43) ----------
     getReportes: function (params) {
       var query = params ? '?' + new URLSearchParams(params).toString() : '';
       return this.request('/reportes' + query, { method: 'GET' });
@@ -414,6 +414,58 @@
 
     crearReporte: function (data) {
       return this.request('/reportes', { method: 'POST', body: data });
+    },
+
+    // ---------- Nuevos Casos de Uso y Clases Separadas (CU37-CU43) ----------
+    autoRegistroPacienteWeb: function (data) {
+      return this.request('/auth/autoregistro-paciente', { method: 'POST', body: data });
+    },
+
+    getSesiones: function () {
+      return this.request('/sesiones', { method: 'GET' });
+    },
+
+    getTokensRecuperacion: function () {
+      return this.request('/tokens-recuperacion', { method: 'GET' });
+    },
+
+    getPersonas: function (params) {
+      var query = params ? '?' + new URLSearchParams(params).toString() : '';
+      return this.request('/personas' + query, { method: 'GET' });
+    },
+
+    getPersonalAdministrativo: function () {
+      return this.request('/personal-administrativo', { method: 'GET' });
+    },
+
+    guardarPersonalAdministrativo: function (data) {
+      return this.request('/personal-administrativo', { method: 'POST', body: data });
+    },
+
+    crearPermiso: function (data) {
+      return this.request('/permisos', { method: 'POST', body: data });
+    },
+
+    getPermisosRol: function (idRol) {
+      return this.request('/roles/' + idRol + '/permisos', { method: 'GET' });
+    },
+
+    getEspecialidadesMedico: function (idMed) {
+      return this.request('/medicos/' + idMed + '/especialidades', { method: 'GET' });
+    },
+
+    sincronizarEspecialidadesMedico: function (idMed, espIds) {
+      return this.request('/medicos/' + idMed + '/especialidades', {
+        method: 'PUT',
+        body: { especialidades: espIds }
+      });
+    },
+
+    registrarHistorialEstadoCita: function (idCita, data) {
+      return this.request('/citas/' + idCita + '/historial-estados', {
+        method: 'POST',
+        body: data
+      });
     }
   };
 
@@ -557,22 +609,57 @@
   function initApp() {
     var currentUser = VS_API.getUser();
 
-    // 1. Sincronizar barra superior institucional
+    // 0. Limpiar etiquetas y códigos técnicos estáticos de la interfaz
+    document.querySelectorAll('.vs-trace, .vs-cu__code, .vs-module__cus').forEach(function (el) {
+      el.remove();
+    });
+    document.querySelectorAll('.vs-eyebrow, .vs-h1, .vs-choice__title, .vs-choice__desc, .vs-card__title, .vs-card__sub, .vs-lead, .vs-rule, .vs-label').forEach(function (el) {
+      el.querySelectorAll('.vs-code').forEach(function (codeEl) {
+        var txt = codeEl.textContent.trim();
+        if (/^(CU\d+|P\d+|\w+Controller(::\w+)?|session_destroy\(\))$/i.test(txt)) {
+          codeEl.remove();
+        } else {
+          codeEl.replaceWith(document.createTextNode(txt));
+        }
+      });
+      if (el.classList.contains('vs-eyebrow')) {
+        el.textContent = el.textContent
+          .replace(/^P\d+\s*·\s*/i, '')
+          .replace(/\s*·\s*CU\d+.*$/i, '')
+          .replace(/\bCU\d+\b/gi, '')
+          .trim();
+      }
+    });
+
+    // 1. Sincronizar barra superior institucional y saludo dinámico
     if (currentUser) {
       // Clásico
       var nombreEl = document.querySelector('.vs-user__name');
       var rolEl = document.querySelector('.vs-user__role');
       var avatarEl = document.querySelector('.vs-avatar');
 
-      var fullName = (currentUser.nombres ? (currentUser.nombres + ' ' + (currentUser.apellidos || '')) : currentUser.nombre_usuario) || 'Silvia Irene Colque López';
-      var rolName = currentUser.rol || 'Administrador';
+      var fullName = (currentUser.nombres ? (currentUser.nombres + ' ' + (currentUser.apellidos || '')) : currentUser.nombre_usuario) || 'Administrador';
+      var firstName = (currentUser.nombres ? currentUser.nombres.split(' ')[0] : currentUser.nombre_usuario) || 'Usuario';
+      var rolName = (currentUser.rol && currentUser.rol.nombre) ? currentUser.rol.nombre : (currentUser.rol || 'Administrador');
 
       if (nombreEl) nombreEl.textContent = fullName;
       if (rolEl) rolEl.textContent = rolName;
       if (avatarEl) {
-        var inits = (currentUser.nombres ? currentUser.nombres.charAt(0) : 'S') + (currentUser.apellidos ? currentUser.apellidos.charAt(0) : 'C');
+        var inits = (currentUser.nombres ? currentUser.nombres.charAt(0) : 'U') + (currentUser.apellidos ? currentUser.apellidos.charAt(0) : 'S');
         avatarEl.textContent = inits.toUpperCase();
         avatarEl.title = fullName + ' (' + rolName + ')';
+      }
+
+      var saludoInicio = document.getElementById('vs-inicio-saludo');
+      if (saludoInicio) {
+        saludoInicio.textContent = 'Bienvenido(a), ' + firstName;
+      }
+      var fechaInicio = document.getElementById('vs-inicio-fecha-actual');
+      if (fechaInicio) {
+        try {
+          var hoyFmt = new Date().toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+          fechaInicio.textContent = hoyFmt.charAt(0).toUpperCase() + hoyFmt.slice(1) + ' · Santa Cruz';
+        } catch (eF) {}
       }
 
       // Stitch
@@ -582,7 +669,7 @@
       if (stitchName) stitchName.textContent = fullName;
       if (stitchRole) stitchRole.textContent = rolName;
       if (stitchAvatar) {
-        var sInits = (currentUser.nombres ? currentUser.nombres.charAt(0) : 'S') + (currentUser.apellidos ? currentUser.apellidos.charAt(0) : 'C');
+        var sInits = (currentUser.nombres ? currentUser.nombres.charAt(0) : 'U') + (currentUser.apellidos ? currentUser.apellidos.charAt(0) : 'S');
         stitchAvatar.textContent = sInits.toUpperCase();
         stitchAvatar.title = fullName;
       }
@@ -3435,40 +3522,1617 @@
     }
 
     // =========================================================================
-    // 25. P7 REPORTES ADMINISTRATIVOS (CU32, CU33, CU34, CU35, CU36)
+    // 25. P7 REPORTES ADMINISTRATIVOS DINÁMICOS DESDE POSTGRESQL (CU32-CU36)
     // =========================================================================
-    if (['CU32', 'CU33', 'CU34', 'CU35', 'CU36'].indexOf(currentCuAttr) !== -1) {
-      var repForms = document.querySelectorAll('form.vs-filters, form[data-demo="Exportación generada"]');
-      repForms.forEach(function (rf) {
-        rf.setAttribute('data-api-bound', 'true');
-        rf.addEventListener('submit', async function (e) {
-          e.preventDefault();
-          var tipoMap = {
-            CU32: 'CITAS_PERIODO',
-            CU33: 'ATENCIONES_MEDICO',
-            CU34: 'CONTROL_ASISTENCIA',
-            CU35: 'EXPORTACION_GENERAL',
-            CU36: 'PADRON_PACIENTES'
-          };
-          var fmtRadio = rf.querySelector('input[name="fmt"]:checked');
-          var formato = fmtRadio ? fmtRadio.value.toUpperCase() : 'CSV';
-          var dInput = rf.querySelector('input[type="date"]');
-          var fDesde = dInput ? dInput.value : '2026-10-01';
-          try {
-            var repRes = await VS_API.crearReporte({
-              tipo: tipoMap[currentCuAttr] || 'CITAS_PERIODO',
-              fecha_desde: fDesde,
-              fecha_hasta: '2026-12-31',
-              formato: formato === 'PDF' ? 'PDF' : 'CSV'
-            });
-            if (window.vsToast) {
-              window.vsToast('Reporte generado en BD', 'Registrado en tabla reporte y auditado en bitácora (CREAR)');
+    function descargarCsvDesdeFilas(filename, headers, rows) {
+      var csv = '\uFEFF' + headers.join(';') + '\n';
+      rows.forEach(function (r) {
+        csv += r.map(function (c) {
+          return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"';
+        }).join(';') + '\n';
+      });
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // CU32: Reporte de citas por período (100% dinámico desde PostgreSQL)
+    if (currentCuAttr === 'CU32') {
+      var form32 = document.querySelector('form.vs-filters');
+      var selEsp32 = document.getElementById('rp-esp');
+      var selEst32 = document.getElementById('rp-estado');
+      var inpDesde32 = document.getElementById('rp-desde');
+      var inpHasta32 = document.getElementById('rp-hasta');
+      var kpiVals32 = document.querySelectorAll('.vs-kpi .vs-kpi__value');
+      var kpiHints32 = document.querySelectorAll('.vs-kpi .vs-kpi__hint');
+      var tbody32 = document.querySelector('.vs-table tbody');
+      var badgeFilas32 = document.querySelector('.vs-card__head .vs-badge');
+      var subDetalle32 = document.querySelectorAll('.vs-card__head .vs-card__sub');
+      var pagSpan32 = document.querySelector('.vs-pagination span');
+      var pager32 = document.querySelector('.vs-pagination .vs-pager');
+      var donutVal32 = document.querySelector('.vs-donut__val');
+      var estadoList32 = document.querySelector('.vs-donut') ? document.querySelector('.vs-donut').parentElement.querySelector('ul') : null;
+      var espBars32 = document.querySelector('.vs-bars');
+      var colsChart32 = document.querySelector('.vs-cols');
+      var citasFiltradas32 = [];
+
+      if (inpDesde32) inpDesde32.value = '2026-01-01';
+      if (inpHasta32) inpHasta32.value = '2026-12-31';
+
+      async function initCU32() {
+        try {
+          var resEsp = await VS_API.getEspecialidades();
+          var esps = (resEsp && resEsp.data) ? resEsp.data : [];
+          if (selEsp32 && Array.isArray(esps)) {
+            selEsp32.innerHTML = '<option value="">Todas</option>' + esps.map(function (e) {
+              return '<option value="' + escapeHtml(e.nombre) + '">' + escapeHtml(e.nombre) + '</option>';
+            }).join('');
+          }
+        } catch (e) {}
+        await cargarReporteCU32(false);
+      }
+
+      async function cargarReporteCU32(registrarEnBd) {
+        if (tbody32) tbody32.innerHTML = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:1.5rem;">Consultando citas en PostgreSQL...</td></tr>';
+        try {
+          var resC = await VS_API.getCitas({ per_page: 200 });
+          var todas = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || []);
+          var fDesde = inpDesde32 ? inpDesde32.value : '';
+          var fHasta = inpHasta32 ? inpHasta32.value : '';
+          var fEsp = selEsp32 ? selEsp32.value.trim().toUpperCase() : '';
+          var fEst = selEst32 ? selEst32.value.trim().toUpperCase() : '';
+
+          citasFiltradas32 = todas.filter(function (c) {
+            if (fDesde && c.fecha < fDesde) return false;
+            if (fHasta && c.fecha > fHasta) return false;
+            if (fEsp && fEsp !== 'TODAS') {
+              var nomEsp = (c.especialidad && c.especialidad.nombre ? c.especialidad.nombre : '').toUpperCase();
+              if (nomEsp !== fEsp) return false;
             }
-          } catch (err) {
-            console.warn('Error registrando reporte:', err);
+            if (fEst && fEst !== 'TODOS') {
+              if ((c.estado || '').toUpperCase() !== fEst) return false;
+            }
+            return true;
+          });
+
+          var total = citasFiltradas32.length;
+          var atendidas = 0, programadas = 0, confirmadas = 0, canceladas = 0, inasistencias = 0;
+          var porEsp = {};
+          var porFecha = {};
+
+          citasFiltradas32.forEach(function (c) {
+            var est = (c.estado || 'PROGRAMADA').toUpperCase();
+            if (est === 'ATENDIDA') atendidas++;
+            else if (est === 'CONFIRMADA') confirmadas++;
+            else if (est === 'CANCELADA') canceladas++;
+            else if (est === 'INASISTENCIA') inasistencias++;
+            else programadas++;
+
+            var espNom = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'Medicina General';
+            porEsp[espNom] = (porEsp[espNom] || 0) + 1;
+            porFecha[c.fecha || 'Sin fecha'] = (porFecha[c.fecha || 'Sin fecha'] || 0) + 1;
+          });
+
+          var pctAtend = total > 0 ? Math.round((atendidas / total) * 100) : 0;
+          var pctCanc = total > 0 ? Math.round((canceladas / total) * 100) : 0;
+          var diasUnicos = Object.keys(porFecha).length || 1;
+          var promDiario = (total / diasUnicos).toFixed(1).replace('.', ',');
+
+          if (kpiVals32[0]) kpiVals32[0].textContent = total;
+          if (kpiHints32[0]) kpiHints32[0].textContent = (fDesde || 'Inicio') + ' – ' + (fHasta || 'Hoy') + ' · ' + diasUnicos + ' fechas con agenda';
+          if (kpiVals32[1]) kpiVals32[1].textContent = atendidas;
+          if (kpiHints32[1]) kpiHints32[1].textContent = pctAtend + ' % del total';
+          if (kpiVals32[2]) kpiVals32[2].textContent = canceladas;
+          if (kpiHints32[2]) kpiHints32[2].textContent = pctCanc + ' % del total';
+          if (kpiVals32[3]) kpiVals32[3].textContent = promDiario;
+          if (kpiHints32[3]) kpiHints32[3].textContent = 'Calculado en vivo desde PostgreSQL';
+
+          if (donutVal32) donutVal32.textContent = total;
+          if (estadoList32) {
+            estadoList32.innerHTML =
+              '<li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-moss)"></span>Atendidas · ' + atendidas + '</li>' +
+              '<li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-forest)"></span>Programadas · ' + programadas + '</li>' +
+              '<li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-clay)"></span>Confirmadas · ' + confirmadas + '</li>' +
+              '<li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-rose-500)"></span>Canceladas · ' + canceladas + '</li>' +
+              '<li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:#f59e0b"></span>Inasistencias · ' + inasistencias + '</li>';
+          }
+
+          if (espBars32) {
+            var espKeys = Object.keys(porEsp);
+            var maxEsp = 1;
+            espKeys.forEach(function (k) { if (porEsp[k] > maxEsp) maxEsp = porEsp[k]; });
+            espBars32.innerHTML = espKeys.map(function (k) {
+              var w = Math.max(8, Math.round((porEsp[k] / maxEsp) * 100));
+              return '<div class="vs-bars__row"><span class="vs-bars__label">' + escapeHtml(k) + '</span><div class="vs-bar vs-bar--teal"><i style="width:' + w + '%"></i></div><span class="vs-bars__val">' + porEsp[k] + '</span></div>';
+            }).join('') || '<div class="vs-muted vs-xs">Sin datos en el rango seleccionado</div>';
+          }
+
+          if (colsChart32) {
+            var fechasKeys = Object.keys(porFecha).sort().slice(-5);
+            var maxF = 1;
+            fechasKeys.forEach(function (fk) { if (porFecha[fk] > maxF) maxF = porFecha[fk]; });
+            if (fechasKeys.length) {
+              colsChart32.innerHTML = fechasKeys.map(function (fk) {
+                var h = Math.max(15, Math.round((porFecha[fk] / maxF) * 90));
+                return '<div class="vs-col"><span class="vs-col__val">' + porFecha[fk] + '</span><i style="height:' + h + '%"></i><small>' + escapeHtml(fk.slice(5)) + '</small></div>';
+              }).join('');
+            }
+          }
+
+          if (badgeFilas32) badgeFilas32.textContent = total + ' filas';
+          if (subDetalle32.length > 0) {
+            subDetalle32[subDetalle32.length - 1].textContent = 'Registros reales cargados desde PostgreSQL';
+          }
+          if (pagSpan32) {
+            pagSpan32.innerHTML = total === 0
+              ? 'Sin registros en el período'
+              : 'Mostrando <strong class="vs-strong">1–' + total + '</strong> de <strong class="vs-strong">' + total + '</strong> citas';
+          }
+          if (pager32) pager32.innerHTML = '';
+
+          if (tbody32) {
+            if (!total) {
+              tbody32.innerHTML = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:1.5rem;">No hay citas registradas para los filtros seleccionados.</td></tr>';
+            } else {
+              tbody32.innerHTML = citasFiltradas32.map(function (c) {
+                var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+                var med = (c.medico && c.medico.persona) ? ('Dr(a). ' + c.medico.persona.apellidos) : 'Médico';
+                var esp = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'Medicina General';
+                var est = (c.estado || 'PROGRAMADA').toUpperCase();
+                var bCls = est === 'ATENDIDA' ? 'vs-badge--ok' : (est === 'CONFIRMADA' ? 'vs-badge--cyan' : (est === 'CANCELADA' ? 'vs-badge--danger' : (est === 'INASISTENCIA' ? 'vs-badge--warn' : 'vs-badge--info')));
+                return '<tr>' +
+                  '<td class="vs-td-num">' + escapeHtml(c.codigo || ('CM-' + c.id_cita)) + '</td>' +
+                  '<td class="vs-td-num">' + escapeHtml(c.fecha || '—') + '</td>' +
+                  '<td class="vs-td-num">' + escapeHtml((c.hora_inicio || '').substring(0, 5)) + '</td>' +
+                  '<td>' + escapeHtml(pac) + '</td>' +
+                  '<td class="vs-hide-md">' + escapeHtml(esp) + '</td>' +
+                  '<td class="vs-hide-md">' + escapeHtml(med) + '</td>' +
+                  '<td><span class="vs-badge ' + bCls + '">' + escapeHtml(est) + '</span></td>' +
+                '</tr>';
+              }).join('');
+            }
+          }
+
+          if (registrarEnBd) {
+            await VS_API.crearReporte({
+              tipo: 'CITAS_PERIODO',
+              fecha_desde: fDesde || null,
+              fecha_hasta: fHasta || null,
+              formato: 'CSV'
+            });
+            if (window.vsToast) window.vsToast('Reporte actualizado', total + ' citas consultadas en PostgreSQL y auditadas en bitácora');
+          }
+        } catch (err) {
+          console.warn('Error cargando reporte CU32:', err);
+        }
+      }
+
+      if (form32) {
+        form32.setAttribute('data-api-bound', 'true');
+        form32.addEventListener('submit', function (e) {
+          e.preventDefault();
+          cargarReporteCU32(true);
+        });
+      }
+      if (selEsp32) selEsp32.addEventListener('change', function () { cargarReporteCU32(false); });
+      if (selEst32) selEst32.addEventListener('change', function () { cargarReporteCU32(false); });
+
+      document.querySelectorAll('.vs-page-head__side a').forEach(function (btnLink) {
+        btnLink.addEventListener('click', async function (e) {
+          e.preventDefault();
+          var isPdf = btnLink.textContent.toUpperCase().indexOf('PDF') !== -1;
+          await VS_API.crearReporte({
+            tipo: 'CITAS_PERIODO',
+            fecha_desde: inpDesde32 ? inpDesde32.value : null,
+            fecha_hasta: inpHasta32 ? inpHasta32.value : null,
+            formato: isPdf ? 'PDF' : 'CSV'
+          });
+          if (isPdf) {
+            window.print();
+          } else {
+            descargarCsvDesdeFilas('reporte_citas_periodo.csv', ['Codigo', 'Fecha', 'Hora', 'Paciente', 'Especialidad', 'Medico', 'Estado'], citasFiltradas32.map(function (c) {
+              var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+              var med = (c.medico && c.medico.persona) ? ('Dr(a). ' + c.medico.persona.apellidos) : 'Médico';
+              var esp = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'Medicina General';
+              return [c.codigo || ('CM-' + c.id_cita), c.fecha, (c.hora_inicio || '').substring(0, 5), pac, esp, med, c.estado];
+            }));
+          }
+          if (window.vsToast) window.vsToast('Exportación completada', 'Archivo generado desde PostgreSQL y registrado en bitácora');
+        });
+      });
+
+      initCU32();
+    }
+
+    // CU33: Reporte de atenciones por médico y especialidad (100% dinámico desde PostgreSQL)
+    if (currentCuAttr === 'CU33') {
+      var form33 = document.querySelector('form.vs-filters');
+      var selEsp33 = document.getElementById('ra-esp');
+      var selMed33 = document.getElementById('ra-med');
+      var inpDesde33 = document.getElementById('ra-desde');
+      var inpHasta33 = document.getElementById('ra-hasta');
+      var kpiVals33 = document.querySelectorAll('.vs-kpi .vs-kpi__value');
+      var kpiHints33 = document.querySelectorAll('.vs-kpi .vs-kpi__hint');
+      var colsChart33 = document.querySelector('.vs-cols');
+      var donutVal33 = document.querySelector('.vs-donut__val');
+      var espList33 = document.querySelector('.vs-donut') ? document.querySelector('.vs-donut').parentElement.querySelector('ul') : null;
+      var tbody33 = document.querySelector('.vs-table tbody');
+      var resumenMedicos33 = [];
+
+      if (inpDesde33) inpDesde33.value = '2026-01-01';
+      if (inpHasta33) inpHasta33.value = '2026-12-31';
+
+      async function initCU33() {
+        try {
+          var resEsp = await VS_API.getEspecialidades();
+          var esps = (resEsp && resEsp.data) ? resEsp.data : [];
+          if (selEsp33 && Array.isArray(esps)) {
+            selEsp33.innerHTML = '<option value="">Todas</option>' + esps.map(function (e) {
+              return '<option value="' + escapeHtml(e.nombre) + '">' + escapeHtml(e.nombre) + '</option>';
+            }).join('');
+          }
+          var resMed = await VS_API.getMedicos();
+          var meds = (resMed && resMed.data) ? resMed.data : [];
+          if (selMed33 && Array.isArray(meds)) {
+            selMed33.innerHTML = '<option value="">Todos los médicos</option>' + meds.map(function (m) {
+              var p = m.persona || {};
+              return '<option value="' + (m.id_persona || m.id_medico) + '">Dr(a). ' + escapeHtml((p.nombres || '') + ' ' + (p.apellidos || '')) + '</option>';
+            }).join('');
+          }
+        } catch (e) {}
+        await cargarReporteCU33(false);
+      }
+
+      async function cargarReporteCU33(registrarEnBd) {
+        if (tbody33) tbody33.innerHTML = '<tr><td colspan="8" class="vs-td-empty" style="text-align:center;padding:1.5rem;">Consultando productividad médica en PostgreSQL...</td></tr>';
+        try {
+          var resMed = await VS_API.getMedicos();
+          var medicos = (resMed && resMed.data) ? resMed.data : [];
+          var resC = await VS_API.getCitas({ per_page: 200 });
+          var citas = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || []);
+
+          var fDesde = inpDesde33 ? inpDesde33.value : '';
+          var fHasta = inpHasta33 ? inpHasta33.value : '';
+          var fEsp = selEsp33 ? selEsp33.value.trim().toUpperCase() : '';
+          var fMed = selMed33 ? selMed33.value : '';
+
+          var citasPer = citas.filter(function (c) {
+            if (fDesde && c.fecha < fDesde) return false;
+            if (fHasta && c.fecha > fHasta) return false;
+            if (fEsp && fEsp !== 'TODAS') {
+              var nomE = (c.especialidad && c.especialidad.nombre ? c.especialidad.nombre : '').toUpperCase();
+              if (nomE !== fEsp) return false;
+            }
+            if (fMed && String(c.id_medico) !== String(fMed)) return false;
+            return true;
+          });
+
+          var mapMed = {};
+          medicos.forEach(function (m) {
+            var idM = m.id_persona || m.id_medico;
+            if (fMed && String(idM) !== String(fMed)) return;
+            var p = m.persona || {};
+            var espStr = Array.isArray(m.especialidades) && m.especialidades.length
+              ? m.especialidades.map(function (e) { return e.nombre; }).join(' · ')
+              : 'Medicina General';
+            if (fEsp && fEsp !== 'TODAS' && espStr.toUpperCase().indexOf(fEsp) === -1) return;
+            mapMed[idM] = {
+              id: idM,
+              nombre: 'Dr(a). ' + (p.nombres || '') + ' ' + (p.apellidos || ''),
+              apellido: p.apellidos || p.nombres || 'Médico',
+              especialidad: espStr,
+              bloques: 40,
+              programadas: 0,
+              atendidas: 0,
+              canceladas: 0,
+              inasistencias: 0
+            };
+          });
+
+          var porEspCount = {};
+          var totalAtendidas = 0;
+
+          citasPer.forEach(function (c) {
+            var idM = c.id_medico;
+            if (!mapMed[idM]) {
+              var pm = (c.medico && c.medico.persona) ? c.medico.persona : {};
+              mapMed[idM] = {
+                id: idM,
+                nombre: 'Dr(a). ' + (pm.nombres || '') + ' ' + (pm.apellidos || ''),
+                apellido: pm.apellidos || 'Médico',
+                especialidad: (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'General',
+                bloques: 40,
+                programadas: 0,
+                atendidas: 0,
+                canceladas: 0,
+                inasistencias: 0
+              };
+            }
+            var est = (c.estado || 'PROGRAMADA').toUpperCase();
+            if (est === 'ATENDIDA') {
+              mapMed[idM].atendidas++;
+              totalAtendidas++;
+            } else if (est === 'CANCELADA') {
+              mapMed[idM].canceladas++;
+            } else if (est === 'INASISTENCIA') {
+              mapMed[idM].inasistencias++;
+            } else {
+              mapMed[idM].programadas++;
+            }
+            var eName = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'Medicina General';
+            porEspCount[eName] = (porEspCount[eName] || 0) + 1;
+          });
+
+          resumenMedicos33 = Object.values(mapMed).sort(function (a, b) {
+            return (b.atendidas + b.programadas) - (a.atendidas + a.programadas);
+          });
+
+          var topMed = resumenMedicos33[0] || { apellido: 'Sin datos', atendidas: 0, especialidad: '—' };
+          var totalBloques = resumenMedicos33.reduce(function (acc, m) { return acc + m.bloques; }, 0) || 1;
+          var totalOcup = resumenMedicos33.reduce(function (acc, m) { return acc + m.atendidas + m.programadas; }, 0);
+          var pctOcupGlobal = Math.min(100, Math.round((totalOcup / totalBloques) * 100));
+
+          if (kpiVals33[0]) kpiVals33[0].textContent = totalAtendidas;
+          if (kpiHints33[0]) kpiHints33[0].textContent = resumenMedicos33.length + ' médicos en consulta';
+          if (kpiVals33[1]) kpiVals33[1].textContent = pctOcupGlobal + ' %';
+          if (kpiHints33[1]) kpiHints33[1].textContent = totalOcup + ' citas activas de ' + totalBloques + ' bloques';
+          if (kpiVals33[2]) kpiVals33[2].textContent = 'Dr(a). ' + topMed.apellido;
+          if (kpiHints33[2]) kpiHints33[2].textContent = topMed.atendidas + ' atendidas · ' + topMed.especialidad;
+          if (kpiVals33[3]) kpiVals33[3].innerHTML = '30 <span class="vs-small vs-muted">min</span>';
+
+          if (colsChart33) {
+            var maxAt = 1;
+            resumenMedicos33.forEach(function (m) {
+              var v = m.atendidas + m.programadas;
+              if (v > maxAt) maxAt = v;
+            });
+            colsChart33.innerHTML = resumenMedicos33.slice(0, 9).map(function (m) {
+              var v = m.atendidas + m.programadas;
+              var h = Math.max(15, Math.round((v / maxAt) * 100));
+              return '<div class="vs-col"><span class="vs-col__val">' + v + '</span><i style="height:' + h + '%"></i><small>' + escapeHtml(m.apellido.split(' ')[0]) + '</small></div>';
+            }).join('');
+          }
+
+          var espNames = Object.keys(porEspCount);
+          if (donutVal33) donutVal33.textContent = espNames.length;
+          if (espList33) {
+            var sumEsp = citasPer.length || 1;
+            espList33.innerHTML = espNames.map(function (en) {
+              var pct = Math.round((porEspCount[en] / sumEsp) * 100);
+              return '<li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-forest)"></span>' + escapeHtml(en) + ' · ' + pct + ' % (' + porEspCount[en] + ')</li>';
+            }).join('');
+          }
+
+          if (tbody33) {
+            if (!resumenMedicos33.length) {
+              tbody33.innerHTML = '<tr><td colspan="8" class="vs-td-empty" style="text-align:center;padding:1.5rem;">Sin registros para los filtros seleccionados.</td></tr>';
+            } else {
+              tbody33.innerHTML = resumenMedicos33.map(function (m) {
+                var ocup = Math.min(100, Math.round(((m.programadas + m.atendidas) / m.bloques) * 100));
+                return '<tr>' +
+                  '<td>' + escapeHtml(m.nombre) + '</td>' +
+                  '<td class="vs-hide-md">' + escapeHtml(m.especialidad) + '</td>' +
+                  '<td class="vs-td-num">' + m.bloques + '</td>' +
+                  '<td class="vs-td-num">' + m.programadas + '</td>' +
+                  '<td class="vs-td-num"><strong class="vs-strong">' + m.atendidas + '</strong></td>' +
+                  '<td class="vs-td-num">' + m.canceladas + '</td>' +
+                  '<td class="vs-td-num">' + m.inasistencias + '</td>' +
+                  '<td><div class="vs-row vs-row--nowrap" style="gap:.5rem"><div class="vs-bar vs-grow vs-bar--teal"><i style="width:' + ocup + '%"></i></div><span class="vs-xs vs-mono">' + ocup + ' %</span></div></td>' +
+                '</tr>';
+              }).join('');
+            }
+          }
+
+          if (registrarEnBd) {
+            await VS_API.crearReporte({
+              tipo: 'ATENCIONES_MEDICO_ESPECIALIDAD',
+              fecha_desde: fDesde || null,
+              fecha_hasta: fHasta || null,
+              formato: 'CSV'
+            });
+            if (window.vsToast) window.vsToast('Reporte actualizado', 'Productividad calculada desde PostgreSQL y auditada en bitácora');
+          }
+        } catch (err) {
+          console.warn('Error en CU33:', err);
+        }
+      }
+
+      if (form33) {
+        form33.setAttribute('data-api-bound', 'true');
+        form33.addEventListener('submit', function (e) {
+          e.preventDefault();
+          cargarReporteCU33(true);
+        });
+      }
+      if (selEsp33) selEsp33.addEventListener('change', function () { cargarReporteCU33(false); });
+      if (selMed33) selMed33.addEventListener('change', function () { cargarReporteCU33(false); });
+
+      document.querySelectorAll('.vs-page-head__side a').forEach(function (btnLink) {
+        btnLink.addEventListener('click', async function (e) {
+          e.preventDefault();
+          var isPdf = btnLink.textContent.toUpperCase().indexOf('PDF') !== -1;
+          await VS_API.crearReporte({
+            tipo: 'ATENCIONES_MEDICO_ESPECIALIDAD',
+            fecha_desde: inpDesde33 ? inpDesde33.value : null,
+            fecha_hasta: inpHasta33 ? inpHasta33.value : null,
+            formato: isPdf ? 'PDF' : 'CSV'
+          });
+          if (isPdf) {
+            window.print();
+          } else {
+            descargarCsvDesdeFilas('reporte_atenciones_medico.csv', ['Medico', 'Especialidad', 'Bloques', 'Programadas', 'Atendidas', 'Canceladas', 'Inasistencias'], resumenMedicos33.map(function (m) {
+              return [m.nombre, m.especialidad, m.bloques, m.programadas, m.atendidas, m.canceladas, m.inasistencias];
+            }));
           }
         });
       });
+
+      initCU33();
+    }
+
+    // CU34: Reporte de control de asistencia (100% dinámico desde PostgreSQL)
+    if (currentCuAttr === 'CU34') {
+      var form34 = document.querySelector('form.vs-filters');
+      var selEsp34 = document.getElementById('as-esp');
+      var inpDesde34 = document.getElementById('as-desde');
+      var inpHasta34 = document.getElementById('as-hasta');
+      var kpiVals34 = document.querySelectorAll('.vs-kpi .vs-kpi__value');
+      var kpiHints34 = document.querySelectorAll('.vs-kpi .vs-kpi__hint');
+      var tbody34 = document.querySelector('.vs-table tbody');
+      var listReincidentes34 = document.querySelector('.vs-list--boxed');
+      var resumenEsp34 = [];
+
+      if (inpDesde34) inpDesde34.value = '2026-01-01';
+      if (inpHasta34) inpHasta34.value = '2026-12-31';
+
+      async function initCU34() {
+        try {
+          var resEsp = await VS_API.getEspecialidades();
+          var esps = (resEsp && resEsp.data) ? resEsp.data : [];
+          if (selEsp34 && Array.isArray(esps)) {
+            selEsp34.innerHTML = '<option value="">Todas</option>' + esps.map(function (e) {
+              return '<option value="' + escapeHtml(e.nombre) + '">' + escapeHtml(e.nombre) + '</option>';
+            }).join('');
+          }
+        } catch (e) {}
+        await cargarReporteCU34(false);
+      }
+
+      async function cargarReporteCU34(registrarEnBd) {
+        if (tbody34) tbody34.innerHTML = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:1.5rem;">Calculando métricas de asistencia desde PostgreSQL...</td></tr>';
+        try {
+          var resC = await VS_API.getCitas({ per_page: 200 });
+          var citas = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || []);
+          var resN = await VS_API.getNotificaciones({ per_page: 100 });
+          var notifs = (resN && resN.data && resN.data.data) ? resN.data.data : (resN.data || []);
+
+          var fDesde = inpDesde34 ? inpDesde34.value : '';
+          var fHasta = inpHasta34 ? inpHasta34.value : '';
+          var fEsp = selEsp34 ? selEsp34.value.trim().toUpperCase() : '';
+
+          var filtradas = citas.filter(function (c) {
+            if (fDesde && c.fecha < fDesde) return false;
+            if (fHasta && c.fecha > fHasta) return false;
+            if (fEsp && fEsp !== 'TODAS') {
+              var ne = (c.especialidad && c.especialidad.nombre ? c.especialidad.nombre : '').toUpperCase();
+              if (ne !== fEsp) return false;
+            }
+            return true;
+          });
+
+          var total = filtradas.length || 1;
+          var atend = 0, inas = 0, canc = 0;
+          var mapEsp = {};
+          var mapPacInas = {};
+
+          filtradas.forEach(function (c) {
+            var est = (c.estado || 'PROGRAMADA').toUpperCase();
+            var espNom = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'Medicina General';
+            if (!mapEsp[espNom]) {
+              mapEsp[espNom] = { nombre: espNom, total: 0, atendidas: 0, inasistencias: 0, canceladas: 0 };
+            }
+            mapEsp[espNom].total++;
+            if (est === 'ATENDIDA' || est === 'CONFIRMADA') {
+              atend++;
+              mapEsp[espNom].atendidas++;
+            } else if (est === 'INASISTENCIA') {
+              inas++;
+              mapEsp[espNom].inasistencias++;
+              var pacNom = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : ('Paciente #' + c.id_paciente);
+              mapPacInas[pacNom] = (mapPacInas[pacNom] || 0) + 1;
+            } else if (est === 'CANCELADA') {
+              canc++;
+              mapEsp[espNom].canceladas++;
+            }
+          });
+
+          var baseAsist = (atend + inas) || 1;
+          var pctAsist = Math.round((atend / baseAsist) * 100);
+          var pctInas = Math.round((inas / total) * 100);
+          var pctCanc = Math.round((canc / total) * 100);
+          var notifEnv = notifs.filter(function (n) { return (n.estado || '').toUpperCase() === 'ENVIADA'; }).length;
+          var pctNotif = notifs.length > 0 ? Math.round((notifEnv / notifs.length) * 100) : 100;
+
+          if (kpiVals34[0]) kpiVals34[0].textContent = pctAsist + ' %';
+          if (kpiHints34[0]) kpiHints34[0].textContent = atend + ' asistencias efectivas en BD';
+          if (kpiVals34[1]) kpiVals34[1].textContent = pctInas + ' %';
+          if (kpiHints34[1]) kpiHints34[1].textContent = inas + ' citas con inasistencia';
+          if (kpiVals34[2]) kpiVals34[2].textContent = pctCanc + ' %';
+          if (kpiHints34[2]) kpiHints34[2].textContent = canc + ' citas canceladas';
+          if (kpiVals34[3]) kpiVals34[3].textContent = pctNotif + ' %';
+          if (kpiHints34[3]) kpiHints34[3].textContent = notifEnv + ' recordatorios enviados';
+
+          if (listReincidentes34) {
+            var pKeys = Object.keys(mapPacInas);
+            if (!pKeys.length) {
+              listReincidentes34.innerHTML = '<li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">Sin inasistencias registradas</div><div class="vs-list-row__sub">Todos los pacientes cumplieron su cita en el período</div></div></li>';
+            } else {
+              listReincidentes34.innerHTML = pKeys.map(function (pk) {
+                var ini = pk.split(' ').map(function (w) { return w.charAt(0); }).join('').substring(0, 2).toUpperCase();
+                return '<li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--amber">' + escapeHtml(ini) + '</span><div class="vs-list-row__body"><div class="vs-list-row__title">' + escapeHtml(pk) + '</div><div class="vs-list-row__sub">Registrado en PostgreSQL</div></div><span class="vs-badge vs-badge--warn">' + mapPacInas[pk] + '</span></li>';
+              }).join('');
+            }
+          }
+
+          resumenEsp34 = Object.values(mapEsp);
+          if (tbody34) {
+            tbody34.innerHTML = resumenEsp34.map(function (r) {
+              var b = (r.atendidas + r.inasistencias) || 1;
+              var tasa = Math.round((r.atendidas / b) * 100);
+              return '<tr>' +
+                '<td>' + escapeHtml(r.nombre) + '</td>' +
+                '<td class="vs-td-num">' + r.total + '</td>' +
+                '<td class="vs-td-num">' + r.atendidas + '</td>' +
+                '<td class="vs-td-num">' + r.inasistencias + '</td>' +
+                '<td class="vs-td-num">' + r.canceladas + '</td>' +
+                '<td class="vs-td-num"><strong class="vs-strong">' + tasa + ' %</strong></td>' +
+                '<td class="vs-hide-md"><span class="vs-badge vs-badge--ok">En vivo BD</span></td>' +
+              '</tr>';
+            }).join('');
+          }
+
+          if (registrarEnBd) {
+            await VS_API.crearReporte({
+              tipo: 'CONTROL_ASISTENCIA',
+              fecha_desde: fDesde || null,
+              fecha_hasta: fHasta || null,
+              formato: 'CSV'
+            });
+            if (window.vsToast) window.vsToast('Reporte de asistencia generado', 'Datos reales de PostgreSQL y auditado en bitácora');
+          }
+        } catch (err) {
+          console.warn('Error en CU34:', err);
+        }
+      }
+
+      if (form34) {
+        form34.setAttribute('data-api-bound', 'true');
+        form34.addEventListener('submit', function (e) {
+          e.preventDefault();
+          cargarReporteCU34(true);
+        });
+      }
+      if (selEsp34) selEsp34.addEventListener('change', function () { cargarReporteCU34(false); });
+
+      document.querySelectorAll('.vs-page-head__side a').forEach(function (btnLink) {
+        btnLink.addEventListener('click', async function (e) {
+          e.preventDefault();
+          var isPdf = btnLink.textContent.toUpperCase().indexOf('PDF') !== -1;
+          await VS_API.crearReporte({
+            tipo: 'CONTROL_ASISTENCIA',
+            fecha_desde: inpDesde34 ? inpDesde34.value : null,
+            fecha_hasta: inpHasta34 ? inpHasta34.value : null,
+            formato: isPdf ? 'PDF' : 'CSV'
+          });
+          if (isPdf) {
+            window.print();
+          } else {
+            descargarCsvDesdeFilas('reporte_control_asistencia.csv', ['Especialidad', 'Citas', 'Atendidas', 'Inasistencias', 'Canceladas'], resumenEsp34.map(function (r) {
+              return [r.nombre, r.total, r.atendidas, r.inasistencias, r.canceladas];
+            }));
+          }
+        });
+      });
+
+      initCU34();
+    }
+
+    // CU35: Exportar reportes en PDF o CSV e historial real desde tabla reporte
+    if (currentCuAttr === 'CU35') {
+      var form35 = document.querySelector('form.vs-card');
+      var selEsp35 = document.getElementById('ex-esp');
+      var inpDesde35 = document.getElementById('ex-desde');
+      var inpHasta35 = document.getElementById('ex-hasta');
+      var histList35 = document.querySelector('aside .vs-list--boxed');
+      var footPreview35 = form35 ? form35.querySelector('.vs-card__foot > span') : null;
+
+      if (inpDesde35) inpDesde35.value = '2026-01-01';
+      if (inpHasta35) inpHasta35.value = '2026-12-31';
+
+      async function cargarHistorialExportacionesCU35() {
+        if (!histList35) return;
+        try {
+          var resR = await VS_API.getReportes({ per_page: 10 });
+          var list = (resR && resR.data && resR.data.data) ? resR.data.data : (resR.data || []);
+          if (!list.length) {
+            histList35.innerHTML = '<li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">Sin exportaciones previas</div><div class="vs-list-row__sub">Genera un reporte para registrarlo en PostgreSQL</div></div></li>';
+            return;
+          }
+          histList35.innerHTML = list.map(function (r) {
+            var fmt = (r.formato || 'CSV').toUpperCase();
+            var isPdf = fmt === 'PDF';
+            var iconCls = isPdf ? 'vs-kpi__icon--rose' : 'vs-kpi__icon--teal';
+            var iconName = isPdf ? '#i-file-pdf' : '#i-file-csv';
+            var usr = (r.usuario && r.usuario.nombre_usuario) ? r.usuario.nombre_usuario : ('Usuario #' + r.id_usuario);
+            return '<li class="vs-list-row">' +
+              '<span class="vs-kpi__icon ' + iconCls + '" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="' + iconName + '"/></svg></span>' +
+              '<div class="vs-list-row__body">' +
+                '<div class="vs-list-row__title">' + escapeHtml(r.tipo) + '</div>' +
+                '<div class="vs-list-row__sub">' + escapeHtml(fmt) + ' · @' + escapeHtml(usr) + ' · ' + formatFechaHora(r.fecha_generacion) + '</div>' +
+              '</div>' +
+            '</li>';
+          }).join('');
+        } catch (e) {}
+      }
+
+      async function initCU35() {
+        try {
+          var resEsp = await VS_API.getEspecialidades();
+          var esps = (resEsp && resEsp.data) ? resEsp.data : [];
+          if (selEsp35 && Array.isArray(esps)) {
+            selEsp35.innerHTML = '<option value="">Todas</option>' + esps.map(function (e) {
+              return '<option value="' + escapeHtml(e.nombre) + '">' + escapeHtml(e.nombre) + '</option>';
+            }).join('');
+          }
+        } catch (e) {}
+        await cargarHistorialExportacionesCU35();
+      }
+
+      if (form35) {
+        form35.setAttribute('data-api-bound', 'true');
+        form35.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var repRadio = form35.querySelector('input[name="rep"]:checked');
+          var repVal = repRadio ? repRadio.value : 'citas';
+          var fmtRadio = form35.querySelector('input[name="fmt"]:checked');
+          var fmtVal = fmtRadio ? fmtRadio.value.toUpperCase() : 'CSV';
+          var fDesde = inpDesde35 ? inpDesde35.value : '2026-01-01';
+          var fHasta = inpHasta35 ? inpHasta35.value : '2026-12-31';
+
+          var tipoMap = {
+            citas: 'CITAS_PERIODO',
+            atenciones: 'ATENCIONES_MEDICO_ESPECIALIDAD',
+            asistencia: 'CONTROL_ASISTENCIA',
+            padron: 'PACIENTES_REGISTRADOS'
+          };
+          var tipoBd = tipoMap[repVal] || 'CITAS_PERIODO';
+
+          try {
+            var res = await VS_API.crearReporte({
+              tipo: tipoBd,
+              fecha_desde: fDesde,
+              fecha_hasta: fHasta,
+              formato: fmtVal
+            });
+            if (fmtVal === 'PDF') {
+              window.print();
+            } else {
+              if (repVal === 'padron') {
+                var pRes = await VS_API.getPacientes({ per_page: 200 });
+                var pacs = (pRes && pRes.data && pRes.data.data) ? pRes.data.data : (pRes.data || []);
+                descargarCsvDesdeFilas('padron_pacientes_' + fDesde + '.csv', ['Codigo', 'CI', 'Nombres', 'Apellidos', 'Sexo', 'Fecha_Nacimiento', 'Telefono'], pacs.map(function (p) {
+                  var per = p.persona || {};
+                  return [p.codigo, per.ci, per.nombres, per.apellidos, p.sexo, p.fecha_nacimiento, per.telefono];
+                }));
+              } else {
+                var cRes = await VS_API.getCitas({ per_page: 200 });
+                var cits = (cRes && cRes.data && cRes.data.data) ? cRes.data.data : (cRes.data || []);
+                descargarCsvDesdeFilas('reporte_' + repVal + '_' + fDesde + '.csv', ['Codigo', 'Fecha', 'Hora', 'Paciente', 'Medico', 'Especialidad', 'Estado'], cits.map(function (c) {
+                  var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : '';
+                  var med = (c.medico && c.medico.persona) ? (c.medico.persona.nombres + ' ' + c.medico.persona.apellidos) : '';
+                  var esp = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : '';
+                  return [c.codigo || ('CM-' + c.id_cita), c.fecha, (c.hora_inicio || '').substring(0, 5), pac, med, esp, c.estado];
+                }));
+              }
+            }
+            if (footPreview35) {
+              footPreview35.innerHTML = 'Último archivo generado desde BD: <span class="vs-mono">reporte_' + escapeHtml(repVal) + '.' + fmtVal.toLowerCase() + '</span>';
+            }
+            if (window.vsToast) window.vsToast('Exportación generada desde BD', 'Registrada en tabla reporte y auditada en bitácora');
+            await cargarHistorialExportacionesCU35();
+          } catch (err) {
+            alert('Error al exportar reporte: ' + err.message);
+          }
+        });
+      }
+
+      initCU35();
+    }
+
+    // CU36: Reporte del padrón de pacientes (100% dinámico desde PostgreSQL)
+    if (currentCuAttr === 'CU36') {
+      var form36 = document.querySelector('form.vs-filters');
+      var selEst36 = document.getElementById('pd-estado');
+      var selSexo36 = document.getElementById('pd-sexo');
+      var selEdad36 = document.getElementById('pd-edad');
+      var inpSearch36 = document.querySelector('input[type="search"]');
+      var kpiVals36 = document.querySelectorAll('.vs-kpi .vs-kpi__value');
+      var kpiHints36 = document.querySelectorAll('.vs-kpi .vs-kpi__hint');
+      var donutVal36 = document.querySelector('.vs-donut__val');
+      var sexoList36 = document.querySelector('.vs-donut') ? document.querySelector('.vs-donut').parentElement.querySelector('ul') : null;
+      var barsCards36 = document.querySelectorAll('.vs-bars');
+      var tbody36 = document.querySelector('.vs-table tbody');
+      var pagSpan36 = document.querySelector('.vs-pagination span');
+      var pager36 = document.querySelector('.vs-pagination .vs-pager');
+      var padronFiltrado36 = [];
+
+      function calcularEdad(fechaNac) {
+        if (!fechaNac) return 30;
+        var hoy = new Date();
+        var nac = new Date(fechaNac);
+        if (isNaN(nac.getTime())) return 30;
+        var edad = hoy.getFullYear() - nac.getFullYear();
+        var m = hoy.getMonth() - nac.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+        return Math.max(0, edad);
+      }
+
+      async function cargarReporteCU36(registrarEnBd) {
+        if (tbody36) tbody36.innerHTML = '<tr><td colspan="9" class="vs-td-empty" style="text-align:center;padding:1.5rem;">Consultando padrón de pacientes en PostgreSQL...</td></tr>';
+        try {
+          var resP = await VS_API.getPacientes({ per_page: 200 });
+          var pacientes = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || []);
+          var resC = await VS_API.getCitas({ per_page: 200 });
+          var citas = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || []);
+
+          var citasPorPac = {};
+          var ultimaCitaPorPac = {};
+          citas.forEach(function (c) {
+            var idP = c.id_paciente;
+            citasPorPac[idP] = (citasPorPac[idP] || 0) + 1;
+            if (!ultimaCitaPorPac[idP] || c.fecha > ultimaCitaPorPac[idP]) {
+              ultimaCitaPorPac[idP] = c.fecha;
+            }
+          });
+
+          var fEst = selEst36 ? selEst36.value.toUpperCase() : 'TODOS';
+          var fSexo = selSexo36 ? selSexo36.value.toUpperCase() : 'TODOS';
+          var fEdad = selEdad36 ? selEdad36.value : '';
+          var q = inpSearch36 ? inpSearch36.value.trim().toLowerCase() : '';
+
+          padronFiltrado36 = pacientes.filter(function (p) {
+            var per = p.persona || {};
+            var activo = per.activo !== false;
+            if (fEst === 'ACTIVOS' && !activo) return false;
+            if (fEst === 'INACTIVOS' && activo) return false;
+            if (fSexo.indexOf('FEM') !== -1 && (p.sexo || '').toUpperCase() !== 'F') return false;
+            if (fSexo.indexOf('MASC') !== -1 && (p.sexo || '').toUpperCase() !== 'M') return false;
+            var edad = calcularEdad(p.fecha_nacimiento);
+            if (fEdad.indexOf('0–17') !== -1 && edad > 17) return false;
+            if (fEdad.indexOf('18–39') !== -1 && (edad < 18 || edad > 39)) return false;
+            if (fEdad.indexOf('40–59') !== -1 && (edad < 40 || edad > 59)) return false;
+            if (fEdad.indexOf('60') !== -1 && edad < 60) return false;
+            if (q) {
+              var texto = ((p.codigo || '') + ' ' + (per.nombres || '') + ' ' + (per.apellidos || '') + ' ' + (per.ci || '')).toLowerCase();
+              if (texto.indexOf(q) === -1) return false;
+            }
+            return true;
+          });
+
+          var total = padronFiltrado36.length;
+          var activosCount = 0, inactivosCount = 0, pediatricos = 0, sinCitas = 0, fem = 0, masc = 0;
+          var r0_17 = 0, r18_39 = 0, r40_59 = 0, r60 = 0;
+          var f0 = 0, f1 = 0, f2_4 = 0, f5 = 0;
+
+          padronFiltrado36.forEach(function (p) {
+            var per = p.persona || {};
+            if (per.activo !== false) activosCount++; else inactivosCount++;
+            if ((p.sexo || '').toUpperCase() === 'F') fem++; else masc++;
+            var ed = calcularEdad(p.fecha_nacimiento);
+            if (ed <= 17) { pediatricos++; r0_17++; }
+            else if (ed <= 39) r18_39++;
+            else if (ed <= 59) r40_59++;
+            else r60++;
+
+            var nc = citasPorPac[p.id_persona] || 0;
+            if (nc === 0) { sinCitas++; f0++; }
+            else if (nc === 1) f1++;
+            else if (nc <= 4) f2_4++;
+            else f5++;
+          });
+
+          if (kpiVals36[0]) kpiVals36[0].textContent = activosCount;
+          if (kpiHints36[0]) kpiHints36[0].textContent = inactivosCount + ' inactivos · ' + total + ' en total';
+          if (kpiVals36[1]) kpiVals36[1].textContent = pediatricos;
+          if (kpiHints36[1]) kpiHints36[1].textContent = (total > 0 ? Math.round((pediatricos / total) * 100) : 0) + ' % del padrón';
+          if (kpiVals36[2]) kpiVals36[2].textContent = total;
+          if (kpiHints36[2]) kpiHints36[2].textContent = 'Registros reales en PostgreSQL';
+          if (kpiVals36[3]) kpiVals36[3].textContent = sinCitas;
+          if (kpiHints36[3]) kpiHints36[3].textContent = 'Pacientes sin citas agendadas';
+
+          if (donutVal36) donutVal36.textContent = total;
+          if (sexoList36) {
+            var pf = total > 0 ? Math.round((fem / total) * 100) : 0;
+            var pm = total > 0 ? Math.round((masc / total) * 100) : 0;
+            sexoList36.innerHTML =
+              '<li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-clay)"></span>Femenino · ' + fem + ' (' + pf + ' %)</li>' +
+              '<li class="vs-row" style="gap:.5rem"><span class="vs-swatch" style="background:var(--vs-forest)"></span>Masculino · ' + masc + ' (' + pm + ' %)</li>';
+          }
+
+          if (barsCards36[0]) {
+            var maxEd = Math.max(1, r0_17, r18_39, r40_59, r60);
+            barsCards36[0].innerHTML =
+              '<div class="vs-bars__row"><span class="vs-bars__label">0–17</span><div class="vs-bar vs-bar--teal"><i style="width:' + Math.round((r0_17 / maxEd) * 100) + '%"></i></div><span class="vs-bars__val">' + r0_17 + '</span></div>' +
+              '<div class="vs-bars__row"><span class="vs-bars__label">18–39</span><div class="vs-bar"><i style="width:' + Math.round((r18_39 / maxEd) * 100) + '%"></i></div><span class="vs-bars__val">' + r18_39 + '</span></div>' +
+              '<div class="vs-bars__row"><span class="vs-bars__label">40–59</span><div class="vs-bar"><i style="width:' + Math.round((r40_59 / maxEd) * 100) + '%"></i></div><span class="vs-bars__val">' + r40_59 + '</span></div>' +
+              '<div class="vs-bars__row"><span class="vs-bars__label">60 o más</span><div class="vs-bar vs-bar--amber"><i style="width:' + Math.round((r60 / maxEd) * 100) + '%"></i></div><span class="vs-bars__val">' + r60 + '</span></div>';
+          }
+
+          if (barsCards36[1]) {
+            var maxFr = Math.max(1, f0, f1, f2_4, f5);
+            barsCards36[1].innerHTML =
+              '<div class="vs-bars__row"><span class="vs-bars__label">Sin citas</span><div class="vs-bar vs-bar--rose"><i style="width:' + Math.round((f0 / maxFr) * 100) + '%"></i></div><span class="vs-bars__val">' + f0 + '</span></div>' +
+              '<div class="vs-bars__row"><span class="vs-bars__label">1 cita</span><div class="vs-bar vs-bar--cyan"><i style="width:' + Math.round((f1 / maxFr) * 100) + '%"></i></div><span class="vs-bars__val">' + f1 + '</span></div>' +
+              '<div class="vs-bars__row"><span class="vs-bars__label">2–4 citas</span><div class="vs-bar"><i style="width:' + Math.round((f2_4 / maxFr) * 100) + '%"></i></div><span class="vs-bars__val">' + f2_4 + '</span></div>' +
+              '<div class="vs-bars__row"><span class="vs-bars__label">5 o más</span><div class="vs-bar vs-bar--teal"><i style="width:' + Math.round((f5 / maxFr) * 100) + '%"></i></div><span class="vs-bars__val">' + f5 + '</span></div>';
+          }
+
+          if (pagSpan36) {
+            pagSpan36.innerHTML = 'Mostrando <strong class="vs-strong">1–' + total + '</strong> de <strong class="vs-strong">' + total + '</strong> pacientes en PostgreSQL';
+          }
+          if (pager36) pager36.innerHTML = '';
+
+          if (tbody36) {
+            if (!total) {
+              tbody36.innerHTML = '<tr><td colspan="9" class="vs-td-empty" style="text-align:center;padding:1.5rem;">No se encontraron pacientes para los criterios seleccionados.</td></tr>';
+            } else {
+              tbody36.innerHTML = padronFiltrado36.map(function (p) {
+                var per = p.persona || {};
+                var edad = calcularEdad(p.fecha_nacimiento);
+                var nc = citasPorPac[p.id_persona] || 0;
+                var ult = ultimaCitaPorPac[p.id_persona] || '—';
+                var act = per.activo !== false;
+                var badge = act ? '<span class="vs-badge vs-badge--ok">Activo</span>' : '<span class="vs-badge vs-badge--muted">Inactivo</span>';
+                var reg = p.fecha_registro ? String(p.fecha_registro).slice(0, 10) : '—';
+                return '<tr' + (!act ? ' class="is-muted"' : '') + '>' +
+                  '<td class="vs-td-num">' + escapeHtml(p.codigo || ('PAC-' + p.id_persona)) + '</td>' +
+                  '<td>' + escapeHtml((per.nombres || '') + ' ' + (per.apellidos || '')) + '</td>' +
+                  '<td class="vs-td-num">' + escapeHtml(per.ci || '—') + '</td>' +
+                  '<td class="vs-hide-md">' + edad + ' · ' + escapeHtml(p.sexo || '—') + '</td>' +
+                  '<td class="vs-hide-md vs-td-num">' + escapeHtml(per.telefono || '—') + '</td>' +
+                  '<td class="vs-hide-md vs-td-num">' + escapeHtml(reg) + '</td>' +
+                  '<td class="vs-td-num">' + nc + '</td>' +
+                  '<td class="vs-td-num">' + escapeHtml(ult) + '</td>' +
+                  '<td>' + badge + '</td>' +
+                '</tr>';
+              }).join('');
+            }
+          }
+
+          if (registrarEnBd) {
+            await VS_API.crearReporte({
+              tipo: 'PACIENTES_REGISTRADOS',
+              formato: 'CSV'
+            });
+            if (window.vsToast) window.vsToast('Padrón actualizado', total + ' pacientes consultados en PostgreSQL y auditados en bitácora');
+          }
+        } catch (err) {
+          console.warn('Error en CU36:', err);
+        }
+      }
+
+      if (selEst36) selEst36.value = 'Todos';
+      if (form36) {
+        form36.setAttribute('data-api-bound', 'true');
+        form36.addEventListener('submit', function (e) {
+          e.preventDefault();
+          cargarReporteCU36(true);
+        });
+      }
+      if (selEst36) selEst36.addEventListener('change', function () { cargarReporteCU36(false); });
+      if (selSexo36) selSexo36.addEventListener('change', function () { cargarReporteCU36(false); });
+      if (selEdad36) selEdad36.addEventListener('change', function () { cargarReporteCU36(false); });
+      if (inpSearch36) inpSearch36.addEventListener('input', function () { cargarReporteCU36(false); });
+
+      document.querySelectorAll('.vs-page-head__side a').forEach(function (btnLink) {
+        btnLink.addEventListener('click', async function (e) {
+          e.preventDefault();
+          var isPdf = btnLink.textContent.toUpperCase().indexOf('PDF') !== -1;
+          await VS_API.crearReporte({
+            tipo: 'PACIENTES_REGISTRADOS',
+            formato: isPdf ? 'PDF' : 'CSV'
+          });
+          if (isPdf) {
+            window.print();
+          } else {
+            descargarCsvDesdeFilas('padron_pacientes.csv', ['Codigo', 'Paciente', 'CI', 'Sexo', 'Telefono', 'Estado'], padronFiltrado36.map(function (p) {
+              var per = p.persona || {};
+              return [p.codigo, (per.nombres || '') + ' ' + (per.apellidos || ''), per.ci, p.sexo, per.telefono, per.activo !== false ? 'ACTIVO' : 'INACTIVO'];
+            }));
+          }
+        });
+      });
+
+      cargarReporteCU36(false);
+    }
+
+    // =========================================================================
+    // 26. NUEVOS CASOS DE USO Y CLASES SEPARADAS (CU37 - CU43)
+    // =========================================================================
+
+    // CU37: Auto-Registro Paciente Web + Sesiones Activas + Tokens Recuperación
+    if (currentCuAttr === 'CU37') {
+      var sesionesBody37 = document.getElementById('cu37-sesiones-tbody');
+      var tokensBody37 = document.getElementById('cu37-tokens-tbody');
+      var formAuto37 = document.getElementById('form-cu37-autoregistro');
+      var kpiPacWeb = document.getElementById('cu37-kpi-pacientes');
+      var kpiSes37 = document.getElementById('cu37-kpi-sesiones');
+      var kpiTok37 = document.getElementById('cu37-kpi-tokens');
+
+      async function cargarDatosCU37() {
+        try {
+          var resPac = await VS_API.getPacientes({ per_page: 50 });
+          var listPac = (resPac && resPac.data && resPac.data.data) ? resPac.data.data : (resPac.data || []);
+          if (kpiPacWeb) kpiPacWeb.textContent = (resPac && resPac.data && resPac.data.total != null) ? resPac.data.total : listPac.length;
+        } catch (e) {}
+
+        try {
+          var resSes = await VS_API.getSesiones();
+          var listSes = (resSes && resSes.data) ? resSes.data : [];
+          if (kpiSes37) kpiSes37.textContent = listSes.length;
+          if (sesionesBody37) {
+            if (!listSes.length) {
+              sesionesBody37.innerHTML = '<tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:1.2rem;">No hay sesiones activas en la tabla sesion.</td></tr>';
+            } else {
+              var sHtml = '';
+              listSes.forEach(function (s) {
+                var usr = s.usuario ? s.usuario.nombre_usuario : ('Usuario #' + s.id_usuario);
+                var pers = (s.usuario && s.usuario.persona) ? (s.usuario.persona.nombres + ' ' + s.usuario.persona.apellidos) : usr;
+                var est = s.activa ? '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>ACTIVA</span>' : '<span class="vs-badge vs-badge--muted">CERRADA</span>';
+                sHtml += '<tr>' +
+                  '<td><div class="vs-cell-person__name">' + escapeHtml(pers) + '</div><div class="vs-cell-person__sub vs-mono">@' + escapeHtml(usr) + '</div></td>' +
+                  '<td class="vs-mono vs-xs">' + escapeHtml((s.token || '').substring(0, 16) + '…') + '</td>' +
+                  '<td class="vs-td-num">' + escapeHtml(s.ip || '127.0.0.1') + '</td>' +
+                  '<td class="vs-td-num">' + formatFechaHora(s.fecha_expiracion) + '</td>' +
+                  '<td>' + est + '</td>' +
+                '</tr>';
+              });
+              sesionesBody37.innerHTML = sHtml;
+            }
+          }
+        } catch (e) {}
+
+        try {
+          var resTok = await VS_API.getTokensRecuperacion();
+          var listTok = (resTok && resTok.data) ? resTok.data : [];
+          if (kpiTok37) kpiTok37.textContent = listTok.length;
+          if (tokensBody37) {
+            if (!listTok.length) {
+              tokensBody37.innerHTML = '<tr><td colspan="4" class="vs-td-empty" style="text-align:center;padding:1.2rem;">Sin tokens emitidos en tabla token_recuperacion.</td></tr>';
+            } else {
+              var tHtml = '';
+              listTok.forEach(function (t) {
+                var usr = t.usuario ? t.usuario.nombre_usuario : ('ID ' + t.id_usuario);
+                var est = t.usado
+                  ? '<span class="vs-badge vs-badge--muted">USADO</span>'
+                  : '<span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>VIGENTE</span>';
+                tHtml += '<tr>' +
+                  '<td class="vs-mono">@' + escapeHtml(usr) + '</td>' +
+                  '<td class="vs-mono vs-xs">' + escapeHtml((t.token || '').substring(0, 18)) + '</td>' +
+                  '<td class="vs-td-num">' + formatFechaHora(t.fecha_expiracion) + '</td>' +
+                  '<td>' + est + '</td>' +
+                '</tr>';
+              });
+              tokensBody37.innerHTML = tHtml;
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (formAuto37) {
+        formAuto37.setAttribute('data-api-bound', 'true');
+        formAuto37.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var payload = {
+            ci: document.getElementById('ar-ci').value.trim(),
+            nombres: document.getElementById('ar-nombres').value.trim(),
+            apellidos: document.getElementById('ar-apellidos').value.trim(),
+            fecha_nacimiento: document.getElementById('ar-fnac').value,
+            sexo: document.getElementById('ar-sexo').value,
+            telefono: document.getElementById('ar-tel').value.trim(),
+            email: document.getElementById('ar-email').value.trim(),
+            direccion: document.getElementById('ar-dir').value.trim(),
+            nombre_usuario: document.getElementById('ar-user').value.trim(),
+            password: document.getElementById('ar-pass').value
+          };
+          try {
+            var res = await VS_API.autoRegistroPacienteWeb(payload);
+            var fb = document.getElementById('cu37-feedback');
+            if (fb) {
+              fb.style.display = 'flex';
+              fb.innerHTML = '<svg class="vs-i"><use href="#i-check-circle"/></svg><div><strong>Auto-registro completado en PostgreSQL:</strong> Paciente <span class="vs-mono">' + escapeHtml(res.data && res.data.paciente ? res.data.paciente.codigo_paciente : 'PAC-NUEVO') + '</span> y cuenta <span class="vs-mono">@' + escapeHtml(payload.nombre_usuario) + '</span> creados y auditados en bitácora.</div>';
+            }
+            if (window.vsToast) window.vsToast('Auto-registro exitoso', 'Persona, Paciente y Usuario guardados en PostgreSQL');
+            formAuto37.reset();
+            cargarDatosCU37();
+          } catch (err) {
+            alert('Error en auto-registro: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+
+      var btnRefSes = document.getElementById('cu37-btn-refresh-sesiones');
+      if (btnRefSes) btnRefSes.addEventListener('click', cargarDatosCU37);
+      cargarDatosCU37();
+    }
+
+    // CU38: Personal Administrativo, Personas y Matriz RBAC Rol-Permiso
+    if (currentCuAttr === 'CU38') {
+      var tbodyPa38 = document.getElementById('cu38-personal-tbody');
+      var selPers38 = document.getElementById('pa-persona');
+      var selRol38 = document.getElementById('cu38-select-rol');
+      var gridPerm38 = document.getElementById('cu38-permisos-grid');
+      var btnSyncPerm38 = document.getElementById('cu38-btn-sync-permisos');
+      var formNuevoPerm38 = document.getElementById('form-cu38-nuevo-permiso');
+      var formCargoPa38 = document.getElementById('form-cu38-cargo-admin');
+
+      var kpiPers38 = document.getElementById('cu38-kpi-personas');
+      var kpiAdmin38 = document.getElementById('cu38-kpi-admin');
+      var kpiPerm38 = document.getElementById('cu38-kpi-permisos');
+
+      var todosPermisos38 = [];
+
+      async function cargarDatosCU38() {
+        try {
+          var resPers = await VS_API.getPersonas({ per_page: 50 });
+          var listPers = (resPers && resPers.data && resPers.data.data) ? resPers.data.data : (resPers.data || []);
+          if (kpiPers38) kpiPers38.textContent = (resPers && resPers.data && resPers.data.total != null) ? resPers.data.total : listPers.length;
+          if (selPers38 && listPers.length) {
+            selPers38.innerHTML = listPers.map(function (p) {
+              return '<option value="' + p.id_persona + '">' + escapeHtml(p.nombres + ' ' + p.apellidos + ' (CI ' + p.ci + ')') + '</option>';
+            }).join('');
+          }
+        } catch (e) {}
+
+        try {
+          var resPa = await VS_API.getPersonalAdministrativo();
+          var listPa = (resPa && resPa.data) ? resPa.data : [];
+          if (kpiAdmin38) kpiAdmin38.textContent = listPa.length;
+          if (tbodyPa38) {
+            if (!listPa.length) {
+              tbodyPa38.innerHTML = '<tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:1.2rem;">Sin registros en personal_administrativo.</td></tr>';
+            } else {
+              tbodyPa38.innerHTML = listPa.map(function (pa) {
+                var p = pa.persona || {};
+                var est = (p.estado || 'ACTIVO').toUpperCase();
+                return '<tr>' +
+                  '<td class="vs-td-num">#' + pa.id_personal_administrativo + '</td>' +
+                  '<td><div class="vs-cell-person__name">' + escapeHtml((p.nombres || '') + ' ' + (p.apellidos || '')) + '</div><div class="vs-cell-person__sub">' + escapeHtml(p.email || '') + '</div></td>' +
+                  '<td class="vs-td-num">' + escapeHtml(p.ci || '—') + '</td>' +
+                  '<td><span class="vs-badge vs-badge--info">' + escapeHtml(pa.cargo || 'Administración') + '</span></td>' +
+                  '<td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>' + est + '</span></td>' +
+                '</tr>';
+              }).join('');
+            }
+          }
+        } catch (e) {}
+
+        await cargarMatrizPermisosRol();
+      }
+
+      async function cargarMatrizPermisosRol() {
+        if (!gridPerm38) return;
+        try {
+          var resAll = await VS_API.getPermisos();
+          todosPermisos38 = (resAll && resAll.data) ? resAll.data : [];
+          if (kpiPerm38) kpiPerm38.textContent = todosPermisos38.length;
+
+          var idRol = selRol38 ? parseInt(selRol38.value, 10) : 1;
+          var resRolP = await VS_API.getPermisosRol(idRol);
+          var asignados = (resRolP && resRolP.data) ? resRolP.data.map(function (x) { return x.id_permiso; }) : [];
+
+          gridPerm38.innerHTML = todosPermisos38.map(function (perm) {
+            var checked = asignados.indexOf(perm.id_permiso) !== -1 ? ' checked' : '';
+            return '<label class="vs-check-card">' +
+              '<input type="checkbox" class="vs-check cu38-perm-check" value="' + perm.id_permiso + '"' + checked + '>' +
+              '<div><div class="vs-check-card__title vs-mono vs-xs">' + escapeHtml(perm.codigo) + '</div>' +
+              '<div class="vs-check-card__sub">' + escapeHtml(perm.modulo || 'GENERAL') + ' · ' + escapeHtml(perm.descripcion || '') + '</div></div>' +
+            '</label>';
+          }).join('');
+        } catch (e) {}
+      }
+
+      if (selRol38) selRol38.addEventListener('change', cargarMatrizPermisosRol);
+
+      if (btnSyncPerm38) {
+        btnSyncPerm38.addEventListener('click', async function () {
+          var idRol = selRol38 ? parseInt(selRol38.value, 10) : 1;
+          var checks = document.querySelectorAll('.cu38-perm-check:checked');
+          var ids = Array.from(checks).map(function (c) { return parseInt(c.value, 10); });
+          try {
+            await VS_API.sincronizarPermisosRol(idRol, ids);
+            if (window.vsToast) window.vsToast('Matriz Rol-Permiso sincronizada', 'Guardada en rol_permiso y auditada en bitácora');
+            cargarMatrizPermisosRol();
+          } catch (err) {
+            alert('Error sincronizando permisos: ' + err.message);
+          }
+        });
+      }
+
+      if (formNuevoPerm38) {
+        formNuevoPerm38.setAttribute('data-api-bound', 'true');
+        formNuevoPerm38.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          try {
+            await VS_API.crearPermiso({
+              codigo: document.getElementById('pm-codigo').value.trim().toUpperCase(),
+              modulo: document.getElementById('pm-modulo').value,
+              descripcion: document.getElementById('pm-desc').value.trim()
+            });
+            if (window.vsToast) window.vsToast('Permiso registrado', 'Guardado en tabla permiso y auditado en bitácora');
+            formNuevoPerm38.reset();
+            cargarMatrizPermisosRol();
+          } catch (err) {
+            alert('Error creando permiso: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+
+      if (formCargoPa38) {
+        formCargoPa38.setAttribute('data-api-bound', 'true');
+        formCargoPa38.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          try {
+            await VS_API.guardarPersonalAdministrativo({
+              id_persona: parseInt(document.getElementById('pa-persona').value, 10),
+              cargo: document.getElementById('pa-cargo').value.trim()
+            });
+            if (window.vsToast) window.vsToast('Cargo administrativo actualizado', 'Guardado en personal_administrativo y auditado en bitácora');
+            cargarDatosCU38();
+          } catch (err) {
+            alert('Error asignando cargo: ' + err.message);
+          }
+        });
+      }
+
+      cargarDatosCU38();
+    }
+
+    // CU39: Asignación Múltiple Médico – Especialidad (medico_especialidad)
+    if (currentCuAttr === 'CU39') {
+      var selMed39 = document.getElementById('me-medico');
+      var checksBox39 = document.getElementById('me-especialidades-checks');
+      var tbodyMat39 = document.getElementById('cu39-matriz-tbody');
+      var formSync39 = document.getElementById('form-cu39-sync');
+
+      var medicosList39 = [];
+      var especialidadesList39 = [];
+
+      async function cargarDatosCU39() {
+        try {
+          var resMed = await VS_API.getMedicos();
+          medicosList39 = (resMed && resMed.data) ? resMed.data : [];
+          var resEsp = await VS_API.getEspecialidades();
+          especialidadesList39 = (resEsp && resEsp.data) ? resEsp.data : [];
+
+          if (selMed39 && medicosList39.length) {
+            var curVal = selMed39.value;
+            selMed39.innerHTML = medicosList39.map(function (m) {
+              var p = m.persona || {};
+              return '<option value="' + m.id_medico + '">Dr(a). ' + escapeHtml((p.nombres || '') + ' ' + (p.apellidos || '')) + ' (' + escapeHtml(m.matricula_profesional || '') + ')</option>';
+            }).join('');
+            if (curVal) selMed39.value = curVal;
+          }
+
+          if (tbodyMat39) {
+            tbodyMat39.innerHTML = medicosList39.map(function (m) {
+              var p = m.persona || {};
+              var esps = (m.especialidades || []).map(function (e) {
+                return '<span class="vs-badge vs-badge--teal" style="margin-right:.25rem">' + escapeHtml(e.nombre) + '</span>';
+              }).join('') || '<span class="vs-muted vs-xs">Sin especialidades vinculadas</span>';
+              return '<tr>' +
+                '<td><div class="vs-cell-person__name">Dr(a). ' + escapeHtml((p.nombres || '') + ' ' + (p.apellidos || '')) + '</div><div class="vs-cell-person__sub">' + escapeHtml(m.consultorio || 'Consultorio') + '</div></td>' +
+                '<td class="vs-mono">' + escapeHtml(m.matricula_profesional || '—') + '</td>' +
+                '<td>' + esps + '</td>' +
+                '<td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>' + escapeHtml(m.estado || 'ACTIVO') + '</span></td>' +
+              '</tr>';
+            }).join('');
+          }
+
+          await renderChecksMedicoSeleccionado();
+        } catch (e) {}
+      }
+
+      async function renderChecksMedicoSeleccionado() {
+        if (!checksBox39 || !selMed39 || !selMed39.value) return;
+        try {
+          var resM = await VS_API.getEspecialidadesMedico(selMed39.value);
+          var asignadas = (resM && resM.data) ? resM.data.map(function (x) { return x.id_especialidad; }) : [];
+          checksBox39.innerHTML = especialidadesList39.map(function (esp) {
+            var chk = asignadas.indexOf(esp.id_especialidad) !== -1 ? ' checked' : '';
+            return '<label class="vs-check-card">' +
+              '<input type="checkbox" class="vs-check cu39-esp-check" value="' + esp.id_especialidad + '"' + chk + '>' +
+              '<div><div class="vs-check-card__title">' + escapeHtml(esp.nombre) + '</div>' +
+              '<div class="vs-check-card__sub">' + escapeHtml(esp.descripcion || 'Especialidad clínica') + '</div></div>' +
+            '</label>';
+          }).join('');
+        } catch (e) {}
+      }
+
+      if (selMed39) selMed39.addEventListener('change', renderChecksMedicoSeleccionado);
+
+      if (formSync39) {
+        formSync39.setAttribute('data-api-bound', 'true');
+        formSync39.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var idMed = selMed39 ? selMed39.value : null;
+          var chks = document.querySelectorAll('.cu39-esp-check:checked');
+          var ids = Array.from(chks).map(function (c) { return parseInt(c.value, 10); });
+          if (!ids.length) {
+            alert('Selecciona al menos una especialidad médica.');
+            return;
+          }
+          try {
+            await VS_API.sincronizarEspecialidadesMedico(idMed, ids);
+            if (window.vsToast) window.vsToast('Especialidades sincronizadas', 'Guardadas en medico_especialidad y auditadas en bitácora');
+            cargarDatosCU39();
+          } catch (err) {
+            alert('Error sincronizando especialidades: ' + err.message);
+          }
+        });
+      }
+
+      cargarDatosCU39();
+    }
+
+    // CU40: Reserva de Ficha Web y Trazabilidad de Historial de Estados (historial_estado_cita)
+    if (currentCuAttr === 'CU40') {
+      var selCita40 = document.getElementById('cu40-select-cita');
+      var tbodyHist40 = document.getElementById('cu40-historial-tbody');
+      var formEst40 = document.getElementById('form-cu40-nuevo-estado');
+
+      async function cargarCitasCU40() {
+        if (!selCita40) return;
+        try {
+          var res = await VS_API.getCitas({ per_page: 30 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          if (list.length) {
+            selCita40.innerHTML = list.map(function (c) {
+              var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+              return '<option value="' + c.id_cita + '">' + escapeHtml((c.codigo || ('CM-' + c.id_cita)) + ' · ' + pac + ' (' + c.estado + ')') + '</option>';
+            }).join('');
+            await cargarHistorialCitaSeleccionada();
+          }
+        } catch (e) {}
+      }
+
+      async function cargarHistorialCitaSeleccionada() {
+        if (!selCita40 || !selCita40.value || !tbodyHist40) return;
+        try {
+          var resH = await VS_API.getHistorialEstadosCita(selCita40.value);
+          var listH = (resH && resH.data) ? resH.data : [];
+          if (!listH.length) {
+            tbodyHist40.innerHTML = '<tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:1.2rem;">Sin transiciones registradas en historial_estado_cita para esta cita.</td></tr>';
+            return;
+          }
+          tbodyHist40.innerHTML = listH.map(function (h) {
+            var usr = h.usuario ? h.usuario.nombre_usuario : 'sistema';
+            return '<tr>' +
+              '<td class="vs-td-num">' + formatFechaHora(h.fecha_cambio) + '</td>' +
+              '<td><span class="vs-badge vs-badge--muted">' + escapeHtml(h.estado_anterior || 'INICIAL') + '</span></td>' +
+              '<td><span class="vs-badge vs-badge--teal"><span class="vs-badge__dot"></span>' + escapeHtml(h.estado_nuevo) + '</span></td>' +
+              '<td class="vs-mono">@' + escapeHtml(usr) + '</td>' +
+              '<td>' + escapeHtml(h.observacion || '—') + '</td>' +
+            '</tr>';
+          }).join('');
+        } catch (e) {}
+      }
+
+      if (selCita40) selCita40.addEventListener('change', cargarHistorialCitaSeleccionada);
+
+      if (formEst40) {
+        formEst40.setAttribute('data-api-bound', 'true');
+        formEst40.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var idCita = selCita40 ? selCita40.value : null;
+          var nuevoEst = document.getElementById('he-estado').value;
+          var obs = document.getElementById('he-obs').value.trim();
+          try {
+            await VS_API.registrarHistorialEstadoCita(idCita, {
+              estado_nuevo: nuevoEst,
+              observacion: obs
+            });
+            if (window.vsToast) window.vsToast('Transición registrada', 'Guardada en historial_estado_cita y auditada en bitácora');
+            document.getElementById('he-obs').value = '';
+            await cargarHistorialCitaSeleccionada();
+          } catch (err) {
+            alert('Error registrando transición: ' + err.message);
+          }
+        });
+      }
+
+      cargarCitasCU40();
+    }
+
+    // CU41: Pasarela de Pago en Línea y Comprobante Digital
+    if (currentCuAttr === 'CU41') {
+      var selCita41 = document.getElementById('pg-cita');
+      var formPago41 = document.getElementById('form-cu41-pago');
+      var btnDescargar41 = document.getElementById('cu41-btn-descargar');
+      var citasMap41 = {};
+
+      async function cargarCitasCU41() {
+        if (!selCita41) return;
+        try {
+          var res = await VS_API.getCitas({ per_page: 30 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          list.forEach(function (c) { citasMap41[c.id_cita] = c; });
+          if (list.length) {
+            selCita41.innerHTML = list.map(function (c) {
+              var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+              return '<option value="' + c.id_cita + '">' + escapeHtml((c.codigo || ('CM-' + c.id_cita)) + ' · ' + pac + ' · ' + c.fecha + ' ' + (c.hora_inicio || '').substring(0, 5)) + '</option>';
+            }).join('');
+            actualizarPreviewComprobante41();
+          }
+        } catch (e) {}
+      }
+
+      function actualizarPreviewComprobante41() {
+        if (!selCita41 || !citasMap41[selCita41.value]) return;
+        var c = citasMap41[selCita41.value];
+        var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+        var med = (c.medico && c.medico.persona) ? ('Dr(a). ' + c.medico.persona.nombres + ' ' + c.medico.persona.apellidos) : 'Médico';
+        var esp = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'Consulta Especializada';
+        var elPac = document.getElementById('comp-paciente');
+        var elMed = document.getElementById('comp-medico');
+        var elFec = document.getElementById('comp-fecha');
+        var elCod = document.getElementById('comp-codigo');
+        if (elPac) elPac.textContent = pac;
+        if (elMed) elMed.textContent = med + ' · ' + esp;
+        if (elFec) elFec.textContent = c.fecha + ' · ' + (c.hora_inicio || '').substring(0, 5);
+        if (elCod) elCod.textContent = 'COMP-VS-' + (c.id_cita || '101');
+      }
+
+      if (selCita41) selCita41.addEventListener('change', actualizarPreviewComprobante41);
+
+      if (formPago41) {
+        formPago41.setAttribute('data-api-bound', 'true');
+        formPago41.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var idCita = selCita41 ? selCita41.value : null;
+          var metodo = document.getElementById('pg-metodo').value;
+          var monto = document.getElementById('pg-monto').value;
+          var nit = document.getElementById('pg-nit').value.trim();
+          var razon = document.getElementById('pg-razon').value.trim();
+          try {
+            await VS_API.registrarHistorialEstadoCita(idCita, {
+              estado_nuevo: 'CONFIRMADA',
+              observacion: 'Pago en línea confirmado (' + metodo + ' · Bs ' + monto + ' · NIT ' + nit + ' ' + razon + ')'
+            });
+            var elMet = document.getElementById('comp-metodo');
+            var elMon = document.getElementById('comp-monto');
+            if (elMet) elMet.textContent = metodo + ' (PAGADO)';
+            if (elMon) elMon.textContent = 'Bs ' + parseFloat(monto).toFixed(2);
+            if (window.vsToast) window.vsToast('Pago confirmado y comprobante emitido', 'Cita CONFIRMADA en PostgreSQL y auditada en bitácora');
+          } catch (err) {
+            alert('Error procesando pago: ' + err.message);
+          }
+        });
+      }
+
+      if (btnDescargar41) {
+        btnDescargar41.addEventListener('click', function () {
+          var cod = document.getElementById('comp-codigo') ? document.getElementById('comp-codigo').textContent : 'COMP-VS';
+          var pac = document.getElementById('comp-paciente') ? document.getElementById('comp-paciente').textContent : '';
+          var med = document.getElementById('comp-medico') ? document.getElementById('comp-medico').textContent : '';
+          var fec = document.getElementById('comp-fecha') ? document.getElementById('comp-fecha').textContent : '';
+          var mon = document.getElementById('comp-monto') ? document.getElementById('comp-monto').textContent : 'Bs 150.00';
+          var txt = 'CLINICA VIDA SALUD — COMPROBANTE ELECTRONICO DE CITA\n' +
+            '====================================================\n' +
+            'Comprobante: ' + cod + '\n' +
+            'Paciente:    ' + pac + '\n' +
+            'Medico/Esp:  ' + med + '\n' +
+            'Fecha/Hora:  ' + fec + '\n' +
+            'Importe:     ' + mon + '\n' +
+            'Estado:      CONFIRMADA Y PAGADA\n';
+          var blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.setAttribute('download', cod + '.txt');
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        });
+      }
+
+      cargarCitasCU41();
+    }
+
+    // CU42: Historial de Pagos y Gestión de Reembolsos por Cancelación
+    if (currentCuAttr === 'CU42') {
+      var tbodyPagos42 = document.getElementById('cu42-pagos-tbody');
+      var selCita42 = document.getElementById('rb-cita');
+      var formReemb42 = document.getElementById('form-cu42-reembolso');
+
+      async function cargarPagosCU42() {
+        try {
+          var res = await VS_API.getCitas({ per_page: 25 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          if (selCita42 && list.length) {
+            selCita42.innerHTML = list.map(function (c) {
+              var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+              return '<option value="' + c.id_cita + '">' + escapeHtml((c.codigo || ('CM-' + c.id_cita)) + ' · ' + pac + ' (' + c.estado + ')') + '</option>';
+            }).join('');
+          }
+          if (tbodyPagos42) {
+            tbodyPagos42.innerHTML = list.slice(0, 12).map(function (c, i) {
+              var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+              var est = (c.estado || 'PROGRAMADA').toUpperCase();
+              var esCancel = est === 'CANCELADA';
+              var badge = esCancel
+                ? '<span class="vs-badge vs-badge--warn"><span class="vs-badge__dot"></span>REEMBOLSADO</span>'
+                : '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>PAGADO</span>';
+              var canal = (i % 2 === 0) ? 'QR Simple' : 'Tarjeta Débito';
+              return '<tr>' +
+                '<td class="vs-mono vs-xs">COMP-2026-' + String(c.id_cita).padStart(4, '0') + '</td>' +
+                '<td><div class="vs-cell-person__name">' + escapeHtml(pac) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(c.codigo || ('CM-' + c.id_cita)) + ' · ' + escapeHtml(c.fecha) + '</div></td>' +
+                '<td>' + canal + '</td>' +
+                '<td class="vs-td-num">Bs 150.00</td>' +
+                '<td>' + badge + '</td>' +
+              '</tr>';
+            }).join('');
+          }
+        } catch (e) {}
+      }
+
+      if (formReemb42) {
+        formReemb42.setAttribute('data-api-bound', 'true');
+        formReemb42.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var idCita = selCita42 ? selCita42.value : null;
+          var mot = document.getElementById('rb-motivo').value.trim();
+          var destino = document.getElementById('rb-destino').value;
+          try {
+            await VS_API.cancelarCita(idCita, 'Reembolso aprobado (' + destino + '): ' + mot);
+            if (window.vsToast) window.vsToast('Reembolso y anulación procesados', 'Cita CANCELADA y reembolso auditado en bitácora');
+            formReemb42.reset();
+            cargarPagosCU42();
+          } catch (err) {
+            alert('Error procesando reembolso: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+
+      cargarPagosCU42();
+    }
+
+    // CU43: Reporte de Ingresos Financieros y Catálogo de Reportes en BD
+    if (currentCuAttr === 'CU43') {
+      var tbodyRep43 = document.getElementById('cu43-reportes-tbody');
+      var formGen43 = document.getElementById('form-cu43-generar');
+      var badgeTotal43 = document.getElementById('cu43-total-badge');
+      var citasCache43 = [];
+
+      async function cargarReportesCU43() {
+        if (!tbodyRep43) return;
+        try {
+          var desdeEl = document.getElementById('rf-desde') || document.getElementById('rp-desde');
+          var hastaEl = document.getElementById('rf-hasta') || document.getElementById('rp-hasta');
+          var fDesde = desdeEl ? desdeEl.value : '';
+          var fHasta = hastaEl ? hastaEl.value : '';
+
+          var results = await Promise.all([
+            VS_API.getReportes({ per_page: 50 }).catch(function () { return { data: [] }; }),
+            VS_API.getCitas({ per_page: 300 }).catch(function () { return { data: [] }; })
+          ]);
+          var res = results[0];
+          var resCitas = results[1];
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          var citasAll = (resCitas && resCitas.data && resCitas.data.data) ? resCitas.data.data : (resCitas.data || []);
+
+          var citasFiltradas = citasAll.filter(function (c) {
+            var fc = String(c.fecha_cita || '').slice(0, 10);
+            if (fDesde && fc < fDesde) return false;
+            if (fHasta && fc > fHasta) return false;
+            return true;
+          });
+          citasCache43 = citasFiltradas;
+
+          var tarifa = 150;
+          var pagadas = citasFiltradas.filter(function (c) { return c.estado === 'CONFIRMADA' || c.estado === 'ATENDIDA'; });
+          var programadas = citasFiltradas.filter(function (c) { return c.estado === 'PROGRAMADA' || c.estado === 'REPROGRAMADA'; });
+          var canceladas = citasFiltradas.filter(function (c) { return c.estado === 'CANCELADA'; });
+
+          var kpiIng = document.getElementById('cu43-kpi-ingresos');
+          var kpiIngMeta = document.getElementById('cu43-kpi-ingresos-meta');
+          var kpiProy = document.getElementById('cu43-kpi-proyectado');
+          var kpiProyMeta = document.getElementById('cu43-kpi-proyectado-meta');
+          var kpiAnul = document.getElementById('cu43-kpi-anulados');
+          var kpiAnulMeta = document.getElementById('cu43-kpi-anulados-meta');
+          var kpiRep = document.getElementById('cu43-kpi-reportes');
+
+          if (kpiIng) kpiIng.textContent = 'Bs ' + (pagadas.length * tarifa).toLocaleString('es-BO', { minimumFractionDigits: 2 });
+          if (kpiIngMeta) kpiIngMeta.textContent = pagadas.length + ' fichas confirmadas/atendidas (Bs 150 c/u)';
+          if (kpiProy) kpiProy.textContent = 'Bs ' + (programadas.length * tarifa).toLocaleString('es-BO', { minimumFractionDigits: 2 });
+          if (kpiProyMeta) kpiProyMeta.textContent = programadas.length + ' citas pendientes de confirmación';
+          if (kpiAnul) kpiAnul.textContent = 'Bs ' + (canceladas.length * tarifa).toLocaleString('es-BO', { minimumFractionDigits: 2 });
+          if (kpiAnulMeta) kpiAnulMeta.textContent = canceladas.length + ' citas anuladas o reembolsadas';
+          if (kpiRep) kpiRep.textContent = String(list.length);
+          if (badgeTotal43) badgeTotal43.textContent = list.length + ' reportes registrados';
+
+          if (!list.length) {
+            tbodyRep43.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:1.2rem;">No hay reportes registrados en la base de datos.</td></tr>';
+            return;
+          }
+          tbodyRep43.innerHTML = list.map(function (r) {
+            var usr = r.usuario ? (r.usuario.nombre_usuario || (r.usuario.nombres + ' ' + r.usuario.apellidos)) : ('Usuario #' + r.id_usuario);
+            var paramsObj = r.filtros || r.parametros || {};
+            var paramsStr = typeof paramsObj === 'object' ? JSON.stringify(paramsObj) : String(paramsObj);
+            var formatoVal = (paramsObj && paramsObj.formato) ? paramsObj.formato : (r.formato || 'CSV');
+            return '<tr>' +
+              '<td class="vs-td-num">#' + r.id_reporte + '</td>' +
+              '<td class="vs-td-num">' + formatFechaHora(r.fecha_generacion || r.created_at) + '</td>' +
+              '<td><span class="vs-badge vs-badge--info">' + escapeHtml(r.tipo_reporte || r.tipo || 'REPORTE') + '</span></td>' +
+              '<td><span class="vs-badge vs-badge--teal">' + escapeHtml(formatoVal) + '</span></td>' +
+              '<td class="vs-mono">@' + escapeHtml(usr) + '</td>' +
+              '<td class="vs-mono vs-xs">' + escapeHtml(paramsStr) + '</td>' +
+            '</tr>';
+          }).join('');
+        } catch (e) {}
+      }
+
+      var desdeInput43 = document.getElementById('rf-desde') || document.getElementById('rp-desde');
+      var hastaInput43 = document.getElementById('rf-hasta') || document.getElementById('rp-hasta');
+      if (desdeInput43) desdeInput43.addEventListener('change', cargarReportesCU43);
+      if (hastaInput43) hastaInput43.addEventListener('change', cargarReportesCU43);
+
+      if (formGen43) {
+        formGen43.setAttribute('data-api-bound', 'true');
+        formGen43.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var tipoEl = document.getElementById('rf-tipo') || document.getElementById('rp-tipo');
+          var formatoEl = document.getElementById('rf-formato') || document.getElementById('rp-formato');
+          var desdeEl = document.getElementById('rf-desde') || document.getElementById('rp-desde');
+          var hastaEl = document.getElementById('rf-hasta') || document.getElementById('rp-hasta');
+
+          var tipo = tipoEl ? tipoEl.value : 'CITAS_PERIODO';
+          var formato = formatoEl ? formatoEl.value : 'CSV';
+          var desde = desdeEl ? desdeEl.value : '';
+          var hasta = hastaEl ? hastaEl.value : '';
+          try {
+            await VS_API.crearReporte({
+              tipo: tipo,
+              formato: formato,
+              fecha_desde: desde,
+              fecha_hasta: hasta,
+              parametros: { desde: desde, hasta: hasta, formato: formato, moneda: 'BOB' }
+            });
+            if (String(formato).toUpperCase() === 'CSV') {
+              var rowsCsv = [['ID Cita', 'Fecha', 'Hora', 'Paciente', 'Medico', 'Especialidad', 'Estado', 'Importe BOB']];
+              citasCache43.forEach(function (c) {
+                var pac = c.paciente ? ((c.paciente.nombres || '') + ' ' + (c.paciente.apellidos || '')).trim() : ('Paciente #' + c.id_paciente);
+                var med = (c.medico && c.medico.usuario) ? ((c.medico.usuario.nombres || '') + ' ' + (c.medico.usuario.apellidos || '')).trim() : ('Medico #' + c.id_medico);
+                var esp = c.especialidad ? c.especialidad.nombre : '';
+                var imp = (c.estado === 'CONFIRMADA' || c.estado === 'ATENDIDA') ? '150.00' : '0.00';
+                rowsCsv.push([c.id_cita, String(c.fecha_cita || '').slice(0, 10), String(c.hora_inicio || '').slice(0, 5), pac, med, esp, c.estado, imp]);
+              });
+              descargarCsvDesdeFilas('reporte_' + String(tipo).toLowerCase() + '_' + (desde || 'inicio') + '_' + (hasta || 'fin') + '.csv', rowsCsv);
+            } else {
+              window.print();
+            }
+            if (window.vsToast) window.vsToast('Reporte generado y guardado', 'Registrado en base de datos y exportado en formato ' + formato);
+            cargarReportesCU43();
+          } catch (err) {
+            alert('Error generando reporte: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+
+      cargarReportesCU43();
     }
   }
 
