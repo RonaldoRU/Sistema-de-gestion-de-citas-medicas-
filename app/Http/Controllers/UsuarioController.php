@@ -20,16 +20,15 @@ use Illuminate\Validation\Rule;
 class UsuarioController extends Controller
 {
     /**
-     * CU06: Consultar Catálogo y Perfil de Usuarios
+     * Lista y filtra las cuentas de usuario de forma paginada por rol, estado o texto de búsqueda.
      */
     public function index(Request $request): JsonResponse
     {
         $query = Usuario::with(['persona', 'rol']);
 
-        // Filtro por Rol (Nombre o ID)
         if ($request->filled('rol')) {
             $rolParam = $request->input('rol');
-            $query->whereHas('rol', function ($q) use ($rolParam) {
+            $query->whereHas('rol', function ($q) use ($rolParam): void {
                 if (is_numeric($rolParam)) {
                     $q->where('id_rol', $rolParam);
                 } else {
@@ -38,22 +37,20 @@ class UsuarioController extends Controller
             });
         }
 
-        // Filtro por Estado
         if ($request->filled('estado')) {
             $query->where('estado', strtoupper($request->input('estado')));
         }
 
-        // Búsqueda por CI, Nombre o Nombre de usuario
         if ($request->filled('buscar')) {
             $buscar = trim($request->input('buscar'));
-            $query->where(function ($q) use ($buscar) {
+            $query->where(function ($q) use ($buscar): void {
                 $q->where('nombre_usuario', 'like', "%{$buscar}%")
-                  ->orWhereHas('persona', function ($pq) use ($buscar) {
-                      $pq->where('ci', 'like', "%{$buscar}%")
-                         ->orWhere('nombres', 'like', "%{$buscar}%")
-                         ->orWhere('apellidos', 'like', "%{$buscar}%")
-                         ->orWhere('email', 'like', "%{$buscar}%");
-                  });
+                    ->orWhereHas('persona', function ($pq) use ($buscar): void {
+                        $pq->where('ci', 'like', "%{$buscar}%")
+                            ->orWhere('nombres', 'like', "%{$buscar}%")
+                            ->orWhere('apellidos', 'like', "%{$buscar}%")
+                            ->orWhere('email', 'like', "%{$buscar}%");
+                    });
             });
         }
 
@@ -66,17 +63,17 @@ class UsuarioController extends Controller
     }
 
     /**
-     * CU06: Ver Perfil de Usuario Específico
+     * Obtiene el perfil completo de un usuario específico junto con sus datos personales y rol.
      */
     public function show(int $id): JsonResponse
     {
         $usuario = Usuario::with([
             'persona.medico.especialidades',
             'persona.personalAdministrativo',
-            'rol.permisos'
+            'rol.permisos',
         ])->find($id);
 
-        if (!$usuario) {
+        if (! $usuario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Usuario no encontrado.',
@@ -90,7 +87,7 @@ class UsuarioController extends Controller
     }
 
     /**
-     * CU05: Registrar Nuevo Usuario del Sistema
+     * Registra una nueva cuenta de usuario en estado activo vinculada a su registro de persona y rol.
      */
     public function store(Request $request): JsonResponse
     {
@@ -120,7 +117,6 @@ class UsuarioController extends Controller
         }
 
         return DB::transaction(function () use ($request) {
-            // 1. Crear Persona base
             $persona = Persona::create([
                 'ci' => trim($request->input('ci')),
                 'nombres' => trim($request->input('nombres')),
@@ -130,7 +126,6 @@ class UsuarioController extends Controller
                 'activo' => true,
             ]);
 
-            // 2. Registrar como Personal Administrativo si no es médico
             $rol = Rol::find($request->input('id_rol'));
             if ($rol && strtoupper($rol->nombre) !== 'MEDICO') {
                 PersonalAdministrativo::create([
@@ -139,19 +134,17 @@ class UsuarioController extends Controller
                 ]);
             }
 
-            // 3. Generar nombre de usuario si no fue provisto
             $nombreUsuario = $request->input('nombre_usuario');
             if (empty($nombreUsuario)) {
-                $nombreLimpio = strtolower(explode(' ', $persona->nombres)[0] . '.' . explode(' ', $persona->apellidos)[0]);
+                $nombreLimpio = strtolower(explode(' ', $persona->nombres)[0].'.'.explode(' ', $persona->apellidos)[0]);
                 $baseUsuario = preg_replace('/[^a-z0-9.]/', '', $nombreLimpio);
                 $contador = 1;
                 $nombreUsuario = $baseUsuario;
                 while (Usuario::where('nombre_usuario', $nombreUsuario)->exists()) {
-                    $nombreUsuario = $baseUsuario . $contador++;
+                    $nombreUsuario = $baseUsuario.$contador++;
                 }
             }
 
-            // 4. Crear Usuario
             $usuario = Usuario::create([
                 'id_persona' => $persona->id_persona,
                 'id_rol' => $request->input('id_rol'),
@@ -163,7 +156,6 @@ class UsuarioController extends Controller
 
             $usuario->load(['persona', 'rol']);
 
-            // CU05 Paso 5: Auditar el evento en la bitácora (CU10)
             AuditoriaService::registrar(
                 'P2_RBAC',
                 'REGISTRAR',
@@ -181,13 +173,13 @@ class UsuarioController extends Controller
     }
 
     /**
-     * CU07: Modificar Datos de Cuenta de Usuario
+     * Actualiza los datos de la cuenta de usuario y opcionalmente su contraseña.
      */
     public function update(Request $request, int $id): JsonResponse
     {
         $usuario = Usuario::with('persona')->find($id);
 
-        if (!$usuario) {
+        if (! $usuario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Usuario no encontrado.',
@@ -196,8 +188,7 @@ class UsuarioController extends Controller
 
         $usuarioAutenticado = Auth::user();
 
-        // Si no es admin y no es su propia cuenta, denegar
-        if ($usuarioAutenticado && !$usuarioAutenticado->esAdmin() && $usuarioAutenticado->id_usuario !== $usuario->id_usuario) {
+        if ($usuarioAutenticado && ! $usuarioAutenticado->esAdmin() && $usuarioAutenticado->id_usuario !== $usuario->id_usuario) {
             return response()->json([
                 'success' => false,
                 'message' => 'No tiene permisos para modificar la cuenta de otro usuario.',
@@ -225,7 +216,6 @@ class UsuarioController extends Controller
             ], 422);
         }
 
-        // Actualizar datos de Persona
         $datosPersona = [
             'nombres' => trim($request->input('nombres')),
             'apellidos' => trim($request->input('apellidos')),
@@ -247,13 +237,12 @@ class UsuarioController extends Controller
             $cambioClave = true;
         }
 
-        // Auditar en bitácora (CU10)
         AuditoriaService::registrar(
             'P2_RBAC',
             'MODIFICAR',
             'usuario',
             $usuario->id_usuario,
-            "Datos de cuenta actualizados para el usuario [{$usuario->nombre_usuario}]." . ($cambioClave ? ' Se actualizó la contraseña.' : '')
+            "Datos de cuenta actualizados para el usuario [{$usuario->nombre_usuario}].".($cambioClave ? ' Se actualizó la contraseña.' : '')
         );
 
         return response()->json([
@@ -264,13 +253,13 @@ class UsuarioController extends Controller
     }
 
     /**
-     * CU08: Cambiar Rol Operativo y Permisos (RBAC)
+     * Cambia el rol operativo de un usuario verificando la regla de autoprotección de administrador.
      */
     public function cambiarRol(Request $request, int $id): JsonResponse
     {
         $usuario = Usuario::with('rol')->find($id);
 
-        if (!$usuario) {
+        if (! $usuario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Usuario no encontrado.',
@@ -293,7 +282,6 @@ class UsuarioController extends Controller
         $nuevoRolId = (int) $request->input('id_rol');
         $nuevoRol = Rol::find($nuevoRolId);
 
-        // CU08 / A1: Regla de Autoprotección
         $usuarioAutenticado = Auth::user();
         if ($usuarioAutenticado && $usuarioAutenticado->id_usuario === $usuario->id_usuario) {
             if ($usuario->esAdmin() && strtoupper($nuevoRol?->nombre ?? '') !== 'ADMINISTRADOR') {
@@ -307,7 +295,6 @@ class UsuarioController extends Controller
         $rolAnterior = $usuario->rol?->nombre ?? 'Sin Rol';
         $usuario->update(['id_rol' => $nuevoRolId]);
 
-        // CU08 Paso 5: Auditar evento crítico en la bitácora (CU10)
         AuditoriaService::registrar(
             'P2_RBAC',
             'CAMBIO_ROL',
@@ -324,13 +311,13 @@ class UsuarioController extends Controller
     }
 
     /**
-     * CU09: Suspender / Inactivar Cuenta de Usuario (Baja Lógica)
+     * Realiza la baja lógica de la cuenta de usuario revocando sus sesiones activas y verificando citas futuras si es médico.
      */
     public function inactivar(int $id): JsonResponse
     {
         $usuario = Usuario::with(['persona.medico', 'rol'])->find($id);
 
-        if (!$usuario) {
+        if (! $usuario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Usuario no encontrado.',
@@ -339,7 +326,6 @@ class UsuarioController extends Controller
 
         $usuarioAutenticado = Auth::user();
 
-        // Precondición: No debe ser el propio Administrador en sesión
         if ($usuarioAutenticado && $usuarioAutenticado->id_usuario === $usuario->id_usuario) {
             return response()->json([
                 'success' => false,
@@ -347,7 +333,6 @@ class UsuarioController extends Controller
             ], 422);
         }
 
-        // CU09 / A1: Regla de Médico con Citas Futuras
         if ($usuario->esMedico() && $usuario->persona?->medico) {
             $medicoId = $usuario->persona->medico->id_persona;
             $citasPendientes = Cita::where('id_medico', $medicoId)
@@ -366,19 +351,16 @@ class UsuarioController extends Controller
             }
         }
 
-        // CU09 Paso 3: Borrado lógico estado = 'INACTIVO'
         $usuario->update(['estado' => 'INACTIVO']);
         if ($usuario->persona) {
             $usuario->persona->update(['activo' => false]);
         }
 
-        // CU09 Paso 4: Revocar inmediatamente cualquier sesión activa
         Sesion::where('id_usuario', $usuario->id_usuario)->update([
             'activa' => false,
             'fecha_cierre' => now(),
         ]);
 
-        // CU09 Paso 5: Auditar la acción en la bitácora (CU10)
         AuditoriaService::registrar(
             'P2_RBAC',
             'INACTIVAR',
@@ -394,13 +376,13 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Reactivar cuenta de usuario
+     * Reactiva una cuenta de usuario inactiva o bloqueada restableciendo sus intentos fallidos.
      */
     public function reactivar(int $id): JsonResponse
     {
         $usuario = Usuario::with('persona')->find($id);
 
-        if (!$usuario) {
+        if (! $usuario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Usuario no encontrado.',

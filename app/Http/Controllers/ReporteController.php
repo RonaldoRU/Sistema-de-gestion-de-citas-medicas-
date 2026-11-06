@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 class ReporteController extends Controller
 {
     /**
-     * Listar historial de reportes administrativos emitidos
+     * Lista el historial paginado de reportes administrativos emitidos filtrando por tipo de reporte.
      */
     public function index(Request $request): JsonResponse
     {
@@ -33,8 +33,7 @@ class ReporteController extends Controller
     }
 
     /**
-     * Generar Reporte Administrativo (P7)
-     * Tipos: CITAS_PERIODO, ATENCIONES_MEDICO_ESPECIALIDAD, CONTROL_ASISTENCIA, PACIENTES_REGISTRADOS
+     * Procesa y genera un nuevo reporte administrativo según el tipo, formato y rango de fechas solicitados.
      */
     public function store(Request $request): JsonResponse
     {
@@ -64,8 +63,12 @@ class ReporteController extends Controller
         switch ($tipo) {
             case 'CITAS_PERIODO':
                 $q = Cita::with(['paciente.persona', 'medico.persona', 'especialidad']);
-                if ($fechaDesde) $q->where('fecha', '>=', $fechaDesde);
-                if ($fechaHasta) $q->where('fecha', '<=', $fechaHasta);
+                if ($fechaDesde) {
+                    $q->where('fecha', '>=', $fechaDesde);
+                }
+                if ($fechaHasta) {
+                    $q->where('fecha', '<=', $fechaHasta);
+                }
                 $datos = [
                     'total_citas' => $q->count(),
                     'citas' => $q->get(),
@@ -75,8 +78,12 @@ class ReporteController extends Controller
             case 'ATENCIONES_MEDICO_ESPECIALIDAD':
                 $q = Cita::with(['medico.persona', 'especialidad'])
                     ->where('estado', 'ATENDIDA');
-                if ($fechaDesde) $q->where('fecha', '>=', $fechaDesde);
-                if ($fechaHasta) $q->where('fecha', '<=', $fechaHasta);
+                if ($fechaDesde) {
+                    $q->where('fecha', '>=', $fechaDesde);
+                }
+                if ($fechaHasta) {
+                    $q->where('fecha', '<=', $fechaHasta);
+                }
                 $datos = [
                     'total_atenciones' => $q->count(),
                     'atenciones' => $q->get(),
@@ -85,8 +92,12 @@ class ReporteController extends Controller
 
             case 'CONTROL_ASISTENCIA':
                 $q = Cita::with(['paciente.persona', 'medico.persona']);
-                if ($fechaDesde) $q->where('fecha', '>=', $fechaDesde);
-                if ($fechaHasta) $q->where('fecha', '<=', $fechaHasta);
+                if ($fechaDesde) {
+                    $q->where('fecha', '>=', $fechaDesde);
+                }
+                if ($fechaHasta) {
+                    $q->where('fecha', '<=', $fechaHasta);
+                }
                 $datos = [
                     'atendidas' => (clone $q)->where('estado', 'ATENDIDA')->count(),
                     'inasistencias' => (clone $q)->where('estado', 'INASISTENCIA')->count(),

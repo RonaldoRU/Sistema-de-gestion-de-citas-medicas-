@@ -3,14 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
-use App\Models\Especialidad;
-use App\Models\Horario;
 use App\Models\Medico;
 use App\Models\Persona;
 use App\Models\Rol;
 use App\Models\Usuario;
 use App\Services\AuditoriaService;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +18,7 @@ use Illuminate\Validation\Rule;
 class MedicoController extends Controller
 {
     /**
-     * Consultar Catálogo de Médicos
+     * Lista y filtra el catálogo de médicos por especialidad, nombre, matrícula o código.
      */
     public function index(Request $request): JsonResponse
     {
@@ -29,22 +26,22 @@ class MedicoController extends Controller
 
         if ($request->filled('especialidad_id')) {
             $espId = $request->input('especialidad_id');
-            $query->whereHas('especialidades', function ($q) use ($espId) {
+            $query->whereHas('especialidades', function ($q) use ($espId): void {
                 $q->where('especialidad.id_especialidad', $espId);
             });
         }
 
         if ($request->filled('buscar')) {
             $buscar = trim($request->input('buscar'));
-            $query->where(function ($q) use ($buscar) {
+            $query->where(function ($q) use ($buscar): void {
                 $q->where('codigo', 'like', "%{$buscar}%")
-                  ->orWhere('matricula', 'like', "%{$buscar}%")
-                  ->orWhereHas('persona', function ($pq) use ($buscar) {
-                      $pq->where('nombres', 'like', "%{$buscar}%")
-                         ->orWhere('apellidos', 'like', "%{$buscar}%")
-                         ->orWhere('email', 'like', "%{$buscar}%")
-                         ->orWhere('ci', 'like', "%{$buscar}%");
-                  });
+                    ->orWhere('matricula', 'like', "%{$buscar}%")
+                    ->orWhereHas('persona', function ($pq) use ($buscar): void {
+                        $pq->where('nombres', 'like', "%{$buscar}%")
+                            ->orWhere('apellidos', 'like', "%{$buscar}%")
+                            ->orWhere('email', 'like', "%{$buscar}%")
+                            ->orWhere('ci', 'like', "%{$buscar}%");
+                    });
             });
         }
 
@@ -57,13 +54,13 @@ class MedicoController extends Controller
     }
 
     /**
-     * Perfil de Médico con sus especialidades y horarios
+     * Obtiene el perfil detallado de un médico específico junto con sus especialidades y horarios.
      */
     public function show(int $id): JsonResponse
     {
         $medico = Medico::with(['persona.usuario', 'especialidades', 'horarios', 'bloqueos'])->find($id);
 
-        if (!$medico) {
+        if (! $medico) {
             return response()->json([
                 'success' => false,
                 'message' => 'Médico no encontrado.',
@@ -77,7 +74,7 @@ class MedicoController extends Controller
     }
 
     /**
-     * CU19: Registrar Personal Médico
+     * Registra un nuevo médico asignándole su código correlativo MED-XXX, matrícula y cuenta de usuario.
      */
     public function store(Request $request): JsonResponse
     {
@@ -107,7 +104,6 @@ class MedicoController extends Controller
         }
 
         return DB::transaction(function () use ($request) {
-            // 1. Crear Persona base
             $persona = Persona::create([
                 'ci' => trim($request->input('ci')),
                 'nombres' => trim($request->input('nombres')),
@@ -117,23 +113,19 @@ class MedicoController extends Controller
                 'activo' => true,
             ]);
 
-            // 2. Generar código interno MED-001
             $ultimoId = Medico::max('id_persona') ?? 0;
-            $codigoMedico = 'MED-' . str_pad((string) ($ultimoId + 1), 3, '0', STR_PAD_LEFT);
+            $codigoMedico = 'MED-'.str_pad((string) ($ultimoId + 1), 3, '0', STR_PAD_LEFT);
 
-            // 3. Crear Subclase Medico
             $medico = Medico::create([
                 'id_persona' => $persona->id_persona,
                 'codigo' => $codigoMedico,
                 'matricula' => trim($request->input('matricula')),
             ]);
 
-            // 4. Vincular especialidades
             $medico->especialidades()->sync($request->input('especialidades'));
 
-            // 5. Crear Usuario con rol MEDICO
             $rolMedico = Rol::where('nombre', 'MEDICO')->first();
-            $nombreUsuario = 'dr.' . strtolower(explode(' ', $persona->apellidos)[0]);
+            $nombreUsuario = 'dr.'.strtolower(explode(' ', $persona->apellidos)[0]);
             if (Usuario::where('nombre_usuario', $nombreUsuario)->exists()) {
                 $nombreUsuario .= $medico->id_persona;
             }
@@ -164,13 +156,13 @@ class MedicoController extends Controller
     }
 
     /**
-     * Modificar datos de médico y especialidades
+     * Actualiza los datos profesionales y de contacto de un médico existente.
      */
     public function update(Request $request, int $id): JsonResponse
     {
         $medico = Medico::with('persona')->find($id);
 
-        if (!$medico) {
+        if (! $medico) {
             return response()->json([
                 'success' => false,
                 'message' => 'Médico no encontrado.',
@@ -229,142 +221,19 @@ class MedicoController extends Controller
     }
 
     /**
-     * CU20: Configurar Horarios y Bloques de Disponibilidad
-     */
-    public function configurarHorarios(Request $request, int $id): JsonResponse
-    {
-        $medico = Medico::with('persona')->find($id);
-
-        if (!$medico) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Médico no encontrado.',
-            ], 404);
-        }
-
-        // Precondición: El médico debe estar activo
-        if (!$medico->persona || !$medico->persona->activo) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se pueden configurar horarios para un médico inactivo.',
-            ], 422);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'dia_semana' => 'required|integer|between:1,7', // 1 = Lunes, ..., 7 = Domingo
-            'hora_inicio' => 'required|date_format:H:i',
-            'hora_fin' => 'required|date_format:H:i',
-            'duracion_bloque_min' => 'nullable|integer|min:10|max:120',
-        ], [
-            'dia_semana.between' => 'El día de la semana debe ser un número entre 1 (Lunes) y 7 (Domingo).',
-            'hora_inicio.required' => 'La hora de inicio es requerida.',
-            'hora_fin.required' => 'La hora de fin es requerida.',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $horaInicioStr = $request->input('hora_inicio');
-        $horaFinStr = $request->input('hora_fin');
-        $duracion = (int) $request->input('duracion_bloque_min', 30);
-        $diaSemana = (int) $request->input('dia_semana');
-
-        // CU20 / A1: Rango Horario Inválido
-        if (strtotime($horaInicioStr) >= strtotime($horaFinStr)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Rango horario inválido: La hora de inicio debe ser estrictamente menor a la hora de finalización.',
-            ], 422);
-        }
-
-        $horario = Horario::updateOrCreate(
-            [
-                'id_medico' => $medico->id_persona,
-                'dia_semana' => $diaSemana,
-            ],
-            [
-                'hora_inicio' => $horaInicioStr,
-                'hora_fin' => $horaFinStr,
-                'duracion_bloque_min' => $duracion,
-                'activo' => true,
-            ]
-        );
-
-        // Generar grilla de bloques calculados
-        $bloques = [];
-        $actual = Carbon::createFromFormat('H:i', $horaInicioStr);
-        $fin = Carbon::createFromFormat('H:i', $horaFinStr);
-
-        while ($actual->copy()->addMinutes($duracion)->lte($fin)) {
-            $siguiente = $actual->copy()->addMinutes($duracion);
-            $bloques[] = [
-                'hora_inicio' => $actual->format('H:i'),
-                'hora_fin' => $siguiente->format('H:i'),
-                'duracion' => "{$duracion} min",
-            ];
-            $actual = $siguiente;
-        }
-
-        $diasMap = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
-        $nombreDia = $diasMap[$diaSemana] ?? "Día {$diaSemana}";
-
-        AuditoriaService::registrar(
-            'P5_HORARIOS',
-            'CREAR',
-            'horario',
-            $horario->id_horario,
-            "Horario configurado para el Dr. [{$medico->nombre_completo}] el día [{$nombreDia}] de [{$horaInicioStr}] a [{$horaFinStr}]."
-        );
-
-        return response()->json([
-            'success' => true,
-            'message' => "Grilla de horario configurada para el día {$nombreDia}.",
-            'horario' => $horario,
-            'total_bloques' => count($bloques),
-            'bloques_generados' => $bloques,
-        ]);
-    }
-
-    /**
-     * Obtener horarios configurados de un médico
-     */
-    public function obtenerHorarios(int $id): JsonResponse
-    {
-        $medico = Medico::with('horarios')->find($id);
-
-        if (!$medico) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Médico no encontrado.',
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'medico' => $medico->nombre_completo,
-            'horarios' => $medico->horarios,
-        ]);
-    }
-
-    /**
-     * CU21: Desactivar Registro de Médico (Baja Lógica)
+     * Desactiva lógicamente a un médico verificando que no posea citas futuras pendientes.
      */
     public function inactivar(int $id): JsonResponse
     {
         $medico = Medico::with('persona.usuario')->find($id);
 
-        if (!$medico) {
+        if (! $medico) {
             return response()->json([
                 'success' => false,
                 'message' => 'Médico no encontrado.',
             ], 404);
         }
 
-        // CU21 Paso 2 y A1: Verificar si registra citas futuras agendadas
         $citasPendientes = Cita::where('id_medico', $medico->id_persona)
             ->where('fecha', '>=', now()->toDateString())
             ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA'])
@@ -380,7 +249,6 @@ class MedicoController extends Controller
             ], 422);
         }
 
-        // CU21 Paso 3: Baja lógica en Persona y suspensión en Usuario
         if ($medico->persona) {
             $medico->persona->update(['activo' => false]);
             if ($medico->persona->usuario) {
@@ -403,13 +271,13 @@ class MedicoController extends Controller
     }
 
     /**
-     * Reactivar médico
+     * Reactiva el registro y acceso de un médico que se encontraba en estado inactivo.
      */
     public function reactivar(int $id): JsonResponse
     {
         $medico = Medico::with('persona.usuario')->find($id);
 
-        if (!$medico) {
+        if (! $medico) {
             return response()->json([
                 'success' => false,
                 'message' => 'Médico no encontrado.',

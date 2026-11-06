@@ -13,8 +13,11 @@ class Paciente extends Model
     use HasFactory;
 
     protected $table = 'paciente';
+
     protected $primaryKey = 'id_persona';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

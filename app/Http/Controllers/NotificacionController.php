@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
+use App\Models\HistorialEstadoCita;
 use App\Models\Notificacion;
 use App\Services\AuditoriaService;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 class NotificacionController extends Controller
 {
     /**
-     * Listar notificaciones y recordatorios de citas
+     * Lista las notificaciones y recordatorios de citas filtrando por estado de envío o cita médica.
      */
     public function index(Request $request): JsonResponse
     {
@@ -36,7 +37,7 @@ class NotificacionController extends Controller
     }
 
     /**
-     * Programar recordatorio o notificación para una cita
+     * Programa una nueva notificación o recordatorio asociado a una cita médica.
      */
     public function store(Request $request): JsonResponse
     {
@@ -78,13 +79,13 @@ class NotificacionController extends Controller
     }
 
     /**
-     * Registrar resultado de llamada o envío de recordatorio
+     * Registra el resultado del intento de envío de un recordatorio (enviada o fallida) incrementando sus intentos.
      */
     public function registrarGestion(Request $request, int $id): JsonResponse
     {
         $notificacion = Notificacion::find($id);
 
-        if (!$notificacion) {
+        if (! $notificacion) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notificación no encontrada.',
@@ -108,7 +109,24 @@ class NotificacionController extends Controller
             'id_usuario_gestion' => Auth::id() ?? 1,
             'estado' => $request->input('estado'),
             'fecha_envio' => now(),
+            'mensaje' => $request->filled('observacion') ? ($notificacion->mensaje.' · Obs: '.trim($request->input('observacion'))) : $notificacion->mensaje,
         ]);
+
+        if ($request->boolean('confirmar_cita') && $notificacion->id_cita) {
+            $cita = Cita::find($notificacion->id_cita);
+            if ($cita && $cita->estado === 'PROGRAMADA') {
+                $estadoAnt = $cita->estado;
+                $cita->update(['estado' => 'CONFIRMADA']);
+                HistorialEstadoCita::create([
+                    'id_cita' => $cita->id_cita,
+                    'id_usuario' => Auth::id() ?? 1,
+                    'estado_anterior' => $estadoAnt,
+                    'estado_nuevo' => 'CONFIRMADA',
+                    'motivo' => 'Confirmación telefónica registrada en recordatorio CU28',
+                    'fecha_cambio' => now(),
+                ]);
+            }
+        }
 
         AuditoriaService::registrar(
             'P6_NOTIFICACIONES',
@@ -121,7 +139,49 @@ class NotificacionController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Resultado de recordatorio registrado exitosamente.',
-            'notificacion' => $notificacion,
+            'notificacion' => $notificacion->fresh(['cita.paciente.persona', 'cita.medico.persona']),
+        ]);
+    }
+
+    /**
+     * Genera o regenera automáticamente la lista de recordatorios pendientes para las citas programadas.
+     */
+    public function regenerarLista(): JsonResponse
+    {
+        $citasProgramadas = Cita::with(['paciente.persona', 'medico.persona'])
+            ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA'])
+            ->orderBy('fecha', 'asc')
+            ->limit(25)
+            ->get();
+
+        $creados = 0;
+        foreach ($citasProgramadas as $cita) {
+            $existe = Notificacion::where('id_cita', $cita->id_cita)->exists();
+            if (! $existe) {
+                Notificacion::create([
+                    'id_cita' => $cita->id_cita,
+                    'id_usuario_gestion' => Auth::id() ?? 1,
+                    'mensaje' => "Recordatorio telefónico para cita {$cita->codigo} ({$cita->fecha} {$cita->hora_inicio})",
+                    'fecha_programada' => now(),
+                    'estado' => 'PENDIENTE',
+                    'intentos' => 0,
+                ]);
+                $creados++;
+            }
+        }
+
+        AuditoriaService::registrar(
+            'P6_NOTIFICACIONES',
+            'REGISTRAR',
+            'notificacion',
+            null,
+            "Se regeneró la lista de recordatorios telefónicos ({$creados} nuevos recordatorios generados)."
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "Lista de llamadas actualizada ({$creados} nuevos recordatorios).",
+            'nuevos' => $creados,
         ]);
     }
 }

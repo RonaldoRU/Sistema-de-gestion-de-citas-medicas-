@@ -5,42 +5,47 @@ namespace App\Http\Controllers;
 use App\Models\Bitacora;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BitacoraController extends Controller
 {
     /**
-     * CU11: Consultar y Filtrar Bitácora de Auditoría
+     * Consulta y filtra de forma paginada los registros de la bitácora de auditoría por usuario, módulo, acción y fechas.
      */
     public function index(Request $request): JsonResponse
     {
+        if (! Auth::user()?->esAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado. La bitácora de auditoría es exclusiva para el rol ADMINISTRADOR.',
+            ], 403);
+        }
+
         $query = Bitacora::with([
             'usuario:id_usuario,id_persona,id_rol,nombre_usuario',
             'usuario.persona:id_persona,ci,nombres,apellidos,email',
-            'usuario.rol:id_rol,nombre'
+            'usuario.rol:id_rol,nombre',
         ]);
 
-        // Filtro por ID de Usuario
         if ($request->filled('id_usuario')) {
             $query->where('id_usuario', $request->input('id_usuario'));
         } elseif ($request->filled('usuario')) {
             $busqueda = trim($request->input('usuario'));
-            $query->whereHas('usuario', function ($uq) use ($busqueda) {
+            $query->whereHas('usuario', function ($uq) use ($busqueda): void {
                 $uq->where('nombre_usuario', 'like', "%{$busqueda}%")
-                   ->orWhereHas('persona', function ($pq) use ($busqueda) {
-                       $pq->where('ci', 'like', "%{$busqueda}%")
-                          ->orWhere('nombres', 'like', "%{$busqueda}%")
-                          ->orWhere('apellidos', 'like', "%{$busqueda}%")
-                          ->orWhere('email', 'like', "%{$busqueda}%");
-                   });
+                    ->orWhereHas('persona', function ($pq) use ($busqueda): void {
+                        $pq->where('ci', 'like', "%{$busqueda}%")
+                            ->orWhere('nombres', 'like', "%{$busqueda}%")
+                            ->orWhere('apellidos', 'like', "%{$busqueda}%")
+                            ->orWhere('email', 'like', "%{$busqueda}%");
+                    });
             });
         }
 
-        // Filtro por Módulo (P1 a P7)
         if ($request->filled('modulo')) {
             $query->where('modulo', strtoupper($request->input('modulo')));
         }
 
-        // Filtro por Tipo de Acción (con compatibilidad de alias)
         if ($request->filled('tipo_accion')) {
             $accion = strtoupper(trim($request->input('tipo_accion')));
             if (in_array($accion, ['REGISTRAR', 'CREAR'])) {
@@ -54,7 +59,6 @@ class BitacoraController extends Controller
             }
         }
 
-        // Filtro por Rango de Fechas
         if ($request->filled('fecha_desde')) {
             $query->whereDate('fecha_hora', '>=', $request->input('fecha_desde'));
         }
@@ -63,17 +67,15 @@ class BitacoraController extends Controller
             $query->whereDate('fecha_hora', '<=', $request->input('fecha_hasta'));
         }
 
-        // Filtro por Texto en el Detalle (q)
         if ($request->filled('q')) {
             $busqueda = trim($request->input('q'));
-            $query->where(function ($sq) use ($busqueda) {
+            $query->where(function ($sq) use ($busqueda): void {
                 $sq->where('detalle', 'ilike', "%{$busqueda}%")
-                   ->orWhere('modulo', 'ilike', "%{$busqueda}%")
-                   ->orWhere('tabla_afectada', 'ilike', "%{$busqueda}%");
+                    ->orWhere('modulo', 'ilike', "%{$busqueda}%")
+                    ->orWhere('tabla_afectada', 'ilike', "%{$busqueda}%");
             });
         }
 
-        // Orden cronológico inverso (CU11 Paso 2)
         $bitacora = $query->orderBy('fecha_hora', 'desc')
             ->orderBy('id_bitacora', 'desc')
             ->paginate($request->input('per_page', 20));
@@ -99,24 +101,31 @@ class BitacoraController extends Controller
     }
 
     /**
-     * Endpoint en vivo para actualización en tiempo real (polling o live feed).
+     * Obtiene los eventos de auditoría más recientes en tiempo real junto con los indicadores clave del día y mes.
      */
     public function live(Request $request): JsonResponse
     {
+        if (! Auth::user()?->esAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado. La bitácora de auditoría es exclusiva para el rol ADMINISTRADOR.',
+            ], 403);
+        }
+
         $query = Bitacora::with([
             'usuario:id_usuario,id_persona,id_rol,nombre_usuario',
             'usuario.persona:id_persona,ci,nombres,apellidos,email',
-            'usuario.rol:id_rol,nombre'
+            'usuario.rol:id_rol,nombre',
         ]);
 
         $afterId = $request->input('after_id') ?? $request->input('last_id');
         if ($afterId && is_numeric($afterId)) {
-            $query->where('id_bitacora', '>', (int)$afterId)
-                  ->orderBy('id_bitacora', 'desc');
+            $query->where('id_bitacora', '>', (int) $afterId)
+                ->orderBy('id_bitacora', 'desc');
             $nuevos = $query->limit(50)->get();
         } else {
             $query->orderBy('fecha_hora', 'desc')
-                  ->orderBy('id_bitacora', 'desc');
+                ->orderBy('id_bitacora', 'desc');
             $nuevos = $query->limit($request->input('limit', 20))->get();
         }
 
@@ -145,16 +154,23 @@ class BitacoraController extends Controller
     }
 
     /**
-     * Ver detalle de un registro de bitácora
+     * Muestra el detalle completo de un registro específico de la bitácora de auditoría por su ID.
      */
     public function show(int $id): JsonResponse
     {
+        if (! Auth::user()?->esAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado. La bitácora de auditoría es exclusiva para el rol ADMINISTRADOR.',
+            ], 403);
+        }
+
         $registro = Bitacora::with([
             'usuario.persona',
-            'usuario.rol'
+            'usuario.rol',
         ])->find($id);
 
-        if (!$registro) {
+        if (! $registro) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registro de auditoría no encontrado.',
@@ -168,10 +184,17 @@ class BitacoraController extends Controller
     }
 
     /**
-     * Resumen estadístico de auditoría (CU10 / CU11)
+     * Calcula y devuelve el resumen estadístico de eventos de auditoría agrupados por módulo y tipo de acción.
      */
     public function resumen(): JsonResponse
     {
+        if (! Auth::user()?->esAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado. La bitácora de auditoría es exclusiva para el rol ADMINISTRADOR.',
+            ], 403);
+        }
+
         $porModulo = Bitacora::selectRaw('modulo, count(*) as total')
             ->groupBy('modulo')
             ->orderByDesc('total')
@@ -184,7 +207,7 @@ class BitacoraController extends Controller
 
         $ultimosEventos = Bitacora::with([
             'usuario:id_usuario,id_persona,id_rol,nombre_usuario',
-            'usuario.persona:id_persona,ci,nombres,apellidos'
+            'usuario.persona:id_persona,ci,nombres,apellidos',
         ])
             ->orderBy('id_bitacora', 'desc')
             ->limit(6)

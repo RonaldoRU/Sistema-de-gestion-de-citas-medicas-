@@ -2,18 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\Bitacora;
-use App\Models\BloqueoAgenda;
 use App\Models\Cita;
 use App\Models\Especialidad;
 use App\Models\Horario;
 use App\Models\Medico;
-use App\Models\Notificacion;
 use App\Models\Paciente;
-use App\Models\Persona;
-use App\Models\Reporte;
 use App\Models\Rol;
-use App\Models\TokenRecuperacion;
 use App\Models\Usuario;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -205,6 +199,59 @@ class ClinicaCasosDeUsoTest extends TestCase
 
         $resResumen = $this->getJson('/api/bitacora/resumen');
         $resResumen->assertStatus(200);
+
+        // Verificar que la bitácora es exclusiva para ADMINISTRADOR (Recepcionista recibe 403)
+        $recepcionista = Usuario::where('nombre_usuario', 'recepcion')->first();
+        $this->actingAs($recepcionista);
+        $resDenegado = $this->getJson('/api/bitacora');
+        $resDenegado->assertStatus(403);
+    }
+
+    /**
+     * MÓDULO 6: Disponibilidad horaria, transición de estados de cita y recordatorios con registro en bitácora
+     */
+    public function test_cu22_cu28_cu29_disponibilidad_estados_y_bitacora_completa(): void
+    {
+        $admin = Usuario::where('nombre_usuario', 'admin')->first();
+        $this->actingAs($admin);
+
+        $medico = Medico::first();
+        $paciente = Paciente::first();
+        $especialidad = Especialidad::first();
+
+        // Consultar disponibilidad horaria (CU22)
+        $resDisp = $this->getJson('/api/citas/disponibilidad?id_medico='.$medico->id_persona.'&fecha=2026-11-10');
+        $resDisp->assertStatus(200);
+        $resDisp->assertJsonStructure(['success', 'fecha', 'slots']);
+
+        // Programar cita (CU24)
+        $resCita = $this->postJson('/api/citas', [
+            'id_paciente' => $paciente->id_persona,
+            'id_medico' => $medico->id_persona,
+            'id_especialidad' => $especialidad->id_especialidad,
+            'fecha' => '2026-11-10',
+            'hora_inicio' => '09:30',
+            'motivo_consulta' => 'Chequeo preventivo anual',
+        ]);
+        $resCita->assertStatus(201);
+        $idCita = $resCita->json('cita.id_cita');
+
+        // Cambiar estado a CONFIRMADA (CU29)
+        $resEstado = $this->putJson("/api/citas/{$idCita}/estado", [
+            'estado' => 'CONFIRMADA',
+            'motivo' => 'Paciente llegó a sala de espera',
+        ]);
+        $resEstado->assertStatus(200);
+        $this->assertDatabaseHas('cita', ['id_cita' => $idCita, 'estado' => 'CONFIRMADA']);
+        $this->assertDatabaseHas('bitacora', [
+            'tabla_afectada' => 'cita',
+            'id_registro_afectado' => $idCita,
+            'tipo_accion' => 'MODIFICAR',
+        ]);
+
+        // Regenerar lista de recordatorios (CU28)
+        $resRegen = $this->postJson('/api/notificaciones/regenerar');
+        $resRegen->assertStatus(200);
     }
 
     /**
@@ -271,7 +318,7 @@ class ClinicaCasosDeUsoTest extends TestCase
         $admin = Usuario::where('nombre_usuario', 'admin')->first();
         $this->actingAs($admin);
 
-        \App\Models\Especialidad::where('nombre', 'Dermatología')->delete();
+        Especialidad::where('nombre', 'Dermatología')->delete();
 
         // Crear especialidad
         $resCrear = $this->postJson('/api/especialidades', [
@@ -400,7 +447,7 @@ class ClinicaCasosDeUsoTest extends TestCase
         $this->assertNotEmpty($token);
 
         // 2. Acceder a un endpoint protegido usando Bearer token
-        $usuariosRes = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $usuariosRes = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/usuarios');
         $usuariosRes->assertOk();
 
@@ -418,7 +465,7 @@ class ClinicaCasosDeUsoTest extends TestCase
         $this->assertStringContainsString('text/css', $cssRes->headers->get('Content-Type'));
 
         // 4. Revocar token vía logout
-        $logoutRes = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $logoutRes = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/auth/logout');
         $logoutRes->assertOk();
     }

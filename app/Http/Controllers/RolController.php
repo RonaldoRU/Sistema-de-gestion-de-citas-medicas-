@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Permiso;
 use App\Models\Rol;
 use App\Services\AuditoriaService;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +12,7 @@ use Illuminate\Validation\Rule;
 class RolController extends Controller
 {
     /**
-     * Listar Roles con sus Permisos asociados
+     * Obtiene el listado completo de roles del sistema junto con sus permisos asignados.
      */
     public function index(): JsonResponse
     {
@@ -27,13 +26,13 @@ class RolController extends Controller
     }
 
     /**
-     * Ver un rol con sus permisos y usuarios
+     * Consulta el detalle de un rol específico junto con sus permisos y usuarios asociados.
      */
     public function show(int $id): JsonResponse
     {
         $rol = Rol::with(['permisos', 'usuarios.persona'])->find($id);
 
-        if (!$rol) {
+        if (! $rol) {
             return response()->json([
                 'success' => false,
                 'message' => 'Rol no encontrado.',
@@ -47,7 +46,7 @@ class RolController extends Controller
     }
 
     /**
-     * Crear un nuevo Rol
+     * Crea un nuevo rol en el sistema validando que su nombre sea único.
      */
     public function store(Request $request): JsonResponse
     {
@@ -92,13 +91,13 @@ class RolController extends Controller
     }
 
     /**
-     * Asignar permisos a un Rol
+     * Actualiza el nombre o la descripción de un rol existente.
      */
-    public function sincronizarPermisos(Request $request, int $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         $rol = Rol::find($id);
 
-        if (!$rol) {
+        if (! $rol) {
             return response()->json([
                 'success' => false,
                 'message' => 'Rol no encontrado.',
@@ -106,8 +105,8 @@ class RolController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'permisos' => 'required|array',
-            'permisos.*' => 'exists:permiso,id_permiso',
+            'nombre' => ['required', 'string', 'max:50', Rule::unique('rol', 'nombre')->ignore($rol->id_rol, 'id_rol')],
+            'descripcion' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -117,34 +116,23 @@ class RolController extends Controller
             ], 422);
         }
 
-        $rol->permisos()->sync($request->input('permisos'));
+        $rol->update([
+            'nombre' => strtoupper(trim($request->input('nombre'))),
+            'descripcion' => $request->input('descripcion', $rol->descripcion),
+        ]);
 
         AuditoriaService::registrar(
             'P2_RBAC',
             'MODIFICAR',
-            'rol_permiso',
+            'rol',
             $rol->id_rol,
-            "Permisos actualizados para el rol [{$rol->nombre}]."
+            "Se actualizó el rol [{$rol->nombre}]."
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Matriz de permisos actualizada exitosamente para el rol.',
-            'rol' => $rol->load('permisos'),
-        ]);
-    }
-
-    /**
-     * Catálogo de todos los permisos disponibles
-     */
-    public function permisos(): JsonResponse
-    {
-        $permisos = Permiso::orderBy('modulo', 'asc')->get();
-
-        return response()->json([
-            'success' => true,
-            'total' => $permisos->count(),
-            'data' => $permisos,
+            'message' => 'Rol actualizado correctamente.',
+            'rol' => $rol,
         ]);
     }
 }

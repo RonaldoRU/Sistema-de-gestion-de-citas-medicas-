@@ -267,7 +267,21 @@
     html += '    <a href="' + pagePrefix() + NAV.home.href + '" class="vs-rail-link' + (isHome ? ' is-active' : '') + '" title="Inicio"' + (isHome ? ' aria-current="page"' : '') + '>' + icon('home', 'vs-i vs-rail-icon') + '<span class="vs-rail-label">Inicio</span></a>';
     html += '    <p class="vs-rail-section">Paquetes del sistema</p>';
 
+    var currentUserRole = 'ADMINISTRADOR';
+    try {
+      var rawUser = sessionStorage.getItem('vs_user') || localStorage.getItem('vs_user');
+      if (rawUser) {
+        var parsedUser = JSON.parse(rawUser);
+        var rName = parsedUser && parsedUser.rol ? (parsedUser.rol.nombre || parsedUser.rol) : 'ADMINISTRADOR';
+        currentUserRole = String(rName).toUpperCase();
+      }
+    } catch (eRole) {}
+    var isUserAdmin = currentUserRole.indexOf('ADMIN') !== -1;
+
     NAV.packages.forEach(function (pkg) {
+      if (pkg.id === 'P3' && !isUserAdmin) {
+        return; // Bitácora y auditoría exclusiva para el rol Administrador
+      }
       var hasActive = found && found.pkg.id === pkg.id;
       var isOpen = !!openSet[pkg.id];
       var listId = 'pkg-' + pkg.id.toLowerCase();

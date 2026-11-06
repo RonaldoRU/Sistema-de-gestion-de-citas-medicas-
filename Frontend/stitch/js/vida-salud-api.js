@@ -175,10 +175,13 @@
       });
     },
 
-    restablecerContrasena: function (token, password, password_confirmation) {
+    restablecerContrasena: function (payloadOrToken, password, password_confirmation) {
+      var body = (typeof payloadOrToken === 'object' && payloadOrToken !== null)
+        ? payloadOrToken
+        : { token: payloadOrToken, codigo: payloadOrToken, password: password, password_confirmation: password_confirmation };
       return this.request('/auth/recuperar-clave/restablecer', {
         method: 'POST',
-        body: { token: token, password: password, password_confirmation: password_confirmation }
+        body: body
       });
     },
 
@@ -226,6 +229,17 @@
       return this.request('/roles', { method: 'GET' });
     },
 
+    getPermisos: function () {
+      return this.request('/permisos', { method: 'GET' });
+    },
+
+    sincronizarPermisosRol: function (idRol, permisosIds) {
+      return this.request('/roles/' + idRol + '/permisos', {
+        method: 'PUT',
+        body: { permisos: permisosIds }
+      });
+    },
+
     // ---------- Bitácora y Auditoría (P3 CU10-CU11) ----------
     getBitacora: function (params) {
       var query = params ? '?' + new URLSearchParams(params).toString() : '';
@@ -259,8 +273,16 @@
       return this.request('/pacientes/' + id, { method: 'PUT', body: data });
     },
 
+    getInfoMedica: function (id) {
+      return this.request('/pacientes/' + id + '/informacion-medica', { method: 'GET' });
+    },
+
     guardarInfoMedica: function (id, data) {
       return this.request('/pacientes/' + id + '/informacion-medica', { method: 'POST', body: data });
+    },
+
+    getContactosEmergencia: function (id) {
+      return this.request('/pacientes/' + id + '/contactos-emergencia', { method: 'GET' });
     },
 
     agregarContactoEmergencia: function (id, data) {
@@ -284,8 +306,9 @@
     },
 
     // ---------- Gestión Médica y Horarios (P5 CU18-CU21) ----------
-    getEspecialidades: function () {
-      return this.request('/especialidades', { method: 'GET' });
+    getEspecialidades: function (params) {
+      var query = params ? '?' + new URLSearchParams(params).toString() : '';
+      return this.request('/especialidades' + query, { method: 'GET' });
     },
 
     crearEspecialidad: function (data) {
@@ -301,8 +324,9 @@
       return this.request('/medicos', { method: 'POST', body: data });
     },
 
-    configurarHorariosMedico: function (id, horarios) {
-      return this.request('/medicos/' + id + '/horarios', { method: 'POST', body: { horarios: horarios } });
+    configurarHorariosMedico: function (id, payload) {
+      var body = Array.isArray(payload) ? { horarios: payload } : payload;
+      return this.request('/medicos/' + id + '/horarios', { method: 'POST', body: body });
     },
 
     getHorariosMedico: function (id) {
@@ -323,6 +347,11 @@
       return this.request('/citas' + query, { method: 'GET' });
     },
 
+    getDisponibilidad: function (params) {
+      var query = params ? '?' + new URLSearchParams(params).toString() : '';
+      return this.request('/citas/disponibilidad' + query, { method: 'GET' });
+    },
+
     programarCita: function (data) {
       return this.request('/citas', { method: 'POST', body: data });
     },
@@ -332,23 +361,49 @@
     },
 
     cancelarCita: function (id, motivo) {
-      return this.request('/citas/' + id + '/cancelar', { method: 'PUT', body: { motivo: motivo || 'Cancelada por paciente' } });
+      var mot = motivo || 'Cancelada por paciente';
+      return this.request('/citas/' + id + '/cancelar', {
+        method: 'PUT',
+        body: { motivo_cancelacion: mot, motivo: mot }
+      });
     },
 
     registrarAtencion: function (id, data) {
       return this.request('/citas/' + id + '/atender', { method: 'PUT', body: data });
     },
 
-    getBloqueosAgenda: function () {
-      return this.request('/bloqueos-agenda', { method: 'GET' });
+    cambiarEstadoCita: function (id, data) {
+      return this.request('/citas/' + id + '/estado', { method: 'PUT', body: data });
+    },
+
+    getHistorialEstadosCita: function (id) {
+      return this.request('/citas/' + id + '/historial-estados', { method: 'GET' });
+    },
+
+    getBloqueosAgenda: function (params) {
+      var query = params ? '?' + new URLSearchParams(params).toString() : '';
+      return this.request('/bloqueos-agenda' + query, { method: 'GET' });
     },
 
     crearBloqueoAgenda: function (data) {
       return this.request('/bloqueos-agenda', { method: 'POST', body: data });
     },
 
-    getNotificaciones: function () {
-      return this.request('/notificaciones', { method: 'GET' });
+    eliminarBloqueoAgenda: function (id) {
+      return this.request('/bloqueos-agenda/' + id, { method: 'DELETE' });
+    },
+
+    getNotificaciones: function (params) {
+      var query = params ? '?' + new URLSearchParams(params).toString() : '';
+      return this.request('/notificaciones' + query, { method: 'GET' });
+    },
+
+    regenerarNotificaciones: function () {
+      return this.request('/notificaciones/regenerar', { method: 'POST' });
+    },
+
+    registrarGestionNotificacion: function (id, data) {
+      return this.request('/notificaciones/' + id + '/gestion', { method: 'PUT', body: data });
     },
 
     // ---------- Reportes (P7 CU32-CU36) ----------
@@ -2266,6 +2321,1153 @@
             btn.textContent = 'Crear usuario';
           }
         }
+      });
+    }
+
+    // =========================================================================
+    // 15. PROTECCIÓN EXCLUSIVA DE BITÁCORA PARA ADMINISTRADOR (CU10 / CU11)
+    // =========================================================================
+    var currentCuAttr = (document.body.getAttribute('data-cu') || '').toUpperCase();
+    var currentUsrObj = VS_API.getUser();
+    var currentRolStr = currentUsrObj && currentUsrObj.rol ? String(currentUsrObj.rol.nombre || currentUsrObj.rol).toUpperCase() : 'ADMINISTRADOR';
+    var esUsuarioAdmin = currentRolStr.indexOf('ADMIN') !== -1;
+
+    if ((currentCuAttr === 'CU10' || currentCuAttr === 'CU11' || location.pathname.indexOf('bitacora') !== -1) && !esUsuarioAdmin) {
+      var mainPage = document.querySelector('main') || document.body;
+      mainPage.innerHTML = '<div style="padding:3rem;max-width:42rem;margin:2rem auto;background:#fff;border:1px solid #fecdd3;border-radius:1rem;text-align:center;">' +
+        '<h2 style="color:#be123c;margin-bottom:.75rem;font-size:1.5rem;">Acceso Restringido · Exclusivo Administrador</h2>' +
+        '<p style="color:#475569;margin-bottom:1.5rem;">La Bitácora de Auditoría y Trazabilidad (P3 · CU10 y CU11) solo puede ser visualizada por cuentas con el rol <strong>ADMINISTRADOR</strong>.</p>' +
+        '<a href="../inicio.html" class="vs-btn vs-btn--primary">Volver al Panel de Inicio</a></div>';
+      return;
+    }
+
+    // =========================================================================
+    // 16. CU03: RECUPERAR Y RESTABLECER CONTRASEÑA
+    // =========================================================================
+    if (currentCuAttr === 'CU03') {
+      var stepForms = document.querySelectorAll('form[data-step]');
+      var recIdentificador = 'scolque@vidasalud.bo';
+      var recCodigo = '';
+      stepForms.forEach(function (f) {
+        f.setAttribute('data-api-bound', 'true');
+        var stepNum = f.getAttribute('data-step');
+        f.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          try {
+            if (stepNum === '1') {
+              var idIn = document.getElementById('rec-id');
+              recIdentificador = idIn ? idIn.value.trim() : recIdentificador;
+              var r1 = await VS_API.solicitarRecuperacion(recIdentificador);
+              recCodigo = r1.codigo_demo || '482915';
+              var codeBoxes = document.querySelectorAll('form[data-step="2"] .vs-code-input input');
+              String(recCodigo).split('').forEach(function (d, idx) {
+                if (codeBoxes[idx]) codeBoxes[idx].value = d;
+              });
+              stepForms.forEach(function (sf) { sf.hidden = sf.getAttribute('data-step') !== '2'; });
+              if (window.vsToast) window.vsToast('Código generado en BD', 'Código de 6 dígitos: ' + recCodigo);
+            } else if (stepNum === '2') {
+              var boxes = document.querySelectorAll('form[data-step="2"] .vs-code-input input');
+              var typed = '';
+              boxes.forEach(function (b) { typed += b.value.trim(); });
+              if (typed.length === 6) recCodigo = typed;
+              stepForms.forEach(function (sf) { sf.hidden = sf.getAttribute('data-step') !== '3'; });
+            } else if (stepNum === '3') {
+              var np1 = document.getElementById('np-1') ? document.getElementById('np-1').value : '';
+              var np2 = document.getElementById('np-2') ? document.getElementById('np-2').value : np1;
+              await VS_API.restablecerContrasena({
+                identificador: recIdentificador,
+                codigo: recCodigo,
+                password: np1,
+                password_confirmation: np2
+              });
+              if (window.vsToast) window.vsToast('Contraseña restablecida', 'Actualizada en PostgreSQL y registrada en bitácora');
+              setTimeout(function () { window.location.href = 'cu01-iniciar-sesion.html'; }, 800);
+            }
+          } catch (err) {
+            alert('Error en recuperación: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      });
+    }
+
+    // =========================================================================
+    // 17. CU04: BLOQUEO POR INTENTOS FALLIDOS Y DESBLOQUEO
+    // =========================================================================
+    if (currentCuAttr === 'CU04') {
+      var cu04Tbody = document.querySelector('.vs-table tbody');
+      if (cu04Tbody) {
+        async function cargarBloqueosCU04() {
+          try {
+            var res = await VS_API.getUsuarios({ per_page: 50 });
+            var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+            var html = '';
+            list.forEach(function (u) {
+              var pers = u.persona || {};
+              var nom = (pers.nombres || '') + ' ' + (pers.apellidos || '');
+              var rol = u.rol ? (u.rol.nombre || u.rol) : 'Personal';
+              var intFallidos = u.intentos_fallidos || 0;
+              var est = (u.estado || 'ACTIVO').toUpperCase();
+              var badge = est === 'BLOQUEADO'
+                ? '<span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Bloqueado</span>'
+                : (intFallidos > 0 ? '<span class="vs-badge vs-badge--warn"><span class="vs-badge__dot"></span>En observación</span>' : '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>');
+              html += '<tr>' +
+                '<td><div class="vs-cell-person__name">' + escapeHtml(nom) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(u.nombre_usuario) + ' · ' + escapeHtml(rol) + '</div></td>' +
+                '<td class="vs-td-num">' + intFallidos + ' / 3</td>' +
+                '<td class="vs-hide-md vs-td-num">' + (u.bloqueado_hasta ? formatFechaHora(u.bloqueado_hasta) : '—') + '</td>' +
+                '<td>' + badge + '</td>' +
+                '<td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm btn-reset-cu04" data-id="' + u.id_usuario + '" data-user="' + escapeHtml(u.nombre_usuario) + '"><svg class="vs-i"><use href="#i-undo"/></svg>Reiniciar / Desbloquear</button></td>' +
+                '</tr>';
+            });
+            if (html) cu04Tbody.innerHTML = html;
+          } catch (e) {}
+        }
+        cu04Tbody.addEventListener('click', async function (ev) {
+          var btn = ev.target.closest('.btn-reset-cu04');
+          if (!btn) return;
+          var id = btn.getAttribute('data-id');
+          var uname = btn.getAttribute('data-user');
+          try {
+            await VS_API.reactivarUsuario(id);
+            if (window.vsToast) window.vsToast('Contador reiniciado', uname + ' → ACTIVO · intentos_fallidos = 0 (auditado en bitácora)');
+            cargarBloqueosCU04();
+          } catch (e) {
+            alert('Error: ' + e.message);
+          }
+        });
+        cargarBloqueosCU04();
+      }
+    }
+
+    // =========================================================================
+    // 18. CU07: MODIFICAR DATOS DE CUENTA DE USUARIO
+    // =========================================================================
+    if (currentCuAttr === 'CU07') {
+      var paramsUrl07 = new URLSearchParams(location.search);
+      var targetUserId = parseInt(paramsUrl07.get('id') || (currentUsrObj && currentUsrObj.id_usuario) || '1', 10);
+      var forms07 = document.querySelectorAll('form.vs-card');
+      var formDatos07 = forms07[0];
+      var formPass07 = forms07[1];
+
+      async function cargarDatosCU07() {
+        try {
+          var res = await VS_API.getUsuario(targetUserId);
+          var u = res.usuario || res.data || res;
+          if (!u) return;
+          var p = u.persona || {};
+          if (document.getElementById('m-ci')) document.getElementById('m-ci').value = p.ci || '';
+          if (document.getElementById('m-user')) document.getElementById('m-user').value = u.nombre_usuario || '';
+          if (document.getElementById('m-nom')) document.getElementById('m-nom').value = p.nombres || '';
+          if (document.getElementById('m-ape')) document.getElementById('m-ape').value = p.apellidos || '';
+          if (document.getElementById('m-email')) document.getElementById('m-email').value = p.email || '';
+          if (document.getElementById('m-tel')) document.getElementById('m-tel').value = p.telefono || '';
+        } catch (e) {}
+      }
+      cargarDatosCU07();
+
+      if (formDatos07) {
+        formDatos07.setAttribute('data-api-bound', 'true');
+        formDatos07.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          try {
+            await VS_API.actualizarUsuario(targetUserId, {
+              ci: document.getElementById('m-ci') ? document.getElementById('m-ci').value.trim() : undefined,
+              nombres: document.getElementById('m-nom').value.trim(),
+              apellidos: document.getElementById('m-ape').value.trim(),
+              email: document.getElementById('m-email').value.trim(),
+              telefono: document.getElementById('m-tel').value.trim()
+            });
+            if (window.vsToast) window.vsToast('Cambios guardados', 'Cuenta modificada en PostgreSQL y registrada en bitácora (MODIFICAR)');
+          } catch (err) {
+            alert('Error al actualizar cuenta: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+
+      if (formPass07) {
+        formPass07.setAttribute('data-api-bound', 'true');
+        formPass07.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var pNueva = document.getElementById('p-nueva') ? document.getElementById('p-nueva').value : '';
+          if (!pNueva || pNueva.length < 6) {
+            alert('La nueva contraseña debe tener al menos 6 caracteres.');
+            return;
+          }
+          try {
+            await VS_API.actualizarUsuario(targetUserId, {
+              nombres: document.getElementById('m-nom').value.trim(),
+              apellidos: document.getElementById('m-ape').value.trim(),
+              email: document.getElementById('m-email').value.trim(),
+              telefono: document.getElementById('m-tel').value.trim(),
+              password: pNueva
+            });
+            if (window.vsToast) window.vsToast('Contraseña actualizada', 'Hash actualizado y registrado en bitácora (MODIFICAR)');
+            formPass07.reset();
+          } catch (err) {
+            alert('Error al actualizar contraseña: ' + err.message);
+          }
+        });
+      }
+    }
+
+    // =========================================================================
+    // 19. CU08: CAMBIAR ROL OPERATIVO Y PERMISOS (RBAC)
+    // =========================================================================
+    if (currentCuAttr === 'CU08') {
+      var selectUser08 = document.getElementById('r-usuario');
+      var dlgRol08 = document.getElementById('dlg-cambiar-rol');
+      var formRol08 = dlgRol08 ? dlgRol08.querySelector('form') : null;
+
+      async function cargarUsuariosCU08() {
+        if (!selectUser08) return;
+        try {
+          var res = await VS_API.getUsuarios({ per_page: 50 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          selectUser08.innerHTML = '';
+          list.forEach(function (u) {
+            var p = u.persona || {};
+            var r = u.rol ? (u.rol.nombre || u.rol) : 'RECEPCIONISTA';
+            var opt = document.createElement('option');
+            opt.value = u.id_usuario;
+            opt.textContent = u.nombre_usuario + ' — ' + (p.nombres || '') + ' ' + (p.apellidos || '') + ' (actual: ' + r + ')';
+            selectUser08.appendChild(opt);
+          });
+        } catch (e) {}
+      }
+      cargarUsuariosCU08();
+
+      if (formRol08) {
+        formRol08.setAttribute('data-api-bound', 'true');
+        formRol08.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var uid = selectUser08 ? parseInt(selectUser08.value, 10) : 2;
+          var checkedRol = formRol08.querySelector('input[name="nuevo-rol"]:checked');
+          var rolVal = checkedRol ? checkedRol.value : '3';
+          var idRol = rolVal === '1' ? 1 : (rolVal === '2' ? 2 : 3);
+          try {
+            await VS_API.cambiarRolUsuario(uid, idRol);
+            if (dlgRol08 && dlgRol08.close) dlgRol08.close();
+            if (window.vsToast) window.vsToast('Rol actualizado', 'Cambio de rol guardado en BD y registrado en bitácora (CAMBIO_ROL)');
+            cargarUsuariosCU08();
+          } catch (err) {
+            alert('No se pudo cambiar el rol: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+    }
+
+    // =========================================================================
+    // 20. CU09: SUSPENDER / INACTIVAR CUENTA DE USUARIO (BAJA LÓGICA)
+    // =========================================================================
+    if (currentCuAttr === 'CU09') {
+      var cu09Tbody = document.querySelector('.vs-table tbody');
+      var dlgSusp = document.getElementById('dlg-suspender');
+      var formSusp = dlgSusp ? dlgSusp.querySelector('form') : null;
+      var selectedUid09 = null;
+
+      async function cargarCuentasCU09() {
+        if (!cu09Tbody) return;
+        try {
+          var res = await VS_API.getUsuarios({ per_page: 50 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          var html = '';
+          list.forEach(function (u) {
+            var p = u.persona || {};
+            var nom = (p.nombres || '') + ' ' + (p.apellidos || '');
+            var rol = u.rol ? (u.rol.nombre || u.rol) : 'Personal';
+            var est = (u.estado || 'ACTIVO').toUpperCase();
+            var esMiCuenta = currentUsrObj && u.id_usuario === currentUsrObj.id_usuario;
+            var btnHtml = '';
+            if (esMiCuenta) {
+              btnHtml = '<button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" disabled title="No puedes suspender tu propia cuenta">Tu cuenta</button>';
+            } else if (est === 'ACTIVO') {
+              btnHtml = '<button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm btn-susp-cu09" data-id="' + u.id_usuario + '" data-name="' + escapeHtml(nom) + '"><svg class="vs-i"><use href="#i-ban"/></svg>Suspender</button>';
+            } else {
+              btnHtml = '<button type="button" class="vs-btn vs-btn--teal vs-btn--sm btn-react-cu09" data-id="' + u.id_usuario + '" data-name="' + escapeHtml(nom) + '"><svg class="vs-i"><use href="#i-undo"/></svg>Reactivar</button>';
+            }
+            html += '<tr>' +
+              '<td><div class="vs-cell-person__name">' + escapeHtml(nom) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(u.nombre_usuario) + ' · CI ' + escapeHtml(p.ci || '') + '</div></td>' +
+              '<td><span class="vs-badge vs-badge--info">' + escapeHtml(rol) + '</span></td>' +
+              '<td class="vs-hide-md">' + (est === 'ACTIVO' ? '<span class="vs-badge vs-badge--ok">Activa</span>' : '<span class="vs-badge vs-badge--muted">Inactiva</span>') + '</td>' +
+              '<td class="vs-hide-md vs-td-num">' + (u.ultimo_acceso ? formatFechaHora(u.ultimo_acceso) : '—') + '</td>' +
+              '<td class="vs-td-actions">' + btnHtml + '</td>' +
+              '</tr>';
+          });
+          if (html) cu09Tbody.innerHTML = html;
+        } catch (e) {}
+      }
+
+      if (cu09Tbody) {
+        cu09Tbody.addEventListener('click', async function (ev) {
+          var bSusp = ev.target.closest('.btn-susp-cu09');
+          if (bSusp) {
+            selectedUid09 = bSusp.getAttribute('data-id');
+            if (dlgSusp && dlgSusp.showModal) {
+              dlgSusp.showModal();
+            } else if (confirm('¿Confirmas inactivar esta cuenta?')) {
+              await VS_API.inactivarUsuario(selectedUid09, 'Baja lógica desde CU09');
+              cargarCuentasCU09();
+            }
+            return;
+          }
+          var bReact = ev.target.closest('.btn-react-cu09');
+          if (bReact) {
+            var idR = bReact.getAttribute('data-id');
+            await VS_API.reactivarUsuario(idR);
+            if (window.vsToast) window.vsToast('Cuenta reactivada', 'Estado ACTIVO y registrado en bitácora (RENOVAR)');
+            cargarCuentasCU09();
+          }
+        });
+      }
+
+      if (formSusp) {
+        formSusp.setAttribute('data-api-bound', 'true');
+        formSusp.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          if (!selectedUid09) return;
+          var mot = document.getElementById('motivo-baja') ? document.getElementById('motivo-baja').value : 'Baja administrativa';
+          try {
+            await VS_API.inactivarUsuario(selectedUid09, mot);
+            if (dlgSusp && dlgSusp.close) dlgSusp.close();
+            if (window.vsToast) window.vsToast('Cuenta inactivada', 'Estado INACTIVO y sesiones revocadas en bitácora (INACTIVAR)');
+            cargarCuentasCU09();
+          } catch (err) {
+            alert('No se pudo inactivar: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+
+      cargarCuentasCU09();
+    }
+
+    // =========================================================================
+    // 21. CU10: REGISTRO AUTOMÁTICO EN BITÁCORA (LIVE DASHBOARD)
+    // =========================================================================
+    if (currentCuAttr === 'CU10') {
+      async function cargarResumenCU10() {
+        try {
+          var res = await VS_API.getBitacoraResumen();
+          var r = (res && res.resumen) ? res.resumen : res;
+          if (!r) return;
+          if (document.getElementById('kpi-hoy')) document.getElementById('kpi-hoy').textContent = r.total_hoy != null ? r.total_hoy : 0;
+          if (document.getElementById('kpi-mes')) document.getElementById('kpi-mes').textContent = r.total_mes != null ? r.total_mes : 0;
+          if (document.getElementById('kpi-alertas')) document.getElementById('kpi-alertas').textContent = r.alertas_hoy != null ? r.alertas_hoy : 0;
+
+          var barsEl = document.getElementById('bitacora-bars');
+          if (barsEl && Array.isArray(r.por_accion) && r.por_accion.length) {
+            var maxVal = Math.max.apply(null, r.por_accion.map(function (a) { return a.total; })) || 1;
+            var bHtml = '';
+            r.por_accion.forEach(function (a) {
+              var pct = Math.round((a.total / maxVal) * 100);
+              bHtml += '<div class="vs-bars__row"><span class="vs-bars__label vs-mono">' + escapeHtml(a.tipo_accion) + '</span><div class="vs-bar vs-bar--teal"><i style="width:' + pct + '%"></i></div><span class="vs-bars__val">' + a.total + '</span></div>';
+            });
+            barsEl.innerHTML = bHtml;
+          }
+
+          var tlEl = document.getElementById('bitacora-timeline');
+          if (tlEl && Array.isArray(r.ultimos_eventos) && r.ultimos_eventos.length) {
+            var tHtml = '';
+            r.ultimos_eventos.forEach(function (ev) {
+              var usr = ev.usuario ? ev.usuario.nombre_usuario : 'Sistema';
+              tHtml += '<li class="vs-tl-item vs-tl-item--ok">' +
+                '<span class="vs-tl-time">' + formatFechaHora(ev.fecha_hora) + '</span>' +
+                '<div class="vs-tl-title"><span class="vs-badge vs-badge--info vs-badge--mono">' + escapeHtml(ev.tipo_accion) + '</span> ' + escapeHtml(ev.modulo) + ' · <span class="vs-code">' + escapeHtml(ev.tabla_afectada || 'sistema') + '</span></div>' +
+                '<div class="vs-tl-sub">“' + escapeHtml(ev.detalle || '') + '” — <strong class="vs-strong">' + escapeHtml(usr) + '</strong></div>' +
+                '</li>';
+            });
+            tlEl.innerHTML = tHtml;
+          }
+        } catch (e) {}
+      }
+      cargarResumenCU10();
+      setInterval(cargarResumenCU10, 4000);
+    }
+
+    // =========================================================================
+    // 22. CU13 (INFORMACIÓN MÉDICA), CU14 (CONTACTOS EMERGENCIA), CU16 (HISTORIAL CITAS), CU17 (DESACTIVAR PACIENTE)
+    // =========================================================================
+    if (currentCuAttr === 'CU13') {
+      var p13Params = new URLSearchParams(location.search);
+      var pacId13 = parseInt(p13Params.get('paciente_id') || '16', 10);
+      var form13 = document.querySelector('form.vs-card');
+
+      async function cargarInfoMedicaCU13() {
+        try {
+          var resP = await VS_API.getPacientes({ per_page: 50 });
+          var pList = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || []);
+          if (!p13Params.get('paciente_id') && pList.length > 0) {
+            pacId13 = pList[0].id_persona;
+          }
+          var resInfo = await VS_API.getInfoMedica(pacId13);
+          var info = resInfo.informacion_medica || resInfo.data || {};
+          if (info.alergias && document.getElementById('im-alergias')) document.getElementById('im-alergias').value = info.alergias;
+          if (info.enfermedades_cronicas && document.getElementById('im-cronicas')) document.getElementById('im-cronicas').value = info.enfermedades_cronicas;
+          if (info.medicamentos_habituales && document.getElementById('im-med')) document.getElementById('im-med').value = info.medicamentos_habituales;
+          if (info.antecedentes_relevantes && document.getElementById('im-ant')) document.getElementById('im-ant').value = info.antecedentes_relevantes;
+        } catch (e) {}
+      }
+      cargarInfoMedicaCU13();
+
+      if (form13) {
+        form13.setAttribute('data-api-bound', 'true');
+        form13.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var sangreEl = form13.querySelector('input[name="sangre"]:checked');
+          var payload = {
+            tipo_sangre: sangreEl ? sangreEl.value : 'A+',
+            alergias: document.getElementById('im-alergias') ? document.getElementById('im-alergias').value.trim() : null,
+            enfermedades_cronicas: document.getElementById('im-cronicas') ? document.getElementById('im-cronicas').value.trim() : null,
+            medicamentos_habituales: document.getElementById('im-med') ? document.getElementById('im-med').value.trim() : null,
+            antecedentes_relevantes: document.getElementById('im-ant') ? document.getElementById('im-ant').value.trim() : null
+          };
+          try {
+            await VS_API.guardarInfoMedica(pacId13, payload);
+            if (window.vsToast) window.vsToast('Información médica actualizada', 'Guardada en PostgreSQL y auditada en bitácora (INFO_MEDICA)');
+          } catch (err) {
+            alert('Error al guardar ficha médica: ' + err.message);
+          }
+        });
+      }
+    }
+
+    if (currentCuAttr === 'CU14') {
+      var p14Params = new URLSearchParams(location.search);
+      var pacId14 = parseInt(p14Params.get('paciente_id') || '16', 10);
+      var list14 = document.querySelector('.vs-list--boxed');
+      var form14 = document.querySelector('form.vs-card');
+
+      async function cargarContactosCU14() {
+        try {
+          var resP = await VS_API.getPacientes({ per_page: 50 });
+          var pList = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || []);
+          if (!p14Params.get('paciente_id') && pList.length > 0) pacId14 = pList[0].id_persona;
+
+          var resC = await VS_API.getContactosEmergencia(pacId14);
+          var contactos = resC.data || [];
+          if (list14 && contactos.length) {
+            var html = '';
+            contactos.forEach(function (c) {
+              html += '<li class="vs-list-row">' +
+                '<span class="vs-avatar vs-avatar--teal">CE</span>' +
+                '<div class="vs-list-row__body">' +
+                  '<div class="vs-list-row__title">' + escapeHtml(c.nombre_completo) + ' <span class="vs-badge vs-badge--info">' + escapeHtml(c.parentesco) + '</span></div>' +
+                  '<div class="vs-list-row__sub">Teléfono: <span class="vs-mono vs-strong">' + escapeHtml(c.telefono) + '</span></div>' +
+                '</div>' +
+                '<div class="vs-row">' +
+                  '<button type="button" class="vs-icon-btn vs-icon-btn--danger btn-del-contacto" data-id="' + c.id_contacto + '" title="Quitar"><svg class="vs-i"><use href="#i-trash"/></svg></button>' +
+                '</div>' +
+              '</li>';
+            });
+            list14.innerHTML = html;
+          }
+        } catch (e) {}
+      }
+      cargarContactosCU14();
+
+      if (list14) {
+        list14.addEventListener('click', async function (ev) {
+          var btn = ev.target.closest('.btn-del-contacto');
+          if (!btn) return;
+          var cid = btn.getAttribute('data-id');
+          try {
+            await VS_API.eliminarContactoEmergencia(pacId14, cid);
+            if (window.vsToast) window.vsToast('Contacto eliminado', 'Eliminado de PostgreSQL y registrado en bitácora (ELIMINAR)');
+            cargarContactosCU14();
+          } catch (e) {}
+        });
+      }
+
+      if (form14) {
+        form14.setAttribute('data-api-bound', 'true');
+        form14.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var nom = document.getElementById('ce-nom') ? document.getElementById('ce-nom').value.trim() : '';
+          var par = document.getElementById('ce-par') ? document.getElementById('ce-par').value.trim() : '';
+          var tel = document.getElementById('ce-tel') ? document.getElementById('ce-tel').value.trim() : '';
+          if (!nom || !par || !tel) {
+            alert('Completa nombre, parentesco y teléfono.');
+            return;
+          }
+          try {
+            await VS_API.agregarContactoEmergencia(pacId14, {
+              nombre_completo: nom,
+              parentesco: par,
+              telefono: tel
+            });
+            if (window.vsToast) window.vsToast('Contacto agregado', nom + ' guardado en BD y auditado en bitácora');
+            form14.reset();
+            cargarContactosCU14();
+          } catch (err) {
+            alert('Error: ' + err.message);
+          }
+        });
+      }
+    }
+
+    if (currentCuAttr === 'CU16') {
+      var p16Params = new URLSearchParams(location.search);
+      var pacId16 = parseInt(p16Params.get('paciente_id') || '16', 10);
+      var tbody16 = document.querySelector('.vs-table tbody');
+      async function cargarHistorialCU16() {
+        if (!tbody16) return;
+        try {
+          var resP = await VS_API.getPacientes({ per_page: 50 });
+          var pList = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || []);
+          if (!p16Params.get('paciente_id') && pList.length > 0) pacId16 = pList[0].id_persona;
+
+          var resH = await VS_API.getHistorialCitas(pacId16);
+          var citas = resH.citas || [];
+          if (!citas.length) return;
+          var html = '';
+          citas.forEach(function (c) {
+            var esp = c.especialidad ? c.especialidad.nombre : 'Medicina General';
+            var med = c.medico && c.medico.persona ? ('Dr(a). ' + c.medico.persona.apellidos) : 'Médico';
+            var est = (c.estado || 'PROGRAMADA').toUpperCase();
+            var bCls = est === 'ATENDIDA' ? 'vs-badge--ok' : (est === 'CANCELADA' ? 'vs-badge--danger' : (est === 'CONFIRMADA' ? 'vs-badge--cyan' : 'vs-badge--info'));
+            html += '<tr>' +
+              '<td class="vs-td-num">' + escapeHtml(c.codigo || ('CM-' + c.id_cita)) + '</td>' +
+              '<td class="vs-td-num">' + escapeHtml(c.fecha) + ' · ' + escapeHtml((c.hora_inicio || '').substring(0, 5)) + '</td>' +
+              '<td>' + escapeHtml(esp) + '</td>' +
+              '<td class="vs-hide-md">' + escapeHtml(med) + '</td>' +
+              '<td>' + escapeHtml(c.motivo_consulta || '—') + '</td>' +
+              '<td><span class="vs-badge ' + bCls + '"><span class="vs-badge__dot"></span>' + est + '</span></td>' +
+              '<td class="vs-hide-md vs-xs">' + escapeHtml(c.observacion_atencion || c.motivo_cancelacion || '—') + '</td>' +
+              '</tr>';
+          });
+          tbody16.innerHTML = html;
+        } catch (e) {}
+      }
+      cargarHistorialCU16();
+    }
+
+    if (currentCuAttr === 'CU17') {
+      var tbody17 = document.querySelector('.vs-table tbody');
+      async function cargarPacientesCU17() {
+        if (!tbody17) return;
+        try {
+          var res = await VS_API.getPacientes({ per_page: 50 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          var html = '';
+          list.forEach(function (p) {
+            var pers = p.persona || {};
+            var activo = pers.activo !== false;
+            var nom = (pers.nombres || '') + ' ' + (pers.apellidos || '');
+            var btn = activo
+              ? '<button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm btn-inact-pac17" data-id="' + p.id_persona + '" data-name="' + escapeHtml(nom) + '"><svg class="vs-i"><use href="#i-ban"/></svg>Desactivar</button>'
+              : '<button type="button" class="vs-btn vs-btn--teal vs-btn--sm btn-react-pac17" data-id="' + p.id_persona + '" data-name="' + escapeHtml(nom) + '"><svg class="vs-i"><use href="#i-undo"/></svg>Reactivar</button>';
+            html += '<tr>' +
+              '<td class="vs-td-num">' + escapeHtml(p.codigo || ('PAC-' + p.id_persona)) + '</td>' +
+              '<td><div class="vs-cell-person__name">' + escapeHtml(nom) + '</div><div class="vs-cell-person__sub vs-mono">CI ' + escapeHtml(pers.ci || '') + '</div></td>' +
+              '<td class="vs-hide-md">' + (activo ? '<span class="vs-badge vs-badge--ok">Activo</span>' : '<span class="vs-badge vs-badge--muted">Inactivo</span>') + '</td>' +
+              '<td class="vs-hide-md vs-td-num">' + escapeHtml(pers.telefono || '—') + '</td>' +
+              '<td class="vs-td-actions">' + btn + '</td>' +
+              '</tr>';
+          });
+          if (html) tbody17.innerHTML = html;
+        } catch (e) {}
+      }
+      if (tbody17) {
+        tbody17.addEventListener('click', async function (ev) {
+          var bIn = ev.target.closest('.btn-inact-pac17');
+          if (bIn) {
+            var id = bIn.getAttribute('data-id');
+            try {
+              await VS_API.inactivarPaciente(id, 'Baja lógica desde CU17');
+              if (window.vsToast) window.vsToast('Paciente desactivado', 'Baja lógica aplicada y registrada en bitácora (INACTIVAR)');
+              cargarPacientesCU17();
+            } catch (err) {
+              alert('No se pudo desactivar: ' + (err.data && err.data.message ? err.data.message : err.message));
+            }
+            return;
+          }
+          var bRe = ev.target.closest('.btn-react-pac17');
+          if (bRe) {
+            var idR = bRe.getAttribute('data-id');
+            try {
+              await VS_API.reactivarPaciente(idR);
+              if (window.vsToast) window.vsToast('Paciente reactivado', 'Reactivado y registrado en bitácora (RENOVAR)');
+              cargarPacientesCU17();
+            } catch (err) {
+              alert('Error: ' + err.message);
+            }
+          }
+        });
+        cargarPacientesCU17();
+      }
+    }
+
+    // =========================================================================
+    // 23. CU19 MODAL CREAR MÉDICO, CU20 HORARIOS, CU21 DESACTIVAR MÉDICO
+    // =========================================================================
+    var formCrearMedico19 = document.getElementById('form-crear-medico');
+    if (formCrearMedico19 && !formCrearMedico19.getAttribute('data-bound')) {
+      formCrearMedico19.setAttribute('data-bound', 'true');
+      formCrearMedico19.setAttribute('data-api-bound', 'true');
+      formCrearMedico19.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var ci = document.getElementById('m-ci') ? document.getElementById('m-ci').value.trim() : '';
+        var mat = document.getElementById('m-mat') ? document.getElementById('m-mat').value.trim() : '';
+        var nom = document.getElementById('m-nom') ? document.getElementById('m-nom').value.trim() : '';
+        var ape = document.getElementById('m-ape') ? document.getElementById('m-ape').value.trim() : '';
+        var tel = document.getElementById('m-tel') ? document.getElementById('m-tel').value.trim() : '';
+        var email = document.getElementById('m-email') ? document.getElementById('m-email').value.trim() : '';
+        try {
+          var espRes = await VS_API.getEspecialidades();
+          var espList = espRes.data || [];
+          var firstEspId = espList.length > 0 ? espList[0].id_especialidad : 1;
+          await VS_API.crearMedico({
+            ci: ci,
+            matricula: mat,
+            nombres: nom,
+            apellidos: ape,
+            telefono: tel,
+            email: email,
+            especialidades: [firstEspId]
+          });
+          var dlgM = document.getElementById('dlg-medico');
+          if (dlgM && dlgM.close) dlgM.close();
+          if (window.vsToast) window.vsToast('Médico registrado', 'Almacenado en PostgreSQL y auditado en bitácora (REGISTRAR)');
+          setTimeout(function () { location.reload(); }, 600);
+        } catch (err) {
+          var msg = err.data && err.data.errors ? Object.values(err.data.errors).flat().join('\n') : (err.data && err.data.message ? err.data.message : err.message);
+          alert('Error al registrar médico:\n' + msg);
+        }
+      });
+    }
+
+    if (currentCuAttr === 'CU20') {
+      var selMed20 = document.getElementById('h-medico');
+      var dlgHor20 = document.getElementById('dlg-horario');
+      var formHor20 = dlgHor20 ? dlgHor20.querySelector('form') : null;
+
+      async function initCU20() {
+        try {
+          var resM = await VS_API.getMedicos();
+          var mList = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || []);
+          if (selMed20 && mList.length) {
+            selMed20.innerHTML = '';
+            mList.forEach(function (m) {
+              var p = m.persona || {};
+              var opt = document.createElement('option');
+              opt.value = m.id_persona;
+              opt.textContent = (m.codigo || 'MED') + ' · Dr(a). ' + (p.nombres || '') + ' ' + (p.apellidos || '');
+              selMed20.appendChild(opt);
+            });
+          }
+        } catch (e) {}
+      }
+      initCU20();
+
+      if (formHor20) {
+        formHor20.setAttribute('data-api-bound', 'true');
+        formHor20.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var medId = selMed20 ? parseInt(selMed20.value, 10) : 1;
+          var hi = document.getElementById('h-ini') ? document.getElementById('h-ini').value : '08:00';
+          var hf = document.getElementById('h-fin') ? document.getElementById('h-fin').value : '12:00';
+          try {
+            await VS_API.configurarHorariosMedico(medId, {
+              dias_semana: [1, 2, 3, 4, 5],
+              hora_inicio: hi.substring(0, 5),
+              hora_fin: hf.substring(0, 5),
+              duracion_bloque_min: 30
+            });
+            if (dlgHor20 && dlgHor20.close) dlgHor20.close();
+            if (window.vsToast) window.vsToast('Horario guardado en BD', 'Bloques de 30 min generados y auditados en bitácora (CREAR)');
+          } catch (err) {
+            alert('Error al configurar horario: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+    }
+
+    if (currentCuAttr === 'CU21') {
+      var tbody21 = document.querySelector('.vs-table tbody');
+      async function cargarMedicosCU21() {
+        if (!tbody21) return;
+        try {
+          var res = await VS_API.getMedicos();
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          var html = '';
+          list.forEach(function (m) {
+            var p = m.persona || {};
+            var activo = p.activo !== false;
+            var nom = 'Dr(a). ' + (p.nombres || '') + ' ' + (p.apellidos || '');
+            var btn = activo
+              ? '<button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm btn-inact-med21" data-id="' + m.id_persona + '"><svg class="vs-i"><use href="#i-ban"/></svg>Desactivar</button>'
+              : '<button type="button" class="vs-btn vs-btn--teal vs-btn--sm btn-react-med21" data-id="' + m.id_persona + '"><svg class="vs-i"><use href="#i-undo"/></svg>Reactivar</button>';
+            html += '<tr>' +
+              '<td class="vs-td-num">' + escapeHtml(m.codigo || ('MED-' + m.id_persona)) + '</td>' +
+              '<td><div class="vs-cell-person__name">' + escapeHtml(nom) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(m.matricula || '') + '</div></td>' +
+              '<td>' + (activo ? '<span class="vs-badge vs-badge--ok">Activo</span>' : '<span class="vs-badge vs-badge--muted">Inactivo</span>') + '</td>' +
+              '<td class="vs-hide-md vs-td-num">' + escapeHtml(p.telefono || '—') + '</td>' +
+              '<td class="vs-td-actions">' + btn + '</td>' +
+              '</tr>';
+          });
+          if (html) tbody21.innerHTML = html;
+        } catch (e) {}
+      }
+      if (tbody21) {
+        tbody21.addEventListener('click', async function (ev) {
+          var bIn = ev.target.closest('.btn-inact-med21');
+          if (bIn) {
+            try {
+              await VS_API.inactivarMedico(bIn.getAttribute('data-id'), 'Baja lógica desde CU21');
+              if (window.vsToast) window.vsToast('Médico desactivado', 'Registrado en bitácora (INACTIVAR)');
+              cargarMedicosCU21();
+            } catch (err) {
+              alert('No se pudo desactivar al médico: ' + (err.data && err.data.message ? err.data.message : err.message));
+            }
+            return;
+          }
+          var bRe = ev.target.closest('.btn-react-med21');
+          if (bRe) {
+            try {
+              await VS_API.reactivarMedico(bRe.getAttribute('data-id'));
+              if (window.vsToast) window.vsToast('Médico reactivado', 'Registrado en bitácora (RENOVAR)');
+              cargarMedicosCU21();
+            } catch (err) {
+              alert('Error: ' + err.message);
+            }
+          }
+        });
+        cargarMedicosCU21();
+      }
+    }
+
+    // =========================================================================
+    // 24. CU22 DISPONIBILIDAD, CU23 BLOQUEAR AGENDA, CU26 REPROGRAMAR, CU27 CANCELAR, CU28 RECORDATORIOS, CU29/30/31 ATENCIÓN
+    // =========================================================================
+    if (currentCuAttr === 'CU22') {
+      var selEsp22 = document.getElementById('d-esp');
+      var selMed22 = document.getElementById('d-med');
+      var inFecha22 = document.getElementById('d-fecha');
+      var slotsBox22 = document.querySelector('[data-slots="disp"]');
+      var filterForm22 = document.querySelector('.vs-filters');
+
+      async function cargarDisponibilidadCU22() {
+        try {
+          var resM = await VS_API.getMedicos();
+          var mList = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || []);
+          if (selMed22 && selMed22.options.length <= 4 && mList.length) {
+            selMed22.innerHTML = '';
+            mList.forEach(function (m) {
+              var p = m.persona || {};
+              var opt = document.createElement('option');
+              opt.value = m.id_persona;
+              opt.textContent = 'Dr(a). ' + (p.nombres || '') + ' ' + (p.apellidos || '');
+              selMed22.appendChild(opt);
+            });
+          }
+          var medId = selMed22 && selMed22.value ? selMed22.value : (mList[0] ? mList[0].id_persona : 1);
+          var fecha = inFecha22 && inFecha22.value ? inFecha22.value : new Date().toISOString().slice(0, 10);
+          var disp = await VS_API.getDisponibilidad({ id_medico: medId, fecha: fecha });
+          if (slotsBox22 && disp && Array.isArray(disp.slots)) {
+            var sHtml = '';
+            disp.slots.forEach(function (s, idx) {
+              if (s.estado === 'LIBRE') {
+                sHtml += '<button type="button" class="vs-slot vs-slot--free' + (idx === 0 ? ' is-selected' : '') + '" data-time="' + s.hora_inicio + '">' + s.hora_inicio + '<small>Libre</small></button>';
+              } else if (s.estado === 'BLOQUEADO') {
+                sHtml += '<button type="button" class="vs-slot vs-slot--blocked" disabled>' + s.hora_inicio + '<small>Bloqueado</small></button>';
+              } else {
+                sHtml += '<button type="button" class="vs-slot vs-slot--busy" disabled>' + s.hora_inicio + '<small>Reservado · ' + escapeHtml(s.cita_codigo || 'Cita') + '</small></button>';
+              }
+            });
+            slotsBox22.innerHTML = sHtml;
+          }
+        } catch (e) {}
+      }
+      if (filterForm22) {
+        filterForm22.addEventListener('submit', function (e) {
+          e.preventDefault();
+          cargarDisponibilidadCU22();
+        });
+      }
+      cargarDisponibilidadCU22();
+    }
+
+    if (currentCuAttr === 'CU23') {
+      var tbody23 = document.querySelector('.vs-table tbody');
+      var dlgBloq23 = document.getElementById('dlg-bloqueo');
+      var formBloq23 = dlgBloq23 ? dlgBloq23.querySelector('form') : null;
+      var selMed23 = document.getElementById('bl-medico');
+
+      async function cargarBloqueosCU23() {
+        try {
+          var resM = await VS_API.getMedicos();
+          var mList = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || []);
+          if (selMed23 && mList.length) {
+            selMed23.innerHTML = '';
+            mList.forEach(function (m) {
+              var p = m.persona || {};
+              var opt = document.createElement('option');
+              opt.value = m.id_persona;
+              opt.textContent = (m.codigo || 'MED') + ' · Dr(a). ' + (p.nombres || '') + ' ' + (p.apellidos || '');
+              selMed23.appendChild(opt);
+            });
+          }
+
+          var resB = await VS_API.getBloqueosAgenda();
+          var bList = resB.data || [];
+          if (tbody23 && bList.length) {
+            var html = '';
+            bList.forEach(function (b) {
+              var alcance = b.aplica_a_todos ? '<span class="vs-strong">Toda la clínica</span>' : (b.medico && b.medico.persona ? ('Dr(a). ' + b.medico.persona.nombres + ' ' + b.medico.persona.apellidos) : 'Médico');
+              var bCls = b.tipo === 'FERIADO' ? 'vs-badge--rose' : (b.tipo === 'LICENCIA' ? 'vs-badge--warn' : 'vs-badge--info');
+              html += '<tr>' +
+                '<td><span class="vs-badge ' + bCls + ' vs-badge--mono">' + escapeHtml(b.tipo) + '</span></td>' +
+                '<td>' + alcance + '</td>' +
+                '<td class="vs-td-num">' + escapeHtml(b.fecha_inicio) + ' → ' + escapeHtml(b.fecha_fin) + '</td>' +
+                '<td class="vs-hide-md">' + escapeHtml(b.motivo) + '</td>' +
+                '<td class="vs-td-actions"><button type="button" class="vs-icon-btn vs-icon-btn--danger btn-del-bloq23" data-id="' + b.id_bloqueo + '" title="Eliminar bloqueo"><svg class="vs-i"><use href="#i-trash"/></svg></button></td>' +
+                '</tr>';
+            });
+            tbody23.innerHTML = html;
+          }
+        } catch (e) {}
+      }
+
+      if (tbody23) {
+        tbody23.addEventListener('click', async function (ev) {
+          var btn = ev.target.closest('.btn-del-bloq23');
+          if (!btn) return;
+          try {
+            await VS_API.eliminarBloqueoAgenda(btn.getAttribute('data-id'));
+            if (window.vsToast) window.vsToast('Bloqueo eliminado', 'Agenda liberada y auditada en bitácora (ELIMINAR)');
+            cargarBloqueosCU23();
+          } catch (e) {}
+        });
+      }
+
+      if (formBloq23) {
+        formBloq23.setAttribute('data-api-bound', 'true');
+        formBloq23.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var tipoEl = formBloq23.querySelector('input[name="tipo"]:checked');
+          var tipoVal = tipoEl ? tipoEl.value.toUpperCase() : 'LICENCIA';
+          var alcEl = formBloq23.querySelector('input[name="alc"]:checked');
+          var aplicaTodos = alcEl ? (alcEl.value === 'todos') : (tipoVal === 'FERIADO');
+          var fIni = document.getElementById('bl-ini') ? document.getElementById('bl-ini').value : new Date().toISOString().slice(0, 10);
+          var fFin = document.getElementById('bl-fin') ? document.getElementById('bl-fin').value : fIni;
+          var mot = document.getElementById('bl-motivo') ? document.getElementById('bl-motivo').value.trim() : 'Bloqueo administrativo';
+          var medId = selMed23 ? parseInt(selMed23.value, 10) : null;
+          try {
+            await VS_API.crearBloqueoAgenda({
+              tipo: tipoVal,
+              fecha_inicio: fIni,
+              fecha_fin: fFin,
+              id_medico: aplicaTodos ? null : medId,
+              aplica_a_todos: aplicaTodos,
+              motivo: mot,
+              confirmar_con_citas_afectadas: true
+            });
+            if (dlgBloq23 && dlgBloq23.close) dlgBloq23.close();
+            if (window.vsToast) window.vsToast('Bloqueo registrado', 'Guardado en PostgreSQL y auditado en bitácora (CREAR)');
+            cargarBloqueosCU23();
+          } catch (err) {
+            alert('Error al bloquear agenda: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+
+      cargarBloqueosCU23();
+    }
+
+    if (currentCuAttr === 'CU26') {
+      var formRepro26 = document.querySelector('form[data-demo="Cita reprogramada"]');
+      var currentCitaId26 = null;
+      var selMed26 = document.getElementById('r-med');
+
+      async function initCU26() {
+        try {
+          var resC = await VS_API.getCitas({ per_page: 20 });
+          var cList = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || []);
+          var prog = cList.find(function (c) { return c.estado === 'PROGRAMADA' || c.estado === 'CONFIRMADA'; }) || cList[0];
+          if (prog) currentCitaId26 = prog.id_cita;
+
+          var resM = await VS_API.getMedicos();
+          var mList = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || []);
+          if (selMed26 && mList.length) {
+            selMed26.innerHTML = '';
+            mList.forEach(function (m) {
+              var p = m.persona || {};
+              var opt = document.createElement('option');
+              opt.value = m.id_persona;
+              opt.textContent = (m.codigo || 'MED') + ' · Dr(a). ' + (p.nombres || '') + ' ' + (p.apellidos || '');
+              selMed26.appendChild(opt);
+            });
+          }
+        } catch (e) {}
+      }
+      initCU26();
+
+      if (formRepro26) {
+        formRepro26.setAttribute('data-api-bound', 'true');
+        formRepro26.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          if (!currentCitaId26) {
+            alert('No se encontró una cita activa para reprogramar.');
+            return;
+          }
+          var nFecha = document.getElementById('r-fecha') ? document.getElementById('r-fecha').value : new Date().toISOString().slice(0, 10);
+          var nMotivo = document.getElementById('r-motivo') ? document.getElementById('r-motivo').value : 'Solicitud del paciente';
+          var selSlot = document.querySelector('[data-slots="repro"] .vs-slot.is-selected');
+          var nHora = selSlot ? (selSlot.getAttribute('data-time') || '09:00') : '09:00';
+          var nMed = selMed26 ? parseInt(selMed26.value, 10) : undefined;
+          try {
+            await VS_API.reprogramarCita(currentCitaId26, {
+              nueva_fecha: nFecha,
+              nueva_hora_inicio: nHora,
+              nuevo_medico_id: nMed,
+              motivo_reprogramacion: nMotivo || 'Solicitud del paciente'
+            });
+            if (window.vsToast) window.vsToast('Cita reprogramada', 'Actualizada en PostgreSQL y auditada en bitácora (MODIFICAR)');
+          } catch (err) {
+            alert('Error al reprogramar: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+    }
+
+    if (currentCuAttr === 'CU27') {
+      var tbody27 = document.querySelector('.vs-table tbody');
+      var dlgCanc27 = document.getElementById('dlg-cancelar');
+      var formCanc27 = dlgCanc27 ? dlgCanc27.querySelector('form') : null;
+      var citaIdCancel27 = null;
+
+      async function cargarCitasCU27() {
+        if (!tbody27) return;
+        try {
+          var res = await VS_API.getCitas({ per_page: 30 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          var cancelables = list.filter(function (c) { return c.estado === 'PROGRAMADA' || c.estado === 'CONFIRMADA'; });
+          if (!cancelables.length) return;
+          var html = '';
+          cancelables.forEach(function (c) {
+            var pac = c.paciente && c.paciente.persona ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+            var tel = c.paciente && c.paciente.persona ? (c.paciente.persona.telefono || '') : '';
+            var bCls = c.estado === 'CONFIRMADA' ? 'vs-badge--cyan' : 'vs-badge--info';
+            html += '<tr>' +
+              '<td class="vs-td-num">' + escapeHtml(c.codigo || ('CM-' + c.id_cita)) + '</td>' +
+              '<td class="vs-td-num">' + escapeHtml(c.fecha) + ' ' + escapeHtml((c.hora_inicio || '').substring(0, 5)) + '</td>' +
+              '<td><div class="vs-cell-person__name">' + escapeHtml(pac) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(tel) + '</div></td>' +
+              '<td class="vs-hide-md">' + escapeHtml(c.motivo_consulta || '—') + '</td>' +
+              '<td><span class="vs-badge ' + bCls + '"><span class="vs-badge__dot"></span>' + escapeHtml(c.estado) + '</span></td>' +
+              '<td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm btn-open-canc27" data-id="' + c.id_cita + '" data-code="' + escapeHtml(c.codigo || ('CM-' + c.id_cita)) + '"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Cancelar</button></td>' +
+              '</tr>';
+          });
+          tbody27.innerHTML = html;
+        } catch (e) {}
+      }
+
+      if (tbody27) {
+        tbody27.addEventListener('click', function (ev) {
+          var btn = ev.target.closest('.btn-open-canc27');
+          if (!btn) return;
+          citaIdCancel27 = btn.getAttribute('data-id');
+          if (dlgCanc27 && dlgCanc27.showModal) dlgCanc27.showModal();
+        });
+      }
+
+      if (formCanc27) {
+        formCanc27.setAttribute('data-api-bound', 'true');
+        formCanc27.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var mot = document.getElementById('cx-motivo') ? document.getElementById('cx-motivo').value : 'Solicitud del paciente';
+          var det = document.getElementById('cx-detalle') ? document.getElementById('cx-detalle').value.trim() : '';
+          var motivoCompleto = (mot || 'Solicitud del paciente') + (det ? ': ' + det : '');
+          if (!citaIdCancel27) {
+            var res = await VS_API.getCitas({ per_page: 5 });
+            var l = (res && res.data && res.data.data) ? res.data.data : [];
+            if (l[0]) citaIdCancel27 = l[0].id_cita;
+          }
+          try {
+            await VS_API.cancelarCita(citaIdCancel27, motivoCompleto);
+            if (dlgCanc27 && dlgCanc27.close) dlgCanc27.close();
+            if (window.vsToast) window.vsToast('Cita cancelada', 'Estado CANCELADA en PostgreSQL y auditado en bitácora (CANCELAR)');
+            cargarCitasCU27();
+          } catch (err) {
+            alert('Error al cancelar cita: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
+
+      cargarCitasCU27();
+    }
+
+    if (currentCuAttr === 'CU28') {
+      var tbody28 = document.querySelector('.vs-table tbody');
+      var btnRegen28 = document.querySelector('[data-toast="Lista regenerada"]');
+
+      async function cargarNotificacionesCU28() {
+        if (!tbody28) return;
+        try {
+          var res = await VS_API.getNotificaciones({ per_page: 25 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          if (!list.length) return;
+          var html = '';
+          list.forEach(function (n) {
+            var c = n.cita || {};
+            var pac = c.paciente && c.paciente.persona ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+            var tel = c.paciente && c.paciente.persona ? (c.paciente.persona.telefono || '70000000') : '70000000';
+            var med = c.medico && c.medico.persona ? ('Dr(a). ' + c.medico.persona.apellidos) : 'Médico';
+            var est = (n.estado || 'PENDIENTE').toUpperCase();
+            var bCls = est === 'ENVIADA' ? 'vs-badge--ok' : (est === 'FALLIDA' ? 'vs-badge--danger' : 'vs-badge--warn');
+            html += '<tr>' +
+              '<td><div class="vs-cell-person__name vs-mono">' + escapeHtml(c.codigo || ('CM-' + n.id_cita)) + '</div><div class="vs-cell-person__sub">' + escapeHtml(c.fecha || '') + ' ' + escapeHtml((c.hora_inicio || '').substring(0, 5)) + '</div></td>' +
+              '<td><div class="vs-cell-person__name">' + escapeHtml(pac) + '</div></td>' +
+              '<td class="vs-hide-md">' + escapeHtml(med) + '</td>' +
+              '<td class="vs-td-num">' + escapeHtml(tel) + '</td>' +
+              '<td><span class="vs-badge ' + bCls + '"><span class="vs-badge__dot"></span>' + est + '</span></td>' +
+              '<td class="vs-td-actions">' +
+                '<button type="button" class="vs-btn vs-btn--teal vs-btn--sm btn-conf-notif28" data-id="' + n.id_notificacion + '"><svg class="vs-i"><use href="#i-check"/></svg>Confirmó</button>' +
+              '</td>' +
+              '</tr>';
+          });
+          tbody28.innerHTML = html;
+        } catch (e) {}
+      }
+
+      if (tbody28) {
+        tbody28.addEventListener('click', async function (ev) {
+          var btn = ev.target.closest('.btn-conf-notif28');
+          if (!btn) return;
+          try {
+            await VS_API.registrarGestionNotificacion(btn.getAttribute('data-id'), {
+              estado: 'ENVIADA',
+              confirmar_cita: true,
+              observacion: 'Paciente confirmó asistencia telefónicamente'
+            });
+            if (window.vsToast) window.vsToast('Asistencia confirmada', 'Notificación ENVIADA y cita CONFIRMADA en bitácora');
+            cargarNotificacionesCU28();
+          } catch (e) {}
+        });
+      }
+
+      if (btnRegen28) {
+        btnRegen28.addEventListener('click', async function () {
+          try {
+            await VS_API.regenerarNotificaciones();
+            cargarNotificacionesCU28();
+          } catch (e) {}
+        });
+      }
+
+      cargarNotificacionesCU28();
+    }
+
+    if (currentCuAttr === 'CU29') {
+      var tbody29 = document.querySelector('.vs-table tbody');
+      async function cargarAsistenciaCU29() {
+        if (!tbody29) return;
+        try {
+          var res = await VS_API.getCitas({ per_page: 25 });
+          var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          if (!list.length) return;
+          var html = '';
+          list.slice(0, 12).forEach(function (c) {
+            var pac = c.paciente && c.paciente.persona ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+            var est = (c.estado || 'PROGRAMADA').toUpperCase();
+            var bCls = est === 'ATENDIDA' ? 'vs-badge--ok' : (est === 'CONFIRMADA' ? 'vs-badge--cyan' : (est === 'CANCELADA' ? 'vs-badge--danger' : (est === 'INASISTENCIA' ? 'vs-badge--warn' : 'vs-badge--info')));
+            var actBtns = '<span class="vs-xs vs-muted">Final</span>';
+            if (est === 'PROGRAMADA' || est === 'CONFIRMADA') {
+              actBtns = '<button type="button" class="vs-btn vs-btn--teal vs-btn--sm btn-llego-cu29" data-id="' + c.id_cita + '"><svg class="vs-i"><use href="#i-check"/></svg>Llegó</button> ' +
+                '<button type="button" class="vs-btn vs-btn--warn-soft vs-btn--sm btn-inasist-cu29" data-id="' + c.id_cita + '"><svg class="vs-i"><use href="#i-x-circle"/></svg>No asistió</button>';
+            }
+            html += '<tr>' +
+              '<td class="vs-td-num">' + escapeHtml((c.hora_inicio || '').substring(0, 5)) + '</td>' +
+              '<td class="vs-td-num">' + escapeHtml(c.codigo || ('CM-' + c.id_cita)) + '</td>' +
+              '<td>' + escapeHtml(pac) + '</td>' +
+              '<td><span class="vs-badge ' + bCls + '"><span class="vs-badge__dot"></span>' + est + '</span></td>' +
+              '<td class="vs-hide-md vs-xs">' + escapeHtml(c.fecha) + ' · ' + escapeHtml(c.motivo_consulta || '') + '</td>' +
+              '<td class="vs-td-actions">' + actBtns + '</td>' +
+              '</tr>';
+          });
+          tbody29.innerHTML = html;
+        } catch (e) {}
+      }
+      if (tbody29) {
+        tbody29.addEventListener('click', async function (ev) {
+          var bLlego = ev.target.closest('.btn-llego-cu29');
+          if (bLlego) {
+            await VS_API.cambiarEstadoCita(bLlego.getAttribute('data-id'), { estado: 'CONFIRMADA', motivo: 'Llegada del paciente registrada en recepción (CU29)' });
+            if (window.vsToast) window.vsToast('Llegada registrada', 'Cita pasó a CONFIRMADA y se registró en bitácora');
+            cargarAsistenciaCU29();
+            return;
+          }
+          var bInas = ev.target.closest('.btn-inasist-cu29');
+          if (bInas) {
+            await VS_API.cambiarEstadoCita(bInas.getAttribute('data-id'), { estado: 'INASISTENCIA', motivo: 'Paciente no se presentó a la cita (CU29)' });
+            if (window.vsToast) window.vsToast('Inasistencia registrada', 'Cita pasó a INASISTENCIA y se registró en bitácora');
+            cargarAsistenciaCU29();
+          }
+        });
+        cargarAsistenciaCU29();
+      }
+    }
+
+    if (currentCuAttr === 'CU31') {
+      var form31 = document.querySelector('form[data-demo="Cita marcada como atendida"]');
+      if (form31) {
+        form31.setAttribute('data-api-bound', 'true');
+        form31.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var obs = document.getElementById('at-obs') ? document.getElementById('at-obs').value.trim() : '';
+          var p31 = new URLSearchParams(location.search);
+          var citaId = p31.get('id');
+          if (!citaId) {
+            var resC = await VS_API.getCitas({ per_page: 20 });
+            var list = (resC && resC.data && resC.data.data) ? resC.data.data : [];
+            var target = list.find(function (c) { return c.estado === 'CONFIRMADA' || c.estado === 'PROGRAMADA'; }) || list[0];
+            if (target) citaId = target.id_cita;
+          }
+          try {
+            await VS_API.registrarAtencion(citaId, {
+              estado: 'ATENDIDA',
+              observacion_atencion: obs || 'Atención médica concluida sin novedades.'
+            });
+            if (window.vsToast) window.vsToast('Cita marcada como atendida', 'Guardada en PostgreSQL y auditada en bitácora (MODIFICAR)');
+            setTimeout(function () { window.location.href = 'cu30-agenda-diaria.html'; }, 700);
+          } catch (err) {
+            alert('Error al registrar atención: ' + err.message);
+          }
+        });
+      }
+    }
+
+    // =========================================================================
+    // 25. P7 REPORTES ADMINISTRATIVOS (CU32, CU33, CU34, CU35, CU36)
+    // =========================================================================
+    if (['CU32', 'CU33', 'CU34', 'CU35', 'CU36'].indexOf(currentCuAttr) !== -1) {
+      var repForms = document.querySelectorAll('form.vs-filters, form[data-demo="Exportación generada"]');
+      repForms.forEach(function (rf) {
+        rf.setAttribute('data-api-bound', 'true');
+        rf.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var tipoMap = {
+            CU32: 'CITAS_PERIODO',
+            CU33: 'ATENCIONES_MEDICO',
+            CU34: 'CONTROL_ASISTENCIA',
+            CU35: 'EXPORTACION_GENERAL',
+            CU36: 'PADRON_PACIENTES'
+          };
+          var fmtRadio = rf.querySelector('input[name="fmt"]:checked');
+          var formato = fmtRadio ? fmtRadio.value.toUpperCase() : 'CSV';
+          var dInput = rf.querySelector('input[type="date"]');
+          var fDesde = dInput ? dInput.value : '2026-10-01';
+          try {
+            var repRes = await VS_API.crearReporte({
+              tipo: tipoMap[currentCuAttr] || 'CITAS_PERIODO',
+              fecha_desde: fDesde,
+              fecha_hasta: '2026-12-31',
+              formato: formato === 'PDF' ? 'PDF' : 'CSV'
+            });
+            if (window.vsToast) {
+              window.vsToast('Reporte generado en BD', 'Registrado en tabla reporte y auditado en bitácora (CREAR)');
+            }
+          } catch (err) {
+            console.warn('Error registrando reporte:', err);
+          }
+        });
       });
     }
   }

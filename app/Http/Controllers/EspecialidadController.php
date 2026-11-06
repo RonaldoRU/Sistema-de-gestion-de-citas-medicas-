@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 class EspecialidadController extends Controller
 {
     /**
-     * CU18: Consultar Catálogo de Especialidades Médicas
+     * Lista el catálogo de especialidades médicas filtrando por estado o nombre e incluyendo el conteo de médicos.
      */
     public function index(Request $request): JsonResponse
     {
@@ -37,7 +37,27 @@ class EspecialidadController extends Controller
     }
 
     /**
-     * CU18: Crear Nueva Especialidad Médica
+     * Obtiene el detalle de una especialidad médica específica por su ID.
+     */
+    public function show(int $id): JsonResponse
+    {
+        $especialidad = Especialidad::with('medicos.persona')->find($id);
+
+        if (! $especialidad) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Especialidad médica no encontrada.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'especialidad' => $especialidad,
+        ]);
+    }
+
+    /**
+     * Registra una nueva especialidad médica validando que su nombre no esté duplicado.
      */
     public function store(Request $request): JsonResponse
     {
@@ -79,13 +99,13 @@ class EspecialidadController extends Controller
     }
 
     /**
-     * CU18: Modificar Especialidad Médica
+     * Actualiza el nombre, descripción o estado de una especialidad médica existente.
      */
     public function update(Request $request, int $id): JsonResponse
     {
         $especialidad = Especialidad::find($id);
 
-        if (!$especialidad) {
+        if (! $especialidad) {
             return response()->json([
                 'success' => false,
                 'message' => 'Especialidad médica no encontrada.',
@@ -129,13 +149,13 @@ class EspecialidadController extends Controller
     }
 
     /**
-     * Desactivar Especialidad
+     * Desactiva lógicamente una especialidad médica cambiando su estado activo a falso.
      */
     public function destroy(int $id): JsonResponse
     {
         $especialidad = Especialidad::find($id);
 
-        if (!$especialidad) {
+        if (! $especialidad) {
             return response()->json([
                 'success' => false,
                 'message' => 'Especialidad no encontrada.',

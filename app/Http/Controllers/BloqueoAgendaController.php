@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\BloqueoAgenda;
 use App\Models\Cita;
-use App\Models\Medico;
 use App\Services\AuditoriaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 class BloqueoAgendaController extends Controller
 {
     /**
-     * CU22: Consultar Bloqueos de Agenda
+     * Lista los bloqueos de agenda registrados permitiendo filtrar por tipo de bloqueo o médico.
      */
     public function index(Request $request): JsonResponse
     {
@@ -24,9 +23,9 @@ class BloqueoAgendaController extends Controller
         }
 
         if ($request->filled('id_medico')) {
-            $query->where(function ($q) use ($request) {
+            $query->where(function ($q) use ($request): void {
                 $q->where('id_medico', $request->input('id_medico'))
-                  ->orWhere('aplica_a_todos', true);
+                    ->orWhere('aplica_a_todos', true);
             });
         }
 
@@ -40,7 +39,7 @@ class BloqueoAgendaController extends Controller
     }
 
     /**
-     * CU22: Bloquear Agenda Médica por Feriados / Licencias
+     * Registra un bloqueo de agenda por feriado, licencia u otro motivo verificando citas afectadas.
      */
     public function store(Request $request): JsonResponse
     {
@@ -72,25 +71,24 @@ class BloqueoAgendaController extends Controller
         $motivo = trim($request->input('motivo'));
         $aplicaATodos = $request->boolean('aplica_a_todos', empty($medicoId));
 
-        if ($tipo === 'LICENCIA' && !$medicoId) {
+        if ($tipo === 'LICENCIA' && ! $medicoId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Para registrar una LICENCIA médica es obligatorio seleccionar al médico.',
             ], 422);
         }
 
-        // Verificar Citas Afectadas (CU22 / A1)
         $citasQuery = Cita::whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA'])
             ->with(['paciente.persona', 'medico.persona']);
 
-        if ($medicoId && !$aplicaATodos) {
+        if ($medicoId && ! $aplicaATodos) {
             $citasQuery->where('id_medico', $medicoId);
         }
 
         $citasAfectadas = $citasQuery->get();
 
-        if ($citasAfectadas->isNotEmpty() && !$request->boolean('confirmar_con_citas_afectadas')) {
+        if ($citasAfectadas->isNotEmpty() && ! $request->boolean('confirmar_con_citas_afectadas')) {
             return response()->json([
                 'success' => false,
                 'alerta_citas' => true,
@@ -127,13 +125,13 @@ class BloqueoAgendaController extends Controller
     }
 
     /**
-     * Levantar un bloqueo de agenda
+     * Elimina y levanta un bloqueo de agenda específico por su ID.
      */
     public function destroy(int $id): JsonResponse
     {
         $bloqueo = BloqueoAgenda::find($id);
 
-        if (!$bloqueo) {
+        if (! $bloqueo) {
             return response()->json([
                 'success' => false,
                 'message' => 'Bloqueo de agenda no encontrado.',
