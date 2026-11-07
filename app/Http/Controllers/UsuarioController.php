@@ -295,12 +295,16 @@ class UsuarioController extends Controller
         $rolAnterior = $usuario->rol?->nombre ?? 'Sin Rol';
         $usuario->update(['id_rol' => $nuevoRolId]);
 
+        $motivo = $request->input('motivo', 'Cambio de rol operativo administrativo');
+
         AuditoriaService::registrar(
             'P2_RBAC',
-            'CAMBIO_ROL',
+            'MODIFICAR',
             'usuario',
             $usuario->id_usuario,
-            "Rol del usuario [{$usuario->nombre_usuario}] cambiado de [{$rolAnterior}] a [{$nuevoRol?->nombre}]."
+            "Rol del usuario [{$usuario->nombre_usuario}] cambiado de [{$rolAnterior}] a [{$nuevoRol?->nombre}]. Motivo: {$motivo}",
+            null,
+            "Cambio de rol de {$rolAnterior} a {$nuevoRol?->nombre} ({$usuario->nombre_usuario}): {$motivo}"
         );
 
         return response()->json([

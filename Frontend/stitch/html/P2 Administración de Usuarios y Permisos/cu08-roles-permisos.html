@@ -137,29 +137,9 @@
           </div>
           <div class="vs-table-wrap">
             <table class="vs-table vs-table--compact">
-              <thead><tr><th>Fecha</th><th>Cuenta</th><th>Cambio</th><th class="vs-hide-md">Motivo</th><th class="vs-hide-sm">Registró</th></tr></thead>
-              <tbody>
-                <tr>
-                  <td class="vs-td-num">14/09/2026 10:21</td>
-                  <td><div class="vs-cell-person__name">Carla Suárez</div><div class="vs-cell-person__sub vs-mono">csuarez</div></td>
-                  <td><span class="vs-row vs-row--nowrap" style="gap:.4rem"><span class="vs-badge vs-badge--info">Recepcionista</span><svg class="vs-i vs-i--sm vs-arrow-mini" aria-hidden="true"><use href="#i-arrow-right"/></svg><span class="vs-badge vs-badge--info">Recepcionista</span></span></td>
-                  <td class="vs-hide-md">Cambio de turno, mismos permisos</td>
-                  <td class="vs-hide-sm vs-mono">scolque</td>
-                </tr>
-                <tr>
-                  <td class="vs-td-num">01/08/2026 08:45</td>
-                  <td><div class="vs-cell-person__name">Dr. Hugo Flores</div><div class="vs-cell-person__sub vs-mono">hflores</div></td>
-                  <td><span class="vs-row vs-row--nowrap" style="gap:.4rem"><span class="vs-badge vs-badge--muted">Alta</span><svg class="vs-i vs-i--sm vs-arrow-mini" aria-hidden="true"><use href="#i-arrow-right"/></svg><span class="vs-badge vs-badge--ok">Médico</span></span></td>
-                  <td class="vs-hide-md">Creado desde Personal médico</td>
-                  <td class="vs-hide-sm vs-mono">scolque</td>
-                </tr>
-                <tr>
-                  <td class="vs-td-num">01/08/2026 08:03</td>
-                  <td><div class="vs-cell-person__name">Silvia Colque</div><div class="vs-cell-person__sub vs-mono">scolque</div></td>
-                  <td><span class="vs-row vs-row--nowrap" style="gap:.4rem"><span class="vs-badge vs-badge--muted">Alta</span><svg class="vs-i vs-i--sm vs-arrow-mini" aria-hidden="true"><use href="#i-arrow-right"/></svg><span class="vs-badge vs-badge--warn">Administrador</span></span></td>
-                  <td class="vs-hide-md">Cuenta inicial del sistema</td>
-                  <td class="vs-hide-sm vs-mono">sistema</td>
-                </tr>
+              <thead><tr><th>Fecha y hora</th><th>Cuenta</th><th>Transición de rol</th><th class="vs-hide-md">Motivo del cambio</th><th class="vs-hide-sm">Registró</th></tr></thead>
+              <tbody id="cu08-cambios-tbody">
+                <tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:1.5rem;">Cargando cambios de rol auditados en tiempo real...</td></tr>
               </tbody>
             </table>
           </div>
@@ -170,7 +150,7 @@
   </div>
 
   <dialog id="dlg-rol" class="vs-modal vs-modal--lg">
-    <form data-demo="Rol actualizado" data-demo-sub="El cambio quedó auditado en la bitácora como evento de seguridad" novalidate>
+    <form id="form-cambiar-rol-cu08" novalidate>
       <div class="vs-modal__head">
         <span class="vs-modal__icon vs-modal__icon--warn"><svg class="vs-i"><use href="#i-shield"/></svg></span>
         <div><h2 class="vs-modal__title">Cambiar rol operativo</h2><p class="vs-modal__text">Selecciona el usuario y el nuevo rol. Los menús y rutas habilitados cambiarán según la matriz de permisos.</p></div>
@@ -180,29 +160,25 @@
           <label class="vs-label" for="r-usuario">Usuario</label>
           <select id="r-usuario" class="vs-select" required>
             <option value="">Selecciona un usuario…</option>
-            <option selected>Carla Andrea Suárez Roca — csuarez (Recepcionista)</option>
-            <option>Rosa María Vaca Cuéllar — rvaca (Recepcionista)</option>
-            <option>Jorge Luis Mendoza Paz — jmendoza (Recepcionista)</option>
-            <option>Daniela Justiniano Áñez — djustiniano (Recepcionista)</option>
-            <option>Dr. Juan Ronaldo Rojas Ugarte — jrojas (Médico)</option>
           </select>
         </div>
-        <div class="vs-row vs-row--between">
-          <span class="vs-small vs-muted">Rol actual: <span class="vs-badge vs-badge--info">Recepcionista</span></span>
+        <div class="vs-row vs-row--between" style="padding:0.4rem 0;">
+          <span class="vs-small vs-muted">Rol actual: <span class="vs-badge vs-badge--info" id="cu08-rol-actual">—</span></span>
           <svg class="vs-i vs-muted"><use href="#i-arrow-right"/></svg>
-          <span class="vs-small vs-muted">Nuevo rol: <strong class="vs-strong" data-role-out>Administrador</strong></span>
+          <span class="vs-small vs-muted">Nuevo rol: <strong class="vs-strong" id="cu08-rol-nuevo-label">—</strong></span>
         </div>
-        <div class="vs-choice-grid vs-choice-grid--3">
-          <label class="vs-choice"><input type="radio" name="nuevo-rol" value="Administrador" data-role-preview checked><div><div class="vs-choice__title">Administrador</div><div class="vs-choice__desc">19 permisos · P1 a P7</div></div></label>
-          <label class="vs-choice"><input type="radio" name="nuevo-rol" value="Recepcionista" disabled><div><div class="vs-choice__title">Recepcionista</div><div class="vs-choice__desc">Rol actual</div></div></label>
-          <label class="vs-choice"><input type="radio" name="nuevo-rol" value="Médico" data-role-preview><div><div class="vs-choice__title">Médico</div><div class="vs-choice__desc">6 permisos · agenda y atención</div></div></label>
+        <div class="vs-field">
+          <label class="vs-label">Selecciona el nuevo rol a asignar <span class="vs-req">*</span></label>
+          <div class="vs-choice-grid vs-choice-grid--3" id="cu08-choice-grid">
+            <p class="vs-muted vs-small" style="grid-column: 1 / -1;">Selecciona un usuario arriba para ver los roles disponibles para el cambio.</p>
+          </div>
         </div>
-        <div class="vs-alert vs-alert--warn"><svg class="vs-i"><use href="#i-alert"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Impacto</span>csuarez ganará acceso a usuarios, bitácora, catálogos y reportes. Confirma solo si corresponde a su función.</div></div>
-        <div class="vs-field"><label class="vs-label" for="r-motivo">Motivo del cambio <span class="vs-label__opt">se guarda en bitácora</span></label><input id="r-motivo" class="vs-input" type="text" placeholder="Ej. Cobertura de administración durante vacaciones" required></div>
+        <div class="vs-alert vs-alert--warn" id="cu08-alert-impacto" style="display:none;"><svg class="vs-i"><use href="#i-alert"/></svg><div class="vs-alert__body" id="cu08-impacto-text"><span class="vs-alert__title">Impacto</span>...</div></div>
+        <div class="vs-field"><label class="vs-label" for="r-motivo">Motivo del cambio <span class="vs-label__opt">se guarda en bitácora</span> <span class="vs-req">*</span></label><input id="r-motivo" class="vs-input" type="text" placeholder="Ej. Reasignación de funciones o ascenso operativo" required></div>
       </div>
       <div class="vs-modal__foot">
         <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>
-        <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Confirmar cambio de rol</button>
+        <button type="submit" class="vs-btn vs-btn--primary" id="cu08-btn-submit"><svg class="vs-i"><use href="#i-check"/></svg>Confirmar cambio de rol</button>
       </div>
     </form>
   </dialog>

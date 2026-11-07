@@ -2,10 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict bpp5c1w0ySqWiZXkIW0qOgSTgM9057sSjcNs5FUanjd873fZaeDb7ed3iri3z3e
+\restrict r3noIPUhpqE0OrQqXPczInfMlBwRzoXFrz7BFjRbWbw7AwKvAPdSnkUYDz0DVtq
 
 -- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
+
+-- Started on 2026-11-07 18:03:00
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -20,6 +22,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- TOC entry 6 (class 2615 OID 17806)
 -- Name: vida_salud; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
@@ -29,6 +32,7 @@ CREATE SCHEMA vida_salud;
 ALTER SCHEMA vida_salud OWNER TO postgres;
 
 --
+-- TOC entry 938 (class 1247 OID 17838)
 -- Name: estado_cita; Type: TYPE; Schema: vida_salud; Owner: postgres
 --
 
@@ -44,6 +48,7 @@ CREATE TYPE vida_salud.estado_cita AS ENUM (
 ALTER TYPE vida_salud.estado_cita OWNER TO postgres;
 
 --
+-- TOC entry 941 (class 1247 OID 17850)
 -- Name: estado_notificacion; Type: TYPE; Schema: vida_salud; Owner: postgres
 --
 
@@ -57,6 +62,7 @@ CREATE TYPE vida_salud.estado_notificacion AS ENUM (
 ALTER TYPE vida_salud.estado_notificacion OWNER TO postgres;
 
 --
+-- TOC entry 929 (class 1247 OID 17808)
 -- Name: estado_usuario; Type: TYPE; Schema: vida_salud; Owner: postgres
 --
 
@@ -70,6 +76,7 @@ CREATE TYPE vida_salud.estado_usuario AS ENUM (
 ALTER TYPE vida_salud.estado_usuario OWNER TO postgres;
 
 --
+-- TOC entry 932 (class 1247 OID 17816)
 -- Name: tipo_accion; Type: TYPE; Schema: vida_salud; Owner: postgres
 --
 
@@ -90,6 +97,7 @@ CREATE TYPE vida_salud.tipo_accion AS ENUM (
 ALTER TYPE vida_salud.tipo_accion OWNER TO postgres;
 
 --
+-- TOC entry 935 (class 1247 OID 17830)
 -- Name: tipo_bloqueo; Type: TYPE; Schema: vida_salud; Owner: postgres
 --
 
@@ -103,6 +111,7 @@ CREATE TYPE vida_salud.tipo_bloqueo AS ENUM (
 ALTER TYPE vida_salud.tipo_bloqueo OWNER TO postgres;
 
 --
+-- TOC entry 944 (class 1247 OID 17858)
 -- Name: tipo_reporte; Type: TYPE; Schema: vida_salud; Owner: postgres
 --
 
@@ -117,6 +126,7 @@ CREATE TYPE vida_salud.tipo_reporte AS ENUM (
 ALTER TYPE vida_salud.tipo_reporte OWNER TO postgres;
 
 --
+-- TOC entry 282 (class 1255 OID 18332)
 -- Name: fn_bitacora_cita(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -139,6 +149,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_bitacora_cita() OWNER TO postgres;
 
 --
+-- TOC entry 285 (class 1255 OID 18338)
 -- Name: fn_cita_atendida_inmutable(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -156,6 +167,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_cita_atendida_inmutable() OWNER TO postgres;
 
 --
+-- TOC entry 283 (class 1255 OID 18334)
 -- Name: fn_cita_bloqueo_agenda(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -176,6 +188,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_cita_bloqueo_agenda() OWNER TO postgres;
 
 --
+-- TOC entry 288 (class 1255 OID 18344)
 -- Name: fn_cita_crear_notificacion(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -195,6 +208,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_cita_crear_notificacion() OWNER TO postgres;
 
 --
+-- TOC entry 284 (class 1255 OID 18336)
 -- Name: fn_cita_dentro_horario(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -216,6 +230,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_cita_dentro_horario() OWNER TO postgres;
 
 --
+-- TOC entry 281 (class 1255 OID 18330)
 -- Name: fn_cita_historial_estado(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -236,6 +251,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_cita_historial_estado() OWNER TO postgres;
 
 --
+-- TOC entry 287 (class 1255 OID 18342)
 -- Name: fn_cita_persona_activa(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -254,6 +270,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_cita_persona_activa() OWNER TO postgres;
 
 --
+-- TOC entry 293 (class 1255 OID 18346)
 -- Name: fn_cita_sin_solapamiento(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -275,6 +292,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_cita_sin_solapamiento() OWNER TO postgres;
 
 --
+-- TOC entry 286 (class 1255 OID 18340)
 -- Name: fn_info_medica_fecha_actualizacion(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -290,6 +308,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_info_medica_fecha_actualizacion() OWNER TO postgres;
 
 --
+-- TOC entry 294 (class 1255 OID 18348)
 -- Name: fn_paciente_no_eliminar(); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -307,6 +326,7 @@ END $$;
 ALTER FUNCTION vida_salud.fn_paciente_no_eliminar() OWNER TO postgres;
 
 --
+-- TOC entry 280 (class 1255 OID 18329)
 -- Name: sp_asignar_permiso_rol(bigint, bigint, bigint); Type: PROCEDURE; Schema: vida_salud; Owner: postgres
 --
 
@@ -329,6 +349,7 @@ END $$;
 ALTER PROCEDURE vida_salud.sp_asignar_permiso_rol(IN p_rol bigint, IN p_permiso bigint, IN p_usuario bigint) OWNER TO postgres;
 
 --
+-- TOC entry 302 (class 1255 OID 18321)
 -- Name: sp_cancelar_cita(bigint, bigint, character varying); Type: PROCEDURE; Schema: vida_salud; Owner: postgres
 --
 
@@ -393,6 +414,7 @@ END $$;
 ALTER PROCEDURE vida_salud.sp_cancelar_cita(IN p_cita bigint, IN p_usuario bigint, IN p_motivo character varying) OWNER TO postgres;
 
 --
+-- TOC entry 304 (class 1255 OID 18323)
 -- Name: sp_confirmar_por_llamada(bigint, bigint, boolean); Type: PROCEDURE; Schema: vida_salud; Owner: postgres
 --
 
@@ -419,6 +441,7 @@ END $$;
 ALTER PROCEDURE vida_salud.sp_confirmar_por_llamada(IN p_notificacion bigint, IN p_usuario bigint, IN p_exito boolean) OWNER TO postgres;
 
 --
+-- TOC entry 307 (class 1255 OID 18326)
 -- Name: sp_desactivar_paciente(bigint, bigint); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -446,6 +469,7 @@ END $$;
 ALTER FUNCTION vida_salud.sp_desactivar_paciente(p_paciente bigint, p_usuario bigint) OWNER TO postgres;
 
 --
+-- TOC entry 278 (class 1255 OID 18327)
 -- Name: sp_disponibilidad_medico(bigint, date); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -472,6 +496,7 @@ $$;
 ALTER FUNCTION vida_salud.sp_disponibilidad_medico(p_medico bigint, p_fecha date) OWNER TO postgres;
 
 --
+-- TOC entry 306 (class 1255 OID 18325)
 -- Name: sp_generar_lista_llamadas(date); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -491,6 +516,7 @@ $$;
 ALTER FUNCTION vida_salud.sp_generar_lista_llamadas(p_fecha date) OWNER TO postgres;
 
 --
+-- TOC entry 277 (class 1255 OID 18319)
 -- Name: sp_programar_cita(bigint, bigint, bigint, bigint, date, time without time zone, character varying); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -601,6 +627,7 @@ END $$;
 ALTER FUNCTION vida_salud.sp_programar_cita(p_paciente bigint, p_medico bigint, p_especialidad bigint, p_usuario bigint, p_fecha date, p_hora time without time zone, p_motivo character varying) OWNER TO postgres;
 
 --
+-- TOC entry 305 (class 1255 OID 18324)
 -- Name: sp_registrar_atencion(bigint, bigint, text); Type: PROCEDURE; Schema: vida_salud; Owner: postgres
 --
 
@@ -621,6 +648,7 @@ END $$;
 ALTER PROCEDURE vida_salud.sp_registrar_atencion(IN p_cita bigint, IN p_usuario bigint, IN p_observacion text) OWNER TO postgres;
 
 --
+-- TOC entry 279 (class 1255 OID 18328)
 -- Name: sp_reporte_citas_por_estado(date, date, bigint); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -640,6 +668,7 @@ END $$;
 ALTER FUNCTION vida_salud.sp_reporte_citas_por_estado(p_desde date, p_hasta date, p_usuario bigint) OWNER TO postgres;
 
 --
+-- TOC entry 303 (class 1255 OID 18322)
 -- Name: sp_reprogramar_cita(bigint, bigint, date, time without time zone); Type: FUNCTION; Schema: vida_salud; Owner: postgres
 --
 
@@ -718,6 +747,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- TOC entry 234 (class 1259 OID 17980)
 -- Name: bitacora; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -739,6 +769,7 @@ CREATE TABLE vida_salud.bitacora (
 ALTER TABLE vida_salud.bitacora OWNER TO postgres;
 
 --
+-- TOC entry 233 (class 1259 OID 17979)
 -- Name: bitacora_id_bitacora_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -753,6 +784,7 @@ ALTER TABLE vida_salud.bitacora ALTER COLUMN id_bitacora ADD GENERATED BY DEFAUL
 
 
 --
+-- TOC entry 247 (class 1259 OID 18088)
 -- Name: bloqueo_agenda; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -772,6 +804,7 @@ CREATE TABLE vida_salud.bloqueo_agenda (
 ALTER TABLE vida_salud.bloqueo_agenda OWNER TO postgres;
 
 --
+-- TOC entry 246 (class 1259 OID 18087)
 -- Name: bloqueo_agenda_id_bloqueo_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -786,6 +819,7 @@ ALTER TABLE vida_salud.bloqueo_agenda ALTER COLUMN id_bloqueo ADD GENERATED BY D
 
 
 --
+-- TOC entry 262 (class 1259 OID 25019)
 -- Name: cache; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -799,6 +833,7 @@ CREATE TABLE vida_salud.cache (
 ALTER TABLE vida_salud.cache OWNER TO postgres;
 
 --
+-- TOC entry 263 (class 1259 OID 25030)
 -- Name: cache_locks; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -812,6 +847,7 @@ CREATE TABLE vida_salud.cache_locks (
 ALTER TABLE vida_salud.cache_locks OWNER TO postgres;
 
 --
+-- TOC entry 249 (class 1259 OID 18104)
 -- Name: cita; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -845,6 +881,7 @@ CREATE TABLE vida_salud.cita (
 ALTER TABLE vida_salud.cita OWNER TO postgres;
 
 --
+-- TOC entry 248 (class 1259 OID 18103)
 -- Name: cita_id_cita_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -859,6 +896,7 @@ ALTER TABLE vida_salud.cita ALTER COLUMN id_cita ADD GENERATED BY DEFAULT AS IDE
 
 
 --
+-- TOC entry 274 (class 1259 OID 39068)
 -- Name: comprobante_pago; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -875,6 +913,7 @@ CREATE TABLE vida_salud.comprobante_pago (
 ALTER TABLE vida_salud.comprobante_pago OWNER TO postgres;
 
 --
+-- TOC entry 273 (class 1259 OID 39067)
 -- Name: comprobante_pago_id_comprobante_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -889,6 +928,8 @@ CREATE SEQUENCE vida_salud.comprobante_pago_id_comprobante_seq
 ALTER SEQUENCE vida_salud.comprobante_pago_id_comprobante_seq OWNER TO postgres;
 
 --
+-- TOC entry 5495 (class 0 OID 0)
+-- Dependencies: 273
 -- Name: comprobante_pago_id_comprobante_seq; Type: SEQUENCE OWNED BY; Schema: vida_salud; Owner: postgres
 --
 
@@ -896,6 +937,7 @@ ALTER SEQUENCE vida_salud.comprobante_pago_id_comprobante_seq OWNED BY vida_salu
 
 
 --
+-- TOC entry 239 (class 1259 OID 18024)
 -- Name: contacto_emergencia; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -911,6 +953,7 @@ CREATE TABLE vida_salud.contacto_emergencia (
 ALTER TABLE vida_salud.contacto_emergencia OWNER TO postgres;
 
 --
+-- TOC entry 238 (class 1259 OID 18023)
 -- Name: contacto_emergencia_id_contacto_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -925,6 +968,7 @@ ALTER TABLE vida_salud.contacto_emergencia ALTER COLUMN id_contacto ADD GENERATE
 
 
 --
+-- TOC entry 241 (class 1259 OID 18036)
 -- Name: especialidad; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -939,6 +983,7 @@ CREATE TABLE vida_salud.especialidad (
 ALTER TABLE vida_salud.especialidad OWNER TO postgres;
 
 --
+-- TOC entry 240 (class 1259 OID 18035)
 -- Name: especialidad_id_especialidad_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -953,6 +998,7 @@ ALTER TABLE vida_salud.especialidad ALTER COLUMN id_especialidad ADD GENERATED B
 
 
 --
+-- TOC entry 268 (class 1259 OID 25072)
 -- Name: failed_jobs; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -970,6 +1016,7 @@ CREATE TABLE vida_salud.failed_jobs (
 ALTER TABLE vida_salud.failed_jobs OWNER TO postgres;
 
 --
+-- TOC entry 267 (class 1259 OID 25071)
 -- Name: failed_jobs_id_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -984,6 +1031,8 @@ CREATE SEQUENCE vida_salud.failed_jobs_id_seq
 ALTER SEQUENCE vida_salud.failed_jobs_id_seq OWNER TO postgres;
 
 --
+-- TOC entry 5496 (class 0 OID 0)
+-- Dependencies: 267
 -- Name: failed_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: vida_salud; Owner: postgres
 --
 
@@ -991,6 +1040,7 @@ ALTER SEQUENCE vida_salud.failed_jobs_id_seq OWNED BY vida_salud.failed_jobs.id;
 
 
 --
+-- TOC entry 251 (class 1259 OID 18138)
 -- Name: historial_estado_cita; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1010,6 +1060,7 @@ CREATE TABLE vida_salud.historial_estado_cita (
 ALTER TABLE vida_salud.historial_estado_cita OWNER TO postgres;
 
 --
+-- TOC entry 250 (class 1259 OID 18137)
 -- Name: historial_estado_cita_id_historial_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1024,6 +1075,7 @@ ALTER TABLE vida_salud.historial_estado_cita ALTER COLUMN id_historial ADD GENER
 
 
 --
+-- TOC entry 245 (class 1259 OID 18069)
 -- Name: horario; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1044,6 +1096,7 @@ CREATE TABLE vida_salud.horario (
 ALTER TABLE vida_salud.horario OWNER TO postgres;
 
 --
+-- TOC entry 244 (class 1259 OID 18068)
 -- Name: horario_id_horario_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1058,6 +1111,7 @@ ALTER TABLE vida_salud.horario ALTER COLUMN id_horario ADD GENERATED BY DEFAULT 
 
 
 --
+-- TOC entry 237 (class 1259 OID 18009)
 -- Name: informacion_medica; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1078,6 +1132,7 @@ CREATE TABLE vida_salud.informacion_medica (
 ALTER TABLE vida_salud.informacion_medica OWNER TO postgres;
 
 --
+-- TOC entry 236 (class 1259 OID 18008)
 -- Name: informacion_medica_id_informacion_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1092,6 +1147,7 @@ ALTER TABLE vida_salud.informacion_medica ALTER COLUMN id_informacion ADD GENERA
 
 
 --
+-- TOC entry 266 (class 1259 OID 25057)
 -- Name: job_batches; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1112,6 +1168,7 @@ CREATE TABLE vida_salud.job_batches (
 ALTER TABLE vida_salud.job_batches OWNER TO postgres;
 
 --
+-- TOC entry 265 (class 1259 OID 25042)
 -- Name: jobs; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1129,6 +1186,7 @@ CREATE TABLE vida_salud.jobs (
 ALTER TABLE vida_salud.jobs OWNER TO postgres;
 
 --
+-- TOC entry 264 (class 1259 OID 25041)
 -- Name: jobs_id_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1143,6 +1201,8 @@ CREATE SEQUENCE vida_salud.jobs_id_seq
 ALTER SEQUENCE vida_salud.jobs_id_seq OWNER TO postgres;
 
 --
+-- TOC entry 5497 (class 0 OID 0)
+-- Dependencies: 264
 -- Name: jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: vida_salud; Owner: postgres
 --
 
@@ -1150,6 +1210,7 @@ ALTER SEQUENCE vida_salud.jobs_id_seq OWNED BY vida_salud.jobs.id;
 
 
 --
+-- TOC entry 242 (class 1259 OID 18046)
 -- Name: medico; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1163,6 +1224,7 @@ CREATE TABLE vida_salud.medico (
 ALTER TABLE vida_salud.medico OWNER TO postgres;
 
 --
+-- TOC entry 243 (class 1259 OID 18058)
 -- Name: medico_especialidad; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1176,6 +1238,7 @@ CREATE TABLE vida_salud.medico_especialidad (
 ALTER TABLE vida_salud.medico_especialidad OWNER TO postgres;
 
 --
+-- TOC entry 257 (class 1259 OID 24974)
 -- Name: migrations; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1189,6 +1252,7 @@ CREATE TABLE vida_salud.migrations (
 ALTER TABLE vida_salud.migrations OWNER TO postgres;
 
 --
+-- TOC entry 256 (class 1259 OID 24973)
 -- Name: migrations_id_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1204,6 +1268,8 @@ CREATE SEQUENCE vida_salud.migrations_id_seq
 ALTER SEQUENCE vida_salud.migrations_id_seq OWNER TO postgres;
 
 --
+-- TOC entry 5498 (class 0 OID 0)
+-- Dependencies: 256
 -- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: vida_salud; Owner: postgres
 --
 
@@ -1211,6 +1277,7 @@ ALTER SEQUENCE vida_salud.migrations_id_seq OWNED BY vida_salud.migrations.id;
 
 
 --
+-- TOC entry 253 (class 1259 OID 18151)
 -- Name: notificacion; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1232,6 +1299,7 @@ CREATE TABLE vida_salud.notificacion (
 ALTER TABLE vida_salud.notificacion OWNER TO postgres;
 
 --
+-- TOC entry 252 (class 1259 OID 18150)
 -- Name: notificacion_id_notificacion_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1246,6 +1314,7 @@ ALTER TABLE vida_salud.notificacion ALTER COLUMN id_notificacion ADD GENERATED B
 
 
 --
+-- TOC entry 235 (class 1259 OID 17995)
 -- Name: paciente; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1264,6 +1333,7 @@ CREATE TABLE vida_salud.paciente (
 ALTER TABLE vida_salud.paciente OWNER TO postgres;
 
 --
+-- TOC entry 272 (class 1259 OID 39039)
 -- Name: pago; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1283,6 +1353,7 @@ CREATE TABLE vida_salud.pago (
 ALTER TABLE vida_salud.pago OWNER TO postgres;
 
 --
+-- TOC entry 271 (class 1259 OID 39038)
 -- Name: pago_id_pago_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1297,6 +1368,8 @@ CREATE SEQUENCE vida_salud.pago_id_pago_seq
 ALTER SEQUENCE vida_salud.pago_id_pago_seq OWNER TO postgres;
 
 --
+-- TOC entry 5499 (class 0 OID 0)
+-- Dependencies: 271
 -- Name: pago_id_pago_seq; Type: SEQUENCE OWNED BY; Schema: vida_salud; Owner: postgres
 --
 
@@ -1304,6 +1377,7 @@ ALTER SEQUENCE vida_salud.pago_id_pago_seq OWNED BY vida_salud.pago.id_pago;
 
 
 --
+-- TOC entry 260 (class 1259 OID 24998)
 -- Name: password_reset_tokens; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1317,6 +1391,7 @@ CREATE TABLE vida_salud.password_reset_tokens (
 ALTER TABLE vida_salud.password_reset_tokens OWNER TO postgres;
 
 --
+-- TOC entry 225 (class 1259 OID 17898)
 -- Name: permiso; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1331,6 +1406,7 @@ CREATE TABLE vida_salud.permiso (
 ALTER TABLE vida_salud.permiso OWNER TO postgres;
 
 --
+-- TOC entry 224 (class 1259 OID 17897)
 -- Name: permiso_id_permiso_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1345,6 +1421,7 @@ ALTER TABLE vida_salud.permiso ALTER COLUMN id_permiso ADD GENERATED BY DEFAULT 
 
 
 --
+-- TOC entry 221 (class 1259 OID 17868)
 -- Name: persona; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1363,6 +1440,7 @@ CREATE TABLE vida_salud.persona (
 ALTER TABLE vida_salud.persona OWNER TO postgres;
 
 --
+-- TOC entry 220 (class 1259 OID 17867)
 -- Name: persona_id_persona_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1377,6 +1455,7 @@ ALTER TABLE vida_salud.persona ALTER COLUMN id_persona ADD GENERATED BY DEFAULT 
 
 
 --
+-- TOC entry 232 (class 1259 OID 17972)
 -- Name: personal_administrativo; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1389,6 +1468,7 @@ CREATE TABLE vida_salud.personal_administrativo (
 ALTER TABLE vida_salud.personal_administrativo OWNER TO postgres;
 
 --
+-- TOC entry 270 (class 1259 OID 39017)
 -- Name: recuperacion_contrasena; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1405,6 +1485,7 @@ CREATE TABLE vida_salud.recuperacion_contrasena (
 ALTER TABLE vida_salud.recuperacion_contrasena OWNER TO postgres;
 
 --
+-- TOC entry 269 (class 1259 OID 39016)
 -- Name: recuperacion_contrasena_id_recuperacion_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1419,6 +1500,8 @@ CREATE SEQUENCE vida_salud.recuperacion_contrasena_id_recuperacion_seq
 ALTER SEQUENCE vida_salud.recuperacion_contrasena_id_recuperacion_seq OWNER TO postgres;
 
 --
+-- TOC entry 5500 (class 0 OID 0)
+-- Dependencies: 269
 -- Name: recuperacion_contrasena_id_recuperacion_seq; Type: SEQUENCE OWNED BY; Schema: vida_salud; Owner: postgres
 --
 
@@ -1426,6 +1509,7 @@ ALTER SEQUENCE vida_salud.recuperacion_contrasena_id_recuperacion_seq OWNED BY v
 
 
 --
+-- TOC entry 276 (class 1259 OID 39091)
 -- Name: reembolso; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1445,6 +1529,7 @@ CREATE TABLE vida_salud.reembolso (
 ALTER TABLE vida_salud.reembolso OWNER TO postgres;
 
 --
+-- TOC entry 275 (class 1259 OID 39090)
 -- Name: reembolso_id_reembolso_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1459,6 +1544,8 @@ CREATE SEQUENCE vida_salud.reembolso_id_reembolso_seq
 ALTER SEQUENCE vida_salud.reembolso_id_reembolso_seq OWNER TO postgres;
 
 --
+-- TOC entry 5501 (class 0 OID 0)
+-- Dependencies: 275
 -- Name: reembolso_id_reembolso_seq; Type: SEQUENCE OWNED BY; Schema: vida_salud; Owner: postgres
 --
 
@@ -1466,6 +1553,7 @@ ALTER SEQUENCE vida_salud.reembolso_id_reembolso_seq OWNED BY vida_salud.reembol
 
 
 --
+-- TOC entry 255 (class 1259 OID 18173)
 -- Name: reporte; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1486,6 +1574,7 @@ CREATE TABLE vida_salud.reporte (
 ALTER TABLE vida_salud.reporte OWNER TO postgres;
 
 --
+-- TOC entry 254 (class 1259 OID 18172)
 -- Name: reporte_id_reporte_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1500,6 +1589,7 @@ ALTER TABLE vida_salud.reporte ALTER COLUMN id_reporte ADD GENERATED BY DEFAULT 
 
 
 --
+-- TOC entry 223 (class 1259 OID 17886)
 -- Name: rol; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1513,6 +1603,7 @@ CREATE TABLE vida_salud.rol (
 ALTER TABLE vida_salud.rol OWNER TO postgres;
 
 --
+-- TOC entry 222 (class 1259 OID 17885)
 -- Name: rol_id_rol_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1527,6 +1618,7 @@ ALTER TABLE vida_salud.rol ALTER COLUMN id_rol ADD GENERATED BY DEFAULT AS IDENT
 
 
 --
+-- TOC entry 226 (class 1259 OID 17908)
 -- Name: rol_permiso; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1540,6 +1632,7 @@ CREATE TABLE vida_salud.rol_permiso (
 ALTER TABLE vida_salud.rol_permiso OWNER TO postgres;
 
 --
+-- TOC entry 229 (class 1259 OID 17939)
 -- Name: sesion; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1558,6 +1651,7 @@ CREATE TABLE vida_salud.sesion (
 ALTER TABLE vida_salud.sesion OWNER TO postgres;
 
 --
+-- TOC entry 261 (class 1259 OID 25007)
 -- Name: sessions; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1574,6 +1668,7 @@ CREATE TABLE vida_salud.sessions (
 ALTER TABLE vida_salud.sessions OWNER TO postgres;
 
 --
+-- TOC entry 231 (class 1259 OID 17955)
 -- Name: token_recuperacion; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1591,6 +1686,7 @@ CREATE TABLE vida_salud.token_recuperacion (
 ALTER TABLE vida_salud.token_recuperacion OWNER TO postgres;
 
 --
+-- TOC entry 230 (class 1259 OID 17954)
 -- Name: token_recuperacion_id_token_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1605,6 +1701,7 @@ ALTER TABLE vida_salud.token_recuperacion ALTER COLUMN id_token ADD GENERATED BY
 
 
 --
+-- TOC entry 259 (class 1259 OID 24984)
 -- Name: users; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1623,6 +1720,7 @@ CREATE TABLE vida_salud.users (
 ALTER TABLE vida_salud.users OWNER TO postgres;
 
 --
+-- TOC entry 258 (class 1259 OID 24983)
 -- Name: users_id_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1637,6 +1735,8 @@ CREATE SEQUENCE vida_salud.users_id_seq
 ALTER SEQUENCE vida_salud.users_id_seq OWNER TO postgres;
 
 --
+-- TOC entry 5502 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: vida_salud; Owner: postgres
 --
 
@@ -1644,6 +1744,7 @@ ALTER SEQUENCE vida_salud.users_id_seq OWNED BY vida_salud.users.id;
 
 
 --
+-- TOC entry 228 (class 1259 OID 17918)
 -- Name: usuario; Type: TABLE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1666,6 +1767,7 @@ CREATE TABLE vida_salud.usuario (
 ALTER TABLE vida_salud.usuario OWNER TO postgres;
 
 --
+-- TOC entry 227 (class 1259 OID 17917)
 -- Name: usuario_id_usuario_seq; Type: SEQUENCE; Schema: vida_salud; Owner: postgres
 --
 
@@ -1680,6 +1782,7 @@ ALTER TABLE vida_salud.usuario ALTER COLUMN id_usuario ADD GENERATED BY DEFAULT 
 
 
 --
+-- TOC entry 5088 (class 2604 OID 39071)
 -- Name: comprobante_pago id_comprobante; Type: DEFAULT; Schema: vida_salud; Owner: postgres
 --
 
@@ -1687,6 +1790,7 @@ ALTER TABLE ONLY vida_salud.comprobante_pago ALTER COLUMN id_comprobante SET DEF
 
 
 --
+-- TOC entry 5080 (class 2604 OID 25075)
 -- Name: failed_jobs id; Type: DEFAULT; Schema: vida_salud; Owner: postgres
 --
 
@@ -1694,6 +1798,7 @@ ALTER TABLE ONLY vida_salud.failed_jobs ALTER COLUMN id SET DEFAULT nextval('vid
 
 
 --
+-- TOC entry 5079 (class 2604 OID 25045)
 -- Name: jobs id; Type: DEFAULT; Schema: vida_salud; Owner: postgres
 --
 
@@ -1701,6 +1806,7 @@ ALTER TABLE ONLY vida_salud.jobs ALTER COLUMN id SET DEFAULT nextval('vida_salud
 
 
 --
+-- TOC entry 5077 (class 2604 OID 24977)
 -- Name: migrations id; Type: DEFAULT; Schema: vida_salud; Owner: postgres
 --
 
@@ -1708,6 +1814,7 @@ ALTER TABLE ONLY vida_salud.migrations ALTER COLUMN id SET DEFAULT nextval('vida
 
 
 --
+-- TOC entry 5085 (class 2604 OID 39042)
 -- Name: pago id_pago; Type: DEFAULT; Schema: vida_salud; Owner: postgres
 --
 
@@ -1715,6 +1822,7 @@ ALTER TABLE ONLY vida_salud.pago ALTER COLUMN id_pago SET DEFAULT nextval('vida_
 
 
 --
+-- TOC entry 5082 (class 2604 OID 39020)
 -- Name: recuperacion_contrasena id_recuperacion; Type: DEFAULT; Schema: vida_salud; Owner: postgres
 --
 
@@ -1722,6 +1830,7 @@ ALTER TABLE ONLY vida_salud.recuperacion_contrasena ALTER COLUMN id_recuperacion
 
 
 --
+-- TOC entry 5090 (class 2604 OID 39094)
 -- Name: reembolso id_reembolso; Type: DEFAULT; Schema: vida_salud; Owner: postgres
 --
 
@@ -1729,6 +1838,7 @@ ALTER TABLE ONLY vida_salud.reembolso ALTER COLUMN id_reembolso SET DEFAULT next
 
 
 --
+-- TOC entry 5078 (class 2604 OID 24987)
 -- Name: users id; Type: DEFAULT; Schema: vida_salud; Owner: postgres
 --
 
@@ -1736,12 +1846,20 @@ ALTER TABLE ONLY vida_salud.users ALTER COLUMN id SET DEFAULT nextval('vida_salu
 
 
 --
+-- TOC entry 5447 (class 0 OID 17980)
+-- Dependencies: 234
 -- Data for Name: bitacora; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
 COPY vida_salud.bitacora (id_bitacora, id_usuario, fecha_hora, modulo, tipo_accion, tabla_afectada, id_registro_afectado, detalle, ip, descripcion, navegador) FROM stdin;
 79	1	2026-11-07 17:18:36+00	P1_SEGURIDAD	LOGIN	usuario	1	Inicio de sesión exitoso. Usuario: [scolque], Rol: [ADMINISTRADOR].	127.0.0.1		Chrome / Mozilla
+82	1	2026-11-07 17:24:41+00	P2_RBAC	INACTIVAR	usuario	12	Inactivación de cuenta: Usuario [hhernandez] dado de baja lógica (estado = INACTIVO). Sesiones revocadas.	127.0.0.1		Chrome / Mozilla
+85	1	2026-11-07 17:31:15+00	P2_RBAC	MODIFICAR	rol_permiso	3	Permisos actualizados para el rol [Médico].	127.0.0.1		Chrome / Mozilla
+89	1	2026-11-07 18:00:59+00	P2_RBAC	REGISTRAR	usuario	1	Registro de prueba de auditoría para usuario carlos.test con rol Recepcionista	127.0.0.1	Registro de prueba de auditoría para usuario carlos.test con rol Recepcionista	Symfony
+90	1	2026-11-07 18:00:59+00	P2_RBAC	MODIFICAR	usuario	1	Rol del usuario [carlos.test] cambiado de [Recepcionista] a [Médico]. Motivo: Promoción de cargo	127.0.0.1	Cambio de rol de Recepcionista a Médico (carlos.test): Promoción de cargo	Symfony
 80	1	2026-11-07 17:18:38+00	P1_SEGURIDAD	LOGIN	usuario	1	Inicio de sesión exitoso. Usuario: [scolque], Rol: [ADMINISTRADOR].	127.0.0.1		Chrome / Mozilla
+83	1	2026-11-07 17:30:39+00	P2_RBAC	RENOVAR	usuario	12	Renovación de cuenta: Usuario [hhernandez] renovado y reactivado a estado ACTIVO.	127.0.0.1		Chrome / Mozilla
+86	1	2026-11-07 17:31:16+00	P2_RBAC	MODIFICAR	rol_permiso	3	Permisos actualizados para el rol [Médico].	127.0.0.1		Chrome / Mozilla
 1	1	2026-08-01 11:40:00+00	P5 Gestión Médica y Horarios	CREAR	especialidad	\N	Registro del catálogo inicial de 7 especialidades (CU16)	192.168.1.23	Evento CREAR registrado en el módulo P5 Gestión Médica y Horarios	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
 2	1	2026-08-01 12:03:00+00	P2 Administración de Usuarios RBAC	CREAR	usuario	1	Alta de usuario Silvia Irene Colque López con rol Administrador (CU05)	192.168.1.23	Evento CREAR registrado en el módulo P2 Administración de Usuarios RBAC	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
 3	1	2026-08-01 12:06:00+00	P2 Administración de Usuarios RBAC	CREAR	usuario	2	Alta de usuario Rosa María Vaca Cuéllar con rol Recepcionista (CU05)	192.168.1.23	Evento CREAR registrado en el módulo P2 Administración de Usuarios RBAC	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
@@ -1777,6 +1895,7 @@ COPY vida_salud.bitacora (id_bitacora, id_usuario, fecha_hora, modulo, tipo_acci
 33	\N	2026-11-06 21:04:14+00	P1 SEGURIDAD	LOGOUT	\N	\N	[POST] api/auth/logout (HTTP 200) por Sistema	127.0.0.1	Evento LOGOUT registrado en el módulo P1 SEGURIDAD	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
 34	\N	2026-11-06 21:04:15+00	P1 SEGURIDAD	LOGOUT	\N	\N	[GET] api/auth/logout-summary (HTTP 200) por Sistema	127.0.0.1	Evento LOGOUT registrado en el módulo P1 SEGURIDAD	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
 35	1	2026-11-06 21:27:05+00	P1_SEGURIDAD	LOGIN	usuario	1	Inicio de sesión exitoso. Usuario: [scolque], Rol: [ADMINISTRADOR].	127.0.0.1	Evento LOGIN registrado en el módulo P1_SEGURIDAD	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
+87	\N	2026-11-07 17:49:48+00	P2	REGISTRAR	usuario	1	Prueba	127.0.0.1		Chrome / Mozilla
 36	1	2026-11-06 21:37:38+00	P7_REPORTES	CREAR	reporte	4	Reporte emitido de tipo [CITAS_PERIODO] en formato [CSV].	127.0.0.1	Evento CREAR registrado en el módulo P7_REPORTES	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
 37	1	2026-11-06 21:37:39+00	P7_REPORTES	CREAR	reporte	5	Reporte emitido de tipo [CITAS_PERIODO] en formato [CSV].	127.0.0.1	Evento CREAR registrado en el módulo P7_REPORTES	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
 38	1	2026-11-06 21:42:16+00	P1_SEGURIDAD	LOGOUT	usuario	1	Cierre de sesión y revocación exitosa del usuario [scolque] (inicio: 06/11/2026 21:27:05, cierre: 06/11/2026 21:42:16).	127.0.0.1	Evento LOGOUT registrado en el módulo P1_SEGURIDAD	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
@@ -1820,10 +1939,15 @@ COPY vida_salud.bitacora (id_bitacora, id_usuario, fecha_hora, modulo, tipo_acci
 76	1	2026-11-07 16:17:47+00	P1_SEGURIDAD	LOGOUT	usuario	1	Cierre de sesión y revocación exitosa del usuario [scolque] (inicio: 07/11/2026 12:17:34, cierre: 07/11/2026 16:17:47).	127.0.0.1	Evento LOGOUT registrado en el módulo P1_SEGURIDAD	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
 77	1	2026-11-07 16:25:38+00	P1_SEGURIDAD	LOGIN	usuario	1	Inicio de sesión exitoso. Usuario: [scolque], Rol: [ADMINISTRADOR].	127.0.0.1	Evento LOGIN registrado en el módulo P1_SEGURIDAD	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
 78	1	2026-11-07 16:25:43+00	P1_SEGURIDAD	LOGOUT	usuario	1	Cierre de sesión y revocación exitosa del usuario [scolque] (inicio: 07/11/2026 12:25:38, cierre: 07/11/2026 16:25:43).	127.0.0.1	Evento LOGOUT registrado en el módulo P1_SEGURIDAD	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36
+81	1	2026-11-07 17:22:38+00	P2_RBAC	REGISTRAR	usuario	12	Registro de usuario [hhernandez] con CI [12345678], correo [hernandezflores@gmail.com] y rol [Recepcionista].	127.0.0.1		Chrome / Mozilla
+84	1	2026-11-07 17:30:40+00	P2_RBAC	RENOVAR	usuario	12	Renovación de cuenta: Usuario [hhernandez] renovado y reactivado a estado ACTIVO.	127.0.0.1		Chrome / Mozilla
+88	\N	2026-11-07 17:49:54+00	P2	REGISTRAR	usuario	1	Prueba	127.0.0.1		Chrome / Mozilla
 \.
 
 
 --
+-- TOC entry 5460 (class 0 OID 18088)
+-- Dependencies: 247
 -- Data for Name: bloqueo_agenda; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1835,6 +1959,8 @@ COPY vida_salud.bloqueo_agenda (id_bloqueo, id_medico, fecha_inicio, fecha_fin, 
 
 
 --
+-- TOC entry 5475 (class 0 OID 25019)
+-- Dependencies: 262
 -- Data for Name: cache; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1844,6 +1970,8 @@ laravel-cache-roster:project:v3:b4b9c14176818a84bd185e505049c20d	TzoyNjoiTGFyYXZ
 
 
 --
+-- TOC entry 5476 (class 0 OID 25030)
+-- Dependencies: 263
 -- Data for Name: cache_locks; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1852,6 +1980,8 @@ COPY vida_salud.cache_locks (key, owner, expiration) FROM stdin;
 
 
 --
+-- TOC entry 5462 (class 0 OID 18104)
+-- Dependencies: 249
 -- Data for Name: cita; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1867,6 +1997,8 @@ COPY vida_salud.cita (id_cita, codigo, id_paciente, id_medico, id_especialidad, 
 
 
 --
+-- TOC entry 5487 (class 0 OID 39068)
+-- Dependencies: 274
 -- Data for Name: comprobante_pago; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1880,6 +2012,8 @@ COPY vida_salud.comprobante_pago (id_comprobante, id_pago, numero, fecha_emision
 
 
 --
+-- TOC entry 5452 (class 0 OID 18024)
+-- Dependencies: 239
 -- Data for Name: contacto_emergencia; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1897,6 +2031,8 @@ COPY vida_salud.contacto_emergencia (id_contacto, id_paciente, nombre_completo, 
 
 
 --
+-- TOC entry 5454 (class 0 OID 18036)
+-- Dependencies: 241
 -- Data for Name: especialidad; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1911,6 +2047,8 @@ COPY vida_salud.especialidad (id_especialidad, nombre, descripcion, activo) FROM
 
 
 --
+-- TOC entry 5481 (class 0 OID 25072)
+-- Dependencies: 268
 -- Data for Name: failed_jobs; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1919,6 +2057,8 @@ COPY vida_salud.failed_jobs (id, uuid, connection, queue, payload, exception, fa
 
 
 --
+-- TOC entry 5464 (class 0 OID 18138)
+-- Dependencies: 251
 -- Data for Name: historial_estado_cita; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1934,6 +2074,8 @@ COPY vida_salud.historial_estado_cita (id_historial, id_cita, id_usuario, estado
 
 
 --
+-- TOC entry 5458 (class 0 OID 18069)
+-- Dependencies: 245
 -- Data for Name: horario; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1951,6 +2093,8 @@ COPY vida_salud.horario (id_horario, id_medico, dia_semana, hora_inicio, hora_fi
 
 
 --
+-- TOC entry 5450 (class 0 OID 18009)
+-- Dependencies: 237
 -- Data for Name: informacion_medica; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1967,6 +2111,8 @@ COPY vida_salud.informacion_medica (id_informacion, id_paciente, tipo_sangre, al
 
 
 --
+-- TOC entry 5479 (class 0 OID 25057)
+-- Dependencies: 266
 -- Data for Name: job_batches; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1975,6 +2121,8 @@ COPY vida_salud.job_batches (id, name, total_jobs, pending_jobs, failed_jobs, fa
 
 
 --
+-- TOC entry 5478 (class 0 OID 25042)
+-- Dependencies: 265
 -- Data for Name: jobs; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1983,6 +2131,8 @@ COPY vida_salud.jobs (id, queue, payload, attempts, reserved_at, available_at, c
 
 
 --
+-- TOC entry 5455 (class 0 OID 18046)
+-- Dependencies: 242
 -- Data for Name: medico; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -1995,6 +2145,8 @@ COPY vida_salud.medico (id_persona, codigo, matricula) FROM stdin;
 
 
 --
+-- TOC entry 5456 (class 0 OID 18058)
+-- Dependencies: 243
 -- Data for Name: medico_especialidad; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2009,6 +2161,8 @@ COPY vida_salud.medico_especialidad (id_medico, id_especialidad, fecha_asignacio
 
 
 --
+-- TOC entry 5470 (class 0 OID 24974)
+-- Dependencies: 257
 -- Data for Name: migrations; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2042,6 +2196,8 @@ COPY vida_salud.migrations (id, migration, batch) FROM stdin;
 
 
 --
+-- TOC entry 5466 (class 0 OID 18151)
+-- Dependencies: 253
 -- Data for Name: notificacion; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2057,6 +2213,8 @@ COPY vida_salud.notificacion (id_notificacion, id_cita, id_usuario_gestion, mens
 
 
 --
+-- TOC entry 5448 (class 0 OID 17995)
+-- Dependencies: 235
 -- Data for Name: paciente; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2073,6 +2231,8 @@ COPY vida_salud.paciente (id_persona, codigo, sexo, fecha_nacimiento, direccion,
 
 
 --
+-- TOC entry 5485 (class 0 OID 39039)
+-- Dependencies: 272
 -- Data for Name: pago; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2086,6 +2246,8 @@ COPY vida_salud.pago (id_pago, id_cita, id_usuario_registro, monto, moneda, meto
 
 
 --
+-- TOC entry 5473 (class 0 OID 24998)
+-- Dependencies: 260
 -- Data for Name: password_reset_tokens; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2094,6 +2256,8 @@ COPY vida_salud.password_reset_tokens (email, token, created_at) FROM stdin;
 
 
 --
+-- TOC entry 5438 (class 0 OID 17898)
+-- Dependencies: 225
 -- Data for Name: permiso; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2114,6 +2278,8 @@ COPY vida_salud.permiso (id_permiso, nombre, modulo, ruta_menu) FROM stdin;
 
 
 --
+-- TOC entry 5434 (class 0 OID 17868)
+-- Dependencies: 221
 -- Data for Name: persona; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2137,10 +2303,13 @@ COPY vida_salud.persona (id_persona, ci, nombres, apellidos, telefono, email, ac
 73	8899571	Carlos	Pereda	71122334	cpereda38@vidasalud.com.bo	t	2026-10-26 19:50:59.876115+00
 4	6210451	Luis Fernando	Ortiz Méndez	71023456	lortiz@vidasalud.com.bo	t	2026-08-01 12:00:00+00
 74	7891234	Carlos Daniel	Mendoza Roca	77099881	carlos.mendoza@test.bo	t	2026-11-07 18:56:48.856526+00
+75	12345678	Hernan	Hernandez flores	79462587	hernandezflores@gmail.com	t	2026-11-07 21:22:38.476024+00
 \.
 
 
 --
+-- TOC entry 5445 (class 0 OID 17972)
+-- Dependencies: 232
 -- Data for Name: personal_administrativo; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2151,10 +2320,13 @@ COPY vida_salud.personal_administrativo (id_persona, cargo) FROM stdin;
 4	Recepcionista turno tarde
 5	Recepcionista turno tarde
 73	Recepcionista
+75	Recepcionista
 \.
 
 
 --
+-- TOC entry 5483 (class 0 OID 39017)
+-- Dependencies: 270
 -- Data for Name: recuperacion_contrasena; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2165,6 +2337,8 @@ COPY vida_salud.recuperacion_contrasena (id_recuperacion, id_usuario, token_hash
 
 
 --
+-- TOC entry 5489 (class 0 OID 39091)
+-- Dependencies: 276
 -- Data for Name: reembolso; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2174,6 +2348,8 @@ COPY vida_salud.reembolso (id_reembolso, id_pago, id_usuario_autoriza, monto, mo
 
 
 --
+-- TOC entry 5468 (class 0 OID 18173)
+-- Dependencies: 255
 -- Data for Name: reporte; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2192,6 +2368,8 @@ COPY vida_salud.reporte (id_reporte, id_usuario, tipo, fecha_desde, fecha_hasta,
 
 
 --
+-- TOC entry 5436 (class 0 OID 17886)
+-- Dependencies: 223
 -- Data for Name: rol; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2204,6 +2382,8 @@ COPY vida_salud.rol (id_rol, nombre, descripcion) FROM stdin;
 
 
 --
+-- TOC entry 5439 (class 0 OID 17908)
+-- Dependencies: 226
 -- Data for Name: rol_permiso; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2231,6 +2411,8 @@ COPY vida_salud.rol_permiso (id_rol, id_permiso, fecha_asignacion) FROM stdin;
 
 
 --
+-- TOC entry 5442 (class 0 OID 17939)
+-- Dependencies: 229
 -- Data for Name: sesion; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2294,6 +2476,8 @@ YZn4MUh2iJ8BvxYRb6Evyi9vGuh1E6grAgeb6H0o	1	2026-11-07 17:18:38+00	2026-11-07 17:
 
 
 --
+-- TOC entry 5474 (class 0 OID 25007)
+-- Dependencies: 261
 -- Data for Name: sessions; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2302,6 +2486,8 @@ COPY vida_salud.sessions (id, user_id, ip_address, user_agent, payload, last_act
 
 
 --
+-- TOC entry 5444 (class 0 OID 17955)
+-- Dependencies: 231
 -- Data for Name: token_recuperacion; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2312,6 +2498,8 @@ COPY vida_salud.token_recuperacion (id_token, id_usuario, token_hash, fecha_gene
 
 
 --
+-- TOC entry 5472 (class 0 OID 24984)
+-- Dependencies: 259
 -- Data for Name: users; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
@@ -2320,11 +2508,14 @@ COPY vida_salud.users (id, name, email, email_verified_at, password, remember_to
 
 
 --
+-- TOC entry 5441 (class 0 OID 17918)
+-- Dependencies: 228
 -- Data for Name: usuario; Type: TABLE DATA; Schema: vida_salud; Owner: postgres
 --
 
 COPY vida_salud.usuario (id_usuario, id_persona, id_rol, nombre_usuario, hash_contrasena, estado, intentos_fallidos, bloqueado_hasta, ultimo_acceso, fecha_creacion, remember_token) FROM stdin;
 1	1	1	scolque	$2y$12$blegEXR4bV3oHagMojXWie14bmeVHfC8at9ubp6zptggqCmxjCMq6	ACTIVO	0	\N	2026-11-07 17:18:38+00	2026-08-01 12:03:00+00	0P6FkOe82SK4bcrzZiEBelQUbM9HBZ52axutudd1SXuamz0PvGedStavwg4r
+12	75	2	hhernandez	$2y$12$hqVmTGcX/7OKhx9XyfqXX.uXV9py9Zdbtlc8fpaJXYjSB8.Mo68vG	ACTIVO	0	\N	\N	2026-11-07 21:22:38.476024+00	\N
 2	2	2	rvaca	$2y$12$blegEXR4bV3oHagMojXWie14bmeVHfC8at9ubp6zptggqCmxjCMq6	ACTIVO	0	\N	2026-10-23 19:36:00+00	2026-08-01 12:06:00+00	\N
 9	9	3	daguilera	$2y$12$blegEXR4bV3oHagMojXWie14bmeVHfC8at9ubp6zptggqCmxjCMq6	ACTIVO	0	\N	2026-10-23 16:00:00+00	2026-08-01 12:30:00+00	\N
 3	3	2	csuarez	$2y$12$blegEXR4bV3oHagMojXWie14bmeVHfC8at9ubp6zptggqCmxjCMq6	ACTIVO	0	\N	2026-10-23 14:12:00+00	2026-08-01 12:09:00+00	\N
@@ -2336,13 +2527,17 @@ COPY vida_salud.usuario (id_usuario, id_persona, id_rol, nombre_usuario, hash_co
 
 
 --
+-- TOC entry 5503 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: bitacora_id_bitacora_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
-SELECT pg_catalog.setval('vida_salud.bitacora_id_bitacora_seq', 80, true);
+SELECT pg_catalog.setval('vida_salud.bitacora_id_bitacora_seq', 90, true);
 
 
 --
+-- TOC entry 5504 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: bloqueo_agenda_id_bloqueo_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2350,6 +2545,8 @@ SELECT pg_catalog.setval('vida_salud.bloqueo_agenda_id_bloqueo_seq', 3, true);
 
 
 --
+-- TOC entry 5505 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: cita_id_cita_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2357,6 +2554,8 @@ SELECT pg_catalog.setval('vida_salud.cita_id_cita_seq', 217, true);
 
 
 --
+-- TOC entry 5506 (class 0 OID 0)
+-- Dependencies: 273
 -- Name: comprobante_pago_id_comprobante_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2364,6 +2563,8 @@ SELECT pg_catalog.setval('vida_salud.comprobante_pago_id_comprobante_seq', 5, tr
 
 
 --
+-- TOC entry 5507 (class 0 OID 0)
+-- Dependencies: 238
 -- Name: contacto_emergencia_id_contacto_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2371,6 +2572,8 @@ SELECT pg_catalog.setval('vida_salud.contacto_emergencia_id_contacto_seq', 110, 
 
 
 --
+-- TOC entry 5508 (class 0 OID 0)
+-- Dependencies: 240
 -- Name: especialidad_id_especialidad_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2378,6 +2581,8 @@ SELECT pg_catalog.setval('vida_salud.especialidad_id_especialidad_seq', 8, true)
 
 
 --
+-- TOC entry 5509 (class 0 OID 0)
+-- Dependencies: 267
 -- Name: failed_jobs_id_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2385,6 +2590,8 @@ SELECT pg_catalog.setval('vida_salud.failed_jobs_id_seq', 1, false);
 
 
 --
+-- TOC entry 5510 (class 0 OID 0)
+-- Dependencies: 250
 -- Name: historial_estado_cita_id_historial_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2392,6 +2599,8 @@ SELECT pg_catalog.setval('vida_salud.historial_estado_cita_id_historial_seq', 7,
 
 
 --
+-- TOC entry 5511 (class 0 OID 0)
+-- Dependencies: 244
 -- Name: horario_id_horario_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2399,6 +2608,8 @@ SELECT pg_catalog.setval('vida_salud.horario_id_horario_seq', 9, true);
 
 
 --
+-- TOC entry 5512 (class 0 OID 0)
+-- Dependencies: 236
 -- Name: informacion_medica_id_informacion_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2406,6 +2617,8 @@ SELECT pg_catalog.setval('vida_salud.informacion_medica_id_informacion_seq', 8, 
 
 
 --
+-- TOC entry 5513 (class 0 OID 0)
+-- Dependencies: 264
 -- Name: jobs_id_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2413,6 +2626,8 @@ SELECT pg_catalog.setval('vida_salud.jobs_id_seq', 1, false);
 
 
 --
+-- TOC entry 5514 (class 0 OID 0)
+-- Dependencies: 256
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2420,6 +2635,8 @@ SELECT pg_catalog.setval('vida_salud.migrations_id_seq', 25, true);
 
 
 --
+-- TOC entry 5515 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: notificacion_id_notificacion_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2427,6 +2644,8 @@ SELECT pg_catalog.setval('vida_salud.notificacion_id_notificacion_seq', 189, tru
 
 
 --
+-- TOC entry 5516 (class 0 OID 0)
+-- Dependencies: 271
 -- Name: pago_id_pago_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2434,6 +2653,8 @@ SELECT pg_catalog.setval('vida_salud.pago_id_pago_seq', 5, true);
 
 
 --
+-- TOC entry 5517 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: permiso_id_permiso_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2441,13 +2662,17 @@ SELECT pg_catalog.setval('vida_salud.permiso_id_permiso_seq', 12, true);
 
 
 --
+-- TOC entry 5518 (class 0 OID 0)
+-- Dependencies: 220
 -- Name: persona_id_persona_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
-SELECT pg_catalog.setval('vida_salud.persona_id_persona_seq', 74, true);
+SELECT pg_catalog.setval('vida_salud.persona_id_persona_seq', 75, true);
 
 
 --
+-- TOC entry 5519 (class 0 OID 0)
+-- Dependencies: 269
 -- Name: recuperacion_contrasena_id_recuperacion_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2455,6 +2680,8 @@ SELECT pg_catalog.setval('vida_salud.recuperacion_contrasena_id_recuperacion_seq
 
 
 --
+-- TOC entry 5520 (class 0 OID 0)
+-- Dependencies: 275
 -- Name: reembolso_id_reembolso_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2462,6 +2689,8 @@ SELECT pg_catalog.setval('vida_salud.reembolso_id_reembolso_seq', 1, true);
 
 
 --
+-- TOC entry 5521 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: reporte_id_reporte_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2469,6 +2698,8 @@ SELECT pg_catalog.setval('vida_salud.reporte_id_reporte_seq', 11, true);
 
 
 --
+-- TOC entry 5522 (class 0 OID 0)
+-- Dependencies: 222
 -- Name: rol_id_rol_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2476,6 +2707,8 @@ SELECT pg_catalog.setval('vida_salud.rol_id_rol_seq', 3, true);
 
 
 --
+-- TOC entry 5523 (class 0 OID 0)
+-- Dependencies: 230
 -- Name: token_recuperacion_id_token_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2483,6 +2716,8 @@ SELECT pg_catalog.setval('vida_salud.token_recuperacion_id_token_seq', 5, true);
 
 
 --
+-- TOC entry 5524 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
@@ -2490,13 +2725,16 @@ SELECT pg_catalog.setval('vida_salud.users_id_seq', 1, false);
 
 
 --
+-- TOC entry 5525 (class 0 OID 0)
+-- Dependencies: 227
 -- Name: usuario_id_usuario_seq; Type: SEQUENCE SET; Schema: vida_salud; Owner: postgres
 --
 
-SELECT pg_catalog.setval('vida_salud.usuario_id_usuario_seq', 11, true);
+SELECT pg_catalog.setval('vida_salud.usuario_id_usuario_seq', 12, true);
 
 
 --
+-- TOC entry 5149 (class 2606 OID 17991)
 -- Name: bitacora bitacora_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2505,6 +2743,7 @@ ALTER TABLE ONLY vida_salud.bitacora
 
 
 --
+-- TOC entry 5179 (class 2606 OID 18101)
 -- Name: bloqueo_agenda bloqueo_agenda_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2513,6 +2752,7 @@ ALTER TABLE ONLY vida_salud.bloqueo_agenda
 
 
 --
+-- TOC entry 5217 (class 2606 OID 25039)
 -- Name: cache_locks cache_locks_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2521,6 +2761,7 @@ ALTER TABLE ONLY vida_salud.cache_locks
 
 
 --
+-- TOC entry 5214 (class 2606 OID 25028)
 -- Name: cache cache_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2529,6 +2770,7 @@ ALTER TABLE ONLY vida_salud.cache
 
 
 --
+-- TOC entry 5181 (class 2606 OID 18131)
 -- Name: cita cita_codigo_unico; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2537,6 +2779,7 @@ ALTER TABLE ONLY vida_salud.cita
 
 
 --
+-- TOC entry 5188 (class 2606 OID 18129)
 -- Name: cita cita_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2545,6 +2788,7 @@ ALTER TABLE ONLY vida_salud.cita
 
 
 --
+-- TOC entry 5237 (class 2606 OID 39087)
 -- Name: comprobante_pago comprobante_pago_id_pago_unique; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2553,6 +2797,7 @@ ALTER TABLE ONLY vida_salud.comprobante_pago
 
 
 --
+-- TOC entry 5239 (class 2606 OID 39089)
 -- Name: comprobante_pago comprobante_pago_numero_unique; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2561,6 +2806,7 @@ ALTER TABLE ONLY vida_salud.comprobante_pago
 
 
 --
+-- TOC entry 5241 (class 2606 OID 39080)
 -- Name: comprobante_pago comprobante_pago_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2569,6 +2815,7 @@ ALTER TABLE ONLY vida_salud.comprobante_pago
 
 
 --
+-- TOC entry 5161 (class 2606 OID 18033)
 -- Name: contacto_emergencia contacto_emergencia_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2577,6 +2824,7 @@ ALTER TABLE ONLY vida_salud.contacto_emergencia
 
 
 --
+-- TOC entry 5164 (class 2606 OID 18044)
 -- Name: especialidad especialidad_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2585,6 +2833,7 @@ ALTER TABLE ONLY vida_salud.especialidad
 
 
 --
+-- TOC entry 5225 (class 2606 OID 25087)
 -- Name: failed_jobs failed_jobs_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2593,6 +2842,7 @@ ALTER TABLE ONLY vida_salud.failed_jobs
 
 
 --
+-- TOC entry 5227 (class 2606 OID 25090)
 -- Name: failed_jobs failed_jobs_uuid_unique; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2601,6 +2851,7 @@ ALTER TABLE ONLY vida_salud.failed_jobs
 
 
 --
+-- TOC entry 5191 (class 2606 OID 18148)
 -- Name: historial_estado_cita historial_estado_cita_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2609,6 +2860,7 @@ ALTER TABLE ONLY vida_salud.historial_estado_cita
 
 
 --
+-- TOC entry 5176 (class 2606 OID 18085)
 -- Name: horario horario_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2617,6 +2869,7 @@ ALTER TABLE ONLY vida_salud.horario
 
 
 --
+-- TOC entry 5156 (class 2606 OID 18022)
 -- Name: informacion_medica informacion_medica_paciente_unico; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2625,6 +2878,7 @@ ALTER TABLE ONLY vida_salud.informacion_medica
 
 
 --
+-- TOC entry 5158 (class 2606 OID 18020)
 -- Name: informacion_medica informacion_medica_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2633,6 +2887,7 @@ ALTER TABLE ONLY vida_salud.informacion_medica
 
 
 --
+-- TOC entry 5222 (class 2606 OID 25070)
 -- Name: job_batches job_batches_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2641,6 +2896,7 @@ ALTER TABLE ONLY vida_salud.job_batches
 
 
 --
+-- TOC entry 5219 (class 2606 OID 25055)
 -- Name: jobs jobs_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2649,6 +2905,7 @@ ALTER TABLE ONLY vida_salud.jobs
 
 
 --
+-- TOC entry 5166 (class 2606 OID 18055)
 -- Name: medico medico_codigo_unico; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2657,6 +2914,7 @@ ALTER TABLE ONLY vida_salud.medico
 
 
 --
+-- TOC entry 5173 (class 2606 OID 18066)
 -- Name: medico_especialidad medico_especialidad_pk; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2665,6 +2923,7 @@ ALTER TABLE ONLY vida_salud.medico_especialidad
 
 
 --
+-- TOC entry 5168 (class 2606 OID 18057)
 -- Name: medico medico_matricula_unica; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2673,6 +2932,7 @@ ALTER TABLE ONLY vida_salud.medico
 
 
 --
+-- TOC entry 5170 (class 2606 OID 18053)
 -- Name: medico medico_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2681,6 +2941,7 @@ ALTER TABLE ONLY vida_salud.medico
 
 
 --
+-- TOC entry 5201 (class 2606 OID 24982)
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2689,6 +2950,7 @@ ALTER TABLE ONLY vida_salud.migrations
 
 
 --
+-- TOC entry 5195 (class 2606 OID 18168)
 -- Name: notificacion notificacion_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2697,6 +2959,7 @@ ALTER TABLE ONLY vida_salud.notificacion
 
 
 --
+-- TOC entry 5152 (class 2606 OID 18007)
 -- Name: paciente paciente_codigo_unico; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2705,6 +2968,7 @@ ALTER TABLE ONLY vida_salud.paciente
 
 
 --
+-- TOC entry 5154 (class 2606 OID 18005)
 -- Name: paciente paciente_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2713,6 +2977,7 @@ ALTER TABLE ONLY vida_salud.paciente
 
 
 --
+-- TOC entry 5233 (class 2606 OID 39054)
 -- Name: pago pago_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2721,6 +2986,7 @@ ALTER TABLE ONLY vida_salud.pago
 
 
 --
+-- TOC entry 5235 (class 2606 OID 39066)
 -- Name: pago pago_referencia_externa_unique; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2729,6 +2995,7 @@ ALTER TABLE ONLY vida_salud.pago
 
 
 --
+-- TOC entry 5207 (class 2606 OID 25006)
 -- Name: password_reset_tokens password_reset_tokens_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2737,6 +3004,7 @@ ALTER TABLE ONLY vida_salud.password_reset_tokens
 
 
 --
+-- TOC entry 5125 (class 2606 OID 17907)
 -- Name: permiso permiso_nombre_unico; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2745,6 +3013,7 @@ ALTER TABLE ONLY vida_salud.permiso
 
 
 --
+-- TOC entry 5127 (class 2606 OID 17905)
 -- Name: permiso permiso_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2753,6 +3022,7 @@ ALTER TABLE ONLY vida_salud.permiso
 
 
 --
+-- TOC entry 5116 (class 2606 OID 17882)
 -- Name: persona persona_ci_unico; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2761,6 +3031,7 @@ ALTER TABLE ONLY vida_salud.persona
 
 
 --
+-- TOC entry 5119 (class 2606 OID 17880)
 -- Name: persona persona_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2769,6 +3040,7 @@ ALTER TABLE ONLY vida_salud.persona
 
 
 --
+-- TOC entry 5145 (class 2606 OID 17978)
 -- Name: personal_administrativo personal_administrativo_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2777,6 +3049,7 @@ ALTER TABLE ONLY vida_salud.personal_administrativo
 
 
 --
+-- TOC entry 5229 (class 2606 OID 39030)
 -- Name: recuperacion_contrasena recuperacion_contrasena_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2785,6 +3058,7 @@ ALTER TABLE ONLY vida_salud.recuperacion_contrasena
 
 
 --
+-- TOC entry 5231 (class 2606 OID 39037)
 -- Name: recuperacion_contrasena recuperacion_contrasena_token_hash_unique; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2793,6 +3067,7 @@ ALTER TABLE ONLY vida_salud.recuperacion_contrasena
 
 
 --
+-- TOC entry 5243 (class 2606 OID 39105)
 -- Name: reembolso reembolso_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2801,6 +3076,7 @@ ALTER TABLE ONLY vida_salud.reembolso
 
 
 --
+-- TOC entry 5198 (class 2606 OID 18186)
 -- Name: reporte reporte_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2809,6 +3085,7 @@ ALTER TABLE ONLY vida_salud.reporte
 
 
 --
+-- TOC entry 5121 (class 2606 OID 17896)
 -- Name: rol rol_nombre_unico; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2817,6 +3094,7 @@ ALTER TABLE ONLY vida_salud.rol
 
 
 --
+-- TOC entry 5129 (class 2606 OID 17916)
 -- Name: rol_permiso rol_permiso_pk; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2825,6 +3103,7 @@ ALTER TABLE ONLY vida_salud.rol_permiso
 
 
 --
+-- TOC entry 5123 (class 2606 OID 17894)
 -- Name: rol rol_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2833,6 +3112,7 @@ ALTER TABLE ONLY vida_salud.rol
 
 
 --
+-- TOC entry 5137 (class 2606 OID 17952)
 -- Name: sesion sesion_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2841,6 +3121,7 @@ ALTER TABLE ONLY vida_salud.sesion
 
 
 --
+-- TOC entry 5210 (class 2606 OID 25016)
 -- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2849,6 +3130,7 @@ ALTER TABLE ONLY vida_salud.sessions
 
 
 --
+-- TOC entry 5140 (class 2606 OID 17970)
 -- Name: token_recuperacion token_recuperacion_hash_unico; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2857,6 +3139,7 @@ ALTER TABLE ONLY vida_salud.token_recuperacion
 
 
 --
+-- TOC entry 5142 (class 2606 OID 17968)
 -- Name: token_recuperacion token_recuperacion_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2865,6 +3148,7 @@ ALTER TABLE ONLY vida_salud.token_recuperacion
 
 
 --
+-- TOC entry 5203 (class 2606 OID 24997)
 -- Name: users users_email_unique; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2873,6 +3157,7 @@ ALTER TABLE ONLY vida_salud.users
 
 
 --
+-- TOC entry 5205 (class 2606 OID 24995)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2881,6 +3166,7 @@ ALTER TABLE ONLY vida_salud.users
 
 
 --
+-- TOC entry 5132 (class 2606 OID 17936)
 -- Name: usuario usuario_persona_unica; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2889,6 +3175,7 @@ ALTER TABLE ONLY vida_salud.usuario
 
 
 --
+-- TOC entry 5134 (class 2606 OID 17934)
 -- Name: usuario usuario_pkey; Type: CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -2897,6 +3184,7 @@ ALTER TABLE ONLY vida_salud.usuario
 
 
 --
+-- TOC entry 5146 (class 1259 OID 17994)
 -- Name: bitacora_accion_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2904,6 +3192,7 @@ CREATE INDEX bitacora_accion_idx ON vida_salud.bitacora USING btree (tipo_accion
 
 
 --
+-- TOC entry 5147 (class 1259 OID 17992)
 -- Name: bitacora_fecha_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2911,6 +3200,7 @@ CREATE INDEX bitacora_fecha_idx ON vida_salud.bitacora USING btree (fecha_hora D
 
 
 --
+-- TOC entry 5150 (class 1259 OID 17993)
 -- Name: bitacora_usuario_fecha_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2918,6 +3208,7 @@ CREATE INDEX bitacora_usuario_fecha_idx ON vida_salud.bitacora USING btree (id_u
 
 
 --
+-- TOC entry 5177 (class 1259 OID 18102)
 -- Name: bloqueo_agenda_medico_fechas_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2925,6 +3216,7 @@ CREATE INDEX bloqueo_agenda_medico_fechas_idx ON vida_salud.bloqueo_agenda USING
 
 
 --
+-- TOC entry 5212 (class 1259 OID 25029)
 -- Name: cache_expiration_index; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2932,6 +3224,7 @@ CREATE INDEX cache_expiration_index ON vida_salud.cache USING btree (expiration)
 
 
 --
+-- TOC entry 5215 (class 1259 OID 25040)
 -- Name: cache_locks_expiration_index; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2939,6 +3232,7 @@ CREATE INDEX cache_locks_expiration_index ON vida_salud.cache_locks USING btree 
 
 
 --
+-- TOC entry 5182 (class 1259 OID 18136)
 -- Name: cita_especialidad_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2946,6 +3240,7 @@ CREATE INDEX cita_especialidad_idx ON vida_salud.cita USING btree (id_especialid
 
 
 --
+-- TOC entry 5183 (class 1259 OID 18135)
 -- Name: cita_fecha_estado_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2953,6 +3248,7 @@ CREATE INDEX cita_fecha_estado_idx ON vida_salud.cita USING btree (fecha, estado
 
 
 --
+-- TOC entry 5184 (class 1259 OID 18132)
 -- Name: cita_medico_bloque_unico; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2960,6 +3256,7 @@ CREATE UNIQUE INDEX cita_medico_bloque_unico ON vida_salud.cita USING btree (id_
 
 
 --
+-- TOC entry 5185 (class 1259 OID 18134)
 -- Name: cita_medico_fecha_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2967,6 +3264,7 @@ CREATE INDEX cita_medico_fecha_idx ON vida_salud.cita USING btree (id_medico, fe
 
 
 --
+-- TOC entry 5186 (class 1259 OID 18133)
 -- Name: cita_paciente_fecha_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2974,6 +3272,7 @@ CREATE INDEX cita_paciente_fecha_idx ON vida_salud.cita USING btree (id_paciente
 
 
 --
+-- TOC entry 5159 (class 1259 OID 18034)
 -- Name: contacto_emergencia_paciente_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2981,6 +3280,7 @@ CREATE INDEX contacto_emergencia_paciente_idx ON vida_salud.contacto_emergencia 
 
 
 --
+-- TOC entry 5162 (class 1259 OID 18045)
 -- Name: especialidad_nombre_unico_ci; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2988,6 +3288,7 @@ CREATE UNIQUE INDEX especialidad_nombre_unico_ci ON vida_salud.especialidad USIN
 
 
 --
+-- TOC entry 5223 (class 1259 OID 25088)
 -- Name: failed_jobs_connection_queue_failed_at_index; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -2995,6 +3296,7 @@ CREATE INDEX failed_jobs_connection_queue_failed_at_index ON vida_salud.failed_j
 
 
 --
+-- TOC entry 5189 (class 1259 OID 18149)
 -- Name: historial_estado_cita_cita_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3002,6 +3304,7 @@ CREATE INDEX historial_estado_cita_cita_idx ON vida_salud.historial_estado_cita 
 
 
 --
+-- TOC entry 5174 (class 1259 OID 18086)
 -- Name: horario_medico_dia_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3009,6 +3312,7 @@ CREATE INDEX horario_medico_dia_idx ON vida_salud.horario USING btree (id_medico
 
 
 --
+-- TOC entry 5220 (class 1259 OID 25056)
 -- Name: jobs_queue_index; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3016,6 +3320,7 @@ CREATE INDEX jobs_queue_index ON vida_salud.jobs USING btree (queue);
 
 
 --
+-- TOC entry 5171 (class 1259 OID 18067)
 -- Name: medico_especialidad_especialidad_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3023,6 +3328,7 @@ CREATE INDEX medico_especialidad_especialidad_idx ON vida_salud.medico_especiali
 
 
 --
+-- TOC entry 5192 (class 1259 OID 18171)
 -- Name: notificacion_cita_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3030,6 +3336,7 @@ CREATE INDEX notificacion_cita_idx ON vida_salud.notificacion USING btree (id_ci
 
 
 --
+-- TOC entry 5193 (class 1259 OID 18169)
 -- Name: notificacion_pendiente_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3037,6 +3344,7 @@ CREATE INDEX notificacion_pendiente_idx ON vida_salud.notificacion USING btree (
 
 
 --
+-- TOC entry 5196 (class 1259 OID 18170)
 -- Name: notificacion_usuario_gestion_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3044,6 +3352,7 @@ CREATE INDEX notificacion_usuario_gestion_idx ON vida_salud.notificacion USING b
 
 
 --
+-- TOC entry 5114 (class 1259 OID 17884)
 -- Name: persona_apellidos_nombres_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3051,6 +3360,7 @@ CREATE INDEX persona_apellidos_nombres_idx ON vida_salud.persona USING btree (lo
 
 
 --
+-- TOC entry 5117 (class 1259 OID 17883)
 -- Name: persona_email_unico_ci; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3058,6 +3368,7 @@ CREATE UNIQUE INDEX persona_email_unico_ci ON vida_salud.persona USING btree (lo
 
 
 --
+-- TOC entry 5199 (class 1259 OID 18187)
 -- Name: reporte_usuario_fecha_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3065,6 +3376,7 @@ CREATE INDEX reporte_usuario_fecha_idx ON vida_salud.reporte USING btree (id_usu
 
 
 --
+-- TOC entry 5138 (class 1259 OID 17953)
 -- Name: sesion_usuario_activa_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3072,6 +3384,7 @@ CREATE INDEX sesion_usuario_activa_idx ON vida_salud.sesion USING btree (id_usua
 
 
 --
+-- TOC entry 5208 (class 1259 OID 25018)
 -- Name: sessions_last_activity_index; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3079,6 +3392,7 @@ CREATE INDEX sessions_last_activity_index ON vida_salud.sessions USING btree (la
 
 
 --
+-- TOC entry 5211 (class 1259 OID 25017)
 -- Name: sessions_user_id_index; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3086,6 +3400,7 @@ CREATE INDEX sessions_user_id_index ON vida_salud.sessions USING btree (user_id)
 
 
 --
+-- TOC entry 5143 (class 1259 OID 17971)
 -- Name: token_recuperacion_usuario_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3093,6 +3408,7 @@ CREATE INDEX token_recuperacion_usuario_idx ON vida_salud.token_recuperacion USI
 
 
 --
+-- TOC entry 5130 (class 1259 OID 17937)
 -- Name: usuario_nombre_usuario_unico_ci; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3100,6 +3416,7 @@ CREATE UNIQUE INDEX usuario_nombre_usuario_unico_ci ON vida_salud.usuario USING 
 
 
 --
+-- TOC entry 5135 (class 1259 OID 17938)
 -- Name: usuario_rol_idx; Type: INDEX; Schema: vida_salud; Owner: postgres
 --
 
@@ -3107,6 +3424,7 @@ CREATE INDEX usuario_rol_idx ON vida_salud.usuario USING btree (id_rol);
 
 
 --
+-- TOC entry 5278 (class 2620 OID 18333)
 -- Name: cita trg_bitacora_cita; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3114,6 +3432,7 @@ CREATE TRIGGER trg_bitacora_cita AFTER INSERT OR DELETE OR UPDATE ON vida_salud.
 
 
 --
+-- TOC entry 5279 (class 2620 OID 18339)
 -- Name: cita trg_cita_atendida_inmutable; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3121,6 +3440,7 @@ CREATE TRIGGER trg_cita_atendida_inmutable BEFORE DELETE OR UPDATE ON vida_salud
 
 
 --
+-- TOC entry 5280 (class 2620 OID 18335)
 -- Name: cita trg_cita_bloqueo_agenda; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3128,6 +3448,7 @@ CREATE TRIGGER trg_cita_bloqueo_agenda BEFORE INSERT OR UPDATE OF fecha, id_medi
 
 
 --
+-- TOC entry 5281 (class 2620 OID 18345)
 -- Name: cita trg_cita_crear_notificacion; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3135,6 +3456,7 @@ CREATE TRIGGER trg_cita_crear_notificacion AFTER INSERT ON vida_salud.cita FOR E
 
 
 --
+-- TOC entry 5282 (class 2620 OID 18337)
 -- Name: cita trg_cita_dentro_horario; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3142,6 +3464,7 @@ CREATE TRIGGER trg_cita_dentro_horario BEFORE INSERT OR UPDATE OF fecha, hora_in
 
 
 --
+-- TOC entry 5283 (class 2620 OID 18331)
 -- Name: cita trg_cita_historial_estado; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3149,6 +3472,7 @@ CREATE TRIGGER trg_cita_historial_estado AFTER UPDATE OF estado, fecha, hora_ini
 
 
 --
+-- TOC entry 5284 (class 2620 OID 18343)
 -- Name: cita trg_cita_persona_activa; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3156,6 +3480,7 @@ CREATE TRIGGER trg_cita_persona_activa BEFORE INSERT ON vida_salud.cita FOR EACH
 
 
 --
+-- TOC entry 5285 (class 2620 OID 18347)
 -- Name: cita trg_cita_sin_solapamiento; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3163,6 +3488,7 @@ CREATE TRIGGER trg_cita_sin_solapamiento BEFORE INSERT OR UPDATE OF fecha, hora_
 
 
 --
+-- TOC entry 5277 (class 2620 OID 18341)
 -- Name: informacion_medica trg_info_medica_fecha_actualizacion; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3170,6 +3496,7 @@ CREATE TRIGGER trg_info_medica_fecha_actualizacion BEFORE UPDATE ON vida_salud.i
 
 
 --
+-- TOC entry 5276 (class 2620 OID 18349)
 -- Name: paciente trg_paciente_no_eliminar; Type: TRIGGER; Schema: vida_salud; Owner: postgres
 --
 
@@ -3177,6 +3504,7 @@ CREATE TRIGGER trg_paciente_no_eliminar BEFORE DELETE ON vida_salud.paciente FOR
 
 
 --
+-- TOC entry 5251 (class 2606 OID 18233)
 -- Name: bitacora bitacora_usuario_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3185,6 +3513,7 @@ ALTER TABLE ONLY vida_salud.bitacora
 
 
 --
+-- TOC entry 5259 (class 2606 OID 18263)
 -- Name: bloqueo_agenda bloqueo_agenda_medico_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3193,6 +3522,7 @@ ALTER TABLE ONLY vida_salud.bloqueo_agenda
 
 
 --
+-- TOC entry 5260 (class 2606 OID 18288)
 -- Name: cita cita_cita_origen_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3201,6 +3531,7 @@ ALTER TABLE ONLY vida_salud.cita
 
 
 --
+-- TOC entry 5261 (class 2606 OID 18278)
 -- Name: cita cita_especialidad_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3209,6 +3540,7 @@ ALTER TABLE ONLY vida_salud.cita
 
 
 --
+-- TOC entry 5262 (class 2606 OID 18273)
 -- Name: cita cita_medico_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3217,6 +3549,7 @@ ALTER TABLE ONLY vida_salud.cita
 
 
 --
+-- TOC entry 5263 (class 2606 OID 18268)
 -- Name: cita cita_paciente_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3225,6 +3558,7 @@ ALTER TABLE ONLY vida_salud.cita
 
 
 --
+-- TOC entry 5264 (class 2606 OID 18283)
 -- Name: cita cita_usuario_registro_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3233,6 +3567,7 @@ ALTER TABLE ONLY vida_salud.cita
 
 
 --
+-- TOC entry 5273 (class 2606 OID 39081)
 -- Name: comprobante_pago comprobante_pago_id_pago_foreign; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3241,6 +3576,7 @@ ALTER TABLE ONLY vida_salud.comprobante_pago
 
 
 --
+-- TOC entry 5254 (class 2606 OID 18243)
 -- Name: contacto_emergencia contacto_emergencia_paciente_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3249,6 +3585,7 @@ ALTER TABLE ONLY vida_salud.contacto_emergencia
 
 
 --
+-- TOC entry 5265 (class 2606 OID 18293)
 -- Name: historial_estado_cita historial_estado_cita_cita_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3257,6 +3594,7 @@ ALTER TABLE ONLY vida_salud.historial_estado_cita
 
 
 --
+-- TOC entry 5266 (class 2606 OID 18298)
 -- Name: historial_estado_cita historial_estado_cita_usuario_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3265,6 +3603,7 @@ ALTER TABLE ONLY vida_salud.historial_estado_cita
 
 
 --
+-- TOC entry 5258 (class 2606 OID 18258)
 -- Name: horario horario_medico_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3273,6 +3612,7 @@ ALTER TABLE ONLY vida_salud.horario
 
 
 --
+-- TOC entry 5253 (class 2606 OID 18238)
 -- Name: informacion_medica informacion_medica_paciente_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3281,6 +3621,7 @@ ALTER TABLE ONLY vida_salud.informacion_medica
 
 
 --
+-- TOC entry 5256 (class 2606 OID 18253)
 -- Name: medico_especialidad medico_especialidad_especialidad_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3289,6 +3630,7 @@ ALTER TABLE ONLY vida_salud.medico_especialidad
 
 
 --
+-- TOC entry 5257 (class 2606 OID 18248)
 -- Name: medico_especialidad medico_especialidad_medico_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3297,6 +3639,7 @@ ALTER TABLE ONLY vida_salud.medico_especialidad
 
 
 --
+-- TOC entry 5255 (class 2606 OID 18193)
 -- Name: medico medico_persona_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3305,6 +3648,7 @@ ALTER TABLE ONLY vida_salud.medico
 
 
 --
+-- TOC entry 5267 (class 2606 OID 18303)
 -- Name: notificacion notificacion_cita_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3313,6 +3657,7 @@ ALTER TABLE ONLY vida_salud.notificacion
 
 
 --
+-- TOC entry 5268 (class 2606 OID 18308)
 -- Name: notificacion notificacion_usuario_gestion_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3321,6 +3666,7 @@ ALTER TABLE ONLY vida_salud.notificacion
 
 
 --
+-- TOC entry 5252 (class 2606 OID 18188)
 -- Name: paciente paciente_persona_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3329,6 +3675,7 @@ ALTER TABLE ONLY vida_salud.paciente
 
 
 --
+-- TOC entry 5271 (class 2606 OID 39055)
 -- Name: pago pago_id_cita_foreign; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3337,6 +3684,7 @@ ALTER TABLE ONLY vida_salud.pago
 
 
 --
+-- TOC entry 5272 (class 2606 OID 39060)
 -- Name: pago pago_id_usuario_registro_foreign; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3345,6 +3693,7 @@ ALTER TABLE ONLY vida_salud.pago
 
 
 --
+-- TOC entry 5250 (class 2606 OID 18198)
 -- Name: personal_administrativo personal_administrativo_persona_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3353,6 +3702,7 @@ ALTER TABLE ONLY vida_salud.personal_administrativo
 
 
 --
+-- TOC entry 5270 (class 2606 OID 39031)
 -- Name: recuperacion_contrasena recuperacion_contrasena_id_usuario_foreign; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3361,6 +3711,7 @@ ALTER TABLE ONLY vida_salud.recuperacion_contrasena
 
 
 --
+-- TOC entry 5274 (class 2606 OID 39106)
 -- Name: reembolso reembolso_id_pago_foreign; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3369,6 +3720,7 @@ ALTER TABLE ONLY vida_salud.reembolso
 
 
 --
+-- TOC entry 5275 (class 2606 OID 39111)
 -- Name: reembolso reembolso_id_usuario_autoriza_foreign; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3377,6 +3729,7 @@ ALTER TABLE ONLY vida_salud.reembolso
 
 
 --
+-- TOC entry 5269 (class 2606 OID 18313)
 -- Name: reporte reporte_usuario_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3385,6 +3738,7 @@ ALTER TABLE ONLY vida_salud.reporte
 
 
 --
+-- TOC entry 5244 (class 2606 OID 18218)
 -- Name: rol_permiso rol_permiso_permiso_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3393,6 +3747,7 @@ ALTER TABLE ONLY vida_salud.rol_permiso
 
 
 --
+-- TOC entry 5245 (class 2606 OID 18213)
 -- Name: rol_permiso rol_permiso_rol_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3401,6 +3756,7 @@ ALTER TABLE ONLY vida_salud.rol_permiso
 
 
 --
+-- TOC entry 5248 (class 2606 OID 18223)
 -- Name: sesion sesion_usuario_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3409,6 +3765,7 @@ ALTER TABLE ONLY vida_salud.sesion
 
 
 --
+-- TOC entry 5249 (class 2606 OID 18228)
 -- Name: token_recuperacion token_recuperacion_usuario_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3417,6 +3774,7 @@ ALTER TABLE ONLY vida_salud.token_recuperacion
 
 
 --
+-- TOC entry 5246 (class 2606 OID 18203)
 -- Name: usuario usuario_persona_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3425,6 +3783,7 @@ ALTER TABLE ONLY vida_salud.usuario
 
 
 --
+-- TOC entry 5247 (class 2606 OID 18208)
 -- Name: usuario usuario_rol_fk; Type: FK CONSTRAINT; Schema: vida_salud; Owner: postgres
 --
 
@@ -3432,9 +3791,11 @@ ALTER TABLE ONLY vida_salud.usuario
     ADD CONSTRAINT usuario_rol_fk FOREIGN KEY (id_rol) REFERENCES vida_salud.rol(id_rol) ON DELETE RESTRICT DEFERRABLE INITIALLY DEFERRED;
 
 
+-- Completed on 2026-11-07 18:03:01
+
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict bpp5c1w0ySqWiZXkIW0qOgSTgM9057sSjcNs5FUanjd873fZaeDb7ed3iri3z3e
+\unrestrict r3noIPUhpqE0OrQqXPczInfMlBwRzoXFrz7BFjRbWbw7AwKvAPdSnkUYDz0DVtq
 

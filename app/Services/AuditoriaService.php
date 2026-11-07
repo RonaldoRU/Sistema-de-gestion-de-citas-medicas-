@@ -13,7 +13,7 @@ class AuditoriaService
      */
     public const ACCIONES_VALIDAS = [
         'CREAR', 'MODIFICAR', 'ELIMINAR', 'LOGIN', 'LOGOUT', 'BLOQUEO',
-        'INACTIVAR', 'REGISTRAR', 'RENOVAR', 'REACTIVAR'
+        'INACTIVAR', 'REGISTRAR', 'RENOVAR', 'REACTIVAR',
     ];
 
     /**
@@ -25,13 +25,15 @@ class AuditoriaService
         ?string $tablaAfectada = null,
         ?int $idRegistroAfectado = null,
         mixed $detalle = null,
-        ?int $idUsuario = null
+        ?int $idUsuario = null,
+        ?string $descripcion = null,
+        ?string $navegador = null
     ): Bitacora {
         $userId = $idUsuario ?? Auth::id();
 
         // Normalizar tipo de acción para cumplir con el enum de PostgreSQL
         $tipoUpper = strtoupper(trim($tipoAccion));
-        if (!in_array($tipoUpper, self::ACCIONES_VALIDAS)) {
+        if (! in_array($tipoUpper, self::ACCIONES_VALIDAS)) {
             if (str_contains($tipoUpper, 'INACTIV') || str_contains($tipoUpper, 'SUSPEND') || str_contains($tipoUpper, 'DESACTIV') || str_contains($tipoUpper, 'BAJA')) {
                 $tipoUpper = 'INACTIVAR';
             } elseif (str_contains($tipoUpper, 'RENOV') || str_contains($tipoUpper, 'REACTIV') || str_contains($tipoUpper, 'HABILIT')) {
@@ -53,8 +55,36 @@ class AuditoriaService
             }
         }
 
+        $detalleTexto = $detalle;
         if (is_array($detalle) || is_object($detalle)) {
-            $detalle = json_encode($detalle, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            $detalleTexto = json_encode($detalle, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }
+
+        $desc = $descripcion;
+        if (empty($desc)) {
+            if (! empty($detalleTexto) && is_string($detalleTexto)) {
+                $desc = mb_substr(strip_tags($detalleTexto), 0, 250);
+            } else {
+                $desc = "Operación {$tipoUpper} en {$modulo}".($tablaAfectada ? " sobre {$tablaAfectada}" : '').($idRegistroAfectado ? " #{$idRegistroAfectado}" : '');
+            }
+        }
+
+        $nav = $navegador;
+        if (empty($nav)) {
+            $ua = Request::header('User-Agent') ?? '';
+            if (str_contains($ua, 'Edg/')) {
+                $nav = 'Microsoft Edge';
+            } elseif (str_contains($ua, 'Chrome')) {
+                $nav = 'Google Chrome';
+            } elseif (str_contains($ua, 'Firefox')) {
+                $nav = 'Mozilla Firefox';
+            } elseif (str_contains($ua, 'Safari')) {
+                $nav = 'Apple Safari';
+            } elseif (! empty($ua)) {
+                $nav = mb_substr($ua, 0, 100);
+            } else {
+                $nav = 'Navegador Web';
+            }
         }
 
         // Marcar la petición actual como auditada para no duplicar en el middleware
@@ -69,8 +99,10 @@ class AuditoriaService
             'tipo_accion' => $tipoUpper,
             'tabla_afectada' => $tablaAfectada,
             'id_registro_afectado' => $idRegistroAfectado,
-            'detalle' => $detalle,
+            'detalle' => $detalleTexto,
             'ip' => Request::ip() ?? '127.0.0.1',
+            'descripcion' => $desc,
+            'navegador' => $nav,
         ]);
     }
 }

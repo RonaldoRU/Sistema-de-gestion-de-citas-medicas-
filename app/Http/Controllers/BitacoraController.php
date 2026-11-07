@@ -32,28 +32,39 @@ class BitacoraController extends Controller
         } elseif ($request->filled('usuario')) {
             $busqueda = trim($request->input('usuario'));
             $query->whereHas('usuario', function ($uq) use ($busqueda): void {
-                $uq->where('nombre_usuario', 'like', "%{$busqueda}%")
+                $uq->where('nombre_usuario', 'ilike', "%{$busqueda}%")
                     ->orWhereHas('persona', function ($pq) use ($busqueda): void {
-                        $pq->where('ci', 'like', "%{$busqueda}%")
-                            ->orWhere('nombres', 'like', "%{$busqueda}%")
-                            ->orWhere('apellidos', 'like', "%{$busqueda}%")
-                            ->orWhere('email', 'like', "%{$busqueda}%");
+                        $pq->where('ci', 'ilike', "%{$busqueda}%")
+                            ->orWhere('nombres', 'ilike', "%{$busqueda}%")
+                            ->orWhere('apellidos', 'ilike', "%{$busqueda}%")
+                            ->orWhere('email', 'ilike', "%{$busqueda}%");
                     });
             });
         }
 
         if ($request->filled('modulo')) {
-            $query->where('modulo', strtoupper($request->input('modulo')));
+            $mod = strtoupper(trim($request->input('modulo')));
+            if (preg_match('/^(P\d+)/i', $mod, $matches)) {
+                $prefix = strtoupper($matches[1]);
+                $query->where(function ($mq) use ($prefix, $mod): void {
+                    $mq->where('modulo', $mod)
+                        ->orWhere('modulo', 'like', "{$prefix}%");
+                });
+            } else {
+                $query->where('modulo', 'ilike', "%{$mod}%");
+            }
         }
 
         if ($request->filled('tipo_accion')) {
             $accion = strtoupper(trim($request->input('tipo_accion')));
-            if (in_array($accion, ['REGISTRAR', 'CREAR'])) {
+            if (in_array($accion, ['REGISTRAR', 'CREAR', 'ALTA'])) {
                 $query->whereIn('tipo_accion', ['REGISTRAR', 'CREAR']);
-            } elseif (in_array($accion, ['RENOVAR', 'REACTIVAR'])) {
+            } elseif (in_array($accion, ['RENOVAR', 'REACTIVAR', 'HABILITAR'])) {
                 $query->whereIn('tipo_accion', ['RENOVAR', 'REACTIVAR']);
-            } elseif (in_array($accion, ['INACTIVAR', 'SUSPENDER'])) {
-                $query->where('tipo_accion', 'INACTIVAR');
+            } elseif (in_array($accion, ['INACTIVAR', 'SUSPENDER', 'BAJA'])) {
+                $query->whereIn('tipo_accion', ['INACTIVAR', 'BLOQUEO']);
+            } elseif (in_array($accion, ['MODIFICAR', 'CAMBIO_ROL', 'EDITAR', 'UPDATE'])) {
+                $query->where('tipo_accion', 'MODIFICAR');
             } else {
                 $query->where('tipo_accion', $accion);
             }
@@ -71,6 +82,7 @@ class BitacoraController extends Controller
             $busqueda = trim($request->input('q'));
             $query->where(function ($sq) use ($busqueda): void {
                 $sq->where('detalle', 'ilike', "%{$busqueda}%")
+                    ->orWhere('descripcion', 'ilike', "%{$busqueda}%")
                     ->orWhere('modulo', 'ilike', "%{$busqueda}%")
                     ->orWhere('tabla_afectada', 'ilike', "%{$busqueda}%");
             });
@@ -121,12 +133,13 @@ class BitacoraController extends Controller
         $afterId = $request->input('after_id') ?? $request->input('last_id');
         if ($afterId && is_numeric($afterId)) {
             $query->where('id_bitacora', '>', (int) $afterId)
+                ->orderBy('fecha_hora', 'desc')
                 ->orderBy('id_bitacora', 'desc');
             $nuevos = $query->limit(50)->get();
         } else {
             $query->orderBy('fecha_hora', 'desc')
                 ->orderBy('id_bitacora', 'desc');
-            $nuevos = $query->limit($request->input('limit', 20))->get();
+            $nuevos = $query->limit($request->input('limit', 25))->get();
         }
 
         $totalHoy = Bitacora::whereDate('fecha_hora', now()->toDateString())->count();
@@ -135,7 +148,7 @@ class BitacoraController extends Controller
         $alertasHoy = Bitacora::whereDate('fecha_hora', now()->toDateString())
             ->where('tipo_accion', 'BLOQUEO')->count();
 
-        $ultimoRegistro = Bitacora::orderBy('id_bitacora', 'desc')->first();
+        $ultimoRegistro = Bitacora::orderBy('fecha_hora', 'desc')->orderBy('id_bitacora', 'desc')->first();
         $segundosDesdeUltimo = $ultimoRegistro ? now()->diffInSeconds($ultimoRegistro->fecha_hora) : 0;
 
         return response()->json([
@@ -209,8 +222,9 @@ class BitacoraController extends Controller
             'usuario:id_usuario,id_persona,id_rol,nombre_usuario',
             'usuario.persona:id_persona,ci,nombres,apellidos',
         ])
+            ->orderBy('fecha_hora', 'desc')
             ->orderBy('id_bitacora', 'desc')
-            ->limit(6)
+            ->limit(10)
             ->get();
 
         $totalHoy = Bitacora::whereDate('fecha_hora', now()->toDateString())->count();
@@ -219,7 +233,7 @@ class BitacoraController extends Controller
         $alertasHoy = Bitacora::whereDate('fecha_hora', now()->toDateString())
             ->where('tipo_accion', 'BLOQUEO')->count();
 
-        $ultimoRegistro = Bitacora::orderBy('id_bitacora', 'desc')->first();
+        $ultimoRegistro = Bitacora::orderBy('fecha_hora', 'desc')->orderBy('id_bitacora', 'desc')->first();
         $segundosDesdeUltimo = $ultimoRegistro ? now()->diffInSeconds($ultimoRegistro->fecha_hora) : 0;
 
         return response()->json([

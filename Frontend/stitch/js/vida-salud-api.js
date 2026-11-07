@@ -235,10 +235,10 @@
       return this.request('/usuarios/' + id, { method: 'PUT', body: data });
     },
 
-    cambiarRolUsuario: function (id, id_rol) {
+    cambiarRolUsuario: function (id, id_rol, motivo) {
       return this.request('/usuarios/' + id + '/cambiar-rol', {
         method: 'PUT',
-        body: { id_rol: id_rol }
+        body: { id_rol: id_rol, motivo: motivo || 'Cambio de rol operativo administrativo' }
       });
     },
 
@@ -1491,6 +1491,26 @@
       var currentRecords = [];
       var activeCU11Params = {};
 
+      async function cargarUsuariosFiltroCU11() {
+        var userSelect = document.getElementById('b-usuario');
+        if (!userSelect) return;
+        try {
+          var resU = await VS_API.getUsuarios({ per_page: 100 });
+          var uList = (resU && resU.data && resU.data.data) ? resU.data.data : (resU.data || []);
+          var prevVal = userSelect.value;
+          userSelect.innerHTML = '<option value="">Todos los usuarios</option><option value="sistema">Sistema</option>';
+          uList.forEach(function (u) {
+            var p = u.persona || {};
+            var opt = document.createElement('option');
+            opt.value = u.nombre_usuario;
+            opt.textContent = u.nombre_usuario + ' — ' + (p.nombres || '') + ' ' + (p.apellidos || '');
+            userSelect.appendChild(opt);
+          });
+          if (prevVal) userSelect.value = prevVal;
+        } catch (e) {}
+      }
+      cargarUsuariosFiltroCU11();
+
       function buildRowHtml(item, isNew) {
         var usuario = item.usuario ? (item.usuario.nombre_usuario || 'Sistema') : 'Sistema';
         var tablaReg = item.tabla_afectada ? (item.tabla_afectada + (item.id_registro_afectado ? ' · ' + item.id_registro_afectado : '')) : '—';
@@ -1628,9 +1648,9 @@
           isFiltering = true;
 
           var userEl = document.getElementById('b-usuario');
-          var usuarioVal = userEl ? userEl.value.split('—')[0].trim() : '';
+          var usuarioVal = userEl ? userEl.value.trim() : '';
           var modEl = document.getElementById('b-modulo');
-          var moduloVal = modEl ? modEl.value.split('·')[0].trim() : '';
+          var moduloVal = modEl ? modEl.value.trim() : '';
           var accionVal = document.getElementById('b-accion') ? document.getElementById('b-accion').value : '';
           var desdeVal = document.getElementById('b-desde') ? document.getElementById('b-desde').value : '';
           var hastaVal = document.getElementById('b-hasta') ? document.getElementById('b-hasta').value : '';
@@ -1638,7 +1658,10 @@
 
           var params = {};
           if (usuarioVal && !usuarioVal.includes('Todos')) params.usuario = usuarioVal;
-          if (moduloVal && !moduloVal.includes('Todos')) params.modulo = moduloVal;
+          if (moduloVal && !moduloVal.includes('Todos')) {
+            var mPrefix = moduloVal.match(/P\d+/i);
+            params.modulo = mPrefix ? mPrefix[0] : moduloVal;
+          }
           if (accionVal && !accionVal.includes('Todas')) params.tipo_accion = accionVal;
           if (desdeVal) params.fecha_desde = desdeVal;
           if (hastaVal) params.fecha_hasta = hastaVal;
@@ -2683,20 +2706,75 @@
     }
 
     // =========================================================================
-    // 19. CU08: CAMBIAR ROL OPERATIVO Y PERMISOS (RBAC)
+    // 19. CU08: CAMBIAR ROL OPERATIVO Y PERMISOS (RBAC DINÁMICO)
     // =========================================================================
     if (currentCuAttr === 'CU08') {
       var selectUser08 = document.getElementById('r-usuario');
-      var dlgRol08 = document.getElementById('dlg-cambiar-rol');
-      var formRol08 = dlgRol08 ? dlgRol08.querySelector('form') : null;
+      var dlgRol08 = document.getElementById('dlg-rol') || document.getElementById('dlg-cambiar-rol');
+      var formRol08 = document.getElementById('form-cambiar-rol-cu08') || (dlgRol08 ? dlgRol08.querySelector('form') : null);
+      var choiceGrid08 = document.getElementById('cu08-choice-grid');
+      var rolActualLabel = document.getElementById('cu08-rol-actual');
+      var rolNuevoLabel = document.getElementById('cu08-rol-nuevo-label');
+      var alertImpacto08 = document.getElementById('cu08-alert-impacto');
+      var impactoText08 = document.getElementById('cu08-impacto-text');
+      var cambiosTbody08 = document.getElementById('cu08-cambios-tbody');
+      var usuariosMap08 = {};
+
+      var ROLES_CATALOGO = [
+        { id: 1, nombre: 'Administrador', desc: '19 permisos · Acceso total P1 a P7', impacto: 'ganará privilegios de administración completa, gestión de usuarios, auditoría, catálogos y reportes.' },
+        { id: 2, nombre: 'Recepcionista', desc: 'Gestión de citas, pacientes y admisión', impacto: 'podrá registrar pacientes, programar y reprogramar citas médicas, y emitir fichas.' },
+        { id: 3, nombre: 'Médico', desc: '6 permisos · agenda, consultas y atención clínica', impacto: 'tendrá acceso a la agenda médica diaria, registro de atenciones y bloqueo de disponibilidad.' },
+        { id: 4, nombre: 'Paciente', desc: 'Portal web · reserva de citas, pagos y ficha', impacto: 'pasará a perfil de paciente en línea con acceso a sus citas y ficha médica básica.' }
+      ];
+
+      function renderizarOpcionesNuevoRol(currentRoleId, currentUsername) {
+        if (!choiceGrid08) return;
+        choiceGrid08.innerHTML = '';
+        if (rolNuevoLabel) rolNuevoLabel.textContent = 'Seleccione';
+        if (alertImpacto08) alertImpacto08.style.display = 'none';
+
+        var rolesDisponibles = ROLES_CATALOGO.filter(function (r) {
+          return r.id !== currentRoleId;
+        });
+
+        rolesDisponibles.forEach(function (r, idx) {
+          var labelEl = document.createElement('label');
+          labelEl.className = 'vs-choice';
+          labelEl.innerHTML = '<input type="radio" name="nuevo-rol" value="' + r.id + '"' + (idx === 0 ? ' checked' : '') + '>' +
+            '<div><div class="vs-choice__title">' + escapeHtml(r.nombre) + '</div>' +
+            '<div class="vs-choice__desc">' + escapeHtml(r.desc) + '</div></div>';
+
+          var radioInput = labelEl.querySelector('input');
+          radioInput.addEventListener('change', function () {
+            if (rolNuevoLabel) rolNuevoLabel.textContent = r.nombre;
+            if (alertImpacto08 && impactoText08) {
+              alertImpacto08.style.display = 'flex';
+              impactoText08.innerHTML = '<span class="vs-alert__title">Impacto para ' + escapeHtml(currentUsername || 'el usuario') + '</span>El usuario ' + escapeHtml(r.impacto);
+            }
+          });
+
+          choiceGrid08.appendChild(labelEl);
+        });
+
+        if (rolesDisponibles.length > 0) {
+          var primerRol = rolesDisponibles[0];
+          if (rolNuevoLabel) rolNuevoLabel.textContent = primerRol.nombre;
+          if (alertImpacto08 && impactoText08) {
+            alertImpacto08.style.display = 'flex';
+            impactoText08.innerHTML = '<span class="vs-alert__title">Impacto para ' + escapeHtml(currentUsername || 'el usuario') + '</span>El usuario ' + escapeHtml(primerRol.impacto);
+          }
+        }
+      }
 
       async function cargarUsuariosCU08() {
         if (!selectUser08) return;
         try {
           var res = await VS_API.getUsuarios({ per_page: 50 });
           var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
-          selectUser08.innerHTML = '';
+          usuariosMap08 = {};
+          selectUser08.innerHTML = '<option value="">Selecciona un usuario…</option>';
           list.forEach(function (u) {
+            usuariosMap08[u.id_usuario] = u;
             var p = u.persona || {};
             var r = u.rol ? (u.rol.nombre || u.rol) : 'RECEPCIONISTA';
             var opt = document.createElement('option');
@@ -2704,25 +2782,126 @@
             opt.textContent = u.nombre_usuario + ' — ' + (p.nombres || '') + ' ' + (p.apellidos || '') + ' (actual: ' + r + ')';
             selectUser08.appendChild(opt);
           });
+
+          var urlParamId = parseInt(new URLSearchParams(location.search).get('id'), 10);
+          if (urlParamId && usuariosMap08[urlParamId]) {
+            selectUser08.value = urlParamId;
+            selectUser08.dispatchEvent(new Event('change'));
+            if (dlgRol08 && dlgRol08.showModal) dlgRol08.showModal();
+          } else if (list.length > 0) {
+            selectUser08.value = list[0].id_usuario;
+            selectUser08.dispatchEvent(new Event('change'));
+          }
         } catch (e) {}
       }
+
+      if (selectUser08) {
+        selectUser08.addEventListener('change', function () {
+          var uid = parseInt(selectUser08.value, 10);
+          var usr = usuariosMap08[uid];
+          if (!usr) {
+            if (rolActualLabel) rolActualLabel.textContent = '—';
+            if (choiceGrid08) choiceGrid08.innerHTML = '<p class="vs-muted vs-small" style="grid-column: 1 / -1;">Selecciona un usuario arriba para ver los roles disponibles para el cambio.</p>';
+            if (alertImpacto08) alertImpacto08.style.display = 'none';
+            return;
+          }
+
+          var rolObj = usr.rol || {};
+          var rolId = typeof rolObj === 'object' ? (rolObj.id_rol || 2) : 2;
+          var rolNombre = typeof rolObj === 'object' ? (rolObj.nombre || 'Recepcionista') : String(rolObj);
+
+          if (rolActualLabel) {
+            rolActualLabel.textContent = rolNombre;
+            var rUp = rolNombre.toUpperCase();
+            rolActualLabel.className = 'vs-badge ' + (rUp.indexOf('ADMIN') !== -1 ? 'vs-badge--warn' : (rUp.indexOf('MED') !== -1 ? 'vs-badge--ok' : (rUp.indexOf('PAC') !== -1 ? 'vs-badge--cyan' : 'vs-badge--info')));
+          }
+
+          renderizarOpcionesNuevoRol(rolId, usr.nombre_usuario);
+        });
+      }
+
+      async function cargarCambiosRolRecientes() {
+        if (!cambiosTbody08) return;
+        try {
+          var res = await VS_API.getBitacora({ modulo: 'P2', tipo_accion: 'MODIFICAR', per_page: 20 });
+          var events = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          var roleEvents = events.filter(function (ev) {
+            var det = (ev.detalle || '').toLowerCase();
+            return det.indexOf('rol') !== -1 || det.indexOf('cambio') !== -1 || (ev.tabla_afectada === 'usuario' && det.indexOf('de [') !== -1);
+          });
+
+          if (!roleEvents.length) {
+            cambiosTbody08.innerHTML = '<tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:1.5rem;">No se registran cambios de rol recientes en la bitácora.</td></tr>';
+            return;
+          }
+
+          cambiosTbody08.innerHTML = roleEvents.map(function (ev) {
+            var usr = ev.usuario ? (ev.usuario.nombre_usuario || 'Admin') : 'Admin';
+            var fecha = formatFechaHora(ev.fecha_hora);
+            var det = ev.detalle || '';
+
+            return '<tr>' +
+              '<td class="vs-td-num">' + fecha + '</td>' +
+              '<td><div class="vs-cell-person__name">' + escapeHtml(ev.usuario && ev.usuario.persona ? (ev.usuario.persona.nombres + ' ' + ev.usuario.persona.apellidos) : usr) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(usr) + '</div></td>' +
+              '<td><span class="vs-badge vs-badge--info vs-badge--sm">' + escapeHtml(ev.tipo_accion) + '</span></td>' +
+              '<td class="vs-hide-md">' + escapeHtml(det) + '</td>' +
+              '<td class="vs-hide-sm vs-mono">' + escapeHtml(usr) + '</td>' +
+              '</tr>';
+          }).join('');
+        } catch (e) {
+          cambiosTbody08.innerHTML = '<tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:1.5rem;">Error al cargar cambios de rol desde bitácora.</td></tr>';
+        }
+      }
+
       cargarUsuariosCU08();
+      cargarCambiosRolRecientes();
 
       if (formRol08) {
         formRol08.setAttribute('data-api-bound', 'true');
         formRol08.addEventListener('submit', async function (e) {
           e.preventDefault();
-          var uid = selectUser08 ? parseInt(selectUser08.value, 10) : 2;
+          var uid = selectUser08 ? parseInt(selectUser08.value, 10) : 0;
+          if (!uid) {
+            alert('Por favor selecciona un usuario.');
+            return;
+          }
           var checkedRol = formRol08.querySelector('input[name="nuevo-rol"]:checked');
-          var rolVal = checkedRol ? checkedRol.value : '3';
-          var idRol = rolVal === '1' ? 1 : (rolVal === '2' ? 2 : 3);
+          if (!checkedRol) {
+            alert('Por favor selecciona el nuevo rol para el usuario.');
+            return;
+          }
+          var idRol = parseInt(checkedRol.value, 10);
+          var motivo = document.getElementById('r-motivo') ? document.getElementById('r-motivo').value.trim() : 'Reasignación operativa';
+          if (!motivo) {
+            alert('Por favor ingresa el motivo del cambio de rol para la bitácora de auditoría.');
+            return;
+          }
+
+          var submitBtn = document.getElementById('cu08-btn-submit') || formRol08.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Actualizando rol y registrando en bitácora...';
+          }
+
           try {
-            await VS_API.cambiarRolUsuario(uid, idRol);
+            await VS_API.cambiarRolUsuario(uid, idRol, motivo);
             if (dlgRol08 && dlgRol08.close) dlgRol08.close();
-            if (window.vsToast) window.vsToast('Rol actualizado', 'Cambio de rol guardado en BD y registrado en bitácora (CAMBIO_ROL)');
+            if (window.vsToast) {
+              window.vsToast('Rol operativo actualizado', 'El cambio se guardó en PostgreSQL y se registró en la bitácora de auditoría (MODIFICAR)');
+            } else {
+              alert('Rol operativo actualizado exitosamente.');
+            }
+            if (document.getElementById('r-motivo')) document.getElementById('r-motivo').value = '';
             cargarUsuariosCU08();
+            cargarCambiosRolRecientes();
           } catch (err) {
-            alert('No se pudo cambiar el rol: ' + (err.data && err.data.message ? err.data.message : err.message));
+            var errTxt = err.data && err.data.message ? err.data.message : err.message;
+            alert('No se pudo cambiar el rol: ' + errTxt);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<svg class="vs-i"><use href="#i-check"/></svg>Confirmar cambio de rol';
+            }
           }
         });
       }
@@ -2813,46 +2992,91 @@
     }
 
     // =========================================================================
-    // 21. CU10: REGISTRO AUTOMÁTICO EN BITÁCORA (LIVE DASHBOARD)
+    // 21. CU10: REGISTRO AUTOMÁTICO EN BITÁCORA (LIVE DASHBOARD EN TIEMPO REAL)
     // =========================================================================
     if (currentCuAttr === 'CU10') {
+      var kpiHoyEl = document.getElementById('kpi-hoy');
+      var kpiMesEl = document.getElementById('kpi-mes');
+      var kpiAlertasEl = document.getElementById('kpi-alertas');
+      var kpiHoyHintEl = document.getElementById('kpi-hoy-hint');
+      var barsEl = document.getElementById('bitacora-bars');
+      var tlEl = document.getElementById('bitacora-timeline');
+      var subMesEl = document.getElementById('bitacora-sub-mes');
+      var subHoyEl = document.getElementById('bitacora-sub-hoy');
+
+      var MESES_NOMBRE = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      var dFecha = new Date();
+      if (subMesEl) subMesEl.textContent = MESES_NOMBRE[dFecha.getMonth()] + ' ' + dFecha.getFullYear();
+
       async function cargarResumenCU10() {
         try {
           var res = await VS_API.getBitacoraResumen();
           var r = (res && res.resumen) ? res.resumen : res;
           if (!r) return;
-          if (document.getElementById('kpi-hoy')) document.getElementById('kpi-hoy').textContent = r.total_hoy != null ? r.total_hoy : 0;
-          if (document.getElementById('kpi-mes')) document.getElementById('kpi-mes').textContent = r.total_mes != null ? r.total_mes : 0;
-          if (document.getElementById('kpi-alertas')) document.getElementById('kpi-alertas').textContent = r.alertas_hoy != null ? r.alertas_hoy : 0;
 
-          var barsEl = document.getElementById('bitacora-bars');
+          if (kpiHoyEl) kpiHoyEl.textContent = r.total_hoy != null ? r.total_hoy : 0;
+          if (kpiMesEl) kpiMesEl.textContent = r.total_mes != null ? r.total_mes : 0;
+          if (kpiAlertasEl) kpiAlertasEl.textContent = r.alertas_hoy != null ? r.alertas_hoy : 0;
+          if (kpiHoyHintEl) {
+            kpiHoyHintEl.textContent = (r.segundos_desde_ultimo <= 60)
+              ? 'Último evento hace ' + r.segundos_desde_ultimo + ' s'
+              : 'Último evento hace ' + Math.round(r.segundos_desde_ultimo / 60) + ' min';
+          }
+          if (subHoyEl) {
+            subHoyEl.textContent = 'En vivo · ' + (r.total_hoy != null ? r.total_hoy : 0) + ' eventos registrados hoy';
+          }
+
           if (barsEl && Array.isArray(r.por_accion) && r.por_accion.length) {
-            var maxVal = Math.max.apply(null, r.por_accion.map(function (a) { return a.total; })) || 1;
+            var maxVal = Math.max.apply(null, r.por_accion.map(function (a) { return parseInt(a.total, 10); })) || 1;
             var bHtml = '';
+            var colorMap = {
+              'CREAR': 'vs-bar',
+              'REGISTRAR': 'vs-bar',
+              'MODIFICAR': 'vs-bar vs-bar--cyan',
+              'LOGIN': 'vs-bar vs-bar--teal',
+              'LOGOUT': 'vs-bar vs-bar--teal',
+              'INACTIVAR': 'vs-bar vs-bar--amber',
+              'ELIMINAR': 'vs-bar vs-bar--amber',
+              'BLOQUEO': 'vs-bar vs-bar--rose'
+            };
             r.por_accion.forEach(function (a) {
-              var pct = Math.round((a.total / maxVal) * 100);
-              bHtml += '<div class="vs-bars__row"><span class="vs-bars__label vs-mono">' + escapeHtml(a.tipo_accion) + '</span><div class="vs-bar vs-bar--teal"><i style="width:' + pct + '%"></i></div><span class="vs-bars__val">' + a.total + '</span></div>';
+              var tAcc = a.tipo_accion || 'OTRO';
+              var barCls = colorMap[tAcc] || 'vs-bar';
+              var pct = Math.max(8, Math.round((parseInt(a.total, 10) / maxVal) * 100));
+              bHtml += '<div class="vs-bars__row"><span class="vs-bars__label vs-mono">' + escapeHtml(tAcc) + '</span><div class="' + barCls + '"><i style="width:' + pct + '%"></i></div><span class="vs-bars__val">' + a.total + '</span></div>';
             });
             barsEl.innerHTML = bHtml;
           }
 
-          var tlEl = document.getElementById('bitacora-timeline');
-          if (tlEl && Array.isArray(r.ultimos_eventos) && r.ultimos_eventos.length) {
-            var tHtml = '';
-            r.ultimos_eventos.forEach(function (ev) {
-              var usr = ev.usuario ? ev.usuario.nombre_usuario : 'Sistema';
-              tHtml += '<li class="vs-tl-item vs-tl-item--ok">' +
-                '<span class="vs-tl-time">' + formatFechaHora(ev.fecha_hora) + '</span>' +
-                '<div class="vs-tl-title"><span class="vs-badge vs-badge--info vs-badge--mono">' + escapeHtml(ev.tipo_accion) + '</span> ' + escapeHtml(ev.modulo) + ' · <span class="vs-code">' + escapeHtml(ev.tabla_afectada || 'sistema') + '</span></div>' +
-                '<div class="vs-tl-sub">“' + escapeHtml(ev.detalle || '') + '” — <strong class="vs-strong">' + escapeHtml(usr) + '</strong></div>' +
-                '</li>';
-            });
-            tlEl.innerHTML = tHtml;
+          if (tlEl) {
+            var liveRes = await VS_API.getBitacoraLive({ limit: 10 });
+            var list = (liveRes && liveRes.data && liveRes.data.length) ? liveRes.data : (r.ultimos_eventos || []);
+            if (!list.length) {
+              tlEl.innerHTML = '<li class="vs-tl-item"><div class="vs-tl-title">Sin eventos registrados aún</div><div class="vs-tl-sub">Las operaciones se anotarán en vivo automáticamente.</div></li>';
+            } else {
+              var tHtml = '';
+              list.forEach(function (ev) {
+                var usr = ev.usuario ? (ev.usuario.nombre_usuario || 'Sistema') : 'Sistema';
+                var det = ev.descripcion || ev.detalle || 'Evento registrado';
+                var act = (ev.tipo_accion || 'REGISTRAR').toUpperCase();
+                var dotCls = 'vs-tl-item--ok';
+                if (act === 'BLOQUEO' || act === 'ELIMINAR') dotCls = 'vs-tl-item--danger';
+                else if (act === 'INACTIVAR' || act === 'MODIFICAR') dotCls = 'vs-tl-item--warn';
+                else if (act === 'CREAR' || act === 'REGISTRAR') dotCls = 'vs-tl-item--info';
+
+                tHtml += '<li class="vs-tl-item ' + dotCls + '">' +
+                  '<span class="vs-tl-time">' + formatFechaHora(ev.fecha_hora) + '</span>' +
+                  '<div class="vs-tl-title"><span class="vs-badge vs-badge--mono vs-badge--sm">' + escapeHtml(act) + '</span> ' + escapeHtml(ev.modulo || 'GENERAL') + ' · <span class="vs-code">' + escapeHtml(ev.tabla_afectada || 'sistema') + '</span></div>' +
+                  '<div class="vs-tl-sub">“' + escapeHtml(det) + '” — <strong class="vs-strong">' + escapeHtml(usr) + '</strong> (' + escapeHtml(ev.ip || '127.0.0.1') + ')</div>' +
+                  '</li>';
+              });
+              tlEl.innerHTML = tHtml;
+            }
           }
         } catch (e) {}
       }
       cargarResumenCU10();
-      setInterval(cargarResumenCU10, 4000);
+      setInterval(cargarResumenCU10, 3500);
     }
 
     // =========================================================================
@@ -4675,8 +4899,17 @@
       cargarDatosCU37();
     }
 
-    // CU38: Personal Administrativo, Personas y Matriz RBAC Rol-Permiso
+    // CU38: Personal Administrativo, Personas y Matriz RBAC Rol-Permiso (Exclusivo Administrador)
     if (currentCuAttr === 'CU38') {
+      if (!esUsuarioAdmin) {
+        var mainPage = document.querySelector('main') || document.body;
+        mainPage.innerHTML = '<div style="padding:3rem;max-width:42rem;margin:2rem auto;background:#fff;border:1px solid #fecdd3;border-radius:1rem;text-align:center;">' +
+          '<h2 style="color:#be123c;margin-bottom:.75rem;font-size:1.5rem;">Acceso Restringido · Exclusivo Administrador</h2>' +
+          '<p style="color:#475569;margin-bottom:1.5rem;">El módulo de Personal Administrativo y Permisos RBAC (CU38) solo puede ser visualizado por cuentas con el rol <strong>ADMINISTRADOR</strong>.</p>' +
+          '<a href="../inicio.html" class="vs-btn vs-btn--primary">Volver al Panel de Inicio</a></div>';
+        return;
+      }
+
       var tbodyPa38 = document.getElementById('cu38-personal-tbody');
       var selPers38 = document.getElementById('pa-persona');
       var selRol38 = document.getElementById('cu38-select-rol');
@@ -4713,7 +4946,7 @@
             } else {
               tbodyPa38.innerHTML = listPa.map(function (pa) {
                 var p = pa.persona || {};
-                var est = (p.estado || 'ACTIVO').toUpperCase();
+                var est = (p.activo === false || p.estado === 'INACTIVO') ? 'INACTIVO' : 'ACTIVO';
                 return '<tr>' +
                   '<td class="vs-td-num">#' + pa.id_personal_administrativo + '</td>' +
                   '<td><div class="vs-cell-person__name">' + escapeHtml((p.nombres || '') + ' ' + (p.apellidos || '')) + '</div><div class="vs-cell-person__sub">' + escapeHtml(p.email || '') + '</div></td>' +
@@ -4742,10 +4975,12 @@
 
           gridPerm38.innerHTML = todosPermisos38.map(function (perm) {
             var checked = asignados.indexOf(perm.id_permiso) !== -1 ? ' checked' : '';
+            var codigoPerm = perm.nombre || perm.codigo || ('PERM_' + perm.id_permiso);
+            var descPerm = perm.ruta_menu || perm.descripcion || perm.modulo || 'GENERAL';
             return '<label class="vs-check-card">' +
               '<input type="checkbox" class="vs-check cu38-perm-check" value="' + perm.id_permiso + '"' + checked + '>' +
-              '<div><div class="vs-check-card__title vs-mono vs-xs">' + escapeHtml(perm.codigo) + '</div>' +
-              '<div class="vs-check-card__sub">' + escapeHtml(perm.modulo || 'GENERAL') + ' · ' + escapeHtml(perm.descripcion || '') + '</div></div>' +
+              '<div><div class="vs-check-card__title vs-mono vs-xs">' + escapeHtml(codigoPerm) + '</div>' +
+              '<div class="vs-check-card__sub">' + escapeHtml(perm.modulo || 'GENERAL') + ' · ' + escapeHtml(descPerm) + '</div></div>' +
             '</label>';
           }).join('');
         } catch (e) {}
@@ -4763,7 +4998,7 @@
             if (window.vsToast) window.vsToast('Matriz Rol-Permiso sincronizada', 'Guardada en rol_permiso y auditada en bitácora');
             cargarMatrizPermisosRol();
           } catch (err) {
-            alert('Error sincronizando permisos: ' + err.message);
+            alert('Error sincronizando permisos: ' + (err.data && err.data.message ? err.data.message : err.message));
           }
         });
       }
@@ -4772,11 +5007,24 @@
         formNuevoPerm38.setAttribute('data-api-bound', 'true');
         formNuevoPerm38.addEventListener('submit', async function (e) {
           e.preventDefault();
+          var elNom = document.getElementById('pm-nombre') || document.getElementById('pm-codigo');
+          var elMod = document.getElementById('pm-modulo');
+          var elRuta = document.getElementById('pm-ruta') || document.getElementById('pm-desc');
+
+          var nomVal = elNom ? elNom.value.trim().toUpperCase() : '';
+          var modVal = elMod ? elMod.value.trim().toUpperCase() : '';
+          var rutaVal = elRuta ? elRuta.value.trim() : null;
+
+          if (!nomVal || !modVal) {
+            alert('Por favor completa el código y módulo del permiso.');
+            return;
+          }
+
           try {
             await VS_API.crearPermiso({
-              codigo: document.getElementById('pm-codigo').value.trim().toUpperCase(),
-              modulo: document.getElementById('pm-modulo').value,
-              descripcion: document.getElementById('pm-desc').value.trim()
+              nombre: nomVal,
+              modulo: modVal,
+              ruta_menu: rutaVal
             });
             if (window.vsToast) window.vsToast('Permiso registrado', 'Guardado en tabla permiso y auditado en bitácora');
             formNuevoPerm38.reset();
@@ -4791,15 +5039,25 @@
         formCargoPa38.setAttribute('data-api-bound', 'true');
         formCargoPa38.addEventListener('submit', async function (e) {
           e.preventDefault();
+          var elPers = document.getElementById('pa-persona');
+          var elCargo = document.getElementById('pa-cargo');
+          var idPers = elPers ? parseInt(elPers.value, 10) : 0;
+          var cargoVal = elCargo ? elCargo.value.trim() : '';
+
+          if (!idPers || !cargoVal) {
+            alert('Por favor selecciona una persona e ingresa el cargo.');
+            return;
+          }
+
           try {
             await VS_API.guardarPersonalAdministrativo({
-              id_persona: parseInt(document.getElementById('pa-persona').value, 10),
-              cargo: document.getElementById('pa-cargo').value.trim()
+              id_persona: idPers,
+              cargo: cargoVal
             });
             if (window.vsToast) window.vsToast('Cargo administrativo actualizado', 'Guardado en personal_administrativo y auditado en bitácora');
             cargarDatosCU38();
           } catch (err) {
-            alert('Error asignando cargo: ' + err.message);
+            alert('Error asignando cargo: ' + (err.data && err.data.message ? err.data.message : err.message));
           }
         });
       }
