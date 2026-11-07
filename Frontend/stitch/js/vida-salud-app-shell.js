@@ -97,15 +97,24 @@
   });
 
   /* CU02 — Cerrar sesión: confirmación y redirección */
-  var logoutDialog = document.getElementById('vs-logout-dialog');
-  document.querySelectorAll('[data-logout]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      if (logoutDialog && typeof logoutDialog.showModal === 'function') {
-        if (!mqDesktop.matches) closeDrawer();
-        logoutDialog.showModal();
-      } else {
-        window.location.href = 'cu02-sesion-cerrada.html';
+  function openLogoutModal() {
+    var dlg = document.getElementById('vs-logout-dialog');
+    if (!dlg) {
+      if (typeof window.injectLogoutDialog === 'function') {
+        window.injectLogoutDialog();
       }
+      dlg = document.getElementById('vs-logout-dialog');
+    }
+    if (dlg && typeof dlg.showModal === 'function') {
+      if (!mqDesktop.matches) closeDrawer();
+      if (!dlg.open) dlg.showModal();
+    }
+  }
+
+  document.querySelectorAll('[data-logout]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      openLogoutModal();
     });
   });
 

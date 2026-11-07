@@ -673,6 +673,59 @@
         stitchAvatar.textContent = sInits.toUpperCase();
         stitchAvatar.title = fullName;
       }
+
+      // Adaptación de la vista de Inicio para el rol Paciente (solo sus 8 opciones autorizadas)
+      var isPacienteRole = String(rolName).toUpperCase().indexOf('PACIENTE') !== -1;
+      if (isPacienteRole) {
+        var pageHeadText = document.querySelector('.vs-page-head__text');
+        if (pageHeadText) {
+          var h2El = pageHeadText.querySelector('h2');
+          if (h2El) h2El.textContent = 'Portal de Paciente · ' + firstName;
+          var leadEl = pageHeadText.querySelector('.vs-lead');
+          if (leadEl) leadEl.textContent = 'Bienvenido a tu portal de salud: consulta tu información médica, gestiona tus citas médicas y realiza el pago de tus fichas con comprobante.';
+        }
+        var sideBtns = document.querySelector('.vs-page-head__side');
+        if (sideBtns) {
+          sideBtns.innerHTML = '<a href="P6%20Gesti%C3%B3n%20de%20Citas%20M%C3%A9dicas/cu24-programar-cita.html" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-plus"/></svg>Programar cita</a>' +
+                               '<a href="P6%20Gesti%C3%B3n%20de%20Citas%20M%C3%A9dicas/cu41-pasarela-pago-comprobante.html" class="vs-btn vs-btn--ghost"><svg class="vs-i"><use href="#i-id-card"/></svg>Pagar ficha médica</a>';
+        }
+        var modulesSection = document.querySelector('.vs-grid--3');
+        if (modulesSection && document.body.getAttribute('data-page') === 'inicio') {
+          modulesSection.innerHTML = '' +
+            '<a href="P4%20Gesti%C3%B3n%20de%20Pacientes/cu13-informacion-medica.html" class="vs-card vs-card--hover vs-module">' +
+            '  <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-heart"/></svg></span>' +
+            '  <div class="vs-grow"><div class="vs-module__name">1. Información médica</div><p class="vs-module__desc">Consulta tu ficha de salud básica, tipo de sangre y antecedentes.</p></div>' +
+            '</a>' +
+            '<a href="P4%20Gesti%C3%B3n%20de%20Pacientes/cu14-contacto-emergencia.html" class="vs-card vs-card--hover vs-module">' +
+            '  <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-phone"/></svg></span>' +
+            '  <div class="vs-grow"><div class="vs-module__name">2. Contacto de emergencia</div><p class="vs-module__desc">Registra el familiar o responsable a contactar en caso de urgencia.</p></div>' +
+            '</a>' +
+            '<a href="P4%20Gesti%C3%B3n%20de%20Pacientes/cu16-historial-citas.html" class="vs-card vs-card--hover vs-module">' +
+            '  <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-file-text"/></svg></span>' +
+            '  <div class="vs-grow"><div class="vs-module__name">3. Historial de citas</div><p class="vs-module__desc">Revisa tus atenciones anteriores, estados y médicos tratantes.</p></div>' +
+            '</a>' +
+            '<a href="P6%20Gesti%C3%B3n%20de%20Citas%20M%C3%A9dicas/cu24-programar-cita.html" class="vs-card vs-card--hover vs-module">' +
+            '  <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-calendar"/></svg></span>' +
+            '  <div class="vs-grow"><div class="vs-module__name">4. Programar cita médica</div><p class="vs-module__desc">Selecciona especialidad, médico, fecha y reserva tu turno en vivo.</p></div>' +
+            '</a>' +
+            '<a href="P6%20Gesti%C3%B3n%20de%20Citas%20M%C3%A9dicas/cu26-reprogramar-cita.html" class="vs-card vs-card--hover vs-module">' +
+            '  <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-repeat"/></svg></span>' +
+            '  <div class="vs-grow"><div class="vs-module__name">5. Reprogramar cita</div><p class="vs-module__desc">Cambia el horario o día de tus citas pendientes de atención.</p></div>' +
+            '</a>' +
+            '<a href="P6%20Gesti%C3%B3n%20de%20Citas%20M%C3%A9dicas/cu27-cancelar-cita.html" class="vs-card vs-card--hover vs-module">' +
+            '  <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-x-circle"/></svg></span>' +
+            '  <div class="vs-grow"><div class="vs-module__name">6. Cancelar cita</div><p class="vs-module__desc">Cancela una cita médica programada con motivo justificado.</p></div>' +
+            '</a>' +
+            '<a href="P6%20Gesti%C3%B3n%20de%20Citas%20M%C3%A9dicas/cu28-recordatorios.html" class="vs-card vs-card--hover vs-module">' +
+            '  <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-bell"/></svg></span>' +
+            '  <div class="vs-grow"><div class="vs-module__name">7. Recordatorios</div><p class="vs-module__desc">Consulta las notificaciones y alertas automáticas de tus citas.</p></div>' +
+            '</a>' +
+            '<a href="P6%20Gesti%C3%B3n%20de%20Citas%20M%C3%A9dicas/cu41-pasarela-pago-comprobante.html" class="vs-card vs-card--hover vs-module">' +
+            '  <span class="vs-module__tile" aria-hidden="true"><svg class="vs-i"><use href="#i-id-card"/></svg></span>' +
+            '  <div class="vs-grow"><div class="vs-module__name">8. Pagar ficha médica y comprobante</div><p class="vs-module__desc">Realiza el pago con pasarela QR/Tarjeta y obtén tu comprobante digital.</p></div>' +
+            '</a>';
+        }
+      }
     }
 
     // 2. Interceptar botones de Cerrar Sesión
@@ -4537,26 +4590,39 @@
         formAuto37.setAttribute('data-api-bound', 'true');
         formAuto37.addEventListener('submit', async function (e) {
           e.preventDefault();
+          var elCi = document.getElementById('ar-ci');
+          var elNom = document.getElementById('ar-nom') || document.getElementById('ar-nombres');
+          var elApe = document.getElementById('ar-ape') || document.getElementById('ar-apellidos');
+          var elNac = document.getElementById('ar-nac') || document.getElementById('ar-fnac');
+          var elSexo = document.getElementById('ar-sexo');
+          var elTel = document.getElementById('ar-tel');
+          var elEmail = document.getElementById('ar-email');
+          var elDir = document.getElementById('ar-dir');
+          var elUser = document.getElementById('ar-user');
+          var elPass = document.getElementById('ar-pass');
+
           var payload = {
-            ci: document.getElementById('ar-ci').value.trim(),
-            nombres: document.getElementById('ar-nombres').value.trim(),
-            apellidos: document.getElementById('ar-apellidos').value.trim(),
-            fecha_nacimiento: document.getElementById('ar-fnac').value,
-            sexo: document.getElementById('ar-sexo').value,
-            telefono: document.getElementById('ar-tel').value.trim(),
-            email: document.getElementById('ar-email').value.trim(),
-            direccion: document.getElementById('ar-dir').value.trim(),
-            nombre_usuario: document.getElementById('ar-user').value.trim(),
-            password: document.getElementById('ar-pass').value
+            ci: elCi ? elCi.value.trim() : '',
+            nombres: elNom ? elNom.value.trim() : '',
+            apellidos: elApe ? elApe.value.trim() : '',
+            fecha_nacimiento: elNac ? elNac.value : '',
+            sexo: elSexo ? elSexo.value : 'F',
+            telefono: elTel ? elTel.value.trim() : '',
+            email: elEmail ? elEmail.value.trim() : '',
+            direccion: elDir ? elDir.value.trim() : '',
+            nombre_usuario: elUser ? elUser.value.trim() : '',
+            password: elPass ? elPass.value : ''
           };
           try {
             var res = await VS_API.autoRegistroPacienteWeb(payload);
             var fb = document.getElementById('cu37-feedback');
+            var newUsername = (res.data && res.data.usuario ? res.data.usuario.nombre_usuario : (payload.nombre_usuario || 'paciente'));
+            var newCod = (res.data && res.data.paciente ? res.data.paciente.codigo_paciente : 'PAC-NUEVO');
             if (fb) {
               fb.style.display = 'flex';
-              fb.innerHTML = '<svg class="vs-i"><use href="#i-check-circle"/></svg><div><strong>Auto-registro completado en PostgreSQL:</strong> Paciente <span class="vs-mono">' + escapeHtml(res.data && res.data.paciente ? res.data.paciente.codigo_paciente : 'PAC-NUEVO') + '</span> y cuenta <span class="vs-mono">@' + escapeHtml(payload.nombre_usuario) + '</span> creados y auditados en bitácora.</div>';
+              fb.innerHTML = '<svg class="vs-i"><use href="#i-check-circle"/></svg><div><strong>¡Cuenta de paciente creada exitosamente!</strong><br>Código: <span class="vs-mono">' + escapeHtml(newCod) + '</span> | Usuario: <span class="vs-mono">@' + escapeHtml(newUsername) + '</span> (Rol: <strong>Paciente</strong>).<br><a href="cu01-iniciar-sesion.html" class="vs-link vs-xs" style="margin-top:.4rem;display:inline-block;font-weight:600;">Iniciar sesión con mi cuenta &rarr;</a></div>';
             }
-            if (window.vsToast) window.vsToast('Auto-registro exitoso', 'Persona, Paciente y Usuario guardados en PostgreSQL');
+            if (window.vsToast) window.vsToast('Auto-registro exitoso', 'Cuenta de paciente lista con rol Paciente');
             formAuto37.reset();
             cargarDatosCU37();
           } catch (err) {

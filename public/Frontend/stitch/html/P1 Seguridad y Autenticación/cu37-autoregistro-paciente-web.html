@@ -51,6 +51,7 @@
               <div><h3 class="vs-card__title">Formulario de auto-registro de paciente</h3><p class="vs-card__sub">Habilita el perfil clínico y las credenciales de acceso del paciente</p></div>
               <span class="vs-badge vs-badge--ok">Activo al instante</span>
             </div>
+            <div id="cu37-feedback" class="vs-alert vs-alert--success" style="display:none;margin:1rem 1.25rem 0;" role="alert"></div>
             <div class="vs-card__body vs-form">
               <div class="vs-form-grid">
                 <div class="vs-field"><label class="vs-label" for="ar-ci">Cédula de identidad (CI) <span class="vs-req">*</span></label><input id="ar-ci" class="vs-input vs-input--mono" type="text" placeholder="Ej. 8945120" required></div>
@@ -60,9 +61,10 @@
                 <div class="vs-field"><label class="vs-label" for="ar-email">Correo electrónico <span class="vs-req">*</span></label><input id="ar-email" class="vs-input" type="email" placeholder="valeria.justiniano@correo.bo" required></div>
                 <div class="vs-field"><label class="vs-label" for="ar-tel">Teléfono móvil <span class="vs-req">*</span></label><input id="ar-tel" class="vs-input vs-input--mono" type="tel" placeholder="76011223" required></div>
                 <div class="vs-field"><label class="vs-label" for="ar-sexo">Sexo <span class="vs-req">*</span></label><select id="ar-sexo" class="vs-select"><option value="F" selected>Femenino (F)</option><option value="M">Masculino (M)</option></select></div>
+                <div class="vs-field"><label class="vs-label" for="ar-user">Usuario deseado</label><input id="ar-user" class="vs-input vs-input--mono" type="text" placeholder="ej. valeria.justiniano"></div>
                 <div class="vs-field"><label class="vs-label" for="ar-pass">Contraseña de acceso <span class="vs-req">*</span></label><input id="ar-pass" class="vs-input" type="password" value="Paciente123*" required></div>
               </div>
-              <div class="vs-field"><label class="vs-label" for="ar-dir">Dirección de domicilio</label><input id="ar-dir" class="vs-input" type="text" placeholder="Av. Beni 3er Anillo, Santa Cruz"></div>
+              <div class="vs-field" style="margin-top:1rem;"><label class="vs-label" for="ar-dir">Dirección de domicilio</label><input id="ar-dir" class="vs-input" type="text" placeholder="Av. Beni 3er Anillo, Santa Cruz"></div>
             </div>
             <div class="vs-card__foot">
               <span class="vs-xs vs-muted">El alta habilita inmediatamente el agendamiento de citas médicas</span>

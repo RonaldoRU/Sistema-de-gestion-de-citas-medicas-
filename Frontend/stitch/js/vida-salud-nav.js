@@ -286,23 +286,62 @@
       }
     } catch (eRole) {}
     var isUserAdmin = currentUserRole.indexOf('ADMIN') !== -1;
+    var isPaciente = currentUserRole.indexOf('PACIENTE') !== -1;
+
+    // CUs estrictamente autorizados para el rol PACIENTE (sin excepciones adicionales)
+    var PACIENTE_PERMISOS = {
+      'CU13': true, // Información médica
+      'CU14': true, // Contacto de emergencia
+      'CU16': true, // Historial de citas
+      'CU24': true, // Programar cita médica
+      'CU26': true, // Reprogramar cita médica
+      'CU27': true, // Cancelar cita médica
+      'CU28': true, // Recordatorios
+      'CU41': true  // Pagar ficha médica y comprobante
+    };
+
+    // Si un usuario con rol Paciente intenta acceder a un CU fuera de sus 8 opciones, redirigir
+    if (isPaciente && activeCu && !PACIENTE_PERMISOS[activeCu] && activeCu !== 'CU01' && activeCu !== 'CU02' && activeCu !== 'CU03' && !isHome) {
+      alert('Tu rol de Paciente solo te permite acceder a: Información médica, Contacto de emergencia, Historial de citas, Programar cita, Reprogramar cita, Cancelar cita, Recordatorios y Pagar ficha médica.');
+      window.location.replace(pagePrefix() + 'P4%20Gesti%C3%B3n%20de%20Pacientes/cu13-informacion-medica.html');
+      return;
+    }
 
     NAV.packages.forEach(function (pkg) {
       if (pkg.id === 'P3' && !isUserAdmin) {
         return; // Bitácora y auditoría exclusiva para el rol Administrador
       }
+
+      var visibleItems = pkg.items.filter(function (it) {
+        // Al haber iniciado sesión, ocultar las opciones de Iniciar sesión y Cerrar sesión del menú hamburguesa
+        if (pkg.id === 'P1' && (it.cu === 'CU01' || it.cu === 'CU02' || it.action === 'logout')) {
+          return false;
+        }
+        if (isPaciente) {
+          // El rol Paciente solo puede ver sus 8 casos de uso autorizados
+          return !!PACIENTE_PERMISOS[it.cu];
+        }
+        return true;
+      });
+
+      if (visibleItems.length === 0) {
+        return; // No mostrar paquetes vacíos para este rol
+      }
+
       var hasActive = found && found.pkg.id === pkg.id;
       var isOpen = !!openSet[pkg.id];
       var listId = 'pkg-' + pkg.id.toLowerCase();
+      var pkgDisplayName = (isPaciente && pkg.id === 'P4') ? 'Mi Información de Salud' : ((isPaciente && pkg.id === 'P6') ? 'Mis Citas Médicas' : pkg.name);
+
       html += '<section class="vs-pkg' + (isOpen ? ' is-open' : '') + (hasActive ? ' has-active' : '') + '" data-pkg="' + pkg.id + '">';
-      html += '  <button type="button" class="vs-pkg__head" aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-controls="' + listId + '" title="' + pkg.name + '">';
+      html += '  <button type="button" class="vs-pkg__head" aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-controls="' + listId + '" title="' + pkgDisplayName + '">';
       html += '    <span class="vs-pkg__tile">' + icon(pkg.icon) + '</span>';
-      html += '    <span class="vs-pkg__name">' + pkg.name + '</span>';
-      html += '    <span class="vs-pkg__count" aria-label="' + pkg.items.length + ' opciones">' + pkg.items.length + '</span>';
+      html += '    <span class="vs-pkg__name">' + pkgDisplayName + '</span>';
+      html += '    <span class="vs-pkg__count" aria-label="' + visibleItems.length + ' opciones">' + visibleItems.length + '</span>';
       html += icon('chevron', 'vs-i vs-pkg__chev');
       html += '  </button>';
       html += '  <div class="vs-pkg__body"><ul class="vs-pkg__list" id="' + listId + '">';
-      pkg.items.forEach(function (it) {
+      visibleItems.forEach(function (it) {
         var isActive = it.cu === activeCu;
         var cls = 'vs-cu' + (isActive ? ' is-active' : '') + (it.danger ? ' vs-cu--danger' : '');
         var inner = '<span class="vs-cu__label">' + it.label + '</span>' + (it.ext ? icon('log-in', 'vs-i vs-cu__ext') : '');
@@ -319,7 +358,7 @@
     html += '  </nav>';
     html += '</div>';
     html += '<div class="vs-rail-foot">';
-    html += '  <p class="vs-rail-meta">Atención en recepción<br><strong>Lun–Sáb · 08:00–18:00</strong></p>';
+    html += '  <p class="vs-rail-meta">' + (isPaciente ? 'Portal Web del Paciente<br><strong>Atención en línea 24/7</strong>' : 'Atención en recepción<br><strong>Lun–Sáb · 08:00–18:00</strong>') + '</p>';
     html += '  <button type="button" class="vs-logout-btn" data-logout title="Cerrar sesión">' + icon('logout', 'vs-i vs-rail-icon') + '<span class="vs-rail-label">Cerrar sesión</span></button>';
     html += '</div>';
 
@@ -386,11 +425,28 @@
         '</div>' +
         '<div class="vs-modal__foot">' +
         '  <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Seguir trabajando</button>' +
-        '  <a href="' + pagePrefix() + 'P1 Seguridad y Autenticación/cu02-sesion-cerrada.html" class="vs-btn vs-btn--danger">' + icon('logout') + 'Cerrar sesión</a>' +
+        '  <button type="button" class="vs-btn vs-btn--danger" id="vs-btn-confirm-logout">' + icon('logout') + 'Cerrar sesión</button>' +
         '</div>';
       document.body.appendChild(dlg);
+
+      var btnConfirm = document.getElementById('vs-btn-confirm-logout');
+      if (btnConfirm) {
+        btnConfirm.addEventListener('click', async function () {
+          btnConfirm.disabled = true;
+          btnConfirm.textContent = 'Cerrando sesión...';
+          try {
+            if (window.VS_API && typeof window.VS_API.logout === 'function') {
+              await window.VS_API.logout();
+            }
+          } catch (e) {}
+          var targetUrl = (location.pathname || '').includes('/P') ? '../P1 Seguridad y Autenticación/cu02-sesion-cerrada.html' : 'P1 Seguridad y Autenticación/cu02-sesion-cerrada.html';
+          window.location.href = targetUrl + '?t=' + Date.now();
+        });
+      }
     }
   }
+
+  window.injectLogoutDialog = injectLogoutDialog;
 
   /* ---------- Arranque ---------- */
   injectSprite();

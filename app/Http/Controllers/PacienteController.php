@@ -341,7 +341,7 @@ class PacienteController extends Controller
                 'direccion' => $request->input('direccion'),
             ]);
 
-            $rolPaciente = Rol::where('nombre', 'PACIENTE')->first() ?? Rol::find(2) ?? Rol::first();
+            $rolPaciente = Rol::whereRaw('LOWER(nombre) = ?', ['paciente'])->first() ?? Rol::find(4);
             $requestedUsername = trim((string) $request->input('nombre_usuario', ''));
             if ($requestedUsername !== '') {
                 $baseUser = strtolower(preg_replace('/[^a-z0-9._-]/i', '', $requestedUsername));
@@ -356,7 +356,7 @@ class PacienteController extends Controller
 
             $usuario = Usuario::create([
                 'id_persona' => $persona->id_persona,
-                'id_rol' => $rolPaciente?->id_rol ?? 2,
+                'id_rol' => $rolPaciente?->id_rol ?? 4,
                 'nombre_usuario' => $username,
                 'hash_contrasena' => Hash::make($request->input('password')),
                 'estado' => 'ACTIVO',

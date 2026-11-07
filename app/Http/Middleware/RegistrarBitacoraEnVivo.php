@@ -18,6 +18,7 @@ class RegistrarBitacoraEnVivo
         'api/bitacora/resumen',
         'api/bitacora/live',
         'api/bitacora/stream',
+        'api/auth/logout-summary',
         'up',
         '_ignition',
         'sanctum',
@@ -50,7 +51,7 @@ class RegistrarBitacoraEnVivo
         $esMutacion = in_array($metodo, ['POST', 'PUT', 'PATCH', 'DELETE']);
         $esAuth = str_contains($path, 'login') || str_contains($path, 'logout');
 
-        if (!$esMutacion && !$esAuth) {
+        if (! $esMutacion && ! $esAuth) {
             return $response;
         }
 
@@ -123,12 +124,12 @@ class RegistrarBitacoraEnVivo
 
         // Preparar detalle seguro omitiendo campos confidenciales
         $datos = $request->except(['password', 'contrasena', 'hash_contrasena', 'password_confirmation', 'token', '_token']);
-        $usuarioNombre = Auth::user() ? (Auth::user()->nombre_usuario ?? 'Usuario #' . Auth::id()) : 'Sistema';
+        $usuarioNombre = Auth::user() ? (Auth::user()->nombre_usuario ?? 'Usuario #'.Auth::id()) : 'Sistema';
         $status = $response->getStatusCode();
 
         $detalleTexto = "[{$metodo}] {$path} (HTTP {$status}) por {$usuarioNombre}";
-        if (!empty($datos)) {
-            $detalleTexto .= ' | Parámetros: ' . json_encode($datos, JSON_UNESCAPED_UNICODE);
+        if (! empty($datos)) {
+            $detalleTexto .= ' | Parámetros: '.json_encode($datos, JSON_UNESCAPED_UNICODE);
         }
 
         try {
@@ -142,7 +143,7 @@ class RegistrarBitacoraEnVivo
             );
         } catch (\Throwable $e) {
             // Evitar que un error al auditar rompa la respuesta del usuario
-            logger()->error('Error al registrar auditoría en vivo en middleware: ' . $e->getMessage());
+            logger()->error('Error al registrar auditoría en vivo en middleware: '.$e->getMessage());
         }
 
         return $response;
