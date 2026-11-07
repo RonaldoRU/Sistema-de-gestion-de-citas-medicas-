@@ -2999,11 +2999,16 @@ table {
   min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @media (min-width: 960px) {
   .vs-auth {
     grid-template-columns: minmax(300px, 42%) minmax(0, 1fr);
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
   }
 }
 
@@ -3088,20 +3093,39 @@ table {
 .vs-auth__main {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 2.5rem 1.5rem;
+  justify-content: flex-start;
+  padding: 2.5rem 1.5rem 4rem;
   background: var(--vs-paper);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(3, 105, 161, 0.35) transparent;
+}
+
+.vs-auth__main::-webkit-scrollbar {
+  width: 8px;
+}
+.vs-auth__main::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+}
+.vs-auth__main::-webkit-scrollbar-thumb {
+  background-color: rgba(3, 105, 161, 0.35);
+  border-radius: 4px;
+}
+.vs-auth__main::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(3, 105, 161, 0.65);
 }
 
 @media (min-width: 640px) {
   .vs-auth__main {
-    padding: 3rem 2.5rem;
+    padding: 3rem 2.5rem 4.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .vs-auth__main {
-    padding: 4rem;
+    padding: 3.5rem 4rem 5rem;
   }
 }
 
