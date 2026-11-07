@@ -2000,7 +2000,7 @@
       }
     }
 
-    // 10. Vincular Catálogo de Pacientes (CU15)
+    // 10. Vincular Catálogo y Modificación de Pacientes (CU15 Dinámico)
     var pacTbody = document.getElementById('vs-pacientes-tbody');
     if (pacTbody) {
       initPacientesCatalogo();
@@ -2010,49 +2010,180 @@
       var searchInput = document.getElementById('paciente-buscar-input');
       var searchForm = document.getElementById('paciente-buscar-form');
       var conteoSpan = document.getElementById('paciente-conteo');
+      var splitCont = document.getElementById('cu15-split-container');
+      var formMod = document.getElementById('form-modificar-paciente');
+      var btnCerrar = document.getElementById('btn-cerrar-modificar');
+      var radioEstPills = document.querySelectorAll('input[name="est"]');
+
+      var pacientesCache = {};
+      var currentEditingId = null;
+
+      function calcularEdadStr(fNac, sexo) {
+        var sexStr = sexo === 'F' ? 'Fem' : (sexo === 'M' ? 'Masc' : '—');
+        if (!fNac) return sexStr;
+        var d = new Date(fNac);
+        if (isNaN(d.getTime())) return sexStr;
+        var hoy = new Date();
+        var edad = hoy.getFullYear() - d.getFullYear();
+        var m = hoy.getMonth() - d.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < d.getDate())) edad--;
+        return (edad >= 0 ? (edad + ' a · ') : '') + sexStr;
+      }
+
+      function cerrarModificarPaciente() {
+        if (formMod) formMod.style.display = 'none';
+        if (splitCont) splitCont.style.gridTemplateColumns = '1fr';
+        currentEditingId = null;
+        var allTr = pacTbody.querySelectorAll('tr');
+        allTr.forEach(function (tr) { tr.classList.remove('is-selected'); });
+      }
+
+      async function abrirModificarPaciente(id) {
+        var p = pacientesCache[id];
+        if (!p) {
+          try {
+            var resP = await VS_API.getPaciente(id);
+            p = resP.paciente || resP.data || resP;
+            if (p) pacientesCache[id] = p;
+          } catch (e) {}
+        }
+        if (!p) {
+          alert('No se pudieron recuperar los datos del paciente ID #' + id);
+          return;
+        }
+
+        currentEditingId = id;
+
+        // Resaltar fila seleccionada en la tabla
+        var allTr = pacTbody.querySelectorAll('tr');
+        allTr.forEach(function (tr) {
+          if (parseInt(tr.getAttribute('data-id'), 10) === id) {
+            tr.classList.add('is-selected');
+          } else {
+            tr.classList.remove('is-selected');
+          }
+        });
+
+        // Mostrar panel de modificación y restaurar layout dividido
+        if (splitCont) splitCont.style.gridTemplateColumns = '';
+        if (formMod) formMod.style.display = 'block';
+
+        var pers = p.persona || {};
+        var nombreComp = ((pers.nombres || '') + ' ' + (pers.apellidos || '')).trim() || 'Paciente sin nombre';
+        var inits = (pers.nombres ? pers.nombres.charAt(0) : 'P') + (pers.apellidos ? pers.apellidos.charAt(0) : '');
+        var cod = p.codigo || ('PAC-' + String(p.id_persona).padStart(4, '0'));
+
+        var avatarEl = document.getElementById('mod-avatar');
+        var nomEl = document.getElementById('mod-paciente-nombre');
+        var codEl = document.getElementById('mod-paciente-codigo');
+        var subEl = document.getElementById('mod-paciente-sub');
+
+        if (avatarEl) avatarEl.textContent = inits.toUpperCase();
+        if (nomEl) nomEl.textContent = nombreComp;
+        if (codEl) codEl.textContent = cod;
+        if (subEl) subEl.textContent = 'CI ' + (pers.ci || '—') + (pers.email ? ' · ' + pers.email : '');
+
+        // Actualizar enlaces de navegación por pestañas para el paciente
+        if (document.getElementById('tab-cu13')) document.getElementById('tab-cu13').href = 'cu13-informacion-medica.html?paciente_id=' + p.id_persona;
+        if (document.getElementById('tab-cu14')) document.getElementById('tab-cu14').href = 'cu14-contacto-emergencia.html?paciente_id=' + p.id_persona;
+        if (document.getElementById('tab-cu16')) document.getElementById('tab-cu16').href = 'cu16-historial-citas.html?paciente_id=' + p.id_persona;
+        if (document.getElementById('link-desactivar-pac')) document.getElementById('link-desactivar-pac').href = 'cu17-desactivar-paciente.html?paciente_id=' + p.id_persona;
+
+        // Rellenar campos del formulario con los datos dinámicos
+        if (document.getElementById('e-ci')) document.getElementById('e-ci').value = pers.ci || '';
+        if (document.getElementById('e-nac')) document.getElementById('e-nac').value = (p.fecha_nacimiento || '').slice(0, 10);
+        if (document.getElementById('e-nombres')) document.getElementById('e-nombres').value = pers.nombres || '';
+        if (document.getElementById('e-apellidos')) document.getElementById('e-apellidos').value = pers.apellidos || '';
+        if (document.getElementById('e-tel')) document.getElementById('e-tel').value = pers.telefono || '';
+        if (document.getElementById('e-email')) document.getElementById('e-email').value = pers.email || '';
+        if (document.getElementById('e-dir')) document.getElementById('e-dir').value = p.direccion || '';
+
+        var sexF = document.getElementById('e-sexo-f');
+        var sexM = document.getElementById('e-sexo-m');
+        if (sexF && sexM) {
+          if (p.sexo === 'F') sexF.checked = true;
+          else sexM.checked = true;
+        }
+
+        formMod.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
 
       async function cargar(buscar) {
-        pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">Consultando PostgreSQL...</td></tr>';
+        pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">Consultando pacientes en PostgreSQL...</td></tr>';
         try {
-          var params = buscar ? { buscar: buscar } : {};
+          var params = {};
+          if (buscar) params.buscar = buscar;
+
+          var radioInact = document.querySelector('input[name="est"]:checked');
+          if (radioInact && radioInact.value === 'activos') {
+            params.activo = 'true';
+          }
+
           var res = await VS_API.getPacientes(params);
           var list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
           if (!Array.isArray(list)) list = [];
 
+          pacientesCache = {};
           if (conteoSpan) conteoSpan.textContent = list.length + ' pacientes en el padrón';
 
           if (list.length === 0) {
-            pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">No se encontraron pacientes registrados.</td></tr>';
+            pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">No se encontraron pacientes para el criterio de búsqueda.</td></tr>';
             return;
           }
 
           var html = '';
           list.forEach(function (p) {
+            pacientesCache[p.id_persona] = p;
             var pers = p.persona || {};
             var nombre = (pers.nombres ? (pers.nombres + ' ' + (pers.apellidos || '')) : 'Sin nombre');
             var ci = pers.ci || '—';
             var tel = pers.telefono || '—';
-            var cod = 'PAC-' + String(p.id_persona).padStart(4, '0');
+            var cod = p.codigo || ('PAC-' + String(p.id_persona).padStart(4, '0'));
             var activo = pers.activo !== false;
-            var estadoBadge = activo ? '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>' : '<span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Inactivo</span>';
+            var estadoBadge = activo
+              ? '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>'
+              : '<span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Inactivo</span>';
             var inits = (pers.nombres ? pers.nombres.charAt(0) : 'P') + (pers.apellidos ? pers.apellidos.charAt(0) : '');
+            var edadSexo = calcularEdadStr(p.fecha_nacimiento, p.sexo);
+            var isSel = currentEditingId === p.id_persona ? ' class="is-selected"' : '';
 
-            html += '<tr>' +
-              '<td class="vs-td-num font-mono">' + cod + '</td>' +
+            html += '<tr data-id="' + p.id_persona + '"' + isSel + '>' +
+              '<td class="vs-td-num font-mono">' + escapeHtml(cod) + '</td>' +
               '<td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">' + inits.toUpperCase() + '</span>' +
               '<div><div class="vs-cell-person__name">' + escapeHtml(nombre) + '</div><div class="vs-cell-person__sub vs-mono">CI ' + escapeHtml(ci) + '</div></div></div></td>' +
-              '<td class="vs-hide-md vs-mono">' + escapeHtml(ci) + '</td>' +
+              '<td class="vs-hide-md">' + escapeHtml(edadSexo) + '</td>' +
               '<td class="vs-hide-md vs-mono">' + escapeHtml(tel) + '</td>' +
               '<td>' + estadoBadge + '</td>' +
-              '<td class="vs-td-actions">' +
-                '<a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html?paciente_id=' + p.id_persona + '" class="vs-icon-btn" title="Programar cita"><svg class="vs-i"><use href="#i-plus"/></svg></a>' +
+              '<td class="vs-td-actions" style="white-space:nowrap;">' +
+                '<button type="button" class="vs-btn vs-btn--sm vs-btn--primary btn-modificar-paciente" data-id="' + p.id_persona + '" title="Modificar datos del paciente" style="display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .65rem;font-size:.78rem;margin-right:.35rem;">' +
+                  '<svg class="vs-i vs-i--sm" style="width:14px;height:14px;"><use href="#i-edit"/></svg>Modificar' +
+                '</button>' +
+                '<a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html?paciente_id=' + p.id_persona + '" class="vs-icon-btn" title="Programar cita">' +
+                  '<svg class="vs-i"><use href="#i-plus"/></svg>' +
+                '</a>' +
               '</td>' +
               '</tr>';
           });
           pacTbody.innerHTML = html;
         } catch (e) {
-          pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-danger);">Error al cargar pacientes: ' + e.message + '</td></tr>';
+          pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-danger);">Error al consultar pacientes: ' + e.message + '</td></tr>';
         }
+      }
+
+      // Event delegation para botón Modificar en cada fila de paciente
+      pacTbody.addEventListener('click', function (ev) {
+        var btnMod = ev.target.closest('.btn-modificar-paciente');
+        if (btnMod) {
+          var id = parseInt(btnMod.getAttribute('data-id'), 10);
+          if (id) abrirModificarPaciente(id);
+          return;
+        }
+      });
+
+      if (btnCerrar) {
+        btnCerrar.addEventListener('click', function () {
+          cerrarModificarPaciente();
+        });
       }
 
       if (searchForm) {
@@ -2062,7 +2193,117 @@
         });
       }
 
-      cargar();
+      if (radioEstPills && radioEstPills.length) {
+        radioEstPills.forEach(function (r) {
+          r.addEventListener('change', function () {
+            cargar(searchInput ? searchInput.value.trim() : '');
+          });
+        });
+      }
+
+      if (formMod) {
+        formMod.setAttribute('data-api-bound', 'true');
+        formMod.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          if (!currentEditingId) {
+            alert('Por favor selecciona un paciente para modificar.');
+            return;
+          }
+
+          var ciVal = document.getElementById('e-ci') ? document.getElementById('e-ci').value.trim() : '';
+          var nacVal = document.getElementById('e-nac') ? document.getElementById('e-nac').value : '';
+          var nomVal = document.getElementById('e-nombres') ? document.getElementById('e-nombres').value.trim() : '';
+          var apeVal = document.getElementById('e-apellidos') ? document.getElementById('e-apellidos').value.trim() : '';
+          var telVal = document.getElementById('e-tel') ? document.getElementById('e-tel').value.trim() : '';
+          var emailVal = document.getElementById('e-email') ? document.getElementById('e-email').value.trim() : '';
+          var dirVal = document.getElementById('e-dir') ? document.getElementById('e-dir').value.trim() : '';
+
+          var sexRadio = formMod.querySelector('input[name="e-sexo"]:checked');
+          var sexoVal = sexRadio ? sexRadio.value : 'F';
+
+          if (!ciVal || !nacVal || !nomVal || !apeVal) {
+            alert('Por favor completa todos los campos requeridos: CI, Fecha de nacimiento, Nombres y Apellidos.');
+            return;
+          }
+
+          var submitBtn = document.getElementById('btn-guardar-modificar') || formMod.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Guardando cambios...';
+          }
+
+          try {
+            var payload = {
+              ci: ciVal,
+              fecha_nacimiento: nacVal,
+              nombres: nomVal,
+              apellidos: apeVal,
+              telefono: telVal,
+              email: emailVal || null,
+              direccion: dirVal,
+              sexo: sexoVal
+            };
+
+            var resActualizar = await VS_API.actualizarPaciente(currentEditingId, payload);
+
+            // Actualizar paciente en cache local
+            if (pacientesCache[currentEditingId]) {
+              var old = pacientesCache[currentEditingId];
+              old.sexo = sexoVal;
+              old.fecha_nacimiento = nacVal;
+              old.direccion = dirVal;
+              if (!old.persona) old.persona = {};
+              old.persona.ci = ciVal;
+              old.persona.nombres = nomVal;
+              old.persona.apellidos = apeVal;
+              old.persona.telefono = telVal;
+              old.persona.email = emailVal;
+            }
+
+            if (window.vsToast) {
+              window.vsToast('Paciente actualizado exitosamente', 'Datos guardados en PostgreSQL y auditados en bitácora (MODIFICAR)');
+            } else {
+              alert('Datos del paciente actualizados exitosamente.');
+            }
+
+            // Actualizar fila en la tabla visualmente
+            var trRow = pacTbody.querySelector('tr[data-id="' + currentEditingId + '"]');
+            if (trRow) {
+              var nomElCell = trRow.querySelector('.vs-cell-person__name');
+              var subElCell = trRow.querySelector('.vs-cell-person__sub');
+              var telElCell = trRow.querySelectorAll('td')[3];
+              var edadElCell = trRow.querySelectorAll('td')[2];
+              if (nomElCell) nomElCell.textContent = nomVal + ' ' + apeVal;
+              if (subElCell) subElCell.textContent = 'CI ' + ciVal;
+              if (telElCell) telElCell.textContent = telVal || '—';
+              if (edadElCell) edadElCell.textContent = calcularEdadStr(nacVal, sexoVal);
+            }
+
+            // Actualizar cabecera del formulario
+            var nomHeader = document.getElementById('mod-paciente-nombre');
+            var subHeader = document.getElementById('mod-paciente-sub');
+            if (nomHeader) nomHeader.textContent = nomVal + ' ' + apeVal;
+            if (subHeader) subHeader.textContent = 'CI ' + ciVal + (emailVal ? ' · ' + emailVal : '');
+
+          } catch (err) {
+            var msg = err.data && err.data.errors ? Object.values(err.data.errors).flat().join('\n') : (err.data && err.data.message ? err.data.message : err.message);
+            alert('Error al modificar paciente:\n' + msg);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<svg class="vs-i"><use href="#i-check"/></svg>Guardar cambios';
+            }
+          }
+        });
+      }
+
+      await cargar();
+
+      // Abrir automáticamente si se proporciona paciente_id en la URL
+      var pUrlId = parseInt(new URLSearchParams(location.search).get('paciente_id') || new URLSearchParams(location.search).get('id'), 10);
+      if (pUrlId) {
+        abrirModificarPaciente(pUrlId);
+      }
     }
 
     // 11. Vincular Registro de Pacientes (CU12)
