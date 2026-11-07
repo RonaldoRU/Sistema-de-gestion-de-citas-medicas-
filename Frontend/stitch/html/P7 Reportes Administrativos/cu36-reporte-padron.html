@@ -50,17 +50,17 @@
               <div class="vs-field vs-f-2"><label class="vs-label" for="pd-estado">Estado</label><select id="pd-estado" class="vs-select"><option>Activos</option><option>Inactivos</option><option>Todos</option></select></div>
               <div class="vs-field vs-f-2"><label class="vs-label" for="pd-sexo">Sexo</label><select id="pd-sexo" class="vs-select"><option>Todos</option><option>Femenino</option><option>Masculino</option></select></div>
               <div class="vs-field vs-f-3"><label class="vs-label" for="pd-edad">Rango de edad</label><select id="pd-edad" class="vs-select"><option>Todas las edades</option><option>0–17 (pediátricos)</option><option>18–39</option><option>40–59</option><option>60 o más</option></select></div>
-              <div class="vs-field vs-f-3"><label class="vs-label" for="pd-reg">Registrados desde</label><input id="pd-reg" class="vs-input vs-input--mono" type="date" value="2026-08-01"></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="pd-reg">Registrados desde</label><input id="pd-reg" class="vs-input vs-input--mono" type="date"></div>
               <div class="vs-row vs-f-2" style="justify-content:flex-end"><button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-chart"/></svg>Generar</button></div>
             </form>
           </div>
         </section>
 
         <section class="vs-grid vs-grid--4">
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Pacientes activos</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-heart"/></svg></span></div><p class="vs-kpi__value">69</p><p class="vs-kpi__hint">1 inactivo · 70 en total</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Pediátricos</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-sparkle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">15</p><p class="vs-kpi__hint">22 % · todos con tutor registrado</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Altas en octubre</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-user-plus"/></svg></span></div><p class="vs-kpi__value">3</p><p class="vs-kpi__hint">Promedio: 1,2 altas por semana</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Sin citas en 90 días</span><span class="vs-kpi__icon vs-kpi__icon--slate"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">12</p><p class="vs-kpi__hint">Candidatos a campaña de control</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Pacientes activos</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-heart"/></svg></span></div><p class="vs-kpi__value">—</p><p class="vs-kpi__hint">Total empadronados</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Pediátricos</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-sparkle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">—</p><p class="vs-kpi__hint">Menores de edad</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Nuevos registros</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-user-plus"/></svg></span></div><p class="vs-kpi__value">—</p><p class="vs-kpi__hint">Altas registradas</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Seguimiento</span><span class="vs-kpi__icon vs-kpi__icon--slate"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">—</p><p class="vs-kpi__hint">Historial de citas</p></article>
         </section>
 
         <section class="vs-grid vs-grid--3">
@@ -103,14 +103,7 @@
             <table class="vs-table vs-table--compact">
               <thead><tr><th>Código</th><th>Paciente</th><th>CI</th><th class="vs-hide-md">Edad / Sexo</th><th class="vs-hide-md">Teléfono</th><th class="vs-hide-md">Registro</th><th>Citas</th><th>Última cita</th><th>Estado</th></tr></thead>
               <tbody>
-                <tr><td class="vs-td-num">PAC-0001</td><td>Mauricio Suárez Égüez</td><td class="vs-td-num">9802455</td><td class="vs-hide-md">9 · M</td><td class="vs-hide-md vs-td-num">73222777</td><td class="vs-hide-md vs-td-num">16/08/2026</td><td class="vs-td-num">5</td><td class="vs-td-num">24/10/2026</td><td><span class="vs-badge vs-badge--ok">Activo</span></td></tr>
-                <tr><td class="vs-td-num">PAC-0016</td><td>Jimena Égüez Choque</td><td class="vs-td-num">12181643</td><td class="vs-hide-md">50 · F</td><td class="vs-hide-md vs-td-num">75666779</td><td class="vs-hide-md vs-td-num">05/08/2026</td><td class="vs-td-num">4</td><td class="vs-td-num">26/10/2026</td><td><span class="vs-badge vs-badge--ok">Activo</span></td></tr>
-                <tr><td class="vs-td-num">PAC-0017</td><td>Ronald Saucedo Mendoza</td><td class="vs-td-num">10223343</td><td class="vs-hide-md">38 · M</td><td class="vs-hide-md vs-td-num">71640267</td><td class="vs-hide-md vs-td-num">11/08/2026</td><td class="vs-td-num">3</td><td class="vs-td-num">26/10/2026</td><td><span class="vs-badge vs-badge--ok">Activo</span></td></tr>
-                <tr><td class="vs-td-num">PAC-0033</td><td>Paola Paz Terceros</td><td class="vs-td-num">10188329</td><td class="vs-hide-md">34 · F</td><td class="vs-hide-md vs-td-num">76840518</td><td class="vs-hide-md vs-td-num">02/08/2026</td><td class="vs-td-num">6</td><td class="vs-td-num">26/10/2026</td><td><span class="vs-badge vs-badge--ok">Activo</span></td></tr>
-                <tr><td class="vs-td-num">PAC-0047</td><td>Camila Choque Peña</td><td class="vs-td-num">13885376</td><td class="vs-hide-md">27 · F</td><td class="vs-hide-md vs-td-num">75975326</td><td class="vs-hide-md vs-td-num">14/08/2026</td><td class="vs-td-num">2</td><td class="vs-td-num">26/10/2026</td><td><span class="vs-badge vs-badge--ok">Activo</span></td></tr>
-                <tr><td class="vs-td-num">PAC-0049</td><td>Iván Cuéllar Arteaga</td><td class="vs-td-num">3570715</td><td class="vs-hide-md">61 · M</td><td class="vs-hide-md vs-td-num">73413816</td><td class="vs-hide-md vs-td-num">03/08/2026</td><td class="vs-td-num">1</td><td class="vs-td-num">26/10/2026</td><td><span class="vs-badge vs-badge--ok">Activo</span></td></tr>
-                <tr><td class="vs-td-num">PAC-0058</td><td>Fernando Wilson Roca Barba</td><td class="vs-td-num">5142779</td><td class="vs-hide-md">44 · M</td><td class="vs-hide-md vs-td-num">78251059</td><td class="vs-hide-md vs-td-num">23/08/2026</td><td class="vs-td-num">3</td><td class="vs-td-num">26/10/2026</td><td><span class="vs-badge vs-badge--ok">Activo</span></td></tr>
-                <tr class="is-muted"><td class="vs-td-num">PAC-0070</td><td>Jimena Moreno Peña</td><td class="vs-td-num">11487228</td><td class="vs-hide-md">29 · F</td><td class="vs-hide-md vs-td-num">73338219</td><td class="vs-hide-md vs-td-num">04/08/2026</td><td class="vs-td-num">2</td><td class="vs-td-num">30/09/2026</td><td><span class="vs-badge vs-badge--muted">Inactivo</span></td></tr>
+                <tr><td colspan="9" class="vs-td-empty" style="text-align:center;padding:2.5rem;color:var(--vs-muted);">Consultando padrón de pacientes desde PostgreSQL...</td></tr>
               </tbody>
             </table>
           </div>

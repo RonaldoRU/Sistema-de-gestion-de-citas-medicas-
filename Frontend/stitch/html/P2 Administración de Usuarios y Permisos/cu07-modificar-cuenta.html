@@ -46,15 +46,15 @@
         <section class="vs-card">
           <div class="vs-card__body vs-card__body--tight vs-row vs-row--between">
             <div class="vs-row" style="gap:.85rem">
-              <span class="vs-avatar vs-avatar--lg vs-avatar--sky">JM</span>
+              <span class="vs-avatar vs-avatar--lg vs-avatar--sky" id="cu07-avatar">--</span>
               <div>
-                <div class="vs-h3">Editando: Jorge Luis Mendoza Paz</div>
-                <div class="vs-xs vs-muted">Recepcionista turno tarde · usuario <span class="vs-mono">jmendoza</span> · creado el 01/08/2026</div>
+                <div class="vs-h3" id="cu07-header-nombre">Cargando usuario...</div>
+                <div class="vs-xs vs-muted" id="cu07-header-sub">Consultando cuenta desde PostgreSQL...</div>
               </div>
             </div>
             <div class="vs-row">
-              <span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Bloqueado temporal</span>
-              <a href="#" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Modo cambiado" data-toast-sub="Ahora editas tu propia cuenta (scolque)"><svg class="vs-i"><use href="#i-user"/></svg>Editar mi perfil</a>
+              <span class="vs-badge vs-badge--ok" id="cu07-header-badge"><span class="vs-badge__dot"></span>Cuenta activa</span>
+              <a href="#" class="vs-btn vs-btn--ghost vs-btn--sm" id="cu07-btn-mi-perfil"><svg class="vs-i"><use href="#i-user"/></svg>Editar mi perfil</a>
             </div>
           </div>
         </section>
@@ -66,26 +66,26 @@
               <button type="button" class="vs-tab" role="tab" data-tab="clave" aria-selected="false"><svg class="vs-i"><use href="#i-key"/></svg>Cambiar contraseña</button>
             </nav>
 
-            <form class="vs-tabpanel" data-panel="datos" data-tabs-for="cuenta" data-demo="Cambios guardados" data-demo-sub="Los datos de jmendoza se actualizaron en PostgreSQL" novalidate>
+            <form class="vs-tabpanel" data-panel="datos" data-tabs-for="cuenta" novalidate>
               <div class="vs-card__body vs-form">
                 <div class="vs-form-grid">
-                  <div class="vs-field"><label class="vs-label" for="m-ci">Cédula de identidad</label><input id="m-ci" class="vs-input vs-input--mono" type="text" value="7668705" readonly><p class="vs-hint">El CI identifica a la persona y no se edita desde aquí.</p></div>
-                  <div class="vs-field"><label class="vs-label" for="m-usuario">Nombre de usuario</label><input id="m-usuario" class="vs-input vs-input--mono" type="text" value="jmendoza" readonly></div>
-                  <div class="vs-field"><label class="vs-label" for="m-nombres">Nombres <span class="vs-req">*</span></label><input id="m-nombres" class="vs-input" type="text" value="Jorge Luis" required></div>
-                  <div class="vs-field"><label class="vs-label" for="m-apellidos">Apellidos <span class="vs-req">*</span></label><input id="m-apellidos" class="vs-input" type="text" value="Mendoza Paz" required></div>
-                  <div class="vs-field"><label class="vs-label" for="m-email">Correo electrónico <span class="vs-req">*</span></label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-mail"/></svg><input id="m-email" class="vs-input" type="email" value="jmendoza@vidasalud.com.bo" required></div></div>
-                  <div class="vs-field"><label class="vs-label" for="m-tel">Teléfono <span class="vs-req">*</span></label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-phone"/></svg><input id="m-tel" class="vs-input vs-input--mono" type="tel" value="71128245" pattern="[0-9]{7,8}" required></div></div>
-                  <div class="vs-field vs-col-2"><label class="vs-label" for="m-cargo">Cargo</label><select id="m-cargo" class="vs-select"><option>Recepcionista turno mañana</option><option selected>Recepcionista turno tarde</option></select></div>
+                  <div class="vs-field"><label class="vs-label" for="m-ci">Cédula de identidad</label><input id="m-ci" class="vs-input vs-input--mono" type="text" placeholder="Ej. 7668705" readonly><p class="vs-hint">El CI identifica a la persona y no se edita desde aquí.</p></div>
+                  <div class="vs-field"><label class="vs-label" for="m-usuario">Nombre de usuario</label><input id="m-usuario" class="vs-input vs-input--mono" type="text" placeholder="usuario" readonly></div>
+                  <div class="vs-field"><label class="vs-label" for="m-nombres">Nombres <span class="vs-req">*</span></label><input id="m-nombres" class="vs-input" type="text" placeholder="Ej. Jorge Luis" required></div>
+                  <div class="vs-field"><label class="vs-label" for="m-apellidos">Apellidos <span class="vs-req">*</span></label><input id="m-apellidos" class="vs-input" type="text" placeholder="Ej. Mendoza Paz" required></div>
+                  <div class="vs-field"><label class="vs-label" for="m-email">Correo electrónico <span class="vs-req">*</span></label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-mail"/></svg><input id="m-email" class="vs-input" type="email" placeholder="usuario@vidasalud.com.bo" required></div></div>
+                  <div class="vs-field"><label class="vs-label" for="m-tel">Teléfono <span class="vs-req">*</span></label><div class="vs-input-icon"><svg class="vs-i"><use href="#i-phone"/></svg><input id="m-tel" class="vs-input vs-input--mono" type="tel" placeholder="77000000" pattern="[0-9]{7,8}" required></div></div>
+                  <div class="vs-field vs-col-2"><label class="vs-label" for="m-cargo">Cargo institucional</label><select id="m-cargo" class="vs-select"><option>Personal de planta</option><option>Turno mañana</option><option>Turno tarde</option></select></div>
                 </div>
-                <div class="vs-alert vs-alert--info"><svg class="vs-i"><use href="#i-info"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Rol actual: Recepcionista</span>Para asignar otro rol usa la matriz de permisos (CU08). Allí se audita el cambio como evento de seguridad.</div></div>
+                <div class="vs-alert vs-alert--info"><svg class="vs-i"><use href="#i-info"/></svg><div class="vs-alert__body"><span class="vs-alert__title" id="cu07-rol-titulo">Rol actual: Cargando...</span>Para asignar otro rol usa la matriz de permisos (CU08). Allí se audita el cambio como evento de seguridad.</div></div>
               </div>
               <div class="vs-card__foot">
-                <span>Última modificación: 14/09/2026 por scolque</span>
+                <span id="cu07-footer-info">Modificaciones registradas en bitácora</span>
                 <div class="vs-row"><a href="cu06-catalogo-usuarios.html" class="vs-btn vs-btn--ghost">Descartar</a><button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-check"/></svg>Guardar cambios</button></div>
               </div>
             </form>
 
-            <form class="vs-tabpanel" data-panel="clave" data-tabs-for="cuenta" data-demo="Contraseña actualizada" data-demo-sub="Se aplicó password_hash() y se revocaron las otras sesiones" hidden novalidate>
+            <form class="vs-tabpanel" data-panel="clave" data-tabs-for="cuenta" hidden novalidate>
               <div class="vs-card__body vs-form">
                 <div class="vs-form-grid">
                   <div class="vs-field vs-col-2"><label class="vs-label" for="p-actual">Contraseña actual del administrador <span class="vs-req">*</span></label><input id="p-actual" class="vs-input" type="password" autocomplete="current-password" required><p class="vs-hint">Confirmas tu identidad antes de cambiar la clave de otra cuenta.</p></div>

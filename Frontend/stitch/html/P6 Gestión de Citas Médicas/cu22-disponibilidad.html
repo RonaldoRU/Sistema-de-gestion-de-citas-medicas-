@@ -45,12 +45,12 @@
         <section class="vs-card">
           <div class="vs-card__body vs-card__body--tight">
             <form class="vs-filters" onsubmit="event.preventDefault()">
-              <div class="vs-field vs-f-3"><label class="vs-label" for="d-esp">Especialidad <span class="vs-req">*</span></label><select id="d-esp" class="vs-select"><option selected>Medicina General</option><option>Pediatría</option><option>Ginecología</option><option>Odontología</option><option>Cardiología</option><option>Traumatología</option><option>Dermatología</option></select></div>
-              <div class="vs-field vs-f-4"><label class="vs-label" for="d-med">Médico <span class="vs-label__opt">opcional · “cualquiera” muestra todos</span></label><select id="d-med" class="vs-select"><option>Cualquier médico de la especialidad</option><option selected>MED-001 · Dr. Juan Ronaldo Rojas Ugarte</option><option>MED-003 · Dr. Fernando Arteaga Ribera</option><option>MED-006 · Dra. Gabriela Peña Salvatierra</option><option>MED-009 · Dr. Ricardo Égüez Parada</option></select></div>
-              <div class="vs-field vs-f-2"><label class="vs-label" for="d-fecha">Fecha <span class="vs-req">*</span></label><input id="d-fecha" class="vs-input vs-input--mono" type="date" value="2026-10-28" min="2026-10-26"></div>
+              <div class="vs-field vs-f-3"><label class="vs-label" for="d-esp">Especialidad <span class="vs-req">*</span></label><select id="d-esp" class="vs-select"><option value="">Cargando especialidades...</option></select></div>
+              <div class="vs-field vs-f-4"><label class="vs-label" for="d-med">Médico <span class="vs-label__opt">opcional · “cualquiera” muestra todos</span></label><select id="d-med" class="vs-select"><option value="">Cualquier médico de la especialidad</option></select></div>
+              <div class="vs-field vs-f-2"><label class="vs-label" for="d-fecha">Fecha <span class="vs-req">*</span></label><input id="d-fecha" class="vs-input vs-input--mono" type="date"></div>
               <div class="vs-row vs-f-3" style="justify-content:flex-end">
-                <button type="button" class="vs-btn vs-btn--ghost" data-toast="Siguiente fecha con cupo" data-toast-sub="Miércoles 28/10 · 5 bloques libres"><svg class="vs-i"><use href="#i-sparkle"/></svg>Próximo libre</button>
-                <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-search"/></svg>Consultar</button>
+                <button type="button" class="vs-btn vs-btn--ghost" id="cu22-btn-proximo"><svg class="vs-i"><use href="#i-sparkle"/></svg>Próximo libre</button>
+                <button type="submit" class="vs-btn vs-btn--primary" id="cu22-btn-consultar"><svg class="vs-i"><use href="#i-search"/></svg>Consultar</button>
               </div>
             </form>
           </div>
@@ -59,19 +59,12 @@
         <section class="vs-split vs-split--wide">
           <article class="vs-card">
             <div class="vs-card__head">
-              <div><h3 class="vs-card__title">Miércoles 28 de octubre de 2026 · Dr. Juan Ronaldo Rojas Ugarte</h3><p class="vs-card__sub">Turno 08:00–12:00 · 8 bloques · 5 libres</p></div>
+              <div><h3 class="vs-card__title" id="cu22-titulo">Disponibilidad de horarios</h3><p class="vs-card__sub" id="cu22-sub">Selecciona un médico y una fecha para consultar bloques en tiempo real</p></div>
               <div class="vs-legend"><span><i class="free"></i>Libre</span><span><i class="busy"></i>Reservado</span><span><i class="blocked"></i>Bloqueado</span><span><i class="sel"></i>Seleccionado</span></div>
             </div>
             <div class="vs-card__body">
-              <div class="vs-slots" data-slots="disp">
-                <button type="button" class="vs-slot vs-slot--busy" disabled>08:00<small>CM-0293</small></button>
-                <button type="button" class="vs-slot vs-slot--free" data-time="08:30" aria-pressed="false">08:30<small>Libre</small></button>
-                <button type="button" class="vs-slot vs-slot--free" data-time="09:00" aria-pressed="false">09:00<small>Libre</small></button>
-                <button type="button" class="vs-slot vs-slot--busy" disabled>09:30<small>CM-0294</small></button>
-                <button type="button" class="vs-slot vs-slot--free" data-time="10:00" aria-pressed="false">10:00<small>Libre</small></button>
-                <button type="button" class="vs-slot vs-slot--free" data-time="10:30" aria-pressed="false">10:30<small>Libre</small></button>
-                <button type="button" class="vs-slot vs-slot--busy" disabled>11:00<small>CM-0292</small></button>
-                <button type="button" class="vs-slot vs-slot--free" data-time="11:30" aria-pressed="false">11:30<small>Libre</small></button>
+              <div class="vs-slots" data-slots="disp" id="cu22-slots-container">
+                <p class="vs-muted" style="text-align:center;padding:2rem;width:100%;">Selecciona una fecha y presiona "Consultar" para cargar los turnos disponibles desde la base de datos.</p>
               </div>
             </div>
             <div class="vs-card__foot">
@@ -82,11 +75,9 @@
 
           <aside class="vs-stack">
             <article class="vs-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Otros médicos · Medicina General</h3><p class="vs-card__sub">Mismo día</p></div></div>
-              <ul class="vs-list vs-list--boxed">
-                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">RE</span><div class="vs-list-row__body"><div class="vs-list-row__title">Dr. Ricardo Égüez Parada</div><div class="vs-list-row__sub">Mié 14:00–18:00 · 7 bloques libres</div></div><span class="vs-badge vs-badge--ok">7</span></li>
-                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">FA</span><div class="vs-list-row__body"><div class="vs-list-row__title">Dr. Fernando Arteaga Ribera</div><div class="vs-list-row__sub">No atiende los miércoles</div></div><span class="vs-badge vs-badge--muted">—</span></li>
-                <li class="vs-list-row"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">GP</span><div class="vs-list-row__body"><div class="vs-list-row__title">Dra. Gabriela Peña Salvatierra</div><div class="vs-list-row__sub">No atiende los miércoles</div></div><span class="vs-badge vs-badge--muted">—</span></li>
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Otros médicos</h3><p class="vs-card__sub">Mismo día</p></div></div>
+              <ul class="vs-list vs-list--boxed" id="cu22-otros-medicos">
+                <li class="vs-list-row" style="color:var(--vs-muted);padding:1.5rem;text-align:center;">Consulta disponibilidad para ver alternativas</li>
               </ul>
             </article>
 

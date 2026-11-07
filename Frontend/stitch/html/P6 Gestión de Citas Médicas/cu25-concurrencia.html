@@ -43,10 +43,10 @@
         </header>
 
         <section class="vs-grid vs-grid--4">
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Conflictos evitados (mes)</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-shield"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">7</p><p class="vs-kpi__hint vs-kpi__hint--ok">0 citas duplicadas en la base</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Reservas simultáneas</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-users"/></svg></span></div><p class="vs-kpi__value">4</p><p class="vs-kpi__hint">Recepcionistas operando en paralelo</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Tiempo medio de bloqueo</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">38 <span class="vs-small vs-muted" style="font-family:var(--vs-font-sans);font-weight:600">ms</span></p><p class="vs-kpi__hint">Transacción INSERT con índice único</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Último conflicto</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-alert"/></svg></span></div><p class="vs-kpi__value" style="font-size:1.4rem">Hoy 08:31</p><p class="vs-kpi__hint">Dr. Rojas · 26/10 10:30 · rvaca vs csuarez</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Conflictos prevenidos</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-shield"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">—</p><p class="vs-kpi__hint vs-kpi__hint--ok">0 citas duplicadas en la base</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Concurrencia activa</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-users"/></svg></span></div><p class="vs-kpi__value">—</p><p class="vs-kpi__hint">Transacciones en paralelo</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Tiempo de verificación</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value">—</p><p class="vs-kpi__hint">Índice único cita_medico_bloque_unico</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Control de transacciones</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-alert"/></svg></span></div><p class="vs-kpi__value" style="font-size:1.4rem">—</p><p class="vs-kpi__hint">Integridad referencial en PostgreSQL</p></article>
         </section>
 
         <section class="vs-split vs-split--wide">
@@ -110,10 +110,7 @@
             <table class="vs-table vs-table--compact">
               <thead><tr><th>Fecha y hora</th><th>Médico</th><th>Bloque disputado</th><th>Ganó</th><th>Rechazado</th><th class="vs-hide-md">Resolución</th></tr></thead>
               <tbody>
-                <tr><td class="vs-td-num">26/10 08:31:07</td><td>Dr. Rojas</td><td class="vs-td-num">26/10 10:30</td><td><span class="vs-mono">rvaca</span> · CM-0296</td><td><span class="vs-mono">csuarez</span></td><td class="vs-hide-md">Reservó 11:00 (CM-0297 pendiente)</td></tr>
-                <tr><td class="vs-td-num">21/10 15:02:44</td><td>Dra. Gutiérrez</td><td class="vs-td-num">22/10 16:00</td><td><span class="vs-mono">djustiniano</span> · CM-0271</td><td><span class="vs-mono">jmendoza</span></td><td class="vs-hide-md">Reservó 16:30</td></tr>
-                <tr><td class="vs-td-num">14/10 09:17:10</td><td>Dra. Montero</td><td class="vs-td-num">16/10 09:00</td><td><span class="vs-mono">rvaca</span> · CM-0233</td><td><span class="vs-mono">csuarez</span></td><td class="vs-hide-md">Eligió otro médico</td></tr>
-                <tr><td class="vs-td-num">07/10 11:40:55</td><td>Dr. Terceros</td><td class="vs-td-num">10/10 08:00</td><td><span class="vs-mono">csuarez</span> · CM-0196</td><td><span class="vs-mono">rvaca</span></td><td class="vs-hide-md">Reservó 08:30</td></tr>
+                <tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">Sin conflictos de concurrencia pendientes · base de datos sincronizada</td></tr>
               </tbody>
             </table>
           </div>

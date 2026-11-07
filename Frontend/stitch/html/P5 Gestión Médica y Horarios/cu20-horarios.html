@@ -46,24 +46,16 @@
         <section class="vs-card">
           <div class="vs-card__body vs-card__body--tight vs-row vs-row--between">
             <div class="vs-row" style="gap:.85rem">
-              <span class="vs-avatar vs-avatar--lg vs-avatar--teal">JR</span>
+              <span class="vs-avatar vs-avatar--lg vs-avatar--teal" id="cu20-avatar">--</span>
               <div>
-                <div class="vs-h3">Dr. Juan Ronaldo Rojas Ugarte</div>
-                <div class="vs-xs vs-muted"><span class="vs-mono">MED-001</span> · MP-SCZ-1422 · Medicina General · 3 turnos semanales · 24 bloques por semana</div>
+                <div class="vs-h3" id="cu20-medico-nombre">Cargando médico...</div>
+                <div class="vs-xs vs-muted" id="cu20-medico-sub">Consultando turnos y jornadas de atención...</div>
               </div>
             </div>
             <form class="vs-row" onsubmit="event.preventDefault()">
               <label class="vs-label" for="h-medico" style="margin:0">Médico</label>
               <select id="h-medico" class="vs-select" style="min-width:16rem">
-                <option selected>MED-001 · Dr. Juan Ronaldo Rojas Ugarte</option>
-                <option>MED-002 · Dra. Patricia Gutiérrez Melgar</option>
-                <option>MED-003 · Dr. Fernando Arteaga Ribera</option>
-                <option>MED-004 · Dra. Claudia Montero Saucedo</option>
-                <option>MED-005 · Dr. Marcelo Terceros Chávez</option>
-                <option>MED-006 · Dra. Gabriela Peña Salvatierra</option>
-                <option>MED-007 · Dr. Álvaro Moreno Durán</option>
-                <option>MED-008 · Dra. Lorena Antelo Barba</option>
-                <option>MED-009 · Dr. Ricardo Égüez Parada</option>
+                <option value="">Cargando médicos desde PostgreSQL...</option>
               </select>
             </form>
           </div>
@@ -103,9 +95,9 @@
                 </div>
               </div>
               <div class="vs-form-grid vs-form-grid--3" data-time-range>
-                <div class="vs-field"><label class="vs-label" for="h-ini">Hora de inicio <span class="vs-req">*</span></label><input id="h-ini" class="vs-input vs-input--mono" type="time" value="14:00" step="1800" min="07:00" max="20:00" data-time-start required></div>
-                <div class="vs-field"><label class="vs-label" for="h-fin">Hora de fin <span class="vs-req">*</span></label><input id="h-fin" class="vs-input vs-input--mono" type="time" value="18:00" step="1800" min="07:30" max="20:30" data-time-end required><span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>La hora de fin debe ser posterior a la de inicio</span></div>
-                <div class="vs-field"><label class="vs-label" for="h-dur">Duración del bloque</label><select id="h-dur" class="vs-select"><option selected>30 minutos (estándar)</option></select><p class="vs-hint"><strong data-time-blocks>8 bloques de 30 min</strong> por turno</p></div>
+                <div class="vs-field"><label class="vs-label" for="h-ini">Hora de inicio <span class="vs-req">*</span></label><input id="h-ini" class="vs-input vs-input--mono" type="time" step="1800" min="07:00" max="20:00" data-time-start required></div>
+                <div class="vs-field"><label class="vs-label" for="h-fin">Hora de fin <span class="vs-req">*</span></label><input id="h-fin" class="vs-input vs-input--mono" type="time" step="1800" min="07:30" max="20:30" data-time-end required><span class="vs-error"><svg class="vs-i vs-i--sm"><use href="#i-alert"/></svg>La hora de fin debe ser posterior a la de inicio</span></div>
+                <div class="vs-field"><label class="vs-label" for="h-dur">Duración del bloque</label><select id="h-dur" class="vs-select"><option selected>30 minutos (estándar)</option></select><p class="vs-hint"><strong data-time-blocks>Bloques calculados</strong> por turno</p></div>
               </div>
               <div class="vs-alert vs-alert--warn"><svg class="vs-i"><use href="#i-alert"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Superposición (A1)</span>Si el nuevo turno se cruza con uno existente del mismo día, el sistema lo rechaza: “El horario se superpone con un turno ya registrado”.</div></div>
             </div>
@@ -122,9 +114,7 @@
                 <table class="vs-table vs-table--compact">
                   <thead><tr><th>Día</th><th>Turno</th><th>Bloques</th><th>Estado</th><th class="vs-td-actions"></th></tr></thead>
                   <tbody>
-                    <tr><td>Lunes</td><td class="vs-td-num">08:00–12:00</td><td class="vs-td-num">8</td><td><span class="vs-badge vs-badge--ok">Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-toast="Edición cargada" data-toast-sub="Lunes 08:00–12:00 en el formulario"><svg class="vs-i"><use href="#i-edit"/></svg></button><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar turno" data-open-dialog="dlg-turno"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
-                    <tr><td>Miércoles</td><td class="vs-td-num">08:00–12:00</td><td class="vs-td-num">8</td><td><span class="vs-badge vs-badge--ok">Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-toast="Edición cargada" data-toast-sub="Miércoles 08:00–12:00 en el formulario"><svg class="vs-i"><use href="#i-edit"/></svg></button><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar turno" data-open-dialog="dlg-turno"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
-                    <tr><td>Viernes</td><td class="vs-td-num">08:00–12:00</td><td class="vs-td-num">8</td><td><span class="vs-badge vs-badge--ok">Activo</span></td><td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Editar" data-toast="Edición cargada" data-toast-sub="Viernes 08:00–12:00 en el formulario"><svg class="vs-i"><use href="#i-edit"/></svg></button><button type="button" class="vs-icon-btn vs-icon-btn--danger" title="Desactivar turno" data-open-dialog="dlg-turno"><svg class="vs-i"><use href="#i-ban"/></svg></button></td></tr>
+                    <tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">Consultando turnos del médico desde PostgreSQL...</td></tr>
                   </tbody>
                 </table>
               </div>

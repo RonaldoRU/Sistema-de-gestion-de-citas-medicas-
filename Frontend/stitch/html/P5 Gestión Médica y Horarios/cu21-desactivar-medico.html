@@ -45,74 +45,37 @@
 
         <section class="vs-split">
           <div class="vs-stack">
-            <article class="vs-card vs-card--danger">
+            <article class="vs-card">
               <div class="vs-card__head">
-                <div class="vs-row" style="gap:.85rem">
-                  <span class="vs-avatar vs-avatar--lg vs-avatar--teal">JR</span>
-                  <div><h3 class="vs-card__title">Dr. Juan Ronaldo Rojas Ugarte</h3><p class="vs-card__sub"><span class="vs-mono">MED-001</span> · MP-SCZ-1422 · Medicina General · Lun · Mié · Vie 08:00–12:00</p></div>
-                </div>
-                <span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>
+                <div><h3 class="vs-card__title">Personal médico</h3><p class="vs-card__sub">Baja lógica y reactivación de médicos en el sistema</p></div>
               </div>
               <div class="vs-card__body vs-stack vs-stack--sm">
-                <div class="vs-alert vs-alert--warn">
-                  <svg class="vs-i"><use href="#i-alert"/></svg>
-                  <div class="vs-alert__body"><span class="vs-alert__title">Tiene 6 citas futuras (A1)</span>El sistema no permite desactivar al médico mientras existan citas Programadas o Confirmadas. Reprográmalas con otro médico de Medicina General o cancélalas.</div>
-                </div>
                 <div class="vs-table-wrap">
-                  <table class="vs-table vs-table--compact">
-                    <thead><tr><th>Código</th><th>Fecha y hora</th><th>Paciente</th><th>Estado</th><th class="vs-td-actions">Resolver</th></tr></thead>
+                  <table class="vs-table">
+                    <thead><tr><th>Código</th><th>Médico</th><th>Estado</th><th class="vs-hide-md">Teléfono</th><th class="vs-td-actions">Acciones</th></tr></thead>
                     <tbody>
-                      <tr><td class="vs-td-num">CM-0283</td><td class="vs-td-num">26/10 08:30</td><td>Jimena Égüez Choque</td><td><span class="vs-badge vs-badge--cyan">Confirmada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
-                      <tr><td class="vs-td-num">CM-0286</td><td class="vs-td-num">26/10 09:00</td><td>Fernando Wilson Roca Barba</td><td><span class="vs-badge vs-badge--cyan">Confirmada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
-                      <tr><td class="vs-td-num">CM-0288</td><td class="vs-td-num">26/10 10:00</td><td>Paola Paz Terceros</td><td><span class="vs-badge vs-badge--info">Programada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
-                      <tr><td class="vs-td-num">CM-0290</td><td class="vs-td-num">26/10 10:30</td><td>Iván Cuéllar Arteaga</td><td><span class="vs-badge vs-badge--info">Programada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
-                      <tr><td class="vs-td-num">CM-0293</td><td class="vs-td-num">28/10 08:00</td><td>Ronald Saucedo Mendoza</td><td><span class="vs-badge vs-badge--info">Programada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
-                      <tr><td class="vs-td-num">CM-0295</td><td class="vs-td-num">30/10 09:30</td><td>Camila Choque Peña</td><td><span class="vs-badge vs-badge--info">Programada</span></td><td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a></td></tr>
+                      <tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:2.5rem;color:var(--vs-muted);">Consultando personal médico desde PostgreSQL...</td></tr>
                     </tbody>
                   </table>
                 </div>
               </div>
               <div class="vs-card__foot">
-                <span>Médicos alternativos en Medicina General: Arteaga, Peña, Égüez</span>
-                <button type="button" class="vs-btn vs-btn--danger" disabled title="Reprograma o cancela las citas futuras primero"><svg class="vs-i"><use href="#i-ban"/></svg>Desactivar médico</button>
-              </div>
-            </article>
-
-            <article class="vs-card">
-              <div class="vs-card__head">
-                <div class="vs-row" style="gap:.85rem">
-                  <span class="vs-avatar vs-avatar--lg vs-avatar--teal">LA</span>
-                  <div><h3 class="vs-card__title">Dra. Lorena Antelo Barba</h3><p class="vs-card__sub"><span class="vs-mono">MED-008</span> · MP-SCZ-1681 · Dermatología · Mié 08:00–12:00 · Vie 14:00–18:00</p></div>
-                </div>
-                <span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>
-              </div>
-              <div class="vs-card__body">
-                <div class="vs-alert vs-alert--ok"><svg class="vs-i"><use href="#i-check-circle"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Sin citas futuras</span>Puede desactivarse. Sus 2 turnos semanales pasarán a inactivos y su cuenta <span class="vs-mono">lantelo</span> quedará suspendida.</div></div>
-              </div>
-              <div class="vs-card__foot">
-                <span>4 atenciones históricas se conservan</span>
-                <button type="button" class="vs-btn vs-btn--danger" data-open-dialog="dlg-baja"><svg class="vs-i"><use href="#i-ban"/></svg>Desactivar médico</button>
+                <span>Operaciones auditadas en bitácora (INACTIVAR / RENOVAR)</span>
               </div>
             </article>
           </div>
 
           <aside class="vs-stack">
-            <article class="vs-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Médicos inactivos</h3></div></div>
-              <ul class="vs-list vs-list--boxed">
-                <li class="vs-list-row">
-                  <span class="vs-avatar vs-avatar--sm vs-avatar--slate">HF</span>
-                  <div class="vs-list-row__body"><div class="vs-list-row__title">Dr. Hugo Flores Mamani</div><div class="vs-list-row__sub">MED-010 · Traumatología + Med. General · baja el 10/10/2026 · “Renuncia voluntaria”</div></div>
-                  <button type="button" class="vs-btn vs-btn--teal vs-btn--sm" data-toast="Médico reactivado" data-toast-sub="MED-010 activo · recuerda reactivar sus horarios en CU20"><svg class="vs-i"><use href="#i-undo"/></svg>Reactivar</button>
-                </li>
-              </ul>
-            </article>
             <article class="vs-card vs-card--accent">
               <div class="vs-card__head"><div><h3 class="vs-card__title">Efectos de la baja</h3></div></div>
               <div class="vs-card__body vs-rules">
                 <div class="vs-rule vs-rule--danger"><span class="vs-rule__k">Bloqueo (A1)</span>Con citas futuras activas, la operación se rechaza y se listan para reprogramar (CU26) o cancelar (CU27).</div>
                 <div class="vs-rule"><span class="vs-rule__k">Horarios</span>Sus turnos pasan a <span class="vs-code">activo = false</span>; dejan de generar bloques.</div>
                 <div class="vs-rule"><span class="vs-rule__k">Cuenta</span>El usuario queda Inactivo (misma regla que CU09).</div>
+              </div>
+            </article>
+          </aside>
+        </section>
                 <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Historial</span>Las citas atendidas siguen en reportes y en el historial de cada paciente.</div>
               </div>
             </article>
@@ -124,10 +87,10 @@
   </div>
 
   <dialog id="dlg-baja" class="vs-modal">
-    <form data-demo="Médico desactivado" data-demo-sub="MED-008 inactivo · horarios y cuenta suspendidos" novalidate>
+    <form novalidate>
       <div class="vs-modal__head">
         <span class="vs-modal__icon vs-modal__icon--danger"><svg class="vs-i"><use href="#i-ban"/></svg></span>
-        <div><h2 class="vs-modal__title">Desactivar a la Dra. Lorena Antelo Barba</h2><p class="vs-modal__text">Dermatología quedará temporalmente sin médico asignado. Podrás reactivarla más adelante.</p></div>
+        <div><h2 class="vs-modal__title" id="cu21-modal-titulo">Desactivar médico</h2><p class="vs-modal__text" id="cu21-modal-desc">El médico quedará temporalmente inactivo y sus horarios suspendidos. Podrás reactivarlo más adelante.</p></div>
       </div>
       <div class="vs-modal__body">
         <div class="vs-field">
@@ -142,7 +105,7 @@
         </div>
         <div class="vs-field">
           <label class="vs-label" for="m-fecha">Fecha efectiva</label>
-          <input id="m-fecha" class="vs-input vs-input--mono" type="date" value="2026-10-26" min="2026-10-26">
+          <input id="m-fecha" class="vs-input vs-input--mono" type="date">
         </div>
         <div class="vs-field">
           <label class="vs-label" for="m-confirm">Escribe <span class="vs-mono">DESACTIVAR</span> para confirmar</label>

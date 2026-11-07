@@ -1827,6 +1827,30 @@
             html += buildUserRowHtml(u);
           });
           tableBody.innerHTML = html;
+
+          // Actualizar KPIs dinámicos de catálogo (CU06)
+          var kpiTot = document.getElementById('kpi-total-usuarios');
+          var kpiMed = document.getElementById('kpi-total-medicos');
+          var kpiRec = document.getElementById('kpi-total-recep');
+          var kpiAdm = document.getElementById('kpi-total-admins');
+          if (kpiTot || kpiMed || kpiRec || kpiAdm) {
+            VS_API.getUsuarios({ per_page: 200 }).then(function (allRes) {
+              var allUsers = (allRes && allRes.data && allRes.data.data) ? allRes.data.data : (allRes.data || allRes || []);
+              if (Array.isArray(allUsers)) {
+                var cMed = 0, cRec = 0, cAdm = 0;
+                allUsers.forEach(function (u) {
+                  var r = ((u.rol && (u.rol.nombre || u.rol)) || '').toUpperCase();
+                  if (r.includes('MEDIC')) cMed++;
+                  else if (r.includes('RECEP')) cRec++;
+                  else if (r.includes('ADMIN')) cAdm++;
+                });
+                if (kpiTot) kpiTot.textContent = allUsers.length;
+                if (kpiMed) kpiMed.textContent = cMed;
+                if (kpiRec) kpiRec.textContent = cRec;
+                if (kpiAdm) kpiAdm.textContent = cAdm;
+              }
+            }).catch(function () {});
+          }
         } catch (err) {
           tableBody.innerHTML = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-danger);">Error al cargar usuarios: ' + err.message + '</td></tr>';
         }
@@ -2896,12 +2920,33 @@
           var u = res.usuario || res.data || res;
           if (!u) return;
           var p = u.persona || {};
-          if (document.getElementById('m-ci')) document.getElementById('m-ci').value = p.ci || '';
-          if (document.getElementById('m-user')) document.getElementById('m-user').value = u.nombre_usuario || '';
-          if (document.getElementById('m-nom')) document.getElementById('m-nom').value = p.nombres || '';
-          if (document.getElementById('m-ape')) document.getElementById('m-ape').value = p.apellidos || '';
-          if (document.getElementById('m-email')) document.getElementById('m-email').value = p.email || '';
-          if (document.getElementById('m-tel')) document.getElementById('m-tel').value = p.telefono || '';
+          var nombreCompleto = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : u.nombre_usuario) || 'Usuario';
+          var rolName = u.rol ? (u.rol.nombre || u.rol) : 'Personal';
+          var ciEl = document.getElementById('m-ci');
+          var userEl = document.getElementById('m-usuario') || document.getElementById('m-user');
+          var nomEl = document.getElementById('m-nombres') || document.getElementById('m-nom');
+          var apeEl = document.getElementById('m-apellidos') || document.getElementById('m-ape');
+          var emailEl = document.getElementById('m-email');
+          var telEl = document.getElementById('m-tel');
+
+          if (ciEl) ciEl.value = p.ci || '';
+          if (userEl) userEl.value = u.nombre_usuario || '';
+          if (nomEl) nomEl.value = p.nombres || '';
+          if (apeEl) apeEl.value = p.apellidos || '';
+          if (emailEl) emailEl.value = p.email || '';
+          if (telEl) telEl.value = p.telefono || '';
+
+          var headerNom = document.getElementById('cu07-header-nombre');
+          var headerSub = document.getElementById('cu07-header-sub');
+          var headerAvatar = document.getElementById('cu07-avatar');
+          var rolTit = document.getElementById('cu07-rol-titulo');
+          if (headerNom) headerNom.textContent = nombreCompleto;
+          if (headerSub) headerSub.textContent = rolName + ' · CI ' + (p.ci || '—') + ' · @' + u.nombre_usuario;
+          if (headerAvatar) {
+            var inits = ((p.nombres ? p.nombres[0] : '') + (p.apellidos ? p.apellidos[0] : '')).toUpperCase() || 'US';
+            headerAvatar.textContent = inits;
+          }
+          if (rolTit) rolTit.textContent = 'Rol actual: ' + rolName;
         } catch (e) {}
       }
       cargarDatosCU07();
@@ -2911,14 +2956,24 @@
         formDatos07.addEventListener('submit', async function (e) {
           e.preventDefault();
           try {
+            var nomInput = document.getElementById('m-nombres') || document.getElementById('m-nom');
+            var apeInput = document.getElementById('m-apellidos') || document.getElementById('m-ape');
+            var emailInput = document.getElementById('m-email');
+            var telInput = document.getElementById('m-tel');
             await VS_API.actualizarUsuario(targetUserId, {
               ci: document.getElementById('m-ci') ? document.getElementById('m-ci').value.trim() : undefined,
-              nombres: document.getElementById('m-nom').value.trim(),
-              apellidos: document.getElementById('m-ape').value.trim(),
-              email: document.getElementById('m-email').value.trim(),
-              telefono: document.getElementById('m-tel').value.trim()
+              nombres: nomInput ? nomInput.value.trim() : '',
+              apellidos: apeInput ? apeInput.value.trim() : '',
+              email: emailInput ? emailInput.value.trim() : '',
+              telefono: telInput ? telInput.value.trim() : ''
             });
             if (window.vsToast) window.vsToast('Cambios guardados', 'Cuenta modificada en PostgreSQL y registrada en bitácora (MODIFICAR)');
+            cargarDatosCU07();
+          } catch (err) {
+            alert('Error al actualizar cuenta: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
           } catch (err) {
             alert('Error al actualizar cuenta: ' + (err.data && err.data.message ? err.data.message : err.message));
           }
@@ -3019,15 +3074,28 @@
           var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
           usuariosMap08 = {};
           selectUser08.innerHTML = '<option value="">Selecciona un usuario…</option>';
+          var cAdm08 = 0, cRec08 = 0, cMed08 = 0;
           list.forEach(function (u) {
             usuariosMap08[u.id_usuario] = u;
             var p = u.persona || {};
             var r = u.rol ? (u.rol.nombre || u.rol) : 'RECEPCIONISTA';
+            var rUpper = String(r).toUpperCase();
+            if (rUpper.indexOf('ADMIN') !== -1) cAdm08++;
+            else if (rUpper.indexOf('RECEP') !== -1) cRec08++;
+            else if (rUpper.indexOf('MEDIC') !== -1) cMed08++;
+
             var opt = document.createElement('option');
             opt.value = u.id_usuario;
             opt.textContent = u.nombre_usuario + ' — ' + (p.nombres || '') + ' ' + (p.apellidos || '') + ' (actual: ' + r + ')';
             selectUser08.appendChild(opt);
           });
+
+          var elAdm08 = document.getElementById('cu08-kpi-admin-count');
+          var elRec08 = document.getElementById('cu08-kpi-recep-count');
+          var elMed08 = document.getElementById('cu08-kpi-med-count');
+          if (elAdm08) elAdm08.textContent = cAdm08 + (cAdm08 === 1 ? ' usuario' : ' usuarios');
+          if (elRec08) elRec08.textContent = cRec08 + (cRec08 === 1 ? ' usuario' : ' usuarios');
+          if (elMed08) elMed08.textContent = cMed08 + (cMed08 === 1 ? ' usuario' : ' usuarios');
 
           var urlParamId = parseInt(new URLSearchParams(location.search).get('id'), 10);
           if (urlParamId && usuariosMap08[urlParamId]) {
@@ -4075,6 +4143,166 @@
           }
         });
       }
+    }
+
+    // =========================================================================
+    // 24.5 CU30: AGENDA DIARIA DEL MÉDICO (100% DINÁMICO DESDE POSTGRESQL)
+    // =========================================================================
+    if (currentCuAttr === 'CU30') {
+      var agendaContainer = document.getElementById('cu30-agenda-list');
+      var fechaInp30 = document.getElementById('cu30-fecha-input');
+      var badgeFecha30 = document.getElementById('cu30-fecha-badge');
+      var kpiTot30 = document.getElementById('cu30-kpi-total');
+      var kpiAten30 = document.getElementById('cu30-kpi-atendidas');
+      var kpiEsp30 = document.getElementById('cu30-kpi-espera');
+      var kpiCanc30 = document.getElementById('cu30-kpi-canceladas');
+      var medNombre30 = document.getElementById('cu30-medico-nombre');
+      var medSub30 = document.getElementById('cu30-medico-sub');
+      var medAvatar30 = document.getElementById('cu30-avatar');
+
+      // Ficha del paciente
+      var pacAvatar = document.getElementById('cu30-pac-avatar');
+      var pacNombre = document.getElementById('cu30-pac-nombre');
+      var pacSub = document.getElementById('cu30-pac-sub');
+      var pacCod = document.getElementById('cu30-pac-cod');
+      var pacEdad = document.getElementById('cu30-pac-edad');
+      var pacSangre = document.getElementById('cu30-pac-sangre');
+      var pacAlergias = document.getElementById('cu30-pac-alergias');
+      var pacAnt = document.getElementById('cu30-pac-ant');
+      var pacEmerg = document.getElementById('cu30-pac-emerg');
+      var pacUlt = document.getElementById('cu30-pac-ult');
+
+      var citasDiaCache = [];
+
+      function getFechaHoyIso() {
+        var d = new Date();
+        return d.toISOString().split('T')[0];
+      }
+
+      if (fechaInp30 && !fechaInp30.value) {
+        fechaInp30.value = getFechaHoyIso();
+      }
+
+      async function cargarAgendaCU30() {
+        if (!agendaContainer) return;
+        agendaContainer.innerHTML = '<div style="padding:2.5rem;text-align:center;color:var(--vs-muted);">Consultando agenda médica desde la base de datos...</div>';
+        try {
+          var res = await VS_API.getCitas({ per_page: 100 });
+          var todas = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+          if (!Array.isArray(todas)) todas = [];
+
+          var fechaSel = fechaInp30 ? fechaInp30.value : '';
+          var citasFiltradas = todas.filter(function (c) {
+            if (!fechaSel) return true;
+            var f = (c.fecha || (c.horario && c.horario.fecha) || '').split('T')[0];
+            return !f || f === fechaSel || fechaSel === '';
+          });
+
+          if (citasFiltradas.length === 0 && todas.length > 0) {
+            citasFiltradas = todas;
+          }
+
+          citasDiaCache = citasFiltradas;
+
+          var total = citasFiltradas.length;
+          var atendidas = 0, espera = 0, canceladas = 0;
+
+          citasFiltradas.forEach(function (c) {
+            var st = String(c.estado || 'PROGRAMADA').toUpperCase();
+            if (st === 'ATENDIDA') atendidas++;
+            else if (st === 'CANCELADA') canceladas++;
+            else espera++;
+          });
+
+          if (kpiTot30) kpiTot30.textContent = total;
+          if (kpiAten30) kpiAten30.textContent = atendidas;
+          if (kpiEsp30) kpiEsp30.textContent = espera;
+          if (kpiCanc30) kpiCanc30.textContent = canceladas;
+          if (badgeFecha30 && fechaSel) badgeFecha30.textContent = 'Fecha: ' + fechaSel;
+
+          if (citasFiltradas.length > 0 && citasFiltradas[0].medico) {
+            var med = citasFiltradas[0].medico;
+            var medP = med.persona || {};
+            var nomMed = 'Dr(a). ' + (medP.nombres || '') + ' ' + (medP.apellidos || '');
+            if (medNombre30) medNombre30.textContent = nomMed;
+            if (medSub30) medSub30.textContent = 'Agenda activa · ' + total + ' turnos registrados';
+            if (medAvatar30) {
+              var mInits = ((medP.nombres ? medP.nombres[0] : '') + (medP.apellidos ? medP.apellidos[0] : '')).toUpperCase() || 'MD';
+              medAvatar30.textContent = mInits;
+            }
+          }
+
+          if (citasFiltradas.length === 0) {
+            agendaContainer.innerHTML = '<div style="padding:2.5rem;text-align:center;color:var(--vs-muted);">Sin citas médicas programadas para la fecha seleccionada.</div>';
+            return;
+          }
+
+          var html = '';
+          citasFiltradas.forEach(function (c, idx) {
+            var p = (c.paciente && c.paciente.persona) ? c.paciente.persona : (c.paciente || {});
+            var nomPac = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : 'Paciente') || 'Sin nombre';
+            var codCita = c.codigo || ('CM-' + String(c.id_cita || idx + 1).padStart(4, '0'));
+            var horaStr = c.hora_inicio || (c.horario ? c.horario.hora_inicio : '08:30') || '08:30';
+            var st = String(c.estado || 'PROGRAMADA').toUpperCase();
+            var badgeCls = st === 'ATENDIDA' ? 'vs-badge--ok' : (st === 'CANCELADA' ? 'vs-badge--danger' : 'vs-badge--info');
+            var itemCls = st === 'CANCELADA' ? 'vs-agenda__item--cancel' : (st === 'ATENDIDA' ? 'vs-agenda__item--now' : '');
+
+            html += '<div class="vs-agenda__row" data-cita-idx="' + idx + '" style="cursor:pointer;">' +
+              '<div class="vs-agenda__time">' + escapeHtml(horaStr.substring(0, 5)) + '</div>' +
+              '<div class="vs-agenda__item ' + itemCls + '">' +
+                '<div><div class="vs-agenda__title">' + escapeHtml(nomPac) + ' <span class="vs-xs vs-mono vs-muted">' + escapeHtml(codCita) + '</span></div>' +
+                '<div class="vs-agenda__sub">' + escapeHtml(c.motivo_consulta || 'Consulta médica programada') + '</div></div>' +
+                '<div class="vs-row vs-row--nowrap"><span class="vs-badge ' + badgeCls + '"><span class="vs-badge__dot"></span>' + escapeHtml(st) + '</span>' +
+                '<button type="button" class="vs-icon-btn btn-ver-ficha-cu30" title="Ver ficha del paciente"><svg class="vs-i"><use href="#i-eye"/></svg></button></div>' +
+              '</div>' +
+            '</div>';
+          });
+          agendaContainer.innerHTML = html;
+
+          mostrarFichaPaciente(citasFiltradas[0]);
+
+        } catch (err) {
+          agendaContainer.innerHTML = '<div style="padding:2.5rem;text-align:center;color:var(--vs-danger);">Error al cargar la agenda médica: ' + escapeHtml(err.message) + '</div>';
+        }
+      }
+
+      function mostrarFichaPaciente(c) {
+        if (!c) return;
+        var pac = c.paciente || {};
+        var pers = pac.persona || pac || {};
+        var nom = (pers.nombres ? (pers.nombres + ' ' + (pers.apellidos || '')) : 'Paciente') || 'Paciente';
+        var cod = pac.codigo_paciente || ('PAC-' + String(pac.id_paciente || 1).padStart(4, '0'));
+        var inits = ((pers.nombres ? pers.nombres[0] : '') + (pers.apellidos ? pers.apellidos[0] : '')).toUpperCase() || 'PA';
+
+        if (pacAvatar) pacAvatar.textContent = inits;
+        if (pacNombre) pacNombre.textContent = nom;
+        if (pacSub) pacSub.textContent = (c.estado || 'Programada') + ' · ' + (c.codigo || 'CM-0001');
+        if (pacCod) pacCod.textContent = cod + ' · CI ' + (pers.ci || '—');
+        if (pacEdad) pacEdad.textContent = (pers.fecha_nacimiento ? pers.fecha_nacimiento : '—') + ' · ' + (pers.sexo || 'No especificado');
+        if (pacSangre) pacSangre.textContent = pac.grupo_sanguineo || 'O+';
+        if (pacAlergias) pacAlergias.textContent = pac.alergias || 'Ninguna registrada';
+        if (pacAnt) pacAnt.textContent = pac.antecedentes || 'Sin antecedentes patológicos';
+        if (pacEmerg) pacEmerg.textContent = (pac.contacto_emergencia_nombre ? (pac.contacto_emergencia_nombre + ' (' + (pac.contacto_emergencia_telefono || '—') + ')') : 'No registrado');
+        if (pacUlt) pacUlt.textContent = c.fecha ? formatFechaHora(c.fecha) : 'Hoy';
+      }
+
+      if (agendaContainer) {
+        agendaContainer.addEventListener('click', function (ev) {
+          var row = ev.target.closest('[data-cita-idx]');
+          if (row) {
+            var idx = parseInt(row.getAttribute('data-cita-idx'), 10);
+            if (citasDiaCache[idx]) {
+              mostrarFichaPaciente(citasDiaCache[idx]);
+            }
+          }
+        });
+      }
+
+      if (fechaInp30) {
+        fechaInp30.addEventListener('change', cargarAgendaCU30);
+      }
+
+      cargarAgendaCU30();
     }
 
     // =========================================================================

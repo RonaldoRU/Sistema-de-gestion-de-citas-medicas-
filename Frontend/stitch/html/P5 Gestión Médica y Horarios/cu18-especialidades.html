@@ -44,9 +44,9 @@
         </header>
 
         <section class="vs-grid vs-grid--3">
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Especialidades activas</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span></div><p class="vs-kpi__value">7</p><p class="vs-kpi__hint">Todas con al menos un médico asignado</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Más demandada (octubre)</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-pulse"/></svg></span></div><p class="vs-kpi__value" style="font-size:1.5rem">Medicina General</p><p class="vs-kpi__hint">41 % de las citas del mes</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Médicos asignados</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-users"/></svg></span></div><p class="vs-kpi__value">9</p><p class="vs-kpi__hint">3 médicos cubren dos especialidades</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Especialidades activas</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-stethoscope"/></svg></span></div><p class="vs-kpi__value" id="kpi-esp-activas">—</p><p class="vs-kpi__hint">Registradas en el sistema</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Área principal</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-pulse"/></svg></span></div><p class="vs-kpi__value" id="kpi-esp-principal" style="font-size:1.5rem">—</p><p class="vs-kpi__hint">Catálogo institucional</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Médicos asignados</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-users"/></svg></span></div><p class="vs-kpi__value" id="kpi-esp-medicos">—</p><p class="vs-kpi__hint">Personal médico activo</p></article>
         </section>
 
         <section class="vs-split">
@@ -110,8 +110,8 @@
         <div><h2 class="vs-modal__title">Editar especialidad</h2><p class="vs-modal__text">Medicina General · 4 médicos asignados</p></div>
       </div>
       <div class="vs-modal__body">
-        <div class="vs-field"><label class="vs-label" for="e-nombre">Nombre <span class="vs-req">*</span></label><input id="e-nombre" class="vs-input" type="text" value="Medicina General" required></div>
-        <div class="vs-field"><label class="vs-label" for="e-desc">Descripción</label><textarea id="e-desc" class="vs-textarea" rows="2">Atención primaria y consulta general</textarea></div>
+        <div class="vs-field"><label class="vs-label" for="e-nombre">Nombre <span class="vs-req">*</span></label><input id="e-nombre" class="vs-input" type="text" placeholder="Ej. Medicina General" required></div>
+        <div class="vs-field"><label class="vs-label" for="e-desc">Descripción</label><textarea id="e-desc" class="vs-textarea" rows="2" placeholder="Descripción de la especialidad..."></textarea></div>
       </div>
       <div class="vs-modal__foot">
         <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Cancelar</button>

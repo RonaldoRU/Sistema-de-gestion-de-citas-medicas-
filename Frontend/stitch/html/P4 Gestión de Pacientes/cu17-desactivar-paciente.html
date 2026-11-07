@@ -45,74 +45,36 @@
 
         <section class="vs-split">
           <div class="vs-stack">
-            <article class="vs-card vs-card--danger">
+            <article class="vs-card">
               <div class="vs-card__head">
-                <div class="vs-row" style="gap:.85rem">
-                  <span class="vs-avatar vs-avatar--lg vs-avatar--sky">JE</span>
-                  <div><h3 class="vs-card__title">Jimena Égüez Choque</h3><p class="vs-card__sub"><span class="vs-mono">PAC-0016</span> · CI <span class="vs-mono">12181643</span> · 50 años · <span class="vs-mono">75666779</span></p></div>
-                </div>
-                <span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span>
+                <div><h3 class="vs-card__title">Listado de pacientes</h3><p class="vs-card__sub">Baja lógica y reactivación sin pérdida de historial</p></div>
               </div>
               <div class="vs-card__body vs-stack vs-stack--sm">
-                <div class="vs-alert vs-alert--warn">
-                  <svg class="vs-i"><use href="#i-alert"/></svg>
-                  <div class="vs-alert__body"><span class="vs-alert__title">Tiene 1 cita pendiente (A1)</span>No es posible desactivar mientras existan citas en estado Programada o Confirmada. Cancela o reprograma la cita y vuelve a intentarlo.</div>
-                </div>
                 <div class="vs-table-wrap">
-                  <table class="vs-table vs-table--compact">
-                    <thead><tr><th>Código</th><th>Fecha y hora</th><th>Médico</th><th>Estado</th><th class="vs-td-actions">Resolver</th></tr></thead>
+                  <table class="vs-table">
+                    <thead><tr><th>Código</th><th>Paciente</th><th>Estado</th><th class="vs-hide-md">Teléfono</th><th class="vs-td-actions">Acciones</th></tr></thead>
                     <tbody>
-                      <tr>
-                        <td class="vs-td-num">CM-0283</td>
-                        <td class="vs-td-num">26/10/2026 08:30</td>
-                        <td>Dr. Juan Ronaldo Rojas Ugarte</td>
-                        <td><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span></td>
-                        <td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-repeat"/></svg>Reprogramar</a><a href="../P6 Gestión de Citas Médicas/cu27-cancelar-cita.html" class="vs-btn vs-btn--danger-soft vs-btn--sm"><svg class="vs-i"><use href="#i-calendar-x"/></svg>Cancelar</a></td>
-                      </tr>
+                      <tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:2.5rem;color:var(--vs-muted);">Consultando pacientes desde la base de datos...</td></tr>
                     </tbody>
                   </table>
                 </div>
               </div>
               <div class="vs-card__foot">
-                <span>Última cita atendida: 11/09/2026</span>
-                <button type="button" class="vs-btn vs-btn--danger" disabled title="Resuelve la cita pendiente primero"><svg class="vs-i"><use href="#i-ban"/></svg>Desactivar paciente</button>
-              </div>
-            </article>
-
-            <article class="vs-card">
-              <div class="vs-card__head">
-                <div class="vs-row" style="gap:.85rem">
-                  <span class="vs-avatar vs-avatar--lg vs-avatar--teal">RS</span>
-                  <div><h3 class="vs-card__title">Ronald Saucedo Mendoza</h3><p class="vs-card__sub"><span class="vs-mono">PAC-0017</span> · CI <span class="vs-mono">10223343</span> · <span class="vs-mono">71640267</span></p></div>
-                </div>
-                <span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>
-              </div>
-              <div class="vs-card__body">
-                <div class="vs-alert vs-alert--ok"><svg class="vs-i"><use href="#i-check-circle"/></svg><div class="vs-alert__body"><span class="vs-alert__title">Sin citas pendientes</span>Puede desactivarse. El paciente solicitó la baja por cambio de ciudad.</div></div>
-              </div>
-              <div class="vs-card__foot">
-                <span>3 citas históricas se conservan</span>
-                <button type="button" class="vs-btn vs-btn--danger" data-open-dialog="dlg-baja"><svg class="vs-i"><use href="#i-ban"/></svg>Desactivar paciente</button>
+                <span>Operaciones auditadas en bitácora (INACTIVAR / RENOVAR)</span>
               </div>
             </article>
           </div>
 
           <aside class="vs-stack">
-            <article class="vs-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Pacientes inactivos</h3><p class="vs-card__sub">Pueden reactivarse</p></div></div>
-              <ul class="vs-list vs-list--boxed">
-                <li class="vs-list-row">
-                  <span class="vs-avatar vs-avatar--sm vs-avatar--slate">JM</span>
-                  <div class="vs-list-row__body"><div class="vs-list-row__title">Jimena Moreno Peña</div><div class="vs-list-row__sub">PAC-0070 · baja el 20/10/2026 · “Solicitud del paciente”</div></div>
-                  <button type="button" class="vs-btn vs-btn--teal vs-btn--sm" data-toast="Paciente reactivada" data-toast-sub="PAC-0070 vuelve a aparecer en las búsquedas"><svg class="vs-i"><use href="#i-undo"/></svg>Reactivar</button>
-                </li>
-              </ul>
-            </article>
             <article class="vs-card vs-card--accent">
               <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas de la baja lógica</h3></div></div>
               <div class="vs-card__body vs-rules">
-                <div class="vs-rule vs-rule--danger"><span class="vs-rule__k">Bloqueo (A1)</span>Con citas Programadas o Confirmadas, la operación se rechaza.</div>
-                <div class="vs-rule"><span class="vs-rule__k">Sin borrado</span>Se actualiza <span class="vs-code">persona.activo = false</span>; nada se elimina físicamente.</div>
+                <div class="vs-rule vs-rule--danger"><span class="vs-rule__k">Bloqueo (A1)</span>Con citas Programadas o Confirmadas, la operación se rechaza hasta resolverlas.</div>
+                <div class="vs-rule"><span class="vs-rule__k">Sin borrado</span>Se actualiza <span class="vs-code">persona.activo = false</span>; ningún registro se elimina físicamente.</div>
+              </div>
+            </article>
+          </aside>
+        </section>
                 <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Efecto</span>Deja de listarse en búsquedas por defecto y no admite nuevas citas.</div>
                 <div class="vs-rule"><span class="vs-rule__k">Auditoría</span>Evento <span class="vs-code">ELIMINAR</span> en bitácora con el motivo (CU10).</div>
               </div>

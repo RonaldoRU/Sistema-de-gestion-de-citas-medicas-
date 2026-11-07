@@ -46,18 +46,18 @@
         <section class="vs-grid vs-grid--4">
           <article class="vs-card vs-kpi">
             <div class="vs-kpi__top"><span class="vs-kpi__label">Bloqueadas ahora</span><span class="vs-kpi__icon vs-kpi__icon--rose"><svg class="vs-i"><use href="#i-lock"/></svg></span></div>
-            <p class="vs-kpi__value vs-kpi__value--rose">1</p>
-            <p class="vs-kpi__hint vs-kpi__hint--danger">jmendoza · libera en 00:42</p>
+            <p class="vs-kpi__value vs-kpi__value--rose" id="kpi-bloqueadas">—</p>
+            <p class="vs-kpi__hint" id="kpi-bloqueadas-hint">Cuentas restringidas</p>
           </article>
           <article class="vs-card vs-kpi">
             <div class="vs-kpi__top"><span class="vs-kpi__label">Intentos fallidos hoy</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-alert"/></svg></span></div>
-            <p class="vs-kpi__value">7</p>
-            <p class="vs-kpi__hint">En 3 cuentas distintas</p>
+            <p class="vs-kpi__value" id="kpi-fallidos">—</p>
+            <p class="vs-kpi__hint" id="kpi-fallidos-hint">Intentos no exitosos registrados</p>
           </article>
           <article class="vs-card vs-kpi">
             <div class="vs-kpi__top"><span class="vs-kpi__label">Bloqueos últimos 30 días</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-activity"/></svg></span></div>
-            <p class="vs-kpi__value">4</p>
-            <p class="vs-kpi__hint">Todos liberados automáticamente</p>
+            <p class="vs-kpi__value" id="kpi-bloqueos-mes">—</p>
+            <p class="vs-kpi__hint">Eventos de seguridad en bitácora</p>
           </article>
           <article class="vs-card vs-kpi">
             <div class="vs-kpi__top"><span class="vs-kpi__label">Política vigente</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-shield"/></svg></span></div>
@@ -76,37 +76,11 @@
               <table class="vs-table">
                 <thead><tr><th>Usuario</th><th>Rol</th><th>Intentos</th><th>Estado</th><th class="vs-hide-md">Bloqueado hasta</th><th class="vs-hide-md">Última IP</th><th class="vs-td-actions">Acciones</th></tr></thead>
                 <tbody>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--rose">JM</span><div><div class="vs-cell-person__name">Jorge Luis Mendoza Paz</div><div class="vs-cell-person__sub vs-mono">jmendoza · CI 7668705</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--info">Recepcionista</span></td>
-                    <td><span class="vs-dots" aria-label="3 de 3 intentos"><i class="on"></i><i class="on"></i><i class="on"></i></span></td>
-                    <td><span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Bloqueado</span></td>
-                    <td class="vs-hide-md vs-td-num">26/10/2026 08:13:04</td>
-                    <td class="vs-hide-md vs-td-num">192.168.1.33</td>
-                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--warn-soft vs-btn--sm" data-open-dialog="dlg-unlock"><svg class="vs-i"><use href="#i-lock-open"/></svg>Desbloquear ahora</button></td>
-                  </tr>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--amber">DJ</span><div><div class="vs-cell-person__name">Daniela Justiniano Áñez</div><div class="vs-cell-person__sub vs-mono">djustiniano · CI 7175901</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--info">Recepcionista</span></td>
-                    <td><span class="vs-dots" aria-label="2 de 3 intentos"><i class="warn"></i><i class="warn"></i><i></i></span></td>
-                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td>
-                    <td class="vs-hide-md vs-td-num">—</td>
-                    <td class="vs-hide-md vs-td-num">192.168.1.37</td>
-                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Contador reiniciado" data-toast-sub="djustiniano vuelve a 0 intentos"><svg class="vs-i"><use href="#i-refresh"/></svg>Reiniciar contador</button></td>
-                  </tr>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">RE</span><div><div class="vs-cell-person__name">Dr. Ricardo Égüez Parada</div><div class="vs-cell-person__sub vs-mono">reguez · CI 10954052</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--ok">Médico</span></td>
-                    <td><span class="vs-dots" aria-label="1 de 3 intentos"><i class="warn"></i><i></i><i></i></span></td>
-                    <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span></td>
-                    <td class="vs-hide-md vs-td-num">—</td>
-                    <td class="vs-hide-md vs-td-num">192.168.1.52</td>
-                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Contador reiniciado" data-toast-sub="reguez vuelve a 0 intentos"><svg class="vs-i"><use href="#i-refresh"/></svg>Reiniciar contador</button></td>
-                  </tr>
+                  <tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2.5rem;color:var(--vs-muted);">Consultando cuentas con intentos fallidos desde la base de datos...</td></tr>
                 </tbody>
               </table>
             </div>
-            <div class="vs-card__foot"><span>3 cuentas con actividad sospechosa</span><span>El contador se reinicia a cero tras un ingreso correcto (A1)</span></div>
+            <div class="vs-card__foot"><span id="cu04-foot-info">Monitoreo de seguridad en tiempo real</span><span>El contador se reinicia a cero tras un ingreso correcto (A1)</span></div>
           </article>
         </section>
 
