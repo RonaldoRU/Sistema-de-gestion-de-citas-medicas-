@@ -11,11 +11,14 @@ class Bitacora extends Model
     use HasFactory;
 
     protected $table = 'bitacora';
+
     protected $primaryKey = 'id_bitacora';
+
     public $timestamps = false;
 
     protected $fillable = [
         'id_usuario',
+        'descripcion',
         'fecha_hora',
         'modulo',
         'tipo_accion',
@@ -23,6 +26,7 @@ class Bitacora extends Model
         'id_registro_afectado',
         'detalle',
         'ip',
+        'navegador',
     ];
 
     protected function casts(): array

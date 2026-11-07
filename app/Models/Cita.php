@@ -12,7 +12,9 @@ class Cita extends Model
     use HasFactory;
 
     protected $table = 'cita';
+
     protected $primaryKey = 'id_cita';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -27,10 +29,12 @@ class Cita extends Model
         'hora_fin',
         'motivo_consulta',
         'estado',
+        'origen',
         'motivo_cancelacion',
         'observacion_atencion',
         'fecha_hora_atencion',
         'fecha_creacion',
+        'expira_en',
     ];
 
     protected function casts(): array
@@ -39,6 +43,7 @@ class Cita extends Model
             'fecha' => 'date',
             'fecha_hora_atencion' => 'datetime',
             'fecha_creacion' => 'datetime',
+            'expira_en' => 'datetime',
         ];
     }
 
@@ -80,5 +85,10 @@ class Cita extends Model
     public function notificaciones(): HasMany
     {
         return $this->hasMany(Notificacion::class, 'id_cita', 'id_cita');
+    }
+
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class, 'id_cita', 'id_cita');
     }
 }

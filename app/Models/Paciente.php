@@ -26,12 +26,14 @@ class Paciente extends Model
         'sexo',
         'fecha_nacimiento',
         'direccion',
+        'fecha_registro',
     ];
 
     protected function casts(): array
     {
         return [
             'fecha_nacimiento' => 'date',
+            'fecha_registro' => 'datetime',
         ];
     }
 

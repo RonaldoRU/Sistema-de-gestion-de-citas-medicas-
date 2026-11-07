@@ -13,7 +13,9 @@ class Usuario extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $table = 'usuario';
+
     protected $primaryKey = 'id_usuario';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -79,6 +81,31 @@ class Usuario extends Authenticatable
         return $this->hasMany(TokenRecuperacion::class, 'id_usuario', 'id_usuario');
     }
 
+    public function recuperacionesContrasena(): HasMany
+    {
+        return $this->hasMany(RecuperacionContrasena::class, 'id_usuario', 'id_usuario');
+    }
+
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class, 'id_usuario_registro', 'id_usuario');
+    }
+
+    public function reembolsosAutorizados(): HasMany
+    {
+        return $this->hasMany(Reembolso::class, 'id_usuario_autoriza', 'id_usuario');
+    }
+
+    public function historialesEstadoCita(): HasMany
+    {
+        return $this->hasMany(HistorialEstadoCita::class, 'id_usuario', 'id_usuario');
+    }
+
+    public function notificacionesGestionadas(): HasMany
+    {
+        return $this->hasMany(Notificacion::class, 'id_usuario_gestion', 'id_usuario');
+    }
+
     public function bitacoras(): HasMany
     {
         return $this->hasMany(Bitacora::class, 'id_usuario', 'id_usuario');
@@ -96,7 +123,7 @@ class Usuario extends Authenticatable
 
     public function tieneRol(string ...$roles): bool
     {
-        if (!$this->rol) {
+        if (! $this->rol) {
             return false;
         }
 
@@ -108,7 +135,7 @@ class Usuario extends Authenticatable
 
     public function tienePermiso(string $nombrePermiso): bool
     {
-        if (!$this->rol) {
+        if (! $this->rol) {
             return false;
         }
 
