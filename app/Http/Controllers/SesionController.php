@@ -171,7 +171,9 @@ class SesionController extends Controller
             'LOGIN',
             'usuario',
             $user->id_usuario,
-            "Inicio de sesión exitoso. Usuario: [{$user->nombre_usuario}], Rol: [{$rolNombre}]."
+            "Inicio de sesión exitoso. Usuario: [{$user->nombre_usuario}], Rol: [{$rolNombre}].",
+            $user->id_usuario,
+            "Inicio de sesión: {$user->nombre_usuario} ({$rolNombre})"
         );
 
         if ($request->wantsJson() || $request->is('api/*')) {
@@ -224,6 +226,13 @@ class SesionController extends Controller
         if (! $user && $sesionModel) {
             $user = $sesionModel->usuario;
         }
+
+        if (! $user && $request->filled('id_usuario')) {
+            $user = Usuario::with(['persona', 'rol'])->find($request->input('id_usuario'));
+        } elseif (! $user && $request->filled('usuario')) {
+            $user = Usuario::with(['persona', 'rol'])->where('nombre_usuario', $request->input('usuario'))->first();
+        }
+
         if (! $sesionModel && $user) {
             $sesionModel = Sesion::where('id_usuario', $user->id_usuario)
                 ->where('activa', true)
@@ -232,17 +241,23 @@ class SesionController extends Controller
                 ->first();
         }
 
-        $ahora = now()->setTimezone('America/La_Paz');
+        $fechaCierreDb = now()->utc();
 
         if ($sesionModel) {
-            $fechaInicio = Carbon::parse($sesionModel->fecha_inicio)->setTimezone('America/La_Paz');
+            $inicioRaw = Carbon::parse($sesionModel->fecha_inicio);
+            if ($inicioRaw->gt($fechaCierreDb)) {
+                $fechaCierreDb = $inicioRaw->copy()->addSeconds(5);
+            }
             $sesionModel->update([
                 'activa' => false,
-                'fecha_cierre' => $ahora,
+                'fecha_cierre' => $fechaCierreDb,
             ]);
+            $fechaInicio = $inicioRaw->copy()->setTimezone('America/La_Paz');
         } else {
-            $fechaInicio = $user?->ultimo_acceso ? Carbon::parse($user->ultimo_acceso)->setTimezone('America/La_Paz') : $ahora->copy()->subMinutes(5);
+            $fechaInicio = $user?->ultimo_acceso ? Carbon::parse($user->ultimo_acceso)->setTimezone('America/La_Paz') : now()->setTimezone('America/La_Paz')->subMinutes(5);
         }
+
+        $ahora = $fechaCierreDb->copy()->setTimezone('America/La_Paz');
 
         if ($fechaInicio->diffInHours($ahora) > 24) {
             $fechaInicio = $ahora->copy()->subMinutes(15);
@@ -260,15 +275,19 @@ class SesionController extends Controller
             $duracionTexto = $horas.' hora'.($horas > 1 ? 's' : '').($mins > 0 ? " {$mins} min" : '');
         }
 
-        if ($user) {
-            AuditoriaService::registrar(
-                'P1_SEGURIDAD',
-                'LOGOUT',
-                'usuario',
-                $user->id_usuario,
-                "Cierre de sesión y revocación exitosa del usuario [{$user->nombre_usuario}] (inicio: {$fechaInicio->format('d/m/Y H:i:s')}, cierre: {$ahora->format('d/m/Y H:i:s')})."
-            );
-        }
+        $targetUserId = $user?->id_usuario ?? $sesionModel?->id_usuario;
+        $targetUsername = $user?->nombre_usuario ?? $sesionModel?->usuario?->nombre_usuario ?? ($request->input('usuario') ?: 'usuario');
+        $targetRol = $user?->rol?->nombre ?? $sesionModel?->usuario?->rol?->nombre ?? 'Usuario';
+
+        AuditoriaService::registrar(
+            'P1_SEGURIDAD',
+            'LOGOUT',
+            'usuario',
+            $targetUserId,
+            "Cierre de sesión y revocación exitosa del usuario [{$targetUsername}] (Rol: [{$targetRol}], inicio: {$fechaInicio->format('d/m/Y H:i:s')}, cierre: {$ahora->format('d/m/Y H:i:s')}).",
+            $targetUserId,
+            "Cierre de sesión: {$targetUsername} ({$targetRol})"
+        );
 
         Auth::logout();
         if ($request->hasSession()) {

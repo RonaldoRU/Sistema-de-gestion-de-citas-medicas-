@@ -161,7 +161,12 @@
       var cierreLocal = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
 
       try {
-        res = await this.request('/auth/logout', { method: 'POST' });
+        var logoutBody = {};
+        if (currentUser) {
+          logoutBody.id_usuario = currentUser.id_usuario;
+          logoutBody.usuario = currentUser.nombre_usuario;
+        }
+        res = await this.request('/auth/logout', { method: 'POST', body: logoutBody });
         if (res && res.logout_info) {
           sessionStorage.setItem('vs_last_logout', JSON.stringify(res.logout_info));
         } else {
