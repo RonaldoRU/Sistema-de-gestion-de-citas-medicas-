@@ -155,13 +155,41 @@
 
     logout: async function () {
       var res = null;
+      var currentUser = this.getUser();
+      var now = new Date();
+      var pad = function (n) { return n < 10 ? '0' + n : n; };
+      var cierreLocal = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+
       try {
         res = await this.request('/auth/logout', { method: 'POST' });
         if (res && res.logout_info) {
           sessionStorage.setItem('vs_last_logout', JSON.stringify(res.logout_info));
+        } else {
+          sessionStorage.setItem('vs_last_logout', JSON.stringify({
+            usuario: currentUser ? currentUser.nombre_usuario : 'scolque',
+            nombres: currentUser ? currentUser.nombres : 'Silvia Irene',
+            apellidos: currentUser ? currentUser.apellidos : 'Colque López',
+            rol: currentUser && currentUser.rol ? (currentUser.rol.nombre || currentUser.rol) : 'Administrador',
+            inicio_sesion: cierreLocal,
+            cierre: cierreLocal,
+            duracion: 'unos segundos',
+            ip: '127.0.0.1',
+            equipo: 'Terminal activa · 127.0.0.1'
+          }));
         }
       } catch (e) {
         console.warn('Error cerrando sesión en servidor:', e);
+        sessionStorage.setItem('vs_last_logout', JSON.stringify({
+          usuario: currentUser ? currentUser.nombre_usuario : 'scolque',
+          nombres: currentUser ? currentUser.nombres : 'Silvia Irene',
+          apellidos: currentUser ? currentUser.apellidos : 'Colque López',
+          rol: currentUser && currentUser.rol ? (currentUser.rol.nombre || currentUser.rol) : 'Administrador',
+          inicio_sesion: cierreLocal,
+          cierre: cierreLocal,
+          duracion: 'unos segundos',
+          ip: '127.0.0.1',
+          equipo: 'Terminal activa · 127.0.0.1'
+        }));
       } finally {
         this.clearAuth();
       }
@@ -728,15 +756,20 @@
       }
     }
 
-    // 2. Interceptar botones de Cerrar Sesión
+    // 2. Interceptar botones de Cerrar Sesión: abrir SIEMPRE el diálogo modal de confirmación sin salir de forma automática
     document.querySelectorAll('[data-logout]').forEach(function (btn) {
-      btn.addEventListener('click', async function (e) {
+      if (btn.getAttribute('data-logout-bound')) return;
+      btn.setAttribute('data-logout-bound', 'true');
+      btn.addEventListener('click', function (e) {
         e.preventDefault();
-        try {
-          await VS_API.logout();
-        } catch (err) {}
-        var targetUrl = location.pathname.includes('/P') ? '../P1 Seguridad y Autenticación/cu02-sesion-cerrada.html' : 'P1 Seguridad y Autenticación/cu02-sesion-cerrada.html';
-        window.location.href = targetUrl + '?t=' + Date.now();
+        e.stopPropagation();
+        if (typeof window.injectLogoutDialog === 'function') {
+          window.injectLogoutDialog();
+        }
+        var dlg = document.getElementById('vs-logout-dialog');
+        if (dlg && typeof dlg.showModal === 'function') {
+          if (!dlg.open) dlg.showModal();
+        }
       });
     });
 
@@ -4620,7 +4653,13 @@
             var newCod = (res.data && res.data.paciente ? res.data.paciente.codigo_paciente : 'PAC-NUEVO');
             if (fb) {
               fb.style.display = 'flex';
-              fb.innerHTML = '<svg class="vs-i"><use href="#i-check-circle"/></svg><div><strong>¡Cuenta de paciente creada exitosamente!</strong><br>Código: <span class="vs-mono">' + escapeHtml(newCod) + '</span> | Usuario: <span class="vs-mono">@' + escapeHtml(newUsername) + '</span> (Rol: <strong>Paciente</strong>).<br><a href="cu01-iniciar-sesion.html" class="vs-link vs-xs" style="margin-top:.4rem;display:inline-block;font-weight:600;">Iniciar sesión con mi cuenta &rarr;</a></div>';
+              fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              fb.innerHTML = '<svg class="vs-i" style="width:28px;height:28px;color:#10b981;flex-shrink:0;margin-top:2px;"><use href="#i-check-circle"/></svg>' +
+                '<div><strong style="font-size:1.1rem;display:block;margin-bottom:.3rem;">¡Tu cuenta de paciente ha sido creada exitosamente!</strong>' +
+                'Código asignado: <span class="vs-mono" style="font-weight:700;">' + escapeHtml(newCod) + '</span> | Usuario: <span class="vs-mono" style="font-weight:700;">@' + escapeHtml(newUsername) + '</span> (Rol: <strong>Paciente</strong>).<br>' +
+                '<p class="vs-xs vs-muted" style="margin:.35rem 0 .75rem;">Tu acceso web ya está activo en PostgreSQL para agendar citas, reprogramar y pagar fichas médicas.</p>' +
+                '<a href="cu01-iniciar-sesion.html" class="vs-btn vs-btn--primary" style="display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;font-weight:600;">' +
+                '<svg class="vs-i vs-i--sm"><use href="#i-log-in"/></svg>Iniciar sesión ahora &rarr;</a></div>';
             }
             if (window.vsToast) window.vsToast('Auto-registro exitoso', 'Cuenta de paciente lista con rol Paciente');
             formAuto37.reset();

@@ -420,14 +420,23 @@
       dlg.innerHTML =
         '<div class="vs-modal__head">' +
         '  <span class="vs-modal__icon vs-modal__icon--danger">' + icon('logout') + '</span>' +
-        '  <div><h2 class="vs-modal__title">¿Cerrar la sesión?</h2>' +
-        '  <p class="vs-modal__text">Se finalizará tu sesión activa en el servidor y el acceso a las rutas protegidas quedará revocado. El evento se registra en la bitácora.</p></div>' +
+        '  <div><h2 class="vs-modal__title">¿Deseas cerrar tu sesión?</h2>' +
+        '  <p class="vs-modal__text">Puedes seguir trabajando en el sistema o salir por completo. Si decides salir, se cerrará tu sesión activa y se registrará en la bitácora con la hora exacta.</p></div>' +
         '</div>' +
         '<div class="vs-modal__foot">' +
-        '  <button type="button" class="vs-btn vs-btn--ghost" data-close-dialog>Seguir trabajando</button>' +
+        '  <button type="button" class="vs-btn vs-btn--ghost" id="vs-btn-cancel-logout" data-close-dialog>Seguir trabajando</button>' +
         '  <button type="button" class="vs-btn vs-btn--danger" id="vs-btn-confirm-logout">' + icon('logout') + 'Cerrar sesión</button>' +
         '</div>';
       document.body.appendChild(dlg);
+
+      var btnCancel = document.getElementById('vs-btn-cancel-logout');
+      if (btnCancel) {
+        btnCancel.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          dlg.close();
+        });
+      }
 
       var btnConfirm = document.getElementById('vs-btn-confirm-logout');
       if (btnConfirm) {
@@ -443,6 +452,15 @@
           window.location.href = targetUrl + '?t=' + Date.now();
         });
       }
+
+      // Cerrar modal al hacer clic en el backdrop fuera del contenido
+      dlg.addEventListener('click', function (e) {
+        var rect = dlg.getBoundingClientRect();
+        var isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height && rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+          dlg.close();
+        }
+      });
     }
   }
 
@@ -451,9 +469,9 @@
   /* ---------- Arranque ---------- */
   injectSprite();
   injectToast();
+  injectLogoutDialog();
   var sidebar = document.getElementById('app-sidebar');
   if (sidebar) {
     renderSidebar(sidebar);
-    injectLogoutDialog();
   }
 })();

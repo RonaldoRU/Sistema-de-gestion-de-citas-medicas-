@@ -80,7 +80,7 @@
       function pad(n) { return n < 10 ? '0' + n : n; }
       function formatDateTime(d) {
         var date = (d instanceof Date && !isNaN(d.getTime())) ? d : new Date();
-        return pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear() + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+        return pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear() + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
       }
 
       var avatarEl = document.getElementById('logoutAvatar');
@@ -90,10 +90,15 @@
       var cierreEl = document.getElementById('logoutCierre');
       var equipoEl = document.getElementById('logoutEquipo');
 
+      // Valor inicial en tiempo real por defecto mientras responde la API
+      var nowTime = formatDateTime(new Date());
+      cierreEl.textContent = nowTime;
+
       function updateWithData(data) {
         if (!data) return;
         if (data.inicio_sesion) inicioEl.textContent = data.inicio_sesion;
         if (data.cierre) cierreEl.textContent = data.cierre;
+        else cierreEl.textContent = formatDateTime(new Date());
         if (data.equipo) equipoEl.textContent = data.equipo;
         else if (data.ip) equipoEl.textContent = 'Terminal activa · ' + data.ip;
 

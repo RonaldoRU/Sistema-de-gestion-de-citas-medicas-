@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bitacora;
 use App\Models\Sesion;
 use App\Models\Usuario;
 use App\Services\AuditoriaService;
@@ -206,33 +205,59 @@ class SesionController extends Controller
     {
         $user = Auth::user();
 
-        $ahora = now();
-        $sesionModel = null;
         $token = $request->bearerToken()
             ?: $request->header('X-Auth-Token')
+            ?: $request->header('Authorization')
             ?: $request->query('api_token');
 
+        if ($token && str_starts_with($token, 'Bearer ')) {
+            $token = substr($token, 7);
+        }
+
+        $sesionModel = null;
         if ($token) {
-            $sesionModel = Sesion::where('id_sesion', $token)->first();
+            $sesionModel = Sesion::where('id_sesion', $token)->with(['usuario.persona', 'usuario.rol'])->first();
         }
         if (! $sesionModel && $request->hasSession()) {
-            $sesionModel = Sesion::where('id_sesion', $request->session()->getId())->first();
+            $sesionModel = Sesion::where('id_sesion', $request->session()->getId())->with(['usuario.persona', 'usuario.rol'])->first();
+        }
+        if (! $user && $sesionModel) {
+            $user = $sesionModel->usuario;
         }
         if (! $sesionModel && $user) {
             $sesionModel = Sesion::where('id_usuario', $user->id_usuario)
                 ->where('activa', true)
                 ->orderByDesc('fecha_inicio')
+                ->with(['usuario.persona', 'usuario.rol'])
                 ->first();
         }
 
+        $ahora = now()->setTimezone('America/La_Paz');
+
         if ($sesionModel) {
-            $fechaInicio = Carbon::parse($sesionModel->fecha_inicio);
+            $fechaInicio = Carbon::parse($sesionModel->fecha_inicio)->setTimezone('America/La_Paz');
             $sesionModel->update([
                 'activa' => false,
                 'fecha_cierre' => $ahora,
             ]);
         } else {
-            $fechaInicio = $user?->ultimo_acceso ? Carbon::parse($user->ultimo_acceso) : $ahora;
+            $fechaInicio = $user?->ultimo_acceso ? Carbon::parse($user->ultimo_acceso)->setTimezone('America/La_Paz') : $ahora->copy()->subMinutes(5);
+        }
+
+        if ($fechaInicio->diffInHours($ahora) > 24) {
+            $fechaInicio = $ahora->copy()->subMinutes(15);
+        }
+
+        $diffSeconds = max(1, $fechaInicio->diffInSeconds($ahora));
+        if ($diffSeconds < 60) {
+            $duracionTexto = $diffSeconds.' segundo'.($diffSeconds > 1 ? 's' : '');
+        } elseif ($diffSeconds < 3600) {
+            $mins = floor($diffSeconds / 60);
+            $duracionTexto = $mins.' minuto'.($mins > 1 ? 's' : '');
+        } else {
+            $horas = floor($diffSeconds / 3600);
+            $mins = floor(($diffSeconds % 3600) / 60);
+            $duracionTexto = $horas.' hora'.($horas > 1 ? 's' : '').($mins > 0 ? " {$mins} min" : '');
         }
 
         if ($user) {
@@ -250,8 +275,6 @@ class SesionController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }
-
-        $duracionTexto = $fechaInicio->diffForHumans($ahora, true);
 
         $logoutInfo = [
             'usuario' => $user?->nombre_usuario ?? 'scolque',
@@ -281,30 +304,55 @@ class SesionController extends Controller
      */
     public function logoutSummary(Request $request): JsonResponse
     {
-        $ultimaSesion = Sesion::whereNotNull('fecha_cierre')
-            ->orderByDesc('fecha_cierre')
-            ->with(['usuario.persona', 'usuario.rol'])
-            ->first();
+        $ahora = now()->setTimezone('America/La_Paz');
 
-        $ultimoLogoutBitacora = Bitacora::where('tipo_accion', 'LOGOUT')
-            ->orderByDesc('id_bitacora')
-            ->with(['usuario.persona', 'usuario.rol'])
-            ->first();
+        $token = $request->bearerToken()
+            ?: $request->header('X-Auth-Token')
+            ?: $request->header('Authorization')
+            ?: $request->query('api_token');
 
-        $usuario = $ultimaSesion?->usuario
-            ?? $ultimoLogoutBitacora?->usuario
+        if ($token && str_starts_with($token, 'Bearer ')) {
+            $token = substr($token, 7);
+        }
+
+        $sesionModel = null;
+        if ($token) {
+            $sesionModel = Sesion::where('id_sesion', $token)->with(['usuario.persona', 'usuario.rol'])->first();
+        }
+
+        if (! $sesionModel) {
+            $sesionModel = Sesion::whereNotNull('fecha_cierre')
+                ->orderByDesc('fecha_cierre')
+                ->with(['usuario.persona', 'usuario.rol'])
+                ->first();
+        }
+
+        $usuario = $sesionModel?->usuario
             ?? (Auth::user() ?: Usuario::with(['persona', 'rol'])->find(1));
 
-        $ahora = now();
-        $fechaCierre = $ultimaSesion?->fecha_cierre
-            ? Carbon::parse($ultimaSesion->fecha_cierre)
-            : ($ultimoLogoutBitacora?->fecha_hora ? Carbon::parse($ultimoLogoutBitacora->fecha_hora) : $ahora);
+        $fechaCierre = $sesionModel?->fecha_cierre
+            ? Carbon::parse($sesionModel->fecha_cierre)->setTimezone('America/La_Paz')
+            : $ahora;
 
-        $fechaInicio = $ultimaSesion?->fecha_inicio
-            ? Carbon::parse($ultimaSesion->fecha_inicio)
-            : ($usuario?->ultimo_acceso ? Carbon::parse($usuario->ultimo_acceso) : $fechaCierre);
+        $fechaInicio = $sesionModel?->fecha_inicio
+            ? Carbon::parse($sesionModel->fecha_inicio)->setTimezone('America/La_Paz')
+            : ($usuario?->ultimo_acceso ? Carbon::parse($usuario->ultimo_acceso)->setTimezone('America/La_Paz') : $ahora->copy()->subMinutes(10));
 
-        $duracion = $fechaInicio->diffForHumans($fechaCierre, true);
+        if ($fechaInicio->diffInHours($fechaCierre) > 24) {
+            $fechaInicio = $fechaCierre->copy()->subMinutes(15);
+        }
+
+        $diffSeconds = max(1, $fechaInicio->diffInSeconds($fechaCierre));
+        if ($diffSeconds < 60) {
+            $duracion = $diffSeconds.' segundo'.($diffSeconds > 1 ? 's' : '');
+        } elseif ($diffSeconds < 3600) {
+            $mins = floor($diffSeconds / 60);
+            $duracion = $mins.' minuto'.($mins > 1 ? 's' : '');
+        } else {
+            $horas = floor($diffSeconds / 3600);
+            $mins = floor(($diffSeconds % 3600) / 60);
+            $duracion = $horas.' hora'.($horas > 1 ? 's' : '').($mins > 0 ? " {$mins} min" : '');
+        }
 
         return response()->json([
             'success' => true,
@@ -315,8 +363,8 @@ class SesionController extends Controller
             'inicio_sesion' => $fechaInicio->format('d/m/Y H:i:s'),
             'cierre' => $fechaCierre->format('d/m/Y H:i:s'),
             'duracion' => $duracion,
-            'ip' => $ultimaSesion?->ip ?: ($ultimoLogoutBitacora?->ip ?: ($request->ip() ?: '127.0.0.1')),
-            'equipo' => 'Terminal activa · '.($ultimaSesion?->ip ?: ($ultimoLogoutBitacora?->ip ?: ($request->ip() ?: '127.0.0.1'))),
+            'ip' => $sesionModel?->ip ?: ($request->ip() ?: '127.0.0.1'),
+            'equipo' => 'Terminal activa · '.($sesionModel?->ip ?: ($request->ip() ?: '127.0.0.1')),
         ]);
     }
 

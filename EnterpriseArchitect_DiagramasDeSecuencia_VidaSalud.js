@@ -1,4 +1,4 @@
-!INC Local Scripts.EAConstants-JScript
+!INC Local Scripts.EAConstants - JScript
 
 /* =========================================================================================
  * Script Name: GenerarDiagramasDeSecuencia_VidaSalud_CU01_CU43.js
@@ -12,16 +12,14 @@
  * Language:    JScript (Compatible con Enterprise Architect 12, 13, 14, 15, 16)
  * ========================================================================================= */
 
-function main()
-{
+function main() {
     Repository.EnsureOutputVisible("Script");
     Session.Output("========================================================================");
     Session.Output(" Iniciando creación de los 43 Diagramas de Secuencia - Clínica Vida Salud ");
     Session.Output("========================================================================");
 
     var targetPackage = Repository.GetTreeSelectedPackage();
-    if (targetPackage == null)
-    {
+    if (targetPackage == null) {
         Session.Prompt("Por favor, selecciona un Paquete o Vista en el Project Browser antes de ejecutar este script.", 0);
         return;
     }
@@ -780,8 +778,7 @@ function main()
     var totalDiagrams = 0;
 
     // Procesar cada módulo y generar sus diagramas de secuencia
-    for (var m = 0; m < modules.length; m++)
-    {
+    for (var m = 0; m < modules.length; m++) {
         var modData = modules[m];
         Session.Output("\nCreando Paquete: " + modData.pkgName + "...");
 
@@ -789,8 +786,7 @@ function main()
         modPkg.Update();
         rootSeqPkg.Packages.Refresh();
 
-        for (var d = 0; d < modData.diagrams.length; d++)
-        {
+        for (var d = 0; d < modData.diagrams.length; d++) {
             var dData = modData.diagrams[d];
             totalDiagrams++;
 
@@ -823,8 +819,7 @@ function main()
             var top = -30;
             var bottom = -500;
 
-            for (var l = 0; l < lifelinesDef.length; l++)
-            {
+            for (var l = 0; l < lifelinesDef.length; l++) {
                 var lDef = lifelinesDef[l];
                 var lElement = cuPkg.Elements.AddNew(lDef.name, lDef.type);
                 lElement.Update();
@@ -841,14 +836,12 @@ function main()
             cuPkg.Elements.Refresh();
 
             // 4. Crear los Mensajes de Secuencia entre las Líneas de Vida
-            for (var msgIdx = 0; msgIdx < dData.messages.length; msgIdx++)
-            {
+            for (var msgIdx = 0; msgIdx < dData.messages.length; msgIdx++) {
                 var mItem = dData.messages[msgIdx];
                 var fromLifeline = lifelinesObj[mItem.from];
                 var toLifeline = lifelinesObj[mItem.to];
 
-                if (fromLifeline != null && toLifeline != null)
-                {
+                if (fromLifeline != null && toLifeline != null) {
                     var seqCon = fromLifeline.Connectors.AddNew(mItem.text, "Sequence");
                     seqCon.SupplierID = toLifeline.ElementID;
                     seqCon.SequenceNo = msgIdx + 1;
@@ -874,3 +867,4 @@ function main()
 
 // Ejecutar script principal
 main();
+
