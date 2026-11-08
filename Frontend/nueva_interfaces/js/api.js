@@ -441,11 +441,13 @@
       }
     },
 
-    // ---------- P7: Reportes ----------
+    // ---------- Reportes Administrativos ----------
     reportes: {
       obtener: function (tipo, params) {
-        var data = Object.assign({ tipo_reporte: tipo }, params || {});
-        return client.request('/reportes', { method: 'POST', body: data });
+        var data = Object.assign({ tipo: tipo, tipo_reporte: tipo }, params || {});
+        return client.request('/reportes', { method: 'POST', body: data }).then(function (res) {
+          return res.resultado || res.data || res;
+        });
       }
     }
   };

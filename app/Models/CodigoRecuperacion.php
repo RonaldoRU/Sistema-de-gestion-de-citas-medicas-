@@ -28,6 +28,6 @@ class CodigoRecuperacion extends Model
 
     public function esValido(): bool
     {
-        return !$this->usado && $this->expires_at->isFuture();
+        return ! $this->usado && $this->expires_at->isFuture();
     }
 }

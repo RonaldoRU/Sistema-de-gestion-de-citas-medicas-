@@ -11,8 +11,11 @@ class PersonalAdministrativo extends Model
     use HasFactory;
 
     protected $table = 'personal_administrativo';
+
     protected $primaryKey = 'id_persona';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

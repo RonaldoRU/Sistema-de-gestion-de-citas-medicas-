@@ -11,7 +11,9 @@ class RolPermiso extends Model
     use HasFactory;
 
     protected $table = 'rol_permiso';
+
     public $timestamps = false;
+
     public $incrementing = false;
 
     protected $fillable = [

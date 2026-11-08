@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
+use App\Models\ComprobantePago;
 use App\Models\Paciente;
+use App\Models\Pago;
 use App\Models\Reporte;
 use App\Services\AuditoriaService;
 use Illuminate\Http\JsonResponse;
@@ -37,6 +39,9 @@ class ReporteController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $tipoEntrante = strtoupper(trim((string) ($request->input('tipo') ?: $request->input('tipo_reporte') ?: 'CITAS_PERIODO')));
+        $request->merge(['tipo' => $tipoEntrante]);
+
         $validator = Validator::make($request->all(), [
             'tipo' => 'required|string|max:60',
             'fecha_desde' => 'nullable|date',
@@ -53,7 +58,7 @@ class ReporteController extends Controller
             ], 422);
         }
 
-        $tipoRaw = strtoupper(trim($request->input('tipo')));
+        $tipoRaw = $tipoEntrante;
         $mapaTipos = [
             'CITAS_PERIODO' => 'CITAS_PERIODO',
             'ATENCIONES_MEDICO' => 'ATENCIONES_MEDICO_ESPECIALIDAD',
@@ -62,9 +67,9 @@ class ReporteController extends Controller
             'PADRON_PACIENTES' => 'PACIENTES_REGISTRADOS',
             'PACIENTES_REGISTRADOS' => 'PACIENTES_REGISTRADOS',
             'EXPORTACION_GENERAL' => 'CITAS_PERIODO',
-            'INGRESOS_FINANCIEROS' => 'CITAS_PERIODO',
+            'INGRESOS_FINANCIEROS' => 'INGRESOS_FINANCIEROS',
         ];
-        $tipo = $mapaTipos[$tipoRaw] ?? 'CITAS_PERIODO';
+        $tipo = $mapaTipos[$tipoRaw] ?? $tipoRaw;
         $fechaDesde = $request->input('fecha_desde');
         $fechaHasta = $request->input('fecha_hasta');
         $filtros = $request->input('filtros', $request->input('parametros', []));
@@ -76,6 +81,31 @@ class ReporteController extends Controller
         $datos = [];
 
         switch ($tipo) {
+            case 'INGRESOS_FINANCIEROS':
+                $pagosQuery = Pago::with(['cita.paciente.persona', 'cita.medico.persona', 'cita.especialidad', 'comprobantePago']);
+                if ($fechaDesde) {
+                    $pagosQuery->whereDate('fecha_hora', '>=', $fechaDesde);
+                }
+                if ($fechaHasta) {
+                    $pagosQuery->whereDate('fecha_hora', '<=', $fechaHasta);
+                }
+                $totalRecaudado = (clone $pagosQuery)->where('estado', 'APROBADO')->sum('monto');
+                $transacciones = (clone $pagosQuery)->where('estado', 'APROBADO')->count();
+                $reembolsos = (clone $pagosQuery)->where('estado', 'REEMBOLSADO')->count();
+                $totalReembolsado = (clone $pagosQuery)->where('estado', 'REEMBOLSADO')->sum('monto');
+                $comprobantesEmitidos = ComprobantePago::count();
+
+                $datos = [
+                    'total_recaudado' => 'Bs '.number_format($totalRecaudado, 2),
+                    'total_recaudado_raw' => (float) $totalRecaudado,
+                    'transacciones' => $transacciones,
+                    'reembolsos' => $reembolsos,
+                    'total_reembolsado' => 'Bs '.number_format($totalReembolsado, 2),
+                    'comprobantes_emitidos' => $comprobantesEmitidos,
+                    'pagos' => (clone $pagosQuery)->latest('fecha_hora')->limit(50)->get(),
+                ];
+                break;
+
             case 'CITAS_PERIODO':
                 $q = Cita::with(['paciente.persona', 'medico.persona', 'especialidad']);
                 if ($fechaDesde) {
@@ -140,7 +170,7 @@ class ReporteController extends Controller
         ]);
 
         AuditoriaService::registrar(
-            'P7_REPORTES',
+            'Reportes Administrativos',
             'CREAR',
             'reporte',
             $reporte->id_reporte,

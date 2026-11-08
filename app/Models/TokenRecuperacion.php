@@ -11,7 +11,9 @@ class TokenRecuperacion extends Model
     use HasFactory;
 
     protected $table = 'token_recuperacion';
+
     protected $primaryKey = 'id_token';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -38,6 +40,6 @@ class TokenRecuperacion extends Model
 
     public function esValido(): bool
     {
-        return !$this->usado && $this->fecha_expiracion->isFuture();
+        return ! $this->usado && $this->fecha_expiracion->isFuture();
     }
 }

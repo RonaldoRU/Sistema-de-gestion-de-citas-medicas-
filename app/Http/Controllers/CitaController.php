@@ -131,6 +131,22 @@ class CitaController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $medicoId = $request->input('id_medico');
+        $medico = $medicoId ? Medico::with(['persona', 'especialidades'])->find($medicoId) : null;
+
+        $idEspecialidad = $request->input('id_especialidad')
+            ?: $medico?->especialidades()->first()?->id_especialidad
+            ?: Especialidad::first()?->id_especialidad;
+
+        $motivo = trim((string) ($request->input('motivo_consulta') ?: $request->input('motivo') ?: 'Consulta médica general'));
+        $horaInicioRaw = substr(trim((string) $request->input('hora_inicio')), 0, 5);
+
+        $request->merge([
+            'id_especialidad' => $idEspecialidad,
+            'motivo_consulta' => $motivo,
+            'hora_inicio' => $horaInicioRaw,
+        ]);
+
         $validator = Validator::make($request->all(), [
             'id_paciente' => 'required|exists:paciente,id_persona',
             'id_medico' => 'required|exists:medico,id_persona',
@@ -149,7 +165,6 @@ class CitaController extends Controller
         }
 
         $paciente = Paciente::with('persona')->find($request->input('id_paciente'));
-        $medico = Medico::with('persona')->find($request->input('id_medico'));
 
         if (! $paciente->persona || ! $paciente->persona->activo) {
             return response()->json([
@@ -158,7 +173,7 @@ class CitaController extends Controller
             ], 422);
         }
 
-        if (! $medico->persona || ! $medico->persona->activo) {
+        if (! $medico || ! $medico->persona || ! $medico->persona->activo) {
             return response()->json([
                 'success' => false,
                 'message' => 'No es posible agendar citas con un médico inactivo.',
@@ -167,7 +182,7 @@ class CitaController extends Controller
 
         $fecha = $request->input('fecha');
         $horaInicio = $request->input('hora_inicio');
-        $horaFin = $request->input('hora_fin', Carbon::createFromFormat('H:i', $horaInicio)->addMinutes(30)->format('H:i'));
+        $horaFin = $request->input('hora_fin', Carbon::createFromFormat('H:i', $horaInicio)->addMinutes(15)->format('H:i'));
 
         $bloqueado = BloqueoAgenda::where('fecha_inicio', '<=', $fecha)
             ->where('fecha_fin', '>=', $fecha)

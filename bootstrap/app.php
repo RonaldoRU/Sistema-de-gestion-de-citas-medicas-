@@ -3,11 +3,15 @@
 use App\Http\Middleware\AuthenticateWithTokenOrSession;
 use App\Http\Middleware\CheckRol;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RegistrarBitacoraEnVivo;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,18 +26,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->api(prepend: [
-            \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
             AuthenticateWithTokenOrSession::class,
         ], append: [
-            \App\Http\Middleware\RegistrarBitacoraEnVivo::class,
+            RegistrarBitacoraEnVivo::class,
         ]);
 
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            \App\Http\Middleware\RegistrarBitacoraEnVivo::class,
+            RegistrarBitacoraEnVivo::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -55,22 +55,22 @@ class RegistrarBitacoraEnVivo
             return $response;
         }
 
-        // Determinar Módulo
-        $modulo = 'GENERAL';
+        // Determinar Módulo (sin numeración de paquetes según requerimiento)
+        $modulo = 'General';
         if (str_contains($path, 'auth')) {
-            $modulo = 'P1 SEGURIDAD';
+            $modulo = 'Seguridad y Autenticación';
         } elseif (str_contains($path, 'usuario') || str_contains($path, 'role')) {
-            $modulo = 'P2 USUARIOS';
+            $modulo = 'Administración de Usuarios';
         } elseif (str_contains($path, 'bitacora')) {
-            $modulo = 'P3 AUDITORIA';
+            $modulo = 'Auditoría y Bitácora';
         } elseif (str_contains($path, 'paciente')) {
-            $modulo = 'P4 PACIENTES';
+            $modulo = 'Gestión de Pacientes';
         } elseif (str_contains($path, 'medico') || str_contains($path, 'especialidad') || str_contains($path, 'bloqueo')) {
-            $modulo = 'P5 MEDICOS Y HORARIOS';
+            $modulo = 'Gestión Médica y Horarios';
         } elseif (str_contains($path, 'cita')) {
-            $modulo = 'P6 CITAS';
+            $modulo = 'Gestión de Citas';
         } elseif (str_contains($path, 'reporte')) {
-            $modulo = 'P7 REPORTES';
+            $modulo = 'Reportes Administrativos';
         }
 
         // Determinar Tipo de Acción

@@ -92,6 +92,16 @@ class PacienteController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $sexo = strtoupper(trim((string) $request->input('sexo', 'M')));
+        if (! in_array($sexo, ['M', 'F'])) {
+            $sexo = 'M';
+        }
+        $email = trim((string) $request->input('email'));
+        $request->merge([
+            'sexo' => $sexo,
+            'email' => $email === '' ? null : $email,
+        ]);
+
         $validator = Validator::make($request->all(), [
             'ci' => 'required|string|max:20|unique:persona,ci',
             'nombres' => 'required|string|max:80',
@@ -122,7 +132,7 @@ class PacienteController extends Controller
                 'nombres' => trim($request->input('nombres')),
                 'apellidos' => trim($request->input('apellidos')),
                 'telefono' => $request->input('telefono'),
-                'email' => trim($request->input('email')),
+                'email' => $request->input('email'),
                 'activo' => true,
             ]);
 
@@ -138,7 +148,7 @@ class PacienteController extends Controller
             ]);
 
             AuditoriaService::registrar(
-                'P4_PACIENTES',
+                'Gestión de Pacientes',
                 'REGISTRAR',
                 'paciente',
                 $paciente->id_persona,
@@ -168,6 +178,26 @@ class PacienteController extends Controller
         }
 
         $personaId = $paciente->id_persona;
+        $personaActual = $paciente->persona;
+
+        $ci = $request->filled('ci') ? trim($request->input('ci')) : $personaActual->ci;
+        $nombres = $request->filled('nombres') ? trim($request->input('nombres')) : $personaActual->nombres;
+        $apellidos = $request->filled('apellidos') ? trim($request->input('apellidos')) : $personaActual->apellidos;
+        $sexo = $request->filled('sexo') ? strtoupper(trim($request->input('sexo'))) : $paciente->sexo;
+        if (! in_array($sexo, ['M', 'F'])) {
+            $sexo = $paciente->sexo ?: 'M';
+        }
+        $fechaNacimiento = $request->filled('fecha_nacimiento') ? $request->input('fecha_nacimiento') : $paciente->fecha_nacimiento;
+        $email = $request->has('email') ? (trim((string) $request->input('email')) ?: null) : $personaActual->email;
+
+        $request->merge([
+            'ci' => $ci,
+            'nombres' => $nombres,
+            'apellidos' => $apellidos,
+            'sexo' => $sexo,
+            'fecha_nacimiento' => $fechaNacimiento,
+            'email' => $email,
+        ]);
 
         $validator = Validator::make($request->all(), [
             'ci' => ['required', 'string', 'max:20', Rule::unique('persona', 'ci')->ignore($personaId, 'id_persona')],
@@ -188,21 +218,21 @@ class PacienteController extends Controller
         }
 
         $paciente->persona->update([
-            'ci' => trim($request->input('ci')),
-            'nombres' => trim($request->input('nombres')),
-            'apellidos' => trim($request->input('apellidos')),
-            'telefono' => $request->input('telefono'),
-            'email' => trim($request->input('email')),
+            'ci' => $ci,
+            'nombres' => $nombres,
+            'apellidos' => $apellidos,
+            'telefono' => $request->input('telefono', $personaActual->telefono),
+            'email' => $email,
         ]);
 
         $paciente->update([
-            'sexo' => strtoupper($request->input('sexo')),
-            'fecha_nacimiento' => $request->input('fecha_nacimiento'),
-            'direccion' => $request->input('direccion'),
+            'sexo' => $sexo,
+            'fecha_nacimiento' => $fechaNacimiento,
+            'direccion' => $request->input('direccion', $paciente->direccion),
         ]);
 
         AuditoriaService::registrar(
-            'P4_PACIENTES',
+            'Gestión de Pacientes',
             'MODIFICAR',
             'paciente',
             $paciente->id_persona,
@@ -248,7 +278,7 @@ class PacienteController extends Controller
         $paciente->persona->update(['activo' => false]);
 
         AuditoriaService::registrar(
-            'P4_PACIENTES',
+            'Gestión de Pacientes',
             'INACTIVAR',
             'paciente',
             $paciente->id_persona,
@@ -278,7 +308,7 @@ class PacienteController extends Controller
         $paciente->persona->update(['activo' => true]);
 
         AuditoriaService::registrar(
-            'P4_PACIENTES',
+            'Gestión de Pacientes',
             'RENOVAR',
             'paciente',
             $paciente->id_persona,
@@ -297,6 +327,16 @@ class PacienteController extends Controller
      */
     public function autoRegistroWeb(Request $request): JsonResponse
     {
+        $sexo = strtoupper(trim((string) $request->input('sexo', 'M')));
+        if (! in_array($sexo, ['M', 'F'])) {
+            $sexo = 'M';
+        }
+        $password = $request->input('password') ?: 'Paciente123*';
+        $request->merge([
+            'sexo' => $sexo,
+            'password' => $password,
+        ]);
+
         $validator = Validator::make($request->all(), [
             'ci' => 'required|string|max:20|unique:persona,ci',
             'nombres' => 'required|string|max:80',
@@ -366,7 +406,7 @@ class PacienteController extends Controller
             ]);
 
             AuditoriaService::registrar(
-                'P1_SEGURIDAD',
+                'Seguridad y Autenticación',
                 'REGISTRAR',
                 'paciente',
                 $paciente->id_persona,

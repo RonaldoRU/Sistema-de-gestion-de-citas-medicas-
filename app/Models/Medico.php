@@ -13,8 +13,11 @@ class Medico extends Model
     use HasFactory;
 
     protected $table = 'medico';
+
     protected $primaryKey = 'id_persona';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

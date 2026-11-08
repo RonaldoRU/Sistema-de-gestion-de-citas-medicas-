@@ -14,7 +14,9 @@ class Persona extends Model
     use HasFactory;
 
     protected $table = 'persona';
+
     protected $primaryKey = 'id_persona';
+
     public $timestamps = false;
 
     protected $fillable = [

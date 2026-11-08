@@ -196,6 +196,17 @@ class UsuarioController extends Controller
         }
 
         $personaId = $usuario->id_persona;
+        $personaActual = $usuario->persona;
+
+        $nombres = $request->filled('nombres') ? trim($request->input('nombres')) : $personaActual->nombres;
+        $apellidos = $request->filled('apellidos') ? trim($request->input('apellidos')) : $personaActual->apellidos;
+        $email = $request->has('email') ? (trim((string) $request->input('email')) ?: null) : $personaActual->email;
+
+        $request->merge([
+            'nombres' => $nombres,
+            'apellidos' => $apellidos,
+            'email' => $email,
+        ]);
 
         $validator = Validator::make($request->all(), [
             'ci' => ['nullable', 'string', 'max:20', Rule::unique('persona', 'ci')->ignore($personaId, 'id_persona')],
@@ -217,10 +228,10 @@ class UsuarioController extends Controller
         }
 
         $datosPersona = [
-            'nombres' => trim($request->input('nombres')),
-            'apellidos' => trim($request->input('apellidos')),
-            'email' => trim($request->input('email')),
-            'telefono' => $request->input('telefono'),
+            'nombres' => $nombres,
+            'apellidos' => $apellidos,
+            'email' => $email,
+            'telefono' => $request->input('telefono', $personaActual->telefono),
         ];
 
         if ($request->filled('ci') && ($usuarioAutenticado?->esAdmin() ?? false)) {
@@ -238,7 +249,7 @@ class UsuarioController extends Controller
         }
 
         AuditoriaService::registrar(
-            'P2_RBAC',
+            'Administración de Usuarios',
             'MODIFICAR',
             'usuario',
             $usuario->id_usuario,

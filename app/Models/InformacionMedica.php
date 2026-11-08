@@ -11,7 +11,9 @@ class InformacionMedica extends Model
     use HasFactory;
 
     protected $table = 'informacion_medica';
+
     protected $primaryKey = 'id_informacion';
+
     public $timestamps = false;
 
     protected $fillable = [

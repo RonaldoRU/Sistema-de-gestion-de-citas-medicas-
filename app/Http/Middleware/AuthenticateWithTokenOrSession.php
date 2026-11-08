@@ -16,9 +16,9 @@ class AuthenticateWithTokenOrSession
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
-            $token = $request->bearerToken() 
-                ?: $request->header('X-Auth-Token') 
+        if (! Auth::check()) {
+            $token = $request->bearerToken()
+                ?: $request->header('X-Auth-Token')
                 ?: $request->query('api_token');
 
             if ($token) {

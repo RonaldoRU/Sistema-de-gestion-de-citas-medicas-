@@ -78,6 +78,20 @@ class MedicoController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $matricula = trim((string) ($request->input('matricula') ?: $request->input('matricula_profesional')));
+        $especialidades = $request->input('especialidades');
+        if (is_numeric($especialidades) || is_string($especialidades)) {
+            $especialidades = [intval($especialidades)];
+        } elseif (! is_array($especialidades) || empty($especialidades)) {
+            $primeraEsp = Especialidad::first();
+            $especialidades = $primeraEsp ? [$primeraEsp->id_especialidad] : [1];
+        }
+
+        $request->merge([
+            'matricula' => $matricula,
+            'especialidades' => $especialidades,
+        ]);
+
         $validator = Validator::make($request->all(), [
             'ci' => 'required|string|max:20|unique:persona,ci',
             'nombres' => 'required|string|max:80',
@@ -140,7 +154,7 @@ class MedicoController extends Controller
             ]);
 
             AuditoriaService::registrar(
-                'P5_MEDICOS',
+                'Gestión Médica y Horarios',
                 'REGISTRAR',
                 'medico',
                 $medico->id_persona,
@@ -170,6 +184,19 @@ class MedicoController extends Controller
         }
 
         $personaId = $medico->id_persona;
+        $personaActual = $medico->persona;
+
+        $nombres = $request->filled('nombres') ? trim($request->input('nombres')) : $personaActual->nombres;
+        $apellidos = $request->filled('apellidos') ? trim($request->input('apellidos')) : $personaActual->apellidos;
+        $matricula = trim((string) ($request->input('matricula') ?: $request->input('matricula_profesional') ?: $medico->matricula));
+        $email = $request->has('email') ? (trim((string) $request->input('email')) ?: null) : $personaActual->email;
+
+        $request->merge([
+            'nombres' => $nombres,
+            'apellidos' => $apellidos,
+            'matricula' => $matricula,
+            'email' => $email,
+        ]);
 
         $validator = Validator::make($request->all(), [
             'nombres' => 'required|string|max:80',
@@ -191,14 +218,14 @@ class MedicoController extends Controller
         }
 
         $medico->persona->update([
-            'nombres' => trim($request->input('nombres')),
-            'apellidos' => trim($request->input('apellidos')),
-            'email' => trim($request->input('email')),
-            'telefono' => $request->input('telefono'),
+            'nombres' => $nombres,
+            'apellidos' => $apellidos,
+            'email' => $email,
+            'telefono' => $request->input('telefono', $personaActual->telefono),
         ]);
 
         $medico->update([
-            'matricula' => trim($request->input('matricula')),
+            'matricula' => $matricula,
         ]);
 
         if ($request->has('especialidades')) {
@@ -206,7 +233,7 @@ class MedicoController extends Controller
         }
 
         AuditoriaService::registrar(
-            'P5_MEDICOS',
+            'Gestión Médica y Horarios',
             'MODIFICAR',
             'medico',
             $medico->id_persona,

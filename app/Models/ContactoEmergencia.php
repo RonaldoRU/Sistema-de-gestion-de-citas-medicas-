@@ -11,7 +11,9 @@ class ContactoEmergencia extends Model
     use HasFactory;
 
     protected $table = 'contacto_emergencia';
+
     protected $primaryKey = 'id_contacto';
+
     public $timestamps = false;
 
     protected $fillable = [

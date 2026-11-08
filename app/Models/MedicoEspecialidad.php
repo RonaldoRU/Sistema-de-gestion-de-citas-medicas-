@@ -11,7 +11,9 @@ class MedicoEspecialidad extends Model
     use HasFactory;
 
     protected $table = 'medico_especialidad';
+
     public $timestamps = false;
+
     public $incrementing = false;
 
     protected $fillable = [

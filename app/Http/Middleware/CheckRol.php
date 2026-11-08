@@ -12,13 +12,13 @@ class CheckRol
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'No autenticado. Por favor inicie sesión.',
@@ -32,7 +32,7 @@ class CheckRol
             ], 403);
         }
 
-        if (!empty($roles) && !$user->tieneRol(...$roles)) {
+        if (! empty($roles) && ! $user->tieneRol(...$roles)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Acceso denegado. No posee los permisos requeridos para esta acción.',

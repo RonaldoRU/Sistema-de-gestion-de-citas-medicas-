@@ -12,7 +12,9 @@ class Rol extends Model
     use HasFactory;
 
     protected $table = 'rol';
+
     protected $primaryKey = 'id_rol';
+
     public $timestamps = false;
 
     protected $fillable = [

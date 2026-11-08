@@ -11,7 +11,9 @@ class BloqueoAgenda extends Model
     use HasFactory;
 
     protected $table = 'bloqueo_agenda';
+
     protected $primaryKey = 'id_bloqueo';
+
     public $timestamps = false;
 
     protected $fillable = [

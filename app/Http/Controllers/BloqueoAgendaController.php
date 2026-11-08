@@ -43,6 +43,20 @@ class BloqueoAgendaController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $tipo = strtoupper(trim((string) $request->input('tipo', '')));
+        if (! in_array($tipo, ['FERIADO', 'LICENCIA', 'OTRO'])) {
+            $tipo = $request->filled('id_medico') ? 'LICENCIA' : 'FERIADO';
+        }
+        $fechaInicio = $request->input('fecha_inicio');
+        $fechaFin = $request->input('fecha_fin') ?: $fechaInicio;
+        $motivo = trim((string) ($request->input('motivo') ?: 'Bloqueo de agenda programado'));
+
+        $request->merge([
+            'tipo' => $tipo,
+            'fecha_fin' => $fechaFin,
+            'motivo' => $motivo,
+        ]);
+
         $validator = Validator::make($request->all(), [
             'tipo' => 'required|string|in:FERIADO,LICENCIA,OTRO',
             'fecha_inicio' => 'required|date',
@@ -64,11 +78,7 @@ class BloqueoAgendaController extends Controller
             ], 422);
         }
 
-        $tipo = strtoupper($request->input('tipo'));
-        $fechaInicio = $request->input('fecha_inicio');
-        $fechaFin = $request->input('fecha_fin');
         $medicoId = $request->input('id_medico');
-        $motivo = trim($request->input('motivo'));
         $aplicaATodos = $request->boolean('aplica_a_todos', empty($medicoId));
 
         if ($tipo === 'LICENCIA' && ! $medicoId) {
@@ -109,7 +119,7 @@ class BloqueoAgendaController extends Controller
         ]);
 
         AuditoriaService::registrar(
-            'P5_AGENDA',
+            'Gestión Médica y Horarios',
             'CREAR',
             'bloqueo_agenda',
             $bloqueo->id_bloqueo,
@@ -141,7 +151,7 @@ class BloqueoAgendaController extends Controller
         $bloqueo->delete();
 
         AuditoriaService::registrar(
-            'P5_AGENDA',
+            'Gestión Médica y Horarios',
             'ELIMINAR',
             'bloqueo_agenda',
             $id,
