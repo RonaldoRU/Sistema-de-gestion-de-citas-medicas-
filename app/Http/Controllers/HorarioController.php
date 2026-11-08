@@ -8,6 +8,7 @@ use App\Services\AuditoriaService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class HorarioController extends Controller
@@ -29,7 +30,7 @@ class HorarioController extends Controller
         return response()->json([
             'success' => true,
             'medico' => $medico->nombre_completo,
-            'horarios' => $medico->horarios,
+            'horarios' => $medico->horarios()->orderBy('dia_semana')->orderBy('hora_inicio')->get(),
         ]);
     }
 
@@ -45,6 +46,16 @@ class HorarioController extends Controller
                 'success' => false,
                 'message' => 'Médico no encontrado.',
             ], 404);
+        }
+
+        $user = Auth::user();
+        if ($user && $user->tieneRol('MEDICO', 'MÉDICO')) {
+            if ($user->id_persona != $medico->id_persona) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Como médico solo puedes configurar tus propios horarios de atención.',
+                ], 403);
+            }
         }
 
         if (! $medico->persona || ! $medico->persona->activo) {
@@ -125,11 +136,11 @@ class HorarioController extends Controller
         $nombreDia = implode(', ', $nombresDias);
 
         AuditoriaService::registrar(
-            'P5_HORARIOS',
+            'Gestión Médica y Horarios',
             'CREAR',
             'horario',
             $horario->id_horario,
-            "Horario configurado para el Dr. [{$medico->nombre_completo}] el día [{$nombreDia}] de [{$horaInicioStr}] a [{$horaFinStr}]."
+            "Horario configurado para el Dr(a). [{$medico->nombre_completo}] el día [{$nombreDia}] de [{$horaInicioStr}] a [{$horaFinStr}]."
         );
 
         return response()->json([
@@ -138,6 +149,58 @@ class HorarioController extends Controller
             'horario' => $horario,
             'total_bloques' => count($bloques),
             'bloques_generados' => $bloques,
+        ]);
+    }
+
+    /**
+     * Elimina un horario configurado de un médico específico.
+     */
+    public function eliminarHorario(int $id, int $horarioId): JsonResponse
+    {
+        $medico = Medico::with('persona')->find($id);
+
+        if (! $medico) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Médico no encontrado.',
+            ], 404);
+        }
+
+        $user = Auth::user();
+        if ($user && $user->tieneRol('MEDICO', 'MÉDICO')) {
+            if ($user->id_persona != $medico->id_persona) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Como médico solo puedes eliminar tus propios horarios de atención.',
+                ], 403);
+            }
+        }
+
+        $horario = Horario::where('id_medico', $medico->id_persona)->where('id_horario', $horarioId)->first();
+
+        if (! $horario) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Horario no encontrado para este médico.',
+            ], 404);
+        }
+
+        $diasMap = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
+        $diaNombre = $diasMap[$horario->dia_semana] ?? "Día {$horario->dia_semana}";
+
+        $horario->delete();
+
+        AuditoriaService::registrar(
+            'Gestión Médica y Horarios',
+            'ELIMINAR',
+            'horario',
+            $horarioId,
+            "Horario eliminado para el Dr(a). [{$medico->nombre_completo}] día [{$diaNombre}]."
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "Horario del día {$diaNombre} eliminado exitosamente.",
         ]);
     }
 }

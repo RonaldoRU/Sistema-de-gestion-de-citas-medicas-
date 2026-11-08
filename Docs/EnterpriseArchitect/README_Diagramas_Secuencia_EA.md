@@ -83,3 +83,4 @@ Cada diagrama de secuencia modela el flujo real de la aplicación a través de 5
 5. Abre el nuevo script en el editor de EA, borra el contenido por defecto y **pega todo el código de [Generar_43_Diagramas_Secuencia_EA.js](file:///c:/xampp/htdocs/Examen2/citamedicaclinicavidasalud/citamedicaclinicavidasalud/Docs/EnterpriseArchitect/Generar_43_Diagramas_Secuencia_EA.js)**.
 6. Haz clic en el botón **Run** (ícono de triángulo verde / Play o presiona `F5`).
 7. El script creará automáticamente el paquete raíz `Diagramas de Secuencia (CU01 - CU43) - Clínica Vida Salud`, organizado en los 8 submódulos, con los 43 diagramas, sus 5 lifelines y todas las llamadas secuenciales numeradas.
+

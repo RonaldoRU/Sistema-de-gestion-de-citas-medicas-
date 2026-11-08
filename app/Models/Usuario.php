@@ -129,8 +129,16 @@ class Usuario extends Authenticatable
             return false;
         }
 
-        $nombreRol = strtoupper($this->rol->nombre);
-        $rolesUpper = array_map('strtoupper', $roles);
+        $normalizar = function (string $str): string {
+            return str_replace(
+                ['Á', 'É', 'Í', 'Ó', 'Ú', 'Ü', 'Ñ'],
+                ['A', 'E', 'I', 'O', 'U', 'U', 'N'],
+                mb_strtoupper(trim($str), 'UTF-8')
+            );
+        };
+
+        $nombreRol = $normalizar($this->rol->nombre);
+        $rolesUpper = array_map($normalizar, $roles);
 
         return in_array($nombreRol, $rolesUpper, true);
     }

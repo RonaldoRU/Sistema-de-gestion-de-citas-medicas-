@@ -1,4 +1,4 @@
-//!INC Local Scripts.EAConstants-JScript
+!INC Local Scripts.EAConstants - JScript
 /*
  * ==========================================================================================
  * SISTEMA CLÍNICA VIDA SALUD - AUTOMATIZACIÓN DE DIAGRAMAS DE SECUENCIA EN ENTERPRISE ARCHITECT
@@ -64,11 +64,19 @@
 
 // Utilidad de registro en consola (compatible con EA Session y WScript)
 function Log(msg) {
-    if (typeof Session !== "undefined" && Session.Output) {
-        Session.Output(msg);
-    } else if (typeof WScript !== "undefined") {
-        WScript.Echo(msg);
-    }
+    try {
+        if (typeof Session !== "undefined") {
+            Session.Output(msg);
+            return;
+        }
+    } catch (e1) {}
+
+    try {
+        if (typeof WScript !== "undefined") {
+            WScript.Echo(msg);
+            return;
+        }
+    } catch (e2) {}
 }
 
 // Catálogo estructurado de los 43 Casos de Uso
@@ -1132,10 +1140,14 @@ function main() {
             }
 
             con.Update();
+            sourceEl.Connectors.Refresh();
         }
 
         // Guardar y refrescar diagrama
         diagram.Update();
+        try {
+            eaRepo.ReloadDiagram(diagram.DiagramID);
+        } catch (eReload) {}
         modulePackage.Diagrams.Refresh();
         modulePackage.Elements.Refresh();
         totalGenerados++;
@@ -1144,6 +1156,9 @@ function main() {
     rootPackage.Packages.Refresh();
     targetPackage.Packages.Refresh();
     eaRepo.RefreshModelView(targetPackage.PackageID);
+    try {
+        eaRepo.ShowInProjectView(rootPackage);
+    } catch (eShow) {}
 
     Log("========================================================================");
     Log(" ¡PROCESO COMPLETADO CON ÉXITO!");

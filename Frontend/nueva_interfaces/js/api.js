@@ -343,10 +343,15 @@
       getHorarios: function (id) {
         return client.request('/medicos/' + id + '/horarios');
       },
-      guardarHorarios: function (id, horarios) {
+      guardarHorarios: function (id, data) {
         return client.request('/medicos/' + id + '/horarios', {
           method: 'POST',
-          body: { horarios: horarios }
+          body: data
+        });
+      },
+      eliminarHorario: function (id, horarioId) {
+        return client.request('/medicos/' + id + '/horarios/' + horarioId, {
+          method: 'DELETE'
         });
       }
     },

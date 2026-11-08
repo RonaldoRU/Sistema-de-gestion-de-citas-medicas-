@@ -177,7 +177,8 @@ Route::middleware('auth')->group(function (): void {
         Route::put('/{id}/especialidades', [MedicoEspecialidadController::class, 'sincronizar'])->middleware('rol:ADMINISTRADOR')->name('api.medicos.especialidades.sincronizar');
 
         // Horarios del Médico -> HorarioController
-        Route::post('/{id}/horarios', [HorarioController::class, 'configurarHorarios'])->middleware('rol:ADMINISTRADOR')->name('api.medicos.horarios.configurar');
+        Route::post('/{id}/horarios', [HorarioController::class, 'configurarHorarios'])->middleware('rol:ADMINISTRADOR,MEDICO')->name('api.medicos.horarios.configurar');
+        Route::delete('/{id}/horarios/{horarioId}', [HorarioController::class, 'eliminarHorario'])->middleware('rol:ADMINISTRADOR,MEDICO')->name('api.medicos.horarios.eliminar');
         Route::get('/{id}/horarios', [HorarioController::class, 'obtenerHorarios'])->name('api.medicos.horarios.obtener');
     });
 

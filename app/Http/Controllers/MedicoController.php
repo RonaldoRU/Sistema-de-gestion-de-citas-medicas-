@@ -284,16 +284,17 @@ class MedicoController extends Controller
         }
 
         AuditoriaService::registrar(
-            'P5_MEDICOS',
+            'Gestión Médica y Horarios',
             'INACTIVAR',
             'medico',
             $medico->id_persona,
-            "Inactivación: Médico [{$medico->nombre_completo}] suspendido a estado inactivo."
+            "Desactivación lógica: Médico [{$medico->nombre_completo}] (Matrícula: {$medico->matricula}) inactivado por el Administrador."
         );
 
         return response()->json([
             'success' => true,
             'message' => 'Médico y cuenta de usuario desactivados exitosamente.',
+            'medico' => $medico->fresh('persona'),
         ]);
     }
 
@@ -319,11 +320,11 @@ class MedicoController extends Controller
         }
 
         AuditoriaService::registrar(
-            'P5_MEDICOS',
-            'RENOVAR',
+            'Gestión Médica y Horarios',
+            'REACTIVAR',
             'medico',
             $medico->id_persona,
-            "Renovación: Médico [{$medico->nombre_completo}] reactivado a estado activo."
+            "Reactivación: Médico [{$medico->nombre_completo}] (Matrícula: {$medico->matricula}) reactivado a estado ACTIVO por el Administrador."
         );
 
         return response()->json([

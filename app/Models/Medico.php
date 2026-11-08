@@ -26,6 +26,16 @@ class Medico extends Model
         'matricula',
     ];
 
+    protected $appends = [
+        'activo',
+        'nombre_completo',
+    ];
+
+    public function getActivoAttribute(): bool
+    {
+        return (bool) ($this->persona?->activo ?? true);
+    }
+
     public function persona(): BelongsTo
     {
         return $this->belongsTo(Persona::class, 'id_persona', 'id_persona');
