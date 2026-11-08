@@ -32,16 +32,24 @@ Route::post('/login', function (Request $request) {
 
 Route::post('/logout', [SesionController::class, 'logout'])->name('logout');
 
-// Captura de redirección defensiva para formularios con action="inicio.html" relativo
-Route::any('/Frontend/stitch/html/{pkg}/inicio.html', function () {
-    return redirect('/Frontend/stitch/html/inicio.html');
-})->where('pkg', 'P[0-9].*');
+// Redirección completa de cualquier enlace antiguo de stitch a la nueva interfaz
+Route::any('/Frontend/stitch/{any?}', function () {
+    return redirect('/Frontend/nueva_interfaces/index.html');
+})->where('any', '.*');
+
+Route::any('/frontend/stitch/{any?}', function () {
+    return redirect('/Frontend/nueva_interfaces/index.html');
+})->where('any', '.*');
 
 // Ruta para servir archivos estáticos de Frontend si se solicita con minúscula o mayúscula
-$serveFrontendAsset = function ($path = 'stitch/html/inicio.html') {
+$serveFrontendAsset = function ($path = 'nueva_interfaces/index.html') {
+    if (empty($path) || str_starts_with(strtolower($path), 'stitch')) {
+        return redirect('/Frontend/nueva_interfaces/index.html');
+    }
+
     $fullPath = base_path('Frontend/'.$path);
     if (! file_exists($fullPath) || is_dir($fullPath)) {
-        abort(404);
+        return redirect('/Frontend/nueva_interfaces/index.html');
     }
     $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
     $mimeType = match ($ext) {

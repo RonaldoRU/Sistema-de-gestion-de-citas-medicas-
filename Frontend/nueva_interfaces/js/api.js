@@ -34,30 +34,18 @@
 
   var API_BASE = resolveApiBase();
 
-  var DEFAULT_ADMIN_TOKEN = '27c4c9dc3d9e4bdfa36e04e02f65ace251cebbabbc6450e834f90898d10ed34f';
-  var DEFAULT_ADMIN_USER = {
-    id_usuario: 1,
-    id_persona: 1,
-    id_rol: 1,
-    nombre_usuario: 'scolque',
-    nombres: 'Silvia Irene',
-    apellidos: 'Colque López',
-    rol: { id_rol: 1, nombre: 'Administrador' }
-  };
-
   var client = {
     base: API_BASE,
 
     getToken: function () {
-      var t = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
-      if (!t) {
-        this.setToken(DEFAULT_ADMIN_TOKEN, true);
-        return DEFAULT_ADMIN_TOKEN;
-      }
-      return t;
+      return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null;
     },
 
     setToken: function (token, remember) {
+      if (!token) {
+        this.clearAuth();
+        return;
+      }
       if (remember) {
         localStorage.setItem(TOKEN_KEY, token);
       } else {
@@ -68,17 +56,18 @@
     getUser: function () {
       try {
         var u = sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY);
-        if (!u) {
-          this.setUser(DEFAULT_ADMIN_USER, true);
-          return DEFAULT_ADMIN_USER;
-        }
+        if (!u) return null;
         return JSON.parse(u);
       } catch (e) {
-        return DEFAULT_ADMIN_USER;
+        return null;
       }
     },
 
     setUser: function (user, remember) {
+      if (!user) {
+        this.clearAuth();
+        return;
+      }
       var s = JSON.stringify(user);
       if (remember) {
         localStorage.setItem(USER_KEY, s);
@@ -92,6 +81,10 @@
       sessionStorage.removeItem(USER_KEY);
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
+    },
+
+    isAuthenticated: function () {
+      return !!(this.getToken() && this.getUser());
     },
 
     request: async function (endpoint, options) {
@@ -129,6 +122,13 @@
       }
 
       if (!response.ok) {
+        if (response.status === 401) {
+          client.clearAuth();
+          if (typeof window !== 'undefined' && window.$ && window.$('#login') && window.$('#app')) {
+            window.$('#login').style.display = 'grid';
+            window.$('#app').style.display = 'none';
+          }
+        }
         var errMsg = (json && (json.message || json.error)) || ('Error HTTP ' + response.status);
         if (json && json.errors && typeof json.errors === 'object') {
           var details = Object.values(json.errors).flat().join(' ');

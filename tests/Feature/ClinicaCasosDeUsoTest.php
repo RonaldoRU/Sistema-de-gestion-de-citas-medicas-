@@ -455,17 +455,13 @@ class ClinicaCasosDeUsoTest extends TestCase
         $usuariosRes->assertOk();
 
         // 3. Verificar que las rutas de assets de Frontend se sirven correctamente
-        $htmlRes = $this->get('/frontend/stitch/html/inicio.html');
+        $htmlRes = $this->get('/Frontend/nueva_interfaces/index.html');
         $htmlRes->assertOk();
         $this->assertStringContainsString('text/html', $htmlRes->headers->get('Content-Type'));
 
-        $jsRes = $this->get('/frontend/stitch/js/vida-salud-api.js');
+        $jsRes = $this->get('/Frontend/nueva_interfaces/js/api.js');
         $jsRes->assertOk();
         $this->assertStringContainsString('application/javascript', $jsRes->headers->get('Content-Type'));
-
-        $cssRes = $this->get('/frontend/stitch/css/vida-salud-theme.css');
-        $cssRes->assertOk();
-        $this->assertStringContainsString('text/css', $cssRes->headers->get('Content-Type'));
 
         // 4. Revocar token vía logout
         $logoutRes = $this->withHeader('Authorization', 'Bearer '.$token)
