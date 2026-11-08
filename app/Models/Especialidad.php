@@ -20,12 +20,14 @@ class Especialidad extends Model
     protected $fillable = [
         'nombre',
         'descripcion',
+        'costo',
         'activo',
     ];
 
     protected function casts(): array
     {
         return [
+            'costo' => 'decimal:2',
             'activo' => 'boolean',
         ];
     }

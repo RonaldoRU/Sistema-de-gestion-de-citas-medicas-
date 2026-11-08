@@ -64,6 +64,7 @@ class EspecialidadController extends Controller
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:80|unique:especialidad,nombre',
             'descripcion' => 'nullable|string|max:200',
+            'costo' => 'nullable|numeric|min:1',
         ], [
             'nombre.unique' => 'La especialidad médica ya se encuentra registrada en el sistema.',
             'nombre.required' => 'El nombre de la especialidad es obligatorio.',
@@ -80,6 +81,7 @@ class EspecialidadController extends Controller
         $especialidad = Especialidad::create([
             'nombre' => trim($request->input('nombre')),
             'descripcion' => $request->input('descripcion'),
+            'costo' => $request->filled('costo') ? (float) $request->input('costo') : 120.00,
             'activo' => true,
         ]);
 
@@ -115,6 +117,7 @@ class EspecialidadController extends Controller
         $validator = Validator::make($request->all(), [
             'nombre' => ['required', 'string', 'max:80', Rule::unique('especialidad', 'nombre')->ignore($especialidad->id_especialidad, 'id_especialidad')],
             'descripcion' => 'nullable|string|max:200',
+            'costo' => 'nullable|numeric|min:1',
             'activo' => 'nullable|boolean',
         ], [
             'nombre.unique' => 'Ya existe otra especialidad con este mismo nombre.',
@@ -130,6 +133,7 @@ class EspecialidadController extends Controller
         $especialidad->update([
             'nombre' => trim($request->input('nombre')),
             'descripcion' => $request->input('descripcion', $especialidad->descripcion),
+            'costo' => $request->filled('costo') ? (float) $request->input('costo') : $especialidad->costo,
             'activo' => $request->input('activo', $especialidad->activo),
         ]);
 

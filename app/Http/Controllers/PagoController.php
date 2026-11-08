@@ -122,7 +122,7 @@ class PagoController extends Controller
     {
         $request->validate([
             'id_cita' => 'required|exists:cita,id_cita',
-            'monto' => 'required|numeric|min:0.5',
+            'monto' => 'nullable|numeric|min:0.5',
             'metodo' => 'required|string',
             'referencia_externa' => 'nullable|string|max:100',
             'nit_ci' => 'nullable|string|max:30',
@@ -140,16 +140,19 @@ class PagoController extends Controller
             }
         }
 
+        $montoPorDefecto = (float) ($cita->especialidad?->costo ?: 120.00);
+        $montoFinal = $request->filled('monto') ? (float) $request->input('monto') : $montoPorDefecto;
+
         $metodo = strtoupper(trim((string) $request->input('metodo')));
         if ($metodo === 'QR_SIMPLE') {
             $metodo = 'QR';
         }
 
-        $pago = DB::transaction(function () use ($request, $cita, $metodo) {
+        $pago = DB::transaction(function () use ($request, $cita, $metodo, $montoFinal) {
             $nuevoPago = Pago::create([
                 'id_cita' => $cita->id_cita,
                 'id_usuario_registro' => Auth::id() ?? 1,
-                'monto' => $request->input('monto'),
+                'monto' => $montoFinal,
                 'moneda' => 'BOB',
                 'metodo' => $metodo,
                 'estado' => 'APROBADO',

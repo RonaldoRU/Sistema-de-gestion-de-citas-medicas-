@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\BloqueoAgenda;
 use App\Models\Cita;
+use App\Models\ComprobantePago;
+use App\Models\Especialidad;
 use App\Models\HistorialEstadoCita;
 use App\Models\Horario;
 use App\Models\Medico;
 use App\Models\Paciente;
+use App\Models\Pago;
 use App\Services\AuditoriaService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -262,10 +265,61 @@ class CitaController extends Controller
                 "Registro de cita: Cita [{$cita->codigo}] agendada para el paciente [{$paciente->nombre_completo}] con el Dr. [{$medico->nombre_completo}] el [{$fecha} {$horaInicio}]."
             );
 
+            // Si se solicita registrar pago inmediato (por recepción en caja o en línea)
+            if ($request->boolean('pagado') || $request->filled('metodo_pago')) {
+                $metodo = strtoupper(trim((string) ($request->input('metodo_pago') ?: 'EFECTIVO')));
+                if ($metodo === 'QR_SIMPLE') {
+                    $metodo = 'QR';
+                }
+                $especialidadModel = $cita->especialidad ?: Especialidad::find($cita->id_especialidad);
+                $monto = $request->filled('monto_pago')
+                    ? (float) $request->input('monto_pago')
+                    : (float) ($especialidadModel?->costo ?: 120.00);
+
+                $nuevoPago = Pago::create([
+                    'id_cita' => $cita->id_cita,
+                    'id_usuario_registro' => Auth::id() ?? 1,
+                    'monto' => $monto,
+                    'moneda' => 'BOB',
+                    'metodo' => $metodo,
+                    'estado' => 'APROBADO',
+                    'referencia_externa' => $request->input('referencia_externa') ?? ('TX-'.strtoupper(uniqid())),
+                    'fecha_hora' => now(),
+                ]);
+
+                $numeroComp = 'COMP-'.now()->format('Y').'-'.str_pad((string) $nuevoPago->id_pago, 4, '0', STR_PAD_LEFT);
+
+                ComprobantePago::create([
+                    'id_pago' => $nuevoPago->id_pago,
+                    'numero' => $numeroComp,
+                    'fecha_emision' => now(),
+                    'monto_total' => $nuevoPago->monto,
+                    'ruta_archivo' => 'comprobantes/'.$numeroComp.'.pdf',
+                ]);
+
+                $cita->update(['estado' => 'CONFIRMADA']);
+
+                HistorialEstadoCita::create([
+                    'id_cita' => $cita->id_cita,
+                    'id_usuario' => Auth::id() ?? 1,
+                    'estado_anterior' => 'PROGRAMADA',
+                    'estado_nuevo' => 'CONFIRMADA',
+                    'motivo' => "Pago inmediato confirmado de Bs {$monto} ({$metodo}). Comprobante: {$numeroComp}.",
+                ]);
+
+                AuditoriaService::registrar(
+                    'P7_PAGOS',
+                    'REGISTRAR',
+                    'pago',
+                    $nuevoPago->id_pago,
+                    "Cobro de ficha [{$cita->codigo}]: Pago aprobado de Bs {$monto} con {$metodo}. Comprobante [{$numeroComp}]."
+                );
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Cita médica agendada exitosamente.',
-                'cita' => $cita->load(['paciente.persona', 'medico.persona', 'especialidad']),
+                'cita' => $cita->load(['paciente.persona', 'medico.persona', 'especialidad', 'pago.comprobantePago']),
                 'data' => $cita,
             ], 201);
         });

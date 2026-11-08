@@ -223,7 +223,7 @@ tr.off td{color:var(--mute)}
     </div>
     <nav id="nav"></nav>
     <div id="side-footer" style="padding:1rem 1.4rem;font-size:.78rem;color:#B5C6E0;border-top:1px solid rgba(255,255,255,.1);">
-      <span class="tag">43 Casos de uso</span> Vida Salud v2.0
+      <span class="tag">Sistema Clínico</span> Vida Salud v2.0
     </div>
   </aside>
 
@@ -498,7 +498,7 @@ function nav() {
     if (isPac) {
       sf.innerHTML = '<span class="tag" style="background:#245C47;color:#fff;">Portal Paciente</span> Vida Salud';
     } else {
-      sf.innerHTML = '<span class="tag">43 Casos de uso</span> Vida Salud v2.0';
+      sf.innerHTML = '<span class="tag">Sistema Clínico</span> Vida Salud v2.0';
     }
   }
 }
@@ -1680,17 +1680,24 @@ async function reactivarPaciente(id) {
 S['18'] = async () => {
   const res = await VS_API.especialidades.listar();
   const list = (res && res.data) ? res.data : (res || []);
-  const rows = list.map(e => [
-    `<span class="mono">ESP-${e.id_especialidad}</span>`,
-    `<b>${h(e.nombre)}</b>`,
-    h(e.descripcion || 'Atención médica especializada'),
-    `<span class="st conf">ACTIVA</span>`
-  ]);
+  const rows = list.map(e => {
+    const costoStr = 'Bs ' + Number(e.costo || 120).toFixed(2);
+    return [
+      `<span class="mono">ESP-${e.id_especialidad}</span>`,
+      `<b>${h(e.nombre)}</b>`,
+      h(e.descripcion || 'Atención médica especializada'),
+      `<span class="mono font-bold" style="color:#245C47;">${costoStr}</span>`,
+      `<span class="st conf">ACTIVA</span>`,
+      `<button class="btn sm ghost" onclick="modalEditarEspecialidad(${e.id_especialidad}, '${h(e.nombre)}', '${h(e.descripcion || '')}', ${Number(e.costo || 120)})">Editar arancel</button>`
+    ];
+  });
 
-  return hd('Catálogo de especialidades médicas', 'Áreas de atención habilitadas en la clínica.', `
-      <button class="btn pri" onclick="modalCrearEspecialidad()">+ Nueva especialidad</button>
-    `) +
-    sec('Especialidades registradas', tbl(['Código', 'Especialidad', 'Descripción', 'Estado'], rows));
+  return hd('Catálogo de especialidades médicas', 'Áreas de atención y aranceles oficiales de consulta en Bolivia.') +
+    `<div class="card" style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;">
+      <p style="color:var(--mute);margin:0;font-size:.9rem;">Los costos se aplican automáticamente a la reserva web de pacientes y al registro de fichas en recepción.</p>
+      <button class="btn pri sm" onclick="modalCrearEspecialidad()">+ Nueva especialidad</button>
+    </div>` +
+    sec('Especialidades registradas y aranceles', tbl(['Código', 'Especialidad', 'Descripción', 'Costo Consulta', 'Estado', 'Acciones'], rows));
 };
 
 function modalCrearEspecialidad() {
@@ -1702,25 +1709,69 @@ function modalCrearEspecialidad() {
       <div class="err" id="ne-err"></div>
     </div>
     <div style="margin-bottom:1rem;">
-      <label>Descripción</label>
-      <input id="ne-des" placeholder="Breve detalle de la cobertura">
+      <label>Arancel / Costo de Consulta en Bolivia (Bs) *</label>
+      <input id="ne-cos" type="number" step="5" value="180" placeholder="Ej. 180.00" required>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label>Descripción de cobertura clínica</label>
+      <input id="ne-des" placeholder="Breve detalle de la especialidad">
     </div>
     <div class="actions">
       <button class="btn" onclick="closeM()">Cancelar</button>
-      <button class="btn pri" onclick="guardarNuevaEspecialidad()">Guardar</button>
+      <button class="btn pri" onclick="guardarNuevaEspecialidad()">Guardar especialidad</button>
     </div>
   `);
 }
 
 async function guardarNuevaEspecialidad() {
   const nom = $('#ne-nom').value.trim();
+  const cos = parseFloat($('#ne-cos').value) || 120.00;
   const des = $('#ne-des').value.trim();
   const err = $('#ne-err');
-  if (!nom) { err.textContent = 'Campo obligatorio'; return; }
+  if (!nom) { err.textContent = 'El nombre de la especialidad es obligatorio'; return; }
   try {
-    await VS_API.especialidades.crear({ nombre: nom, descripcion: des });
+    await VS_API.especialidades.crear({ nombre: nom, descripcion: des, costo: cos });
     closeM();
-    toast('Especialidad creada');
+    toast('Especialidad registrada con costo de Bs ' + cos.toFixed(2));
+    go('18');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+function modalEditarEspecialidad(id, nom, des, cos) {
+  modal(`
+    <h3 id="mt">Editar especialidad médica</h3>
+    <div style="margin-bottom:1rem;">
+      <label>Nombre de la especialidad *</label>
+      <input id="ee-nom" value="${h(nom)}">
+      <div class="err" id="ee-err"></div>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label>Arancel / Costo de Consulta en Bolivia (Bs) *</label>
+      <input id="ee-cos" type="number" step="5" value="${cos}">
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label>Descripción clínica</label>
+      <input id="ee-des" value="${h(des)}">
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn pri" onclick="actualizarEspecialidad(${id})">Actualizar arancel</button>
+    </div>
+  `);
+}
+
+async function actualizarEspecialidad(id) {
+  const nom = $('#ee-nom').value.trim();
+  const cos = parseFloat($('#ee-cos').value) || 120.00;
+  const des = $('#ee-des').value.trim();
+  const err = $('#ee-err');
+  if (!nom) { err.textContent = 'El nombre no puede estar vacío'; return; }
+  try {
+    await VS_API.especialidades.actualizar(id, { nombre: nom, descripcion: des, costo: cos });
+    closeM();
+    toast('Arancel actualizado a Bs ' + cos.toFixed(2));
     go('18');
   } catch (e) {
     err.textContent = e.message;
@@ -2443,56 +2494,151 @@ function irAProgramarCitaDesdeCU22() {
   go('24');
 }
 
-// CU24: Programar cita médica
+// CU24: Programar cita médica en recepción con cobro directo opcional
 S['24'] = async () => {
-  const resP = await VS_API.pacientes.listar();
-  const resM = await VS_API.medicos.listar();
+  const [resP, resM, resE] = await Promise.all([
+    VS_API.pacientes.listar({ per_page: 100 }),
+    VS_API.medicos.listar({ per_page: 100 }),
+    VS_API.especialidades.listar()
+  ]);
+
   const pacientes = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || resP || []);
   const medicos = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || resM || []);
+  const especialidades = (resE && resE.data) ? resE.data : (Array.isArray(resE) ? resE : []);
+
+  window.cu24EspecialidadesCache = especialidades;
+  window.cu24MedicosCache = medicos;
 
   const pacOpts = pacientes.map(p => `<option value="${p.id_persona}">${h(p.persona?.nombres || '')} ${h(p.persona?.apellidos || '')} · CI ${h(p.persona?.ci || '—')}</option>`).join('');
+  const espOpts = especialidades.map(e => `<option value="${e.id_especialidad}" data-costo="${e.costo || 120}">${h(e.nombre)} (Arancel: Bs ${Number(e.costo || 120).toFixed(2)})</option>`).join('');
   const medOpts = medicos.map(m => `<option value="${m.id_persona}">Dr(a). ${h(m.persona?.nombres || '')} ${h(m.persona?.apellidos || '')}</option>`).join('');
 
   const fDef = cu22SlotSeleccionado ? cu22SlotSeleccionado.fecha : hoyISO();
   const hDef = cu22SlotSeleccionado ? cu22SlotSeleccionado.hora : '08:00';
+  const primerCosto = especialidades[0] ? Number(especialidades[0].costo || 120).toFixed(2) : '120.00';
 
-  return hd('Programar cita médica', 'Asignación de turno con control estricto de concurrencia y prevención de duplicados.') +
-    `<div class="card" style="max-width:700px;">
+  return hd('Programar y Registrar Cita Médica', 'Emisión de fichas médicas en recepción con cobro en caja y emisión de comprobante.') +
+    `<div class="card" style="max-width:750px;">
       <form id="form-cu24" onsubmit="event.preventDefault();ejecutarProgramarCita();">
         <div class="form">
-          <div class="full"><label>Paciente *</label><select id="pc-pac">${pacOpts}</select></div>
-          <div class="full"><label>Médico asignado *</label><select id="pc-med">${medOpts}</select></div>
-          <div><label>Fecha de la cita *</label><input id="pc-fec" type="date" value="${fDef}" required></div>
-          <div><label>Hora de inicio *</label><input id="pc-hor" type="time" value="${hDef}" step="900" required></div>
-          <div class="full"><label>Motivo de la consulta</label><input id="pc-mot" value="Consulta general preventiva"></div>
+          <div class="full">
+            <label>Paciente *</label>
+            <select id="pc-pac">${pacOpts}</select>
+          </div>
+          <div>
+            <label>Especialidad médica *</label>
+            <select id="pc-esp" onchange="onCU24EspecialidadChange()">${espOpts}</select>
+          </div>
+          <div>
+            <label>Médico asignado *</label>
+            <select id="pc-med">${medOpts}</select>
+          </div>
+          <div>
+            <label>Fecha de la cita *</label>
+            <input id="pc-fec" type="date" value="${fDef}" required>
+          </div>
+          <div>
+            <label>Hora de inicio *</label>
+            <input id="pc-hor" type="time" value="${hDef}" step="900" required>
+          </div>
+          <div class="full">
+            <label>Motivo de la consulta</label>
+            <input id="pc-mot" value="Consulta general preventiva">
+          </div>
+
+          <!-- SECCIÓN DE COBRO EN CAJA / RECEPCIÓN -->
+          <div class="full" style="background:#F3F6FB;border:1px solid #D5E0EA;border-radius:6px;padding:1.2rem;margin-top:.5rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;">
+              <label style="font-weight:700;color:#173E70;display:flex;align-items:center;gap:.5rem;cursor:pointer;margin:0;">
+                <input type="checkbox" id="pc-cobrar" checked onchange="toggleCobroCajaCU24()" style="width:1.1rem;height:1.1rem;">
+                Registrar cobro de ficha inmediatamente en Caja / Recepción
+              </label>
+              <span id="pc-arancel-display" class="mono font-bold" style="font-size:1.15rem;color:#245C47;">Bs ${primerCosto} BOB</span>
+            </div>
+
+            <div id="pc-cobro-detalles" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.8rem;">
+              <div>
+                <label style="font-size:.8rem;color:var(--mute);">Forma de pago recibida *</label>
+                <select id="pc-metodo-pago">
+                  <option value="EFECTIVO">Efectivo en Caja</option>
+                  <option value="QR">QR Simple (Transferencia bancaria)</option>
+                  <option value="TARJETA">Tarjeta de Débito / Crédito</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:.8rem;color:var(--mute);">Monto a cobrar en Bs *</label>
+                <input id="pc-monto-pago" type="number" step="1" value="${primerCosto}">
+              </div>
+            </div>
+          </div>
         </div>
         <div class="err" id="pc-err"></div>
-        <div class="actions left">
-          <button class="btn pri" type="submit">Agendar y confirmar ficha médica</button>
+        <div class="actions left" style="margin-top:1.2rem;">
+          <button class="btn pri" id="pc-btn-submit" type="submit">Emitir Ficha y Registrar Transacción</button>
         </div>
       </form>
     </div>`;
 };
 
+function onCU24EspecialidadChange() {
+  const espSelect = $('#pc-esp');
+  const selOpt = espSelect?.selectedOptions?.[0];
+  const costo = selOpt ? selOpt.getAttribute('data-costo') || 120 : 120;
+  const disp = $('#pc-arancel-display');
+  const montoInput = $('#pc-monto-pago');
+  if (disp) disp.textContent = `Bs ${Number(costo).toFixed(2)} BOB`;
+  if (montoInput) montoInput.value = Number(costo).toFixed(2);
+}
+
+function toggleCobroCajaCU24() {
+  const chk = $('#pc-cobrar');
+  const det = $('#pc-cobro-detalles');
+  if (det && chk) det.style.display = chk.checked ? 'grid' : 'none';
+}
+
 async function ejecutarProgramarCita() {
   const err = $('#pc-err');
   err.textContent = '';
+  const btn = $('#pc-btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+
+  const cobrarInmediato = $('#pc-cobrar')?.checked;
+  const espId = $('#pc-esp')?.value;
   const data = {
     id_paciente: $('#pc-pac').value,
+    id_especialidad: espId,
     id_medico: $('#pc-med').value,
     fecha: $('#pc-fec').value,
     hora_inicio: $('#pc-hor').value,
     motivo_consulta: $('#pc-mot').value.trim() || 'Consulta médica general',
     motivo: $('#pc-mot').value.trim() || 'Consulta médica general'
   };
+
+  if (cobrarInmediato) {
+    data.pagado = true;
+    data.metodo_pago = $('#pc-metodo-pago')?.value || 'EFECTIVO';
+    data.monto_pago = parseFloat($('#pc-monto-pago')?.value) || 120.00;
+  }
+
   try {
     const res = await VS_API.citas.crear(data);
     const cod = res.data?.codigo || ('CM-' + (res.data?.id_cita || 'NUEVA'));
-    toast(`Cita ${cod} programada exitosamente`);
+    if (cobrarInmediato) {
+      toast(`Ficha ${cod} emitida y cobro de Bs ${data.monto_pago.toFixed(2)} registrado en historial de pagos`);
+      go('42');
+    } else {
+      toast(`Ficha ${cod} programada exitosamente`);
+      go('30');
+    }
     cu22SlotSeleccionado = null;
-    go('30');
   } catch (e) {
     err.textContent = e.message;
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Emitir Ficha y Registrar Transacción';
+    }
   }
 }
 
@@ -2511,25 +2657,102 @@ S['30'] = async () => {
     const p = c.paciente?.persona || {};
     const pacNom = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : 'Paciente');
     const medNom = 'Dr(a). ' + (c.medico?.persona?.nombres || '') + ' ' + (c.medico?.persona?.apellidos || '');
+    const espNom = c.especialidad?.nombre || 'Medicina General';
+    const costoEsp = Number(c.especialidad?.costo || 120).toFixed(2);
     const est = (c.estado || 'PROGRAMADA').toUpperCase();
     const isProg = est === 'PROGRAMADA' || est === 'CONFIRMADA';
+    const estaPagado = !!(c.pago && (Array.isArray(c.pago) ? c.pago.length > 0 : c.pago.id_pago));
+
+    const pagoBadge = estaPagado
+      ? `<span class="st conf">PAGADO (Bs ${costoEsp})</span>`
+      : `<span class="st pend">PENDIENTE (Bs ${costoEsp})</span>`;
+
+    let acciones = '';
+    if (isProg) {
+      acciones += `<button class="btn sm pri" onclick="marcarAtendidaCU31(${c.id_cita})" style="margin-right:.3rem;">Atender</button>`;
+      if (!estaPagado && est !== 'CANCELADA') {
+        acciones += `<button class="btn sm" style="background:#245C47;color:#fff;margin-right:.3rem;" onclick="abrirCobroCajaModal(${c.id_cita}, '${h(c.codigo || ('CM-' + c.id_cita))}', ${costoEsp})">Cobrar Caja</button>`;
+      } else if (estaPagado) {
+        acciones += `<button class="btn sm ghost" onclick="verComprobanteCita(${c.id_cita})" style="margin-right:.3rem;">Comprobante</button>`;
+      }
+      acciones += `<button class="btn sm danger" onclick="abrirCancelarCitaCU27(${c.id_cita}, '${h(c.codigo)}')">Cancelar</button>`;
+    } else {
+      if (estaPagado) {
+        acciones += `<button class="btn sm ghost" onclick="verComprobanteCita(${c.id_cita})">Comprobante</button>`;
+      } else {
+        acciones += `<span class="mono" style="font-size:.76rem;color:var(--mute);">Concluida</span>`;
+      }
+    }
+
     return [
       `<span class="mono font-bold">${h(c.codigo || ('CM-' + c.id_cita))}</span>`,
       `<span class="mono">${fmt(c.fecha)} ${h((c.hora_inicio || '').slice(0, 5))}</span>`,
       `<b>${h(pacNom)}</b><div class="mono" style="font-size:.76rem;color:var(--mute);">CI ${h(p.ci || '—')}</div>`,
-      h(medNom),
-      h(c.motivo || 'Consulta'),
+      `<div><b>${h(espNom)}</b><div style="font-size:.76rem;color:var(--mute);">${h(medNom)}</div></div>`,
+      pagoBadge,
       `<span class="st ${est === 'ATENDIDA' ? 'aten' : est === 'CONFIRMADA' ? 'conf' : est === 'CANCELADA' ? 'canc' : 'prog'}">${h(est)}</span>`,
-      isProg
-        ? `<button class="btn sm pri" onclick="marcarAtendidaCU31(${c.id_cita})">Atender</button>
-           <button class="btn sm danger" onclick="abrirCancelarCitaCU27(${c.id_cita}, '${h(c.codigo)}')">Cancelar</button>`
-        : `<span class="mono" style="font-size:.76rem;color:var(--mute);">Concluida</span>`
+      acciones
     ];
   });
 
-  return hd('Agenda médica diaria', 'Control de estados, asistencia de pacientes y atención médica.') +
-    sec('Fichas programadas en el sistema', tbl(['Ficha', 'Fecha y hora', 'Paciente', 'Médico', 'Motivo', 'Estado', 'Acción'], rows, 'No hay citas en la agenda.'));
+  return hd('Agenda médica diaria', 'Control de estados, asistencia de pacientes y cobros en caja.') +
+    sec('Fichas programadas en el sistema', tbl(['Ficha', 'Fecha y hora', 'Paciente', 'Especialidad / Médico', 'Arancel / Pago', 'Estado', 'Acciones'], rows, 'No hay citas en la agenda.'));
 };
+
+function abrirCobroCajaModal(idCita, codCita, monto) {
+  modal(`
+    <h3 id="mt">Cobrar Ficha en Caja</h3>
+    <p style="color:var(--mute);margin-bottom:1rem;font-size:.9rem;">
+      Registrar pago para la ficha médica <b>${h(codCita)}</b>.
+    </p>
+    <div style="margin-bottom:.8rem;">
+      <label>Forma de pago *</label>
+      <select id="cb-met">
+        <option value="EFECTIVO">Efectivo en Caja</option>
+        <option value="QR">QR Simple (Transferencia bancaria)</option>
+        <option value="TARJETA">Tarjeta de Débito / Crédito</option>
+      </select>
+    </div>
+    <div style="margin-bottom:.8rem;">
+      <label>Monto a cobrar en Bs *</label>
+      <input id="cb-mon" type="number" step="1" value="${monto || 120}">
+    </div>
+    <div style="margin-bottom:1.2rem;">
+      <label>NIT / C.I. del Paciente (para Comprobante)</label>
+      <input id="cb-nit" placeholder="Opcional">
+      <div class="err" id="cb-err"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn pri" onclick="confirmarCobroCajaModal(${idCita})">Emitir Comprobante</button>
+    </div>
+  `);
+}
+
+async function confirmarCobroCajaModal(idCita) {
+  const err = $('#cb-err');
+  const met = $('#cb-met').value;
+  const mon = parseFloat($('#cb-mon').value) || 120.00;
+  const nit = $('#cb-nit').value.trim();
+
+  try {
+    const res = await VS_API.pagos.crear({
+      id_cita: idCita,
+      monto: mon,
+      metodo: met,
+      nit_ci: nit
+    });
+    closeM();
+    toast('Cobro registrado y comprobante emitido exitosamente');
+    if (res.data?.id_pago) {
+      verComprobanteModal(res.data.id_pago);
+    } else {
+      go('42');
+    }
+  } catch (e) {
+    if (err) err.textContent = e.message;
+  }
+}
 
 S['29'] = S['30'];
 S['31'] = S['30'];
@@ -2631,9 +2854,13 @@ S['42'] = async () => {
       `<span class="mono font-bold" style="color:var(--sage);">${h(monto)}</span>`,
       `<span class="mono" style="font-size:.78rem;">${h(fPago)}</span>`,
       `<span class="st ${isReemb ? 'canc' : 'conf'}">${isReemb ? 'REEMBOLSADO' : 'PAGADO'}</span>`,
-      isReemb
-        ? `<span class="mono" style="font-size:.76rem;color:var(--mute);">Procesado</span>`
-        : `<button class="btn sm danger" onclick="abrirReembolsoModal(${p.id_pago}, '${h(codCita)}')">Reembolsar</button>`
+      `<div style="display:flex;gap:.4rem;align-items:center;">
+        <button class="btn sm" onclick="verComprobanteModal(${p.id_pago})">Comprobante</button>
+        ${isReemb
+          ? `<span class="mono" style="font-size:.76rem;color:var(--mute);">Reembolsado</span>`
+          : `<button class="btn sm danger" onclick="abrirReembolsoModal(${p.id_pago}, '${h(codCita)}')">Reembolsar</button>`
+        }
+      </div>`
     ];
   });
 
@@ -2700,7 +2927,7 @@ S['38'] = async () => {
           <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">Motivo de la consulta / Síntomas *</label>
           <textarea id="p-motivo" rows="3" style="width:100%;margin-bottom:.8rem;padding:.5rem;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:.88rem;" placeholder="Ej. Chequeo preventivo, dolor de cabeza...">Consulta Médica General</textarea>
           <div style="background:#F2F7F6;border-left:3px solid var(--sage);padding:.6rem .8rem;margin-bottom:1rem;font-size:.82rem;color:#245C47;border-radius:2px;">
-            Arancel oficial de consulta: <b>Bs 150.00</b><br>
+            Arancel oficial de consulta: <b id="p-arancel-box">Bs 120.00</b><br>
             <span style="font-size:.76rem;color:var(--mute);">Podrás pagar en línea mediante QR Simple o Tarjeta tras confirmar tu reserva.</span>
           </div>
           <button id="p-btn-confirmar" class="btn pri full" onclick="confirmarReservaFichaCU38()">Confirmar Reserva de Ficha Médica</button>
@@ -2728,7 +2955,7 @@ async function inicializarFiltrosCU38() {
     const espSelect = $('#p-esp');
     if (espSelect) {
       espSelect.innerHTML = `<option value="">Todas las especialidades</option>` +
-        cu38EspecialidadesCache.map(e => `<option value="${e.id_especialidad}">${h(e.nombre)}</option>`).join('');
+        cu38EspecialidadesCache.map(e => `<option value="${e.id_especialidad}" data-costo="${e.costo || 120}">${h(e.nombre)} (Arancel: Bs ${Number(e.costo || 120).toFixed(2)})</option>`).join('');
     }
 
     actualizarSelectMedicosCU38('');
@@ -2755,7 +2982,11 @@ function actualizarSelectMedicosCU38(idEspecialidad) {
 }
 
 function onCU38EspecialidadChange() {
-  const espId = $('#p-esp').value;
+  const espId = $('#p-esp')?.value;
+  const espObj = cu38EspecialidadesCache.find(e => String(e.id_especialidad) === String(espId));
+  const costo = espObj ? Number(espObj.costo || 120.00).toFixed(2) : '120.00';
+  const box = $('#p-arancel-box');
+  if (box) box.textContent = 'Bs ' + costo;
   actualizarSelectMedicosCU38(espId);
   cargarTurnosCU38();
 }
@@ -2847,6 +3078,7 @@ function seleccionarSlotCU38(btn, hIni, hFin) {
 
   const medObj = cu38MedicosCache.find(m => String(m.id_persona) === String(medId)) || cu38MedicosCache[0];
   const espObj = cu38EspecialidadesCache.find(e => String(e.id_especialidad) === String(espId)) || (medObj?.especialidad) || cu38EspecialidadesCache[0];
+  const costoEsp = Number(espObj?.costo || 120.00);
 
   cu38SlotSeleccionado = {
     hora_inicio: hIni,
@@ -2855,8 +3087,12 @@ function seleccionarSlotCU38(btn, hIni, hFin) {
     id_medico: medId || (medObj ? medObj.id_persona : null),
     id_especialidad: espId || (espObj ? espObj.id_especialidad : null),
     medico_nombre: medObj?.persona ? `${medObj.persona.nombres} ${medObj.persona.apellidos}` : 'Médico General',
-    especialidad_nombre: espObj ? espObj.nombre : 'Medicina General'
+    especialidad_nombre: espObj ? espObj.nombre : 'Medicina General',
+    costo: costoEsp
   };
+
+  const box = $('#p-arancel-box');
+  if (box) box.textContent = 'Bs ' + costoEsp.toFixed(2);
 
   const sumInfo = $('#p-sum-info');
   sumInfo.innerHTML = `
@@ -2865,6 +3101,9 @@ function seleccionarSlotCU38(btn, hIni, hFin) {
       <div style="font-size:.85rem;color:var(--mute);">Dr(a). ${h(cu38SlotSeleccionado.medico_nombre)}</div>
       <div class="mono" style="font-size:.88rem;margin-top:.4rem;font-weight:600;color:var(--ink);">
         📅 ${fmt(cu38SlotSeleccionado.fecha)} · ⏰ ${hIni} - ${hFin}
+      </div>
+      <div class="mono font-bold" style="color:#245C47;margin-top:.4rem;font-size:.92rem;">
+        Arancel oficial: Bs ${costoEsp.toFixed(2)} BOB
       </div>
     </div>
   `;
@@ -2961,6 +3200,7 @@ S['39'] = async () => {
   const horaStr = c.hora_inicio || c.hora || '08:00';
   const numConsultorio = ((c.id_medico || 1) % 6) + 101;
   const estaPagado = !!(c.pago && (Array.isArray(c.pago) ? c.pago.length > 0 : c.pago.id_pago));
+  const costoFicha = Number(c.especialidad?.costo || c.costo || 120.00).toFixed(2);
 
   return hd('Confirmación y Notificación de Reserva', 'Comprobante digital de su ficha médica y notificaciones automáticas.') +
     `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;align-items:start;">
@@ -2981,7 +3221,7 @@ S['39'] = async () => {
           </div>
           <div style="text-align:right;">
             <span style="font-size:.75rem;color:var(--mute);text-transform:uppercase;">Arancel Consulta</span>
-            <div class="mono" style="font-size:1.3rem;font-weight:700;color:#245C47;">Bs 150.00</div>
+            <div class="mono" style="font-size:1.3rem;font-weight:700;color:#245C47;">Bs ${costoFicha}</div>
           </div>
         </div>
 
@@ -3186,7 +3426,7 @@ S['41'] = async () => {
     const esp = citaAPagar.especialidad?.nombre || 'Medicina General';
     const med = citaAPagar.medico?.persona ? `Dr(a). ${citaAPagar.medico.persona.nombres} ${citaAPagar.medico.persona.apellidos}` : 'Consulta Médica';
     const fStr = `${fmt(citaAPagar.fecha)} ${citaAPagar.hora_inicio || citaAPagar.hora || ''}`;
-    const monto = 150.00;
+    const monto = Number(citaAPagar.especialidad?.costo || citaAPagar.costo || 120.00);
     const refQr = 'QR-' + Math.random().toString(36).substring(2, 9).toUpperCase();
 
     htmlCheckout = `
@@ -3236,8 +3476,8 @@ S['41'] = async () => {
                 </svg>
               </div>
 
-              <div class="mono" style="font-size:.78rem;color:var(--mute);margin-bottom:1rem;">Referencia: <b>${refQr}</b> · Monto: <b>Bs 150.00 BOB</b></div>
-              <button class="btn pri full" onclick="procesarPagoPaciente(${citaAPagar.id_cita}, 'QR', '${refQr}')">Confirmar Pago QR Realizado</button>
+              <div class="mono" style="font-size:.78rem;color:var(--mute);margin-bottom:1rem;">Referencia: <b>${refQr}</b> · Monto: <b>Bs ${monto.toFixed(2)} BOB</b></div>
+              <button class="btn pri full" onclick="procesarPagoPaciente(${citaAPagar.id_cita}, 'QR', '${refQr}', ${monto})">Confirmar Pago QR Realizado</button>
             </div>
 
             <!-- VISTA TARJETA -->
@@ -3266,7 +3506,7 @@ S['41'] = async () => {
                   <label style="font-size:.78rem;color:var(--mute);display:block;">NIT o C.I. para Facturación / Comprobante</label>
                   <input id="card-nit" value="${h(u.ci || '')}" placeholder="Cédula de Identidad o NIT">
                 </div>
-                <button class="btn pri full" style="margin-top:.5rem;" onclick="procesarPagoPaciente(${citaAPagar.id_cita}, 'TARJETA')">Pagar Bs 150.00 con Tarjeta</button>
+                <button class="btn pri full" style="margin-top:.5rem;" onclick="procesarPagoPaciente(${citaAPagar.id_cita}, 'TARJETA', '', ${monto})">Pagar Bs ${monto.toFixed(2)} con Tarjeta</button>
               </div>
             </div>
           </div>
@@ -3294,7 +3534,7 @@ S['41'] = async () => {
                 </div>
                 <div style="border-top:1px solid var(--line);margin-top:.4rem;padding-top:.7rem;display:flex;justify-content:space-between;font-size:1.05rem;">
                   <span>Total a Pagar:</span>
-                  <b class="mono" style="color:#245C47;">Bs 150.00 BOB</b>
+                  <b class="mono" style="color:#245C47;">Bs ${monto.toFixed(2)} BOB</b>
                 </div>
               </div>
             </div>
@@ -3360,12 +3600,12 @@ function alternarMetodoPago(metodo) {
   }
 }
 
-async function procesarPagoPaciente(idCita, metodo, ref) {
+async function procesarPagoPaciente(idCita, metodo, ref, monto) {
   try {
     const nitCi = $('#card-nit')?.value || '';
     const payload = {
       id_cita: idCita,
-      monto: 150.00,
+      monto: Number(monto || 120.00),
       metodo: metodo,
       referencia_externa: ref || ('TX-' + Date.now().toString().slice(-8)),
       nit_ci: nitCi
