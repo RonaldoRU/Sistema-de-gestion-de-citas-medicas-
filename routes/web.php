@@ -5,16 +5,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect('/Frontend/stitch/html/P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
+    return redirect('/Frontend/nueva_interfaces/index.html');
 })->name('home');
 
 Route::get('/inicio', function () {
-    return redirect('/Frontend/stitch/html/P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
+    return redirect('/Frontend/nueva_interfaces/index.html');
 })->name('inicio');
 
 // Rutas Web de Autenticación
 Route::get('/login', function () {
-    return redirect('/Frontend/stitch/html/P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
+    return redirect('/Frontend/nueva_interfaces/index.html');
 })->name('login');
 
 Route::post('/login', function (Request $request) {
@@ -24,10 +24,10 @@ Route::post('/login', function (Request $request) {
         return $resp;
     }
     if ($resp->getStatusCode() === 200) {
-        return redirect('/Frontend/stitch/html/inicio.html');
+        return redirect('/Frontend/nueva_interfaces/index.html');
     }
 
-    return redirect('/Frontend/stitch/html/P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html?error=credenciales');
+    return redirect('/Frontend/nueva_interfaces/index.html?error=credenciales');
 });
 
 Route::post('/logout', [SesionController::class, 'logout'])->name('logout');

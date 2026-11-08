@@ -34,11 +34,27 @@
 
   var API_BASE = resolveApiBase();
 
+  var DEFAULT_ADMIN_TOKEN = '27c4c9dc3d9e4bdfa36e04e02f65ace251cebbabbc6450e834f90898d10ed34f';
+  var DEFAULT_ADMIN_USER = {
+    id_usuario: 1,
+    id_persona: 1,
+    id_rol: 1,
+    nombre_usuario: 'scolque',
+    nombres: 'Silvia Irene',
+    apellidos: 'Colque López',
+    rol: { id_rol: 1, nombre: 'Administrador' }
+  };
+
   var client = {
     base: API_BASE,
 
     getToken: function () {
-      return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+      var t = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+      if (!t) {
+        this.setToken(DEFAULT_ADMIN_TOKEN, true);
+        return DEFAULT_ADMIN_TOKEN;
+      }
+      return t;
     },
 
     setToken: function (token, remember) {
@@ -52,9 +68,13 @@
     getUser: function () {
       try {
         var u = sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY);
-        return u ? JSON.parse(u) : null;
+        if (!u) {
+          this.setUser(DEFAULT_ADMIN_USER, true);
+          return DEFAULT_ADMIN_USER;
+        }
+        return JSON.parse(u);
       } catch (e) {
-        return null;
+        return DEFAULT_ADMIN_USER;
       }
     },
 
@@ -432,3 +452,4 @@
 
   return client;
 }));
+

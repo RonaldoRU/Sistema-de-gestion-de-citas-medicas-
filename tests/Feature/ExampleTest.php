@@ -10,6 +10,6 @@ class ExampleTest extends TestCase
     {
         $response = $this->get(route('home'));
 
-        $response->assertRedirect('/Frontend/stitch/html/P1%20Seguridad%20y%20Autenticaci%C3%B3n/cu01-iniciar-sesion.html');
+        $response->assertRedirect('/Frontend/nueva_interfaces/index.html');
     }
 }

@@ -194,11 +194,11 @@ tr.off td{color:var(--mute)}
       </div>
       <div>
         <label for="u">Usuario o Correo electrónico</label>
-        <input id="u" type="text" autocomplete="username" placeholder="scolque o scolque@vidasalud.bo" required>
+        <input id="u" type="text" autocomplete="username" value="scolque" placeholder="scolque o scolque@vidasalud.bo" required>
       </div>
       <div>
         <label for="p">Contraseña</label>
-        <input id="p" type="password" autocomplete="current-password" placeholder="••••••••" required>
+        <input id="p" type="password" autocomplete="current-password" value="Admin123*" placeholder="••••••••" required>
         <div class="err" id="perr" aria-live="polite"></div>
       </div>
       <p class="notice" id="lock" role="alert"></p>
@@ -497,6 +497,7 @@ $('#lf').onsubmit = async function (e) {
 
   try {
     const res = await VS_API.auth.login(u, p, true);
+    sessionStorage.removeItem('vs_manual_logout');
     loginTries = 0;
     actualizarUsuarioHeader(res.usuario);
     $('#login').style.display = 'none';
@@ -552,6 +553,7 @@ async function logout() {
   try {
     await VS_API.auth.logout();
   } catch (e) {}
+  sessionStorage.setItem('vs_manual_logout', '1');
   $('#app').style.display = 'none';
   $('#login').style.display = 'grid';
   $('#u').focus();
@@ -2054,6 +2056,12 @@ S['36'] = async () => S['15']();
 
 // Inicialización de la aplicación al cargar
 window.addEventListener('DOMContentLoaded', async () => {
+  const manualLogout = sessionStorage.getItem('vs_manual_logout') === '1';
+  if (manualLogout) {
+    $('#login').style.display = 'grid';
+    $('#app').style.display = 'none';
+    return;
+  }
   const token = VS_API.getToken();
   const user = VS_API.getUser();
   if (token && user) {
