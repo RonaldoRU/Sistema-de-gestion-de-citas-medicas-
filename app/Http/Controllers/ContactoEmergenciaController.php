@@ -7,6 +7,7 @@ use App\Models\Paciente;
 use App\Services\AuditoriaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ContactoEmergenciaController extends Controller
@@ -16,6 +17,14 @@ class ContactoEmergenciaController extends Controller
      */
     public function index(int $id): JsonResponse
     {
+        $user = Auth::user();
+        if ($user && $user->tieneRol('PACIENTE') && $user->id_persona != $id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado. Solo puedes consultar tus propios contactos de emergencia.',
+            ], 403);
+        }
+
         $contactos = ContactoEmergencia::where('id_paciente', $id)->get();
 
         return response()->json([

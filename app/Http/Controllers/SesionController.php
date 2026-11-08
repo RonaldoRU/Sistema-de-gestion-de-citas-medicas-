@@ -401,7 +401,13 @@ class SesionController extends Controller
             ], 401);
         }
 
-        $user->load(['persona.medico.especialidades', 'persona.personalAdministrativo', 'rol.permisos']);
+        $user->load([
+            'persona.medico.especialidades',
+            'persona.paciente.informacionMedica',
+            'persona.paciente.contactosEmergencia',
+            'persona.personalAdministrativo',
+            'rol.permisos',
+        ]);
 
         return response()->json([
             'success' => true,

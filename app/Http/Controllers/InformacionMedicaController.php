@@ -7,6 +7,7 @@ use App\Models\Paciente;
 use App\Services\AuditoriaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class InformacionMedicaController extends Controller
@@ -16,6 +17,14 @@ class InformacionMedicaController extends Controller
      */
     public function show(int $id): JsonResponse
     {
+        $user = Auth::user();
+        if ($user && $user->tieneRol('PACIENTE') && $user->id_persona != $id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado. Solo puedes consultar tu propia información médica.',
+            ], 403);
+        }
+
         $infoMedica = InformacionMedica::where('id_paciente', $id)->first();
 
         if (! $infoMedica) {

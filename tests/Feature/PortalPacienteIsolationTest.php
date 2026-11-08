@@ -29,6 +29,21 @@ beforeEach(function (): void {
     // Especialidad
     $this->esp = Especialidad::firstOrCreate(['id_especialidad' => 1], ['nombre' => 'Medicina General', 'activo' => true]);
 
+    // Admin
+    $pAdmin = Persona::firstOrCreate(['ci' => '2000000'], [
+        'nombres' => 'Admin',
+        'apellidos' => 'Sistema',
+        'telefono' => '70000000',
+        'email' => 'admin_test@test.com',
+        'activo' => true,
+    ]);
+    $this->userAdmin = Usuario::firstOrCreate(['nombre_usuario' => 'admin_iso_test'], [
+        'id_persona' => $pAdmin->id_persona,
+        'id_rol' => $rolAdmin->id_rol,
+        'hash_contrasena' => Hash::make('Admin123*'),
+        'estado' => 'ACTIVO',
+    ]);
+
     // Médico
     $pMed = Persona::firstOrCreate(['ci' => '2000001'], [
         'nombres' => 'Doctor',
@@ -42,6 +57,12 @@ beforeEach(function (): void {
         'matricula' => 'MAT-901',
     ]);
     $this->medico->especialidades()->syncWithoutDetaching([$this->esp->id_especialidad]);
+    $this->userMedico = Usuario::firstOrCreate(['nombre_usuario' => 'medico_iso_test'], [
+        'id_persona' => $pMed->id_persona,
+        'id_rol' => $rolMed->id_rol,
+        'hash_contrasena' => Hash::make('Medico123*'),
+        'estado' => 'ACTIVO',
+    ]);
 
     // Horarios médicos para todos los días
     for ($d = 1; $d <= 7; $d++) {
@@ -269,4 +290,87 @@ test('un paciente solo puede ver y pagar sus propios pagos y comprobantes', func
     // Paciente 1 SÍ puede ver su propio comprobante
     $respShowOk = $this->getJson('/api/pagos/'.$idPago);
     $respShowOk->assertStatus(200);
+});
+
+test('auto-registro de paciente crea usuario y permite login con contrasena personalizada', function (): void {
+    $nuevoCi = '55443322';
+    $email = 'paciente_nuevo@test.com';
+    $password = 'ClaveSegura123*';
+
+    $response = $this->postJson('/api/auth/autoregistro-paciente', [
+        'ci' => $nuevoCi,
+        'nombres' => 'Juan',
+        'apellidos' => 'Pérez Ramos',
+        'sexo' => 'M',
+        'fecha_nacimiento' => '1995-04-12',
+        'telefono' => '78901234',
+        'email' => $email,
+        'direccion' => 'Calle Las Palmeras #123',
+        'password' => $password,
+    ]);
+
+    $response->assertStatus(201)
+        ->assertJson([
+            'success' => true,
+        ]);
+
+    $data = $response->json('data');
+    $nombreUsuario = $data['usuario']['nombre_usuario'];
+
+    // Verificar que se puede autenticar con el usuario recién registrado
+    $loginResp = $this->postJson('/api/auth/login', [
+        'nombre_usuario' => $nombreUsuario,
+        'password' => $password,
+    ]);
+
+    $loginResp->assertStatus(200)
+        ->assertJson([
+            'success' => true,
+        ]);
+});
+
+test('paciente solo puede consultar su propio perfil y recibe 403 al intentar ver otro paciente', function (): void {
+    // Autenticado como Paciente 1 (Carlos Mendoza)
+    $this->actingAs($this->userPaciente1);
+
+    // Puede ver su propio perfil
+    $respPropio = $this->getJson('/api/pacientes/'.$this->paciente1->id_persona);
+    $respPropio->assertStatus(200)
+        ->assertJson([
+            'success' => true,
+            'paciente' => [
+                'id_persona' => $this->paciente1->id_persona,
+            ],
+        ]);
+
+    // Recibe 403 al intentar consultar el perfil de Paciente 2 (María Flores)
+    $respAjeno = $this->getJson('/api/pacientes/'.$this->paciente2->id_persona);
+    $respAjeno->assertStatus(403)
+        ->assertJson([
+            'success' => false,
+        ]);
+
+    // Recibe 403 al intentar listar todos los pacientes
+    $respList = $this->getJson('/api/pacientes');
+    $respList->assertStatus(403);
+});
+
+test('administrador y medico pueden consultar los perfiles de todos los pacientes', function (): void {
+    // Como Administrador
+    $this->actingAs($this->userAdmin);
+
+    $respAdmin = $this->getJson('/api/pacientes/'.$this->paciente1->id_persona);
+    $respAdmin->assertStatus(200);
+
+    $respListAdmin = $this->getJson('/api/pacientes');
+    $respListAdmin->assertStatus(200);
+
+    // Como Médico
+    $this->actingAs($this->userMedico);
+
+    $respMed = $this->getJson('/api/pacientes/'.$this->paciente2->id_persona);
+    $respMed->assertStatus(200);
+
+    $respListMed = $this->getJson('/api/pacientes');
+    $respListMed->assertStatus(200);
 });

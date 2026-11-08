@@ -134,23 +134,23 @@ Route::middleware('auth')->group(function (): void {
     // =====================================================================
     Route::prefix('pacientes')->group(function (): void {
         Route::get('/', [PacienteController::class, 'index'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO')->name('api.pacientes.index');
-        Route::get('/{id}', [PacienteController::class, 'show'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO')->name('api.pacientes.show');
+        Route::get('/{id}', [PacienteController::class, 'show'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO,PACIENTE')->name('api.pacientes.show');
         Route::post('/', [PacienteController::class, 'store'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.pacientes.store');
         Route::put('/{id}', [PacienteController::class, 'update'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.pacientes.update');
         Route::put('/{id}/inactivar', [PacienteController::class, 'inactivar'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.pacientes.inactivar');
         Route::put('/{id}/reactivar', [PacienteController::class, 'reactivar'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.pacientes.reactivar');
 
         // Información Médica -> InformacionMedicaController
-        Route::get('/{id}/informacion-medica', [InformacionMedicaController::class, 'show'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO')->name('api.pacientes.infoMedica.show');
+        Route::get('/{id}/informacion-medica', [InformacionMedicaController::class, 'show'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO,PACIENTE')->name('api.pacientes.infoMedica.show');
         Route::post('/{id}/informacion-medica', [InformacionMedicaController::class, 'guardarInfoMedica'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO')->name('api.pacientes.infoMedica');
 
         // Contactos de Emergencia -> ContactoEmergenciaController
-        Route::get('/{id}/contactos-emergencia', [ContactoEmergenciaController::class, 'index'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO')->name('api.pacientes.contactos.index');
+        Route::get('/{id}/contactos-emergencia', [ContactoEmergenciaController::class, 'index'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO,PACIENTE')->name('api.pacientes.contactos.index');
         Route::post('/{id}/contactos-emergencia', [ContactoEmergenciaController::class, 'agregarContactoEmergencia'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.pacientes.contactos.store');
         Route::delete('/{id}/contactos-emergencia/{contactoId}', [ContactoEmergenciaController::class, 'eliminarContactoEmergencia'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.pacientes.contactos.destroy');
 
         // Historial de Citas del Paciente -> CitaController
-        Route::get('/{id}/historial-citas', [CitaController::class, 'historialCitas'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO')->name('api.pacientes.historialCitas');
+        Route::get('/{id}/historial-citas', [CitaController::class, 'historialCitas'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO,PACIENTE')->name('api.pacientes.historialCitas');
     });
 
     // =====================================================================

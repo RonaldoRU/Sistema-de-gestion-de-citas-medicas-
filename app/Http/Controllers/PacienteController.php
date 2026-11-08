@@ -10,6 +10,7 @@ use App\Models\Usuario;
 use App\Services\AuditoriaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -66,6 +67,14 @@ class PacienteController extends Controller
      */
     public function show(int $id): JsonResponse
     {
+        $user = Auth::user();
+        if ($user && $user->tieneRol('PACIENTE') && $user->id_persona != $id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado. Solo puedes consultar tu propio perfil de paciente.',
+            ], 403);
+        }
+
         $paciente = Paciente::with([
             'persona',
             'informacionMedica',
