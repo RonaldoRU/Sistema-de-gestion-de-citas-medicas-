@@ -517,19 +517,40 @@
       .replace(/'/g, '&#39;');
   }
 
-  function formatFechaHora(isoStr) {
-    if (!isoStr) return '—';
+  function formatFechaHora(val) {
+    if (!val) return '—';
     try {
-      var d = new Date(isoStr);
-      if (isNaN(d.getTime())) return isoStr;
-      var day = String(d.getDate()).padStart(2, '0');
-      var mon = String(d.getMonth() + 1).padStart(2, '0');
-      var hh = String(d.getHours()).padStart(2, '0');
-      var mm = String(d.getMinutes()).padStart(2, '0');
-      var ss = String(d.getSeconds()).padStart(2, '0');
-      return day + '/' + mon + ' ' + hh + ':' + mm + ':' + ss;
+      var str = String(val).trim();
+      // Si ya viene como YYYY-MM-DD HH:mm:ss o similar (hora local de Bolivia)
+      var matchYmdHms = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?/);
+      if (matchYmdHms && str.indexOf('Z') === -1 && str.indexOf('+') === -1 && !str.match(/-\d{2}:\d{2}$/)) {
+        var day = matchYmdHms[3];
+        var mon = matchYmdHms[2];
+        var hh = matchYmdHms[4];
+        var mm = matchYmdHms[5];
+        var ss = matchYmdHms[6] || '00';
+        return day + '/' + mon + ' ' + hh + ':' + mm + ':' + ss;
+      }
+
+      var d = new Date(str);
+      if (isNaN(d.getTime())) return str;
+
+      // Usar explícitamente la zona horaria de Bolivia (America/La_Paz, UTC-4)
+      var dtf = new Intl.DateTimeFormat('es-BO', {
+        timeZone: 'America/La_Paz',
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      var parts = dtf.formatToParts(d);
+      var pMap = {};
+      parts.forEach(function (p) { pMap[p.type] = p.value; });
+      return (pMap.day || '00') + '/' + (pMap.month || '00') + ' ' + (pMap.hour || '00') + ':' + (pMap.minute || '00') + ':' + (pMap.second || '00');
     } catch (e) {
-      return isoStr;
+      return val;
     }
   }
 

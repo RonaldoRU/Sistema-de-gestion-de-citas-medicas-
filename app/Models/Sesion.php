@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\SerializesDatesToBoliviaTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,11 +10,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Sesion extends Model
 {
     use HasFactory;
+    use SerializesDatesToBoliviaTime;
 
     protected $table = 'sesion';
+
     protected $primaryKey = 'id_sesion';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
+
     public $timestamps = false;
 
     protected $fillable = [

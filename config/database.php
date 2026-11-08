@@ -97,6 +97,7 @@ return [
             'prefix_indexes' => true,
             'search_path' => env('DB_SCHEMA', 'vida_salud,public'),
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'timezone' => env('DB_TIMEZONE', 'America/La_Paz'),
         ],
 
         'sqlsrv' => [
