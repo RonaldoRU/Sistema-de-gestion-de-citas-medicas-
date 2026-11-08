@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vida Salud — Gestión de citas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF9F6;--ink:#1C1B19;--mute:#6B6760;--line:#E2DED6;--acc:#1F4D3A;--acc-soft:#E8EFEA;--warn:#9A3B1E;--t:200ms;
+--sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--serif:'Instrument Serif',Georgia,serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.mono{font-family:var(--mono);font-size:.85em;letter-spacing:.01em}
+h1{font:400 2.4rem/1.1 var(--serif);letter-spacing:-.01em}
+h2{font:600 .75rem var(--sans);text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+.btn{border:1px solid var(--ink);background:transparent;padding:.55rem 1rem;cursor:pointer;border-radius:2px;transition:background var(--t),color var(--t)}
+.btn:hover{background:var(--ink);color:var(--bg)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}.btn.pri:hover{background:#163a2b}
+.btn.ghost{border-color:transparent;text-decoration:underline;text-underline-offset:3px;padding:.3rem .4rem}
+.btn.danger{border-color:var(--warn);color:var(--warn)}.btn.danger:hover{background:var(--warn);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+label{display:block;font-size:.8rem;color:var(--mute);margin-bottom:.3rem}
+input,select{width:100%;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:.45rem 0;border-radius:0}
+input:focus,select:focus{outline:none;border-bottom:2px solid var(--acc)}
+.err{color:var(--warn);font-size:.8rem;min-height:1.2em;margin-top:.25rem}
+/* login */
+#login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+#login .l{padding:4rem;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between}
+#login .l h1{font-size:4.5rem;max-width:9ch}
+#login .r{display:flex;align-items:center;justify-content:center}
+#login form{width:340px;display:grid;gap:1.4rem}
+.notice{border-left:2px solid var(--warn);padding:.5rem .8rem;font-size:.85rem;color:var(--warn);display:none}
+/* app */
+#app{display:none;grid-template-columns:280px 1fr;min-height:100vh}
+aside{border-right:1px solid var(--line);padding:1.6rem 0;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{padding:0 1.4rem 1.4rem;border-bottom:1px solid var(--line);font:400 1.5rem var(--serif)}
+.brand small{display:block;font:400 .75rem var(--sans);color:var(--mute)}
+.pkg{border-bottom:1px solid var(--line)}
+.pkg>button{width:100%;text-align:left;background:none;border:0;padding:.8rem 1.4rem;cursor:pointer;display:flex;justify-content:space-between;font-weight:500;font-size:.9rem}
+.pkg>button .c{color:var(--mute);transition:transform var(--t)}
+.pkg.open>button .c{transform:rotate(90deg)}
+.pkg ul{list-style:none;padding:0;display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--t) ease}
+.pkg.open ul{grid-template-rows:1fr}
+.pkg ul>div{overflow:hidden}
+.pkg li a{display:flex;gap:.6rem;padding:.35rem 1.4rem .35rem 1.4rem;color:var(--ink);text-decoration:none;font-size:.85rem;border-left:2px solid transparent}
+.pkg li a:hover{background:#F1EFEA}
+.pkg li a[aria-current]{border-left-color:var(--acc);color:var(--acc);font-weight:500}
+.pkg li a .mono{color:var(--mute);min-width:3.2em}
+.pkg li a.c2{color:var(--mute)}
+main{padding:2.2rem 3rem 4rem;max-width:1200px}
+.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:2rem;font-size:.85rem;color:var(--mute)}
+.crumb b{color:var(--ink);font-weight:500}
+#view{transition:opacity var(--t),transform var(--t)}
+#view.out{opacity:0;transform:translateY(6px)}
+.head{display:flex;justify-content:space-between;align-items:end;margin-bottom:2rem;gap:2rem}
+.head p{color:var(--mute);max-width:60ch;margin-top:.4rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;font-weight:500;color:var(--mute);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--ink);padding:.6rem .5rem}
+td{border-bottom:1px solid var(--line);padding:.7rem .5rem;vertical-align:middle}
+tr{transition:opacity var(--t),background var(--t)}
+tr.off td{color:var(--mute)}
+.st{display:inline-flex;align-items:center;gap:.45rem;font-size:.85rem}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st.prog{color:#3D3A35}.st.conf{color:var(--acc)}.st.aten{color:#1C1B19}.st.aten::before{background:none;border:1.5px solid currentColor;width:5px;height:5px}
+.st.canc{color:var(--warn)}.st.inas{color:#7A6A3A}.st.off{color:var(--mute)}
+.filters{display:flex;gap:2rem;margin-bottom:1.6rem;align-items:end}.filters>div{min-width:180px}
+/* grid */
+.book{display:grid;grid-template-columns:1fr 300px;gap:2.5rem}
+.slots{display:grid;border-top:1px solid var(--ink)}
+.slots .h,.slots .t{font-size:.8rem;padding:.5rem;border-bottom:1px solid var(--line)}
+.slots .h{font-weight:500}.slots .t{color:var(--mute)}
+.slot{border:0;border-bottom:1px solid var(--line);border-left:1px solid var(--line);background:transparent;text-align:left;padding:.5rem .6rem;font-size:.8rem;cursor:pointer;transition:background var(--t),color var(--t)}
+.slot.free:hover{background:var(--acc-soft)}
+.slot.busy{color:var(--mute);cursor:not-allowed;background:#F1EFEA}
+.slot.hol{cursor:not-allowed;color:var(--mute);background:repeating-linear-gradient(135deg,transparent 0 6px,#ECE9E2 6px 7px)}
+.slot.sel{background:var(--acc);color:#fff}
+.slot.sel{animation:pop var(--t) ease}
+@keyframes pop{from{transform:scale(.96)}to{transform:none}}
+.legend{display:flex;gap:1.4rem;font-size:.8rem;color:var(--mute);margin-top:1rem}
+.legend i{display:inline-block;width:14px;height:10px;border:1px solid var(--line);margin-right:.4rem;vertical-align:-1px}
+.sum{border-top:1px solid var(--ink);padding-top:1rem;display:grid;gap:1rem;align-content:start}
+.sum dl{display:grid;grid-template-columns:90px 1fr;gap:.5rem;font-size:.9rem}.sum dt{color:var(--mute)}
+.code{font:400 2rem var(--serif)}
+/* agenda */
+.counts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--line);margin-bottom:2rem}
+.counts div{padding:1rem 0}.counts div+div{border-left:1px solid var(--line);padding-left:1.2rem}
+.counts b{display:block;font:400 2.4rem/1 var(--serif)}.counts span{font-size:.8rem;color:var(--mute)}
+/* modal toast */
+.scrim{position:fixed;inset:0;background:rgba(28,27,25,.35);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--t)}
+.scrim.on{opacity:1;pointer-events:auto}
+.modal{background:var(--bg);border:1px solid var(--ink);width:min(520px,92vw);padding:2rem;transform:translateY(10px);transition:transform var(--t)}
+.scrim.on .modal{transform:none}
+.modal h3{font:400 1.8rem var(--serif);margin-bottom:1rem}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem 1.6rem}.form .full{grid-column:1/-1}
+.actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.6rem}
+#toast{position:fixed;bottom:1.6rem;left:50%;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:.7rem 1.2rem;font-size:.9rem;opacity:0;transition:opacity var(--t),transform var(--t);pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.ph{border:1px dashed var(--line);padding:3rem;color:var(--mute);max-width:60ch}
+.tag{font-family:var(--mono);font-size:.7rem;border:1px solid var(--line);padding:.1rem .4rem;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){*,*::before{transition:none!important;animation:none!important}}
+h1[tabindex]:focus{outline:none}
+:root{--bg:#F6F8FB;--ink:#16243A;--mute:#55617A;--line:#D9E0EA;--acc:#1E4E8C;--acc-soft:#E3ECF8;--sage:#2F6B55;--sage-soft:#E4F1EA;--warn:#A33A1F}
+.btn.pri:hover{background:#163C6D}
+#login{background:var(--bg)}
+#login .l{background:var(--acc);color:#F3F6FB;border:0}
+#login .l .mono{color:#BFD0EA!important}
+#login .l h1 em{font-style:italic;color:#A9DCC4}
+#login form{background:#fff;padding:2.4rem;border:1px solid var(--line);border-top:4px solid var(--sage)}
+.logo{display:flex;align-items:center;gap:.7rem}
+aside{background:#173E70;color:#E8EEF7;border:0}
+.brand{border-color:rgba(255,255,255,.12);color:#fff}.brand small{color:#B5C6E0}
+.pkg{border-color:rgba(255,255,255,.1);--pc:#8FB4E8}
+.pkg:nth-child(1){--pc:#8FB4E8}.pkg:nth-child(2){--pc:#C9A8E8}.pkg:nth-child(3){--pc:#E8C58F}.pkg:nth-child(4){--pc:#8FD6B4}.pkg:nth-child(5){--pc:#E8A3A3}.pkg:nth-child(6){--pc:#7FD3E0}.pkg:nth-child(7){--pc:#D8D98A}
+.pkg>button{color:#fff;border-left:4px solid var(--pc)}
+.pkg>button .c{color:#B5C6E0}
+.pkg li a{color:#DCE5F2}.pkg li a .mono{color:#9FB3D1}
+.pkg li a:hover{background:rgba(255,255,255,.07)}
+.pkg li a[aria-current]{background:rgba(255,255,255,.12);border-left-color:var(--pc);color:#fff}
+.pkg li a.c2{color:#A9BAD4}
+aside .tag{color:#C9D6EA;border-color:rgba(255,255,255,.3)}aside>div:last-child{color:#B5C6E0!important}
+:focus-visible{outline:2px solid #E0A23B;outline-offset:2px}
+.top{border-color:var(--line)}
+.head{background:var(--hb,#E3ECF8);border-left:4px solid var(--hc,#1E4E8C);padding:1.6rem 1.8rem;margin:0 0 2rem}
+.head p{color:#3E4A60}
+th{border-color:var(--acc);color:var(--acc)}
+tbody tr:hover{background:#EEF3FA}
+.st{padding:.15rem .6rem;border-radius:3px;font-weight:500}
+.st.prog{color:#1E4E8C;background:#E3ECF8}.st.conf{color:#245C47;background:#E1F2E9}.st.aten{color:#3D2F7A;background:#ECE8F8}
+.st.aten::before{background:currentColor;border:0;width:7px;height:7px}
+.st.canc{color:#9B2E17;background:#FBE6DF}.st.inas{color:#7A5200;background:#FBF0D6}.st.off{color:#55617A;background:#ECEFF4}
+.slots{border-color:var(--acc);background:#fff}
+.slot.free{color:#245C47}.slot.free:hover{background:var(--sage-soft)}
+.slot.busy{background:#E6EBF3;color:#55617A}
+.slot.hol{background:repeating-linear-gradient(135deg,#FBF0D6 0 6px,#F3E2B8 6px 7px);color:#6E4A00}
+.slot.sel{background:var(--acc);color:#fff}
+.sum{background:#fff;border:1px solid var(--line);border-top:4px solid var(--acc);padding:1.4rem}
+.counts{border:0;gap:1rem}
+.counts div{border:0!important;padding:1.1rem 1.2rem!important;border-radius:4px}
+.counts div:nth-child(1){background:#E3ECF8;color:#1E4E8C}.counts div:nth-child(2){background:#E1F2E9;color:#245C47}.counts div:nth-child(3){background:#ECE8F8;color:#3D2F7A}.counts div:nth-child(4){background:#FBF0D6;color:#7A5200}
+.counts span{color:inherit}
+table{background:#fff}
+.modal{background:#fff;border:0;border-top:4px solid var(--acc)}
+#toast{background:#245C47;color:#fff}
+.ph{background:#fff}
+input,select{border-color:#8794AA}
+
+#app{transition:grid-template-columns var(--t) ease}
+#app.col{grid-template-columns:68px 1fr}
+.ham{background:none;border:1px solid var(--line);width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border-radius:3px;margin-right:1rem;color:var(--acc)}
+.ham:hover{background:var(--acc-soft)}
+.top>.crumb{display:flex;align-items:center}
+.pkg>button{align-items:center;gap:.7rem;position:relative}
+.pkg>button .ic{flex:none;color:var(--pc);display:flex}
+.pkg>button .nm{flex:1}
+#app.col aside{overflow:visible}
+#app.col .brand .bt,#app.col .pkg .nm,#app.col .pkg .c,#app.col .pkg ul,#app.col aside>div:last-child,#app.col .brand small{display:none}
+#app.col .brand{padding:0 0 1.4rem;display:flex;justify-content:center}
+#app.col .pkg>button{justify-content:center;padding:.85rem 0}
+#app.col .pkg>button::after{content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translate(-4px,-50%);background:var(--ink);color:#fff;padding:.35rem .6rem;font-size:.8rem;white-space:nowrap;border-radius:3px;opacity:0;pointer-events:none;transition:opacity var(--t),transform var(--t);z-index:5}
+#app.col .pkg>button:hover::after,#app.col .pkg>button:focus-visible::after{opacity:1;transform:translate(0,-50%)}
+#dscrim{position:fixed;inset:0;background:rgba(10,20,35,.45);opacity:0;pointer-events:none;transition:opacity var(--t);z-index:20}
+@media (max-width:900px){
+ #app,#app.col{grid-template-columns:1fr}
+ aside{position:fixed;left:0;top:0;width:min(300px,86vw);z-index:30;transform:translateX(-100%);transition:transform var(--t) ease}
+ #app.drawer aside{transform:none}
+ #app.drawer #dscrim{opacity:1;pointer-events:auto}
+ main{padding:1.2rem}
+ .book{grid-template-columns:1fr}.filters{flex-wrap:wrap}
+ #login{grid-template-columns:1fr}#login .l{display:none}
+ .top>span:last-child{display:none}
+}
+
+.rq{color:var(--warn)}
+textarea{width:100%;border:0;border-bottom:1px solid #8794AA;background:transparent;padding:.45rem 0;resize:vertical}
+input.bad,select.bad,textarea.bad{border-bottom:2px solid var(--warn);background:#FDF1EE}
+input[readonly]{color:var(--mute)}
+.blk{margin-bottom:2rem}.blk>h2{margin-bottom:.9rem}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:.5rem 1rem;font-size:.92rem}.kv dt{color:var(--mute)}
+.lead{color:#3E4A60;margin-bottom:1.2rem}.hint{color:var(--mute);font-size:.85rem;margin:.6rem 0}
+.actions.left{justify-content:flex-start}.actions.wrap{flex-wrap:wrap}
+.row{display:flex;gap:1.4rem;align-items:end}.row>div{flex:1;max-width:340px}
+.filters{flex-wrap:wrap}.filters .grow{flex:1;max-width:420px}
+.narrow{max-width:520px}
+.steps{list-style:none;padding:0;display:flex;gap:1.4rem;margin-bottom:1.4rem;font-size:.85rem;color:var(--mute)}
+.steps li{border-top:3px solid var(--line);padding-top:.4rem}.steps li.on{border-color:var(--acc);color:var(--acc);font-weight:500}.steps li.ok{border-color:var(--sage);color:var(--sage)}
+.chips{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:.5rem}.chips li{background:#ECE8F8;color:#3D2F7A;padding:.3rem .7rem;font-size:.85rem;border-radius:3px}
+.emptybox{border:1px dashed #B9C3D3;background:#fff;padding:1.6rem;display:grid;gap:.8rem;justify-items:start;color:#3E4A60}
+.empty{color:var(--mute)}
+.plist{margin:0 0 1rem;padding-left:1.1rem;font-size:.9rem;display:grid;gap:.3rem}
+.mx{background:#fff;border:1px solid var(--line)}.mxr{display:grid;grid-template-columns:1.6fr repeat(3,1fr);border-bottom:1px solid var(--line);align-items:center}
+.mxr>*{padding:.55rem .7rem}.mxr.hd{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--acc);font-weight:500;border-bottom:1px solid var(--acc)}
+.ck{display:inline-flex;align-items:center;gap:.5rem;cursor:pointer;margin:0;color:var(--ink);font-size:.9rem}
+.ck input{width:20px;height:20px;accent-color:var(--acc)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.days{border:0;padding:0;display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}.days legend{font-size:.8rem;color:var(--mute);margin-bottom:.4rem}
+.day{border:1px solid var(--line);background:#fff;padding:.45rem .8rem;border-radius:3px}
+.slotlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem}
+.sbtn{display:flex;justify-content:space-between;align-items:center;gap:.5rem;min-height:44px;padding:.5rem .8rem;border:1px solid #BFD6C9;background:#fff;color:#245C47;cursor:pointer;border-radius:3px;transition:background var(--t),color var(--t)}
+.sbtn:hover{background:var(--sage-soft)}.sbtn.sel{background:var(--acc);border-color:var(--acc);color:#fff;animation:pop var(--t) ease}
+.sbtn.busy,.sbtn.past{background:#E6EBF3;border-color:#E6EBF3;color:#55617A;cursor:not-allowed}.sbtn.hol{background:#FBF0D6;border-color:#F3E2B8;color:#6E4A00;cursor:not-allowed}
+.slot.na{background:#F1F3F7;border-left:1px solid var(--line);border-bottom:1px solid var(--line)}
+.mobi{display:none}
+.btn.full{width:100%}
+.sum .kv{grid-template-columns:90px 1fr}
+td.act{text-align:right;white-space:nowrap}td.act .btn{margin:.15rem 0}
+@media (max-width:900px){
+ h1{font-size:1.9rem}
+ .head{flex-direction:column;align-items:flex-start;padding:1.2rem;gap:1rem}
+ .top{gap:.6rem}.crumb{font-size:.8rem;min-width:0}#crumb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;max-width:calc(100vw - 110px)}
+ .btn,select,input:not([type=checkbox]),.sbtn,.pkg li a,.pkg>button{min-height:44px}
+ .ham{width:44px;height:44px}
+ .filters{flex-direction:column;align-items:stretch;gap:1rem}.filters>div,.row>div{min-width:0;max-width:none}
+ .row{flex-direction:column;align-items:stretch}
+ .form{grid-template-columns:1fr}
+ .kv{grid-template-columns:1fr}.kv dd{margin-bottom:.4rem}
+ table.rt,table.rt tbody,table.rt tr,table.rt td{display:block;width:100%}
+ table.rt thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ table.rt{background:transparent}
+ table.rt tr{background:#fff;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:4px;margin-bottom:.8rem;padding:.6rem .9rem}
+ table.rt td{border:0;padding:.3rem 0;display:grid;grid-template-columns:7.5rem 1fr;gap:.6rem;overflow-wrap:anywhere}
+ table.rt td>.st{justify-self:start}
+ table.rt td::before{content:attr(data-l);color:var(--mute);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding-top:.15rem}
+ table.rt td.act,table.rt td.empty{display:flex;flex-wrap:wrap;gap:.5rem;text-align:left;white-space:normal;padding-top:.6rem}
+ table.rt td.act::before,table.rt td.empty::before{display:none}
+ table.rt td.act .btn{flex:1 1 auto}
+ .desk{display:none}.mobi{display:block}.mobi .slotlist{margin-top:1rem;grid-template-columns:1fr 1fr}
+ .sum{padding:1rem}
+ .counts{grid-template-columns:1fr 1fr;gap:.6rem}.counts b{font-size:1.8rem}
+ .scrim{align-items:stretch}
+ .modal{width:100vw;max-width:none;min-height:100%;border-radius:0;padding:1.4rem;overflow:auto}
+ .actions{flex-wrap:wrap}.actions .btn{flex:1 1 auto}
+ .mx{overflow:hidden}.mxr{grid-template-columns:1.3fr repeat(3,1fr);font-size:.8rem}.mxr>*{padding:.5rem .4rem}.mxr.hd{font-size:.62rem;letter-spacing:0}
+ .steps{gap:.6rem;font-size:.75rem}
+ #login .r{padding:1rem}#login form{width:100%;padding:1.4rem}
+ main{max-width:100vw;overflow-x:hidden}
+ #toast{width:calc(100vw - 2rem);text-align:center}
+}
+</style></head><body>
+
+<section id="login" aria-label="Inicio de sesión">
+ <div class="l"><span class="logo"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="12" y="2" width="10" height="30" rx="2" fill="#A9DCC4"/><rect x="2" y="12" width="30" height="10" rx="2" fill="#A9DCC4"/><path d="M17 23c-4-3-6-5-6-7.2A2.8 2.8 0 0 1 17 14a2.8 2.8 0 0 1 6 1.8C23 18 21 20 17 23z" fill="#1E4E8C"/></svg><span class="mono">CLÍNICA VIDA SALUD · SANTA CRUZ</span></span>
+  <h1>Agenda médica, <em>sin papel.</em></h1>
+  <span class="mono" style="color:var(--mute)">CU01 Iniciar sesión · CU04 Bloqueo por intentos</span></div>
+ <div class="r"><form id="lf" novalidate>
+  <div><h2>Acceso del personal</h2></div>
+  <div><label for="u">Correo</label><input id="u" type="email" autocomplete="username"></div>
+  <div><label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password"><div class="err" id="perr" aria-live="polite"></div></div>
+  <p class="notice" id="lock" role="alert"></p>
+  <button class="btn pri" id="lb">Ingresar</button>
+  <button type="button" class="btn ghost" style="justify-self:start" onclick="REC={step:1};modal('<h3 id=mt>Recuperar contraseña</h3>'+recH(1))">¿Olvidó su contraseña?</button>
+  <span class="mono" style="color:var(--mute)">Demo: admin@ · recepcion@ · lsuarez@vidasalud.bo — clave «vida2026»</span>
+ </form></div>
+</section>
+
+<div id="app">
+ <aside id="side" aria-label="Paquetes y casos de uso"><div class="brand"><span class="logo"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="12" y="2" width="10" height="30" rx="2" fill="#A9DCC4"/><rect x="2" y="12" width="30" height="10" rx="2" fill="#A9DCC4"/><path d="M17 23c-4-3-6-5-6-7.2A2.8 2.8 0 0 1 17 14a2.8 2.8 0 0 1 6 1.8C23 18 21 20 17 23z" fill="#1E4E8C"/></svg><span class="bt">Vida Salud</span></span><small>Sistema de gestión de citas</small></div><nav id="nav"></nav>
+ <div style="padding:1rem 1.4rem;font-size:.8rem;color:var(--mute)"><span class="tag">C1</span> Ciclo 1 &nbsp; <span class="tag">C2</span> Ciclo 2</div></aside>
+ <div id="dscrim" onclick="hamb(false)"></div><main><div class="top"><span class="crumb"><button class="ham" id="ham" aria-label="Contraer menú" aria-expanded="true" aria-controls="side" onclick="hamb()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><span id="crumb"></span></span><span><span id="who"></span> &nbsp;<button class="btn ghost" onclick="logout()">Cerrar sesión</button></span></div>
+ <div id="view"></div></main>
+</div>
+
+<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt" id="modal"></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const P=[
+ ["Seguridad y Autenticación",[["01","Iniciar Sesión en la Plataforma Web"],["02","Cerrar Sesión y Revocar Sesión"],["03","Recuperar / Restablecer Contraseña Olvidada"],["04","Bloqueo Automático por Intentos Fallidos"]]],
+ ["Administración de Usuarios (RBAC)",[["05","Registrar Nuevo Usuario del Sistema"],["06","Consultar Catálogo y Perfil de Usuarios"],["07","Modificar Datos de Cuenta de Usuario"],["08","Cambiar Rol Operativo y Permisos (RBAC)"],["09","Suspender / Inactivar Cuenta de Usuario"]]],
+ ["Auditoría y Bitácora",[["10","Registrar Acción Automática en Bitácora"],["11","Consultar y Filtrar Bitácora de Auditoría"]]],
+ ["Gestión de Pacientes",[["12","Registrar Paciente"],["13","Información Médica Básica del Paciente"],["14","Contacto de Emergencia"],["15","Buscar y Modificar Datos de Paciente"],["16","Consultar Historial del Paciente"],["17","Desactivar Registro de Paciente"]]],
+ ["Gestión Médica y Horarios",[["18","Gestionar Catálogo de Especialidades"],["19","Registrar y Administrar Personal Médico"],["20","Configurar Horarios y Bloques"],["21","Desactivar Registro de Médico"],["22","Bloquear Agenda por Feriados / Licencias"]]],
+ ["Gestión de Citas Médicas",[["23","Consultar Disponibilidad Horaria"],["24","Programar y Registrar Cita Médica"],["25","Prevenir Citas Duplicadas"],["26","Reprogramar Cita Médica"],["27","Cancelar Cita con Justificación"],["28","Emitir Recordatorio de Cita"],["29","Controlar Asistencia y Estados"],["30","Consultar Agenda Médica Diaria"],["31","Marcar Atención como Atendida"]]],
+ ["Reportes Administrativos",[["32","Reporte de Citas por Período"],["33","Atenciones por Médico y Especialidad"],["34","Reporte de Control de Asistencia"],["35","Exportar Reportes (PDF / CSV)"],["36","Padrón General de Pacientes"]]]];
+const IC=['<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/>', '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 11l1.5 1.5L21 9"/>', '<path d="M8 4h11v16H5V7z"/><path d="M8 4v3H5"/><path d="M9 11h6M9 14h6M9 17h4"/>', '<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>', '<path d="M6 3v5a4 4 0 0 0 8 0V3"/><path d="M10 12v3a5 5 0 0 0 10 0v-1"/><circle cx="20" cy="12" r="2"/>', '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/><path d="M9 14.5l2 2 4-4"/>', '<path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-7"/>'];
+const SCREEN={"24":book,"23":book,"25":book,"30":agenda,"31":agenda,"29":agenda,"12":pac,"15":pac,"17":pac,"11":bit,"10":bit};
+const $=s=>document.querySelector(s);
+let tries=0,cur="24";
+$('#lf').onsubmit=e=>{e.preventDefault();if(tries>=3)return;
+ if($('#p').value==='vida2026'){$('#login').style.display='none';$('#app').style.display='grid';go(cur,true);log('Inicio de sesión','Seguridad');return}
+ tries++;$('#perr').textContent=tries<3?`Usuario o contraseña incorrectos. Intentos restantes: ${3-tries}`:'';
+ if(tries>=3){$('#lock').style.display='block';$('#lb').disabled=true}};
+function logout(){$('#app').style.display='none';$('#login').style.display='grid';$('#p').value='';toast('Sesión cerrada y revocada (CU02)')}
+function nav(){$('#nav').innerHTML=P.map((p,i)=>`<div class="pkg ${p[1].some(c=>c[0]==cur)?'open':''}"><button aria-expanded="${p[1].some(c=>c[0]==cur)}" data-tip="${p[0]}" onclick="tog(this)"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[i]}</svg></span><span class="nm">${p[0]}</span><span class="c" aria-hidden="true">›</span></button><ul><div>${p[1].map(c=>`<li><a href="#cu${c[0]}" class="${+c[0]>23?'c2':''}" ${c[0]==cur?'aria-current="page"':''} onclick="go('${c[0]}');return false"><span class="mono">CU${c[0]}</span>${c[1]}</a></li>`).join('')}</div></ul></div>`).join('')}
+function tog(b){if($('#app').classList.contains('col')&&!mob()){hamb(true);b.parentElement.classList.add('open');b.setAttribute('aria-expanded',true);return}const p=b.parentElement;p.classList.toggle('open');b.setAttribute('aria-expanded',p.classList.contains('open'))}
+function go(id,first){cur=id;if(mob())$('#app').classList.remove('drawer');nav();const pk=P.find(p=>p[1].some(c=>c[0]==id)),cu=pk[1].find(c=>c[0]==id);
+ $('#crumb').innerHTML=`${pk[0]} / <b><span class="mono">CU${id}</span> ${cu[1]}</b>`;
+ const v=$('#view');v.classList.add('out');setTimeout(()=>{v.innerHTML=(SCREEN[id]||ph)(id,cu[1]);v.classList.remove('out');(SCREEN[id]&&SCREEN[id].init||(()=>{}))();v.querySelector('h1')?.focus()},first?0:180)}
+const HB=[['#E3ECF8','#1E4E8C'],['#EFE7F8','#5B3B8C'],['#FBF0D6','#8A5D00'],['#E1F2E9','#2F6B55'],['#FBE6E3','#9B2E17'],['#E0F1F4','#1C6470'],['#F2F3DA','#5E6012']];
+function hd(t,p,r=''){const i=P.findIndex(p=>p[1].some(c=>c[0]==cur)),c=HB[i]||HB[0];return `<div class="head" style="--hb:${c[0]};--hc:${c[1]}"><div><h1 tabindex="-1">${t}</h1><p>${p}</p></div>${r}</div>`}
+function ph(id,n){return hd(n,`Caso de uso CU${id}. Pantalla aún no prototipada en esta iteración.`)+`<div class="ph"><span class="tag">${+id>23?'Ciclo 2':'Ciclo 1'}</span><p style="margin-top:1rem">Pendiente: prototipo de interfaz, diagrama de secuencia y clase de análisis asociados a CU${id}.</p></div>`}
+/* booking */
+const DOCS=[["Dra. M. Arteaga","Medicina general"],["Dr. L. Suárez","Pediatría"],["Dra. P. Rivero","Ginecología"],["Dr. J. Céspedes","Odontología"]];
+const TIMES=["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30"];
+const BUSY={"0-1":"A. Flores","0-4":"C. Vaca","1-0":"N. Paz","1-2":"R. Mendoza","1-3":"T. Gil","3-5":"E. Ortiz","0-6":"S. Rojas"};
+let sel=null,seq=124;
+function book(){sel=null;return hd("Programar cita","Seleccione un bloque libre de 30 minutos. El sistema impide asignar dos pacientes al mismo médico en el mismo bloque (CU25).")+
+`<div class="filters"><div><label for="ci">Paciente (CI)</label><input id="ci" value="7845123 — Lucía Méndez Áñez"></div><div><label for="fe">Fecha</label><input id="fe" type="date" value="2026-10-27"></div><div><label for="es">Especialidad</label><select id="es"><option>Todas</option>${DOCS.map(d=>`<option>${d[1]}</option>`)}</select></div></div>
+<div class="book"><div><div class="slots" style="grid-template-columns:70px repeat(4,1fr)" role="grid" aria-label="Disponibilidad"><div class="h"></div>${DOCS.map(d=>`<div class="h">${d[0]}<br><span style="color:var(--mute);font-weight:400">${d[1]}</span></div>`).join('')}
+${TIMES.map((t,ti)=>`<div class="t mono">${t}</div>`+DOCS.map((d,di)=>{const k=di+'-'+ti;if(di==2)return`<button class="slot hol" disabled aria-label="${d[0]} ${t} bloqueado por licencia">Licencia</button>`;if(BUSY[k])return`<button class="slot busy" disabled aria-label="${d[0]} ${t} ocupado">${BUSY[k]}</button>`;return`<button class="slot free" data-d="${di}" data-t="${ti}" aria-label="${d[0]} ${t} libre" onclick="pick(this)">Libre</button>`}).join('')).join('')}</div>
+<div class="legend"><span><i></i>Libre</span><span><i style="background:#ECE9E2"></i>Ocupado</span><span><i style="background:repeating-linear-gradient(135deg,transparent 0 3px,#D8D4CB 3px 4px)"></i>Feriado / licencia</span></div></div>
+<div class="sum" aria-live="polite" id="sum">${sumH()}</div></div>`}
+function sumH(){if(!sel)return`<h2>Resumen</h2><p style="color:var(--mute)">Ningún bloque seleccionado.</p>`;const d=DOCS[sel.d];
+return`<h2>Resumen</h2><div class="code mono" style="font-family:var(--mono);font-size:1.6rem">CM-0${seq}</div><dl><dt>Paciente</dt><dd>Lucía Méndez Áñez</dd><dt>Médico</dt><dd>${d[0]}</dd><dt>Especialidad</dt><dd>${d[1]}</dd><dt>Fecha</dt><dd>Mar 27 oct 2026</dd><dt>Hora</dt><dd class="mono">${TIMES[sel.t]}–${end(TIMES[sel.t])}</dd><dt>Estado</dt><dd><span class="st prog">Programada</span></dd></dl><button class="btn pri" onclick="confirmB()">Confirmar cita</button>`}
+function end(t){let[h,m]=t.split(':').map(Number);m+=30;if(m==60){h++;m=0}return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')}
+function pick(b){document.querySelectorAll('.slot.sel').forEach(s=>{s.classList.remove('sel');s.textContent='Libre'});b.classList.add('sel');b.textContent='Seleccionado';sel={d:+b.dataset.d,t:+b.dataset.t};$('#sum').innerHTML=sumH()}
+function confirmB(){BUSY[sel.d+'-'+sel.t]='L. Méndez';log(`Programó cita CM-0${seq}`,'Citas');toast(`Cita CM-0${seq} programada · ${DOCS[sel.d][0]} ${TIMES[sel.t]}`);seq++;go(cur)}
+/* agenda */
+let AG=[["08:00","CM-0101","Norma Paz Suárez","4412987","conf"],["08:30","CM-0102","Lucía Méndez Áñez","7845123","prog"],["09:00","CM-0098","Raúl Mendoza Ibáñez","6021455","aten"],["09:30","CM-0103","Tomás Gil Roca","5588120","inas"],["10:00","CM-0105","Ana Flores Vaca","8123006","conf"],["10:30","CM-0107","Erick Ortiz Peña","3399812","canc"]];
+const SL={prog:"Programada",conf:"Confirmada",aten:"Atendida",canc:"Cancelada",inas:"Inasistencia"};
+function agenda(){const c=k=>AG.filter(a=>a[4]==k).length;return hd("Agenda de hoy","Dr. L. Suárez · Pediatría · martes 27 de octubre de 2026")+
+`<div class="counts"><div><b>${c('prog')}</b><span>Programadas</span></div><div><b>${c('conf')}</b><span>Confirmadas</span></div><div><b>${c('aten')}</b><span>Atendidas</span></div><div><b>${c('inas')}</b><span>Inasistencias</span></div></div>
+<table><thead><tr><th>Hora</th><th>Código</th><th>Paciente</th><th>CI</th><th>Estado</th><th></th></tr></thead><tbody>${AG.map((a,i)=>`<tr><td class="mono">${a[0]}</td><td class="mono">${a[1]}</td><td>${a[2]}</td><td class="mono">${a[3]}</td><td><span class="st ${a[4]}">${SL[a[4]]}</span></td><td style="text-align:right">${a[4]=='conf'||a[4]=='prog'?`<button class="btn" onclick="att(${i})">Marcar atendida</button> <button class="btn ghost" onclick="cancelA(${i})">Cancelar</button>`:''}</td></tr>`).join('')}</tbody></table>`}
+function att(i){AG[i][4]='aten';log(`Marcó atendida ${AG[i][1]}`,'Citas');toast(`${AG[i][1]} marcada como Atendida`);go(cur)}
+function cancelA(i){modal(`<h3 id="mt">Cancelar cita ${AG[i][1]}</h3><p style="color:var(--mute);margin-bottom:1.2rem">${AG[i][2]} · ${AG[i][0]}. La cancelación queda registrada en la bitácora.</p><label for="jus">Justificación (obligatoria)</label><input id="jus"><div class="err" id="jerr"></div><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" onclick="doCancel(${i})">Cancelar cita</button></div>`)}
+function doCancel(i){if(!$('#jus').value.trim()){$('#jerr').textContent='Indique el motivo de la cancelación.';return}AG[i][4]='canc';log(`Canceló ${AG[i][1]}: ${$('#jus').value}`,'Citas');closeM();toast(`${AG[i][1]} cancelada`);go(cur)}
+/* pacientes */
+let PA=[["4412987","Norma Paz Suárez","71234567","20/10/2026",1],["7845123","Lucía Méndez Áñez","76540021","27/10/2026",1],["6021455","Raúl Mendoza Ibáñez","69988770","12/09/2026",1],["5588120","Tomás Gil Roca","77001234","03/08/2026",0],["8123006","Ana Flores Vaca","72223344","15/10/2026",1]];
+function pac(){return hd("Pacientes","Registro con CI único. La baja es lógica: el historial de citas se conserva.",`<button class="btn pri" onclick="newP()">Registrar paciente</button>`)+
+`<div class="filters"><div style="min-width:320px"><label for="q">Buscar por CI o nombre</label><input id="q" oninput="filt()" placeholder="p. ej. 7845123"></div></div>
+<table><thead><tr><th>CI</th><th>Nombre completo</th><th>Teléfono</th><th>Última cita</th><th>Estado</th><th></th></tr></thead><tbody id="pt">${rows()}</tbody></table>`}
+function rows(q=''){return PA.filter(p=>(p[0]+p[1]).toLowerCase().includes(q.toLowerCase())).map(p=>`<tr class="${p[4]?'':'off'}"><td class="mono">${p[0]}</td><td>${p[1]}</td><td class="mono">${p[2]}</td><td class="mono">${p[3]}</td><td><span class="st ${p[4]?'conf':'off'}">${p[4]?'Activo':'Inactivo'}</span></td><td style="text-align:right"><button class="btn ghost" onclick="toast('Historial de ${p[1]} (CU16)')">Historial</button>${p[4]?`<button class="btn ghost" onclick="offP('${p[0]}')">Desactivar</button>`:''}</td></tr>`).join('')||`<tr><td colspan="6" style="color:var(--mute)">Sin resultados.</td></tr>`}
+function filt(){$('#pt').innerHTML=rows($('#q').value)}
+function newP(){modal(`<h3 id="mt">Registrar paciente</h3><div class="form"><div><label for="nci">CI</label><input id="nci" inputmode="numeric" oninput="chk()"><div class="err" id="cierr" aria-live="polite"></div></div><div><label for="ntel">Teléfono</label><input id="ntel"></div><div class="full"><label for="nnom">Nombre completo</label><input id="nnom"><div class="err" id="nerr"></div></div><div><label for="nsan">Grupo sanguíneo</label><select id="nsan"><option>O+</option><option>O−</option><option>A+</option><option>B+</option><option>AB+</option></select></div><div><label for="nem">Contacto de emergencia</label><input id="nem"></div></div><p class="mono" style="color:var(--mute);margin-top:1rem">Pruebe CI 7845123 para ver la validación.</p><div class="actions"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn pri" onclick="saveP()">Guardar</button></div>`)}
+function chk(){const d=PA.some(p=>p[0]==$('#nci').value.trim());$('#cierr').textContent=d?'Este CI ya está registrado.':'';return !d}
+function saveP(){const ci=$('#nci').value.trim(),n=$('#nnom').value.trim();if(!ci){$('#cierr').textContent='Ingrese el CI.';return}if(!chk())return;if(!n){$('#nerr').textContent='Ingrese el nombre.';return}
+ PA.unshift([ci,n,$('#ntel').value||'—','—',1]);log(`Registró paciente CI ${ci}`,'Pacientes');closeM();toast(`Paciente ${n} registrado`);filt()}
+function offP(ci){const p=PA.find(x=>x[0]==ci);modal(`<h3 id="mt">Desactivar paciente</h3><p>${p[1]} <span class="mono">(CI ${ci})</span> dejará de aparecer para nuevas citas. Su historial se conserva y la acción puede revertirse.</p><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" onclick="doOff('${ci}')">Desactivar</button></div>`)}
+function doOff(ci){PA.find(x=>x[0]==ci)[4]=0;log(`Baja lógica paciente CI ${ci}`,'Pacientes');closeM();toast('Paciente desactivado');filt()}
+/* bitacora */
+let BI=[["27/10/2026 07:58:12","admin","Inicio de sesión","Seguridad","190.129.4.21"],["27/10/2026 08:03:40","recepcion","Programó cita CM-0105","Citas","190.129.4.33"],["26/10/2026 18:12:05","admin","Cambió rol de jperez a Médico","Usuarios","190.129.4.21"],["26/10/2026 17:40:51","—","Bloqueo por 3 intentos: mrojas","Seguridad","181.115.2.90"]];
+function log(a,m){const d=new Date();BI.unshift([d.toLocaleDateString('es-BO')+' '+d.toLocaleTimeString('es-BO'),'recepcion',a,m,'190.129.4.33'])}
+function bit(){return hd("Bitácora de auditoría","Registro automático de fecha, hora, usuario y acción (CU10). Solo lectura.")+`<div class="filters"><div><label for="bm">Módulo</label><select id="bm" onchange="bf()"><option value="">Todos</option><option>Seguridad</option><option>Usuarios</option><option>Pacientes</option><option>Citas</option></select></div><div><label for="bu">Usuario</label><input id="bu" oninput="bf()"></div></div><table><thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Módulo</th><th>IP</th></tr></thead><tbody id="bt">${brow()}</tbody></table>`}
+function brow(m='',u=''){return BI.filter(b=>(!m||b[3]==m)&&b[1].includes(u)).map(b=>`<tr><td class="mono">${b[0]}</td><td class="mono">${b[1]}</td><td>${b[2]}</td><td>${b[3]}</td><td class="mono">${b[4]}</td></tr>`).join('')}
+function bf(){$('#bt').innerHTML=brow($('#bm').value,$('#bu').value)}
+/* ui */
+let lastF;function modal(h){lastF=document.activeElement;$('#modal').innerHTML=h;$('#scrim').classList.add('on');setTimeout(()=>$('#modal').querySelector('input,button')?.focus(),50)}
+function closeM(){$('#scrim').classList.remove('on');lastF?.focus()}
+$('#scrim').onclick=e=>{if(e.target.id=='scrim')closeM()};document.onkeydown=e=>{if(e.key=='Escape')closeM()};
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+
+const mob=()=>matchMedia('(max-width:900px)').matches;
+function syncH(){const a=$('#app'),open=mob()?a.classList.contains('drawer'):!a.classList.contains('col');$('#ham').setAttribute('aria-expanded',open);$('#ham').setAttribute('aria-label',open?'Contraer menú':'Expandir menú')}
+function hamb(force){const a=$('#app');if(mob()){a.classList.toggle('drawer',force??!a.classList.contains('drawer'))}else{const open=force??a.classList.contains('col');a.classList.toggle('col',!open);try{localStorage.setItem('vs-side',open?'1':'0')}catch(e){}}syncH()}
+try{if(localStorage.getItem('vs-side')=='0')$('#app').classList.add('col')}catch(e){}
+if(/[&]c/.test(location.hash))$('#app').classList.add('col');
+matchMedia('(max-width:900px)').addEventListener('change',syncH);
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&$('#app').classList.contains('drawer')){hamb(false);$('#ham').focus()}});
+</script><script>
+/* ===== v4: estado compartido y pantallas CU01–CU23 ===== */
+const h=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>{const z=new Date(d);z.setMinutes(z.getMinutes()-z.getTimezoneOffset());return z.toISOString().slice(0,10)};
+const TODAY=iso(new Date());const addD=n=>{const d=new Date(TODAY+'T12:00');d.setDate(d.getDate()+n);return iso(d)};
+const fmt=d=>d?d.split('-').reverse().join('/'):'—';
+const DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+let USERS=[
+ {id:1,ci:'3456789',nombre:'Carla Justiniano Vaca',correo:'admin@vidasalud.bo',tel:'70012345',rol:'Administrador',estado:'Activo',pass:'vida2026',fails:0,lock:0},
+ {id:2,ci:'5123987',nombre:'Rosa Salvatierra Peña',correo:'recepcion@vidasalud.bo',tel:'71234500',rol:'Recepcionista',estado:'Activo',pass:'vida2026',fails:0,lock:0},
+ {id:3,ci:'4021876',nombre:'Luis Suárez Antelo',correo:'lsuarez@vidasalud.bo',tel:'72233441',rol:'Médico',estado:'Activo',pass:'vida2026',fails:0,lock:0},
+ {id:4,ci:'6655443',nombre:'Mario Rojas Égüez',correo:'mrojas@vidasalud.bo',tel:'73344552',rol:'Recepcionista',estado:'Inactivo',pass:'vida2026',fails:0,lock:0}];
+const MODS=['Usuarios','Bitácora','Pacientes','Médicos y horarios','Citas','Reportes'];
+let PERM={Administrador:[...MODS],Recepcionista:['Pacientes','Citas'],'Médico':['Citas','Pacientes']};
+let ME=null,SES=[];
+let ESP=[{id:1,nombre:'Medicina general',activo:1},{id:2,nombre:'Pediatría',activo:1},{id:3,nombre:'Ginecología',activo:1},{id:4,nombre:'Odontología',activo:1}];
+let MED=[{id:1,nombre:'Dra. María Arteaga',ci:'4455667',mat:'MG-1021',esp:1,correo:'marteaga@vidasalud.bo',activo:1},
+ {id:2,nombre:'Dr. Luis Suárez',ci:'4021876',mat:'PE-2210',esp:2,correo:'lsuarez@vidasalud.bo',activo:1},
+ {id:3,nombre:'Dra. Paola Rivero',ci:'5566778',mat:'GI-3305',esp:3,correo:'privero@vidasalud.bo',activo:1},
+ {id:4,nombre:'Dr. Jorge Céspedes',ci:'3344221',mat:'OD-4410',esp:4,correo:'jcespedes@vidasalud.bo',activo:1}];
+let HOR={1:{dias:[1,2,3,4,5,6],ini:'08:00',fin:'12:00'},2:{dias:[1,2,3,4,5,6],ini:'08:00',fin:'12:00'},3:{dias:[1,3,5],ini:'14:00',fin:'18:00'},4:{dias:[1,2,3,4,5],ini:'08:00',fin:'11:00'}};
+let BLOQ=[{id:1,tipo:'Individual',med:3,desde:addD(0),hasta:addD(2),motivo:'Licencia médica'}];
+PA=[{ci:'4412987',nombre:'Norma Paz Suárez',tel:'71234567',fnac:'1985-04-12',dir:'Av. Banzer 4to anillo',activo:1,info:{sangre:'O+',alergias:'Penicilina',cron:'Ninguna',med:'',ant:''},cont:[{nombre:'Juan Paz',par:'Esposo',tel:'71230000'}]},
+ {ci:'7845123',nombre:'Lucía Méndez Áñez',tel:'76540021',fnac:'2019-09-02',dir:'B/ Equipetrol',activo:1,info:null,cont:[]},
+ {ci:'6021455',nombre:'Raúl Mendoza Ibáñez',tel:'69988770',fnac:'1972-01-30',dir:'Plan 3000',activo:1,info:{sangre:'A+',alergias:'Ninguna',cron:'Hipertensión',med:'Losartán 50 mg',ant:''},cont:[]},
+ {ci:'5588120',nombre:'Tomás Gil Roca',tel:'77001234',fnac:'1990-07-21',dir:'Villa 1ro de Mayo',activo:0,info:null,cont:[]},
+ {ci:'8123006',nombre:'Ana Flores Vaca',tel:'72223344',fnac:'2001-11-05',dir:'Av. Alemana',activo:1,info:null,cont:[]}];
+let CITAS=[['CM-0101','4412987',2,addD(0),'08:00','Confirmada','Control'],['CM-0102','7845123',2,addD(0),'08:30','Programada','Fiebre'],['CM-0098','6021455',1,addD(-20),'09:00','Atendida','Presión alta'],['CM-0103','6021455',2,addD(0),'09:30','Inasistencia','Control'],['CM-0105','8123006',2,addD(0),'10:00','Confirmada','Vacuna'],['CM-0107','4412987',4,addD(-5),'08:30','Cancelada','Limpieza'],['CM-0110','8123006',1,addD(1),'09:00','Programada','Chequeo'],['CM-0111','4412987',3,addD(1),'14:30','Programada','Control prenatal']]
+ .map(c=>({cod:c[0],ci:c[1],med:c[2],fecha:c[3],hora:c[4],estado:c[5],motivo:c[6]}));
+let SEQ=112;
+BI.length=0;[['Seguridad','admin@vidasalud.bo','Inicio de sesión exitoso'],['Usuarios','admin@vidasalud.bo','Cambió rol de mrojas a Recepcionista'],['Seguridad','—','Bloqueo por 3 intentos fallidos: mrojas@vidasalud.bo'],['Pacientes','recepcion@vidasalud.bo','Registró paciente CI 8123006']].forEach((r,i)=>BI.push([fmt(addD(-1-i))+' 0'+(8+i)+':1'+i+':05',r[1],r[2],r[0],'190.129.4.'+(21+i)]));
+log=function(a,m){const d=new Date();BI.unshift([fmt(iso(d))+' '+d.toLocaleTimeString('es-BO',{hour12:false}),ME?ME.correo:'—',a,m,'190.129.4.33']);if(cur=='10'&&$('#feed'))$('#feed').innerHTML=feed()};
+const pN=ci=>(PA.find(p=>p.ci==ci)||{}).nombre||ci, mN=id=>(MED.find(m=>m.id==id)||{}).nombre||'—', eN=id=>(ESP.find(e=>e.id==id)||{}).nombre||'—';
+const SC={Programada:'prog',Confirmada:'conf',Atendida:'aten',Cancelada:'canc',Inasistencia:'inas',Activo:'conf',Inactivo:'off',Bloqueado:'canc',Activa:'conf'};
+const st=s=>`<span class="st ${SC[s]||'off'}">${s}</span>`;
+function tbl(cols,rows,empty='Sin registros.'){return `<table class="rt"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr class="${r.off?'off':''}">${r.map((c,i)=>`<td data-l="${cols[i]}"${i==r.length-1&&cols[i]==''?' class="act"':''}>${c}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${cols.length}" class="empty">${empty}</td></tr>`}</tbody></table>`}
+function F(id,l,o={}){const t=o.type||'text';let inp;if(t=='select')inp=`<select id="${id}">${o.opts.map(x=>{const [v,tx]=Array.isArray(x)?x:[x,x];return`<option value="${h(v)}"${v==o.val?' selected':''}>${h(tx)}</option>`}).join('')}</select>`;else if(t=='area')inp=`<textarea id="${id}" rows="2">${h(o.val)}</textarea>`;else inp=`<input id="${id}" type="${t}" value="${h(o.val)}" ${o.a||''}>`;return`<div class="${o.full?'full':''}"><label for="${id}">${l}${o.req?' <span aria-hidden="true" class="rq">*</span>':''}</label>${inp}<div class="err" id="${id}-e" aria-live="polite"></div></div>`}
+const V=id=>($('#'+id)?.value||'').trim();
+function E(id,m){const e=$('#'+id+'-e');if(e)e.textContent=m||'';const i=$('#'+id);if(i){i.classList.toggle('bad',!!m);i.setAttribute('aria-invalid',!!m)}return !m}
+function clr(){document.querySelectorAll('.err').forEach(e=>e.textContent='');document.querySelectorAll('.bad').forEach(e=>{e.classList.remove('bad');e.removeAttribute('aria-invalid')})}
+const sec=(t,b)=>`<section class="blk"><h2>${t}</h2>${b}</section>`;
+const pSel=(id,val,all)=>F(id,'Paciente',{type:'select',val,opts:[['','— Seleccione —'],...PA.filter(p=>all||p.activo).map(p=>[p.ci,`${p.nombre} · CI ${p.ci}`])]});
+const mSel=(id,val,l='Médico',all)=>F(id,l,{type:'select',val,opts:MED.filter(m=>all||m.activo).map(m=>[m.id,`${m.nombre} · ${eN(m.esp)}`])});
+const re=()=>go(cur);
+/* ---- disponibilidad ---- */
+function times(ini,fin){const r=[];let [a,b]=ini.split(':').map(Number),[c,d]=fin.split(':').map(Number);let t=a*60+b;while(t+30<=c*60+d){r.push(String(t/60|0).padStart(2,'0')+':'+String(t%60).padStart(2,'0'));t+=30}return r}
+function blq(med,f){return BLOQ.find(b=>f>=b.desde&&f<=b.hasta&&(b.tipo=='General'||b.med==med))}
+function slots(med,f){const H=HOR[med],m=MED.find(x=>x.id==med);if(!H||!m||!m.activo)return[];const dw=new Date(f+'T12:00').getDay();if(!H.dias.includes(dw))return[];const b=blq(med,f);
+ return times(H.ini,H.fin).map(t=>{const c=CITAS.find(c=>c.med==med&&c.fecha==f&&c.hora==t&&c.estado!='Cancelada');return{t,s:b?'hol':c?'busy':(f<TODAY?'past':'free'),c,b}})}
+/* ---- login CU01/CU03/CU04 ---- */
+$('#lf').onsubmit=e=>{e.preventDefault();clr();const u=USERS.find(x=>x.correo.toLowerCase()==V('u').toLowerCase());const pe=$('#perr'),lk=$('#lock');lk.style.display='none';
+ if(!V('u')||!V('p')){pe.textContent='Ingrese correo y contraseña.';return}
+ if(u&&u.lock>Date.now()){lk.textContent=`Cuenta bloqueada por 1 minuto debido a 3 intentos fallidos. Espere ${Math.ceil((u.lock-Date.now())/1000)} s.`;lk.style.display='block';return}
+ if(u&&u.estado=='Inactivo'){lk.textContent='Su cuenta está suspendida. Consulte con el Administrador.';lk.style.display='block';return}
+ if(!u||u.pass!==V('p')){if(u){u.fails++;if(u.fails>=3){u.lock=Date.now()+60000;u.fails=0;u.estado='Activo';const _m=ME;ME=null;log('Bloqueo automático por 3 intentos fallidos: '+u.correo,'Seguridad');ME=_m;lk.textContent='Cuenta bloqueada por 1 minuto debido a 3 intentos fallidos.';lk.style.display='block';pe.textContent='';lockTick(u);return}}
+  pe.textContent='Correo o contraseña incorrectos.'+(u?` Intentos restantes: ${3-u.fails}`:'');return}
+ u.fails=0;ME=u;SES=[{id:1,disp:'Este navegador · Chrome',ip:'190.129.4.33',desde:new Date().toLocaleTimeString('es-BO',{hour12:false}),yo:1},{id:2,disp:'PC Recepción 2 · Firefox',ip:'190.129.4.40',desde:'07:52:10'}];
+ log('Inicio de sesión exitoso','Seguridad');$('#who').textContent=`${u.nombre.split(' ').slice(0,2).join(' ')} · ${u.rol}`;$('#login').style.display='none';$('#app').style.display='grid';$('#p').value='';syncH();go(cur,true)};
+function lockTick(u){const b=$('#lb');b.disabled=true;const t=setInterval(()=>{const s=Math.ceil((u.lock-Date.now())/1000);if(s<=0){clearInterval(t);b.disabled=false;b.textContent='Ingresar';$('#lock').style.display='none'}else b.textContent=`Bloqueado · ${s} s`},1000)}
+logout=function(msg){log('Cierre de sesión','Seguridad');ME=null;$('#app').style.display='none';$('#login').style.display='grid';toast(msg||'Sesión cerrada y revocada (CU02)');$('#u').focus()};
+/* CU03 recuperación (modal desde login y pantalla) */
+let REC={step:1,u:null,code:''};
+function recH(inModal){const s=REC.step;let b='';
+ if(s==1)b=`<p class="lead">Ingrese su CI o correo registrado. Si existe, se enviará un código temporal.</p><div class="form">${F('r1','CI o correo',{full:1,req:1,val:inModal?V('u'):''})}</div><div class="actions">${inModal?'<button class="btn" onclick="closeM()">Volver</button>':''}<button class="btn pri" onclick="rec1(${inModal})">Enviar código</button></div>`;
+ if(s==2)b=`<p class="lead">Si los datos coinciden con una cuenta, recibirá un código de 6 dígitos. <span class="mono">(Demo: ${REC.code||'—'})</span></p><div class="form">${F('r2','Código de verificación',{req:1,a:'inputmode="numeric" maxlength="6"'})}${F('r3','Nueva contraseña',{type:'password',req:1})}${F('r4','Repetir contraseña',{type:'password',req:1})}</div><p class="hint">Mínimo 8 caracteres, al menos un número.</p><div class="actions"><button class="btn" onclick="REC.step=1;recR(${inModal})">Atrás</button><button class="btn pri" onclick="rec2(${inModal})">Restablecer</button></div>`;
+ if(s==3)b=`<p class="lead">Contraseña actualizada. Ya puede iniciar sesión con la nueva clave.</p><div class="actions"><button class="btn pri" onclick="REC={step:1};${inModal?'closeM()':'re()'}">Listo</button></div>`;
+ return `<ol class="steps">${['Identificarse','Verificar código','Listo'].map((t,i)=>`<li class="${i+1==s?'on':i+1<s?'ok':''}">${t}</li>`).join('')}</ol>${b}`}
+function recR(m){if(m)$('#modal').innerHTML='<h3 id="mt">Recuperar contraseña</h3>'+recH(1);else re()}
+function rec1(m){clr();const v=V('r1');if(!E('r1',v?'':'Campo obligatorio.'))return;const u=USERS.find(x=>x.ci==v||x.correo.toLowerCase()==v.toLowerCase());REC={step:2,u,code:u?String(100000+Math.random()*899999|0):''};if(u){const _m=ME;ME=ME||u;log('Solicitud de recuperación de contraseña','Seguridad');ME=_m}recR(m)}
+function rec2(m){clr();const c=V('r2'),p=V('r3');let ok=true;
+ if(!REC.u||c!==REC.code)ok=E('r2','Código inválido o expirado.')&&ok;if(p.length<8||!/\d/.test(p))ok=E('r3','Mínimo 8 caracteres y un número.')&&ok;if(p!==V('r4'))ok=E('r4','Las contraseñas no coinciden.')&&ok;if(!ok)return;
+ REC.u.pass=p;REC.u.lock=0;REC.u.fails=0;const _m=ME;ME=ME||REC.u;log('Restablecimiento de contraseña','Seguridad');ME=_m;REC.step=3;recR(m)}
+/* ---- pantallas ---- */
+const S={};
+S['01']=()=>hd('Iniciar sesión','Autenticación con correo y contraseña cifrada (password_verify). Tras 3 intentos fallidos la cuenta se bloquea 1 minuto (CU04).')+
+ sec('Sesión actual',`<dl class="kv"><dt>Usuario</dt><dd>${h(ME.nombre)}</dd><dt>Correo</dt><dd class="mono">${ME.correo}</dd><dt>Rol</dt><dd>${ME.rol}</dd><dt>Módulos permitidos</dt><dd>${PERM[ME.rol].join(', ')}</dd><dt>Estado</dt><dd>${st('Activa')}</dd></dl>`)+
+ sec('Probar flujos',`<p class="hint">Cierre sesión y pruebe: contraseña incorrecta (A1), 3 intentos (A2) o la cuenta suspendida <span class="mono">mrojas@vidasalud.bo</span> (A3).</p><button class="btn pri" onclick="logout('Sesión cerrada. Pruebe los flujos de inicio de sesión.')">Ir a la pantalla de inicio</button>`);
+S['02']=()=>hd('Cerrar sesión y revocar','Destruye las variables de sesión y bloquea las rutas protegidas. Las sesiones expiran tras 15 minutos de inactividad.')+
+ sec('Sesiones activas de su cuenta',tbl(['Dispositivo','IP','Desde','Estado',''],SES.map(s=>[s.disp+(s.yo?' <span class="tag">actual</span>':''),`<span class="mono">${s.ip}</span>`,`<span class="mono">${s.desde}</span>`,st('Activa'),s.yo?'':`<button class="btn" onclick="revoke(${s.id})">Revocar</button>`])))+
+ `<div class="actions left"><button class="btn danger" onclick="modal('<h3 id=mt>¿Cerrar sesión?</h3><p class=lead>Se cerrará la sesión en este navegador.</p><div class=actions><button class=btn onclick=closeM()>Volver</button><button class=\\'btn pri\\' onclick=closeM();logout()>Cerrar sesión</button></div>')">Cerrar mi sesión</button><button class="btn" onclick="logout('Sesión expirada por inactividad. Vuelva a ingresar.')">Simular expiración por inactividad</button></div>`;
+function revoke(id){SES=SES.filter(s=>s.id!=id);log('Revocó sesión remota','Seguridad');toast('Sesión remota revocada');re()}
+S['03']=()=>hd('Recuperar contraseña','Genera un código temporal. Si el CI o correo no existe, el sistema no revela información (A1).')+sec('Restablecer',`<div class="narrow">${recH(0)}</div>`);
+S['04']=()=>hd('Bloqueo por intentos fallidos','Política: 3 intentos consecutivos bloquean la cuenta 1 minuto. Un ingreso correcto reinicia el contador.')+
+ sec('Estado de cuentas',tbl(['Usuario','Correo','Intentos','Estado',''],USERS.map(u=>{const b=u.lock>Date.now();return[h(u.nombre),`<span class="mono">${u.correo}</span>`,`<span class="mono">${u.fails}/3</span>`,st(b?'Bloqueado':u.estado),b?`<button class="btn" onclick="unl(${u.id})">Desbloquear</button>`:'']})))+
+ sec('Simular',`<p class="hint">Simula 3 intentos fallidos sobre una cuenta.</p><div class="row">${F('sim','Cuenta',{type:'select',opts:USERS.map(u=>[u.id,u.correo])})}<button class="btn pri" onclick="simL()">Simular 3 intentos</button></div>`);
+function unl(id){const u=USERS.find(x=>x.id==id);u.lock=0;u.fails=0;log('Desbloqueó cuenta '+u.correo,'Seguridad');toast('Cuenta desbloqueada');re()}
+function simL(){const u=USERS.find(x=>x.id==V('sim'));u.lock=Date.now()+60000;log('Bloqueo automático por 3 intentos fallidos: '+u.correo,'Seguridad');toast('Cuenta bloqueada 1 minuto');re()}
+/* Usuarios */
+const uForm=(u={})=>`<div class="form">${F('uci','CI',{req:1,val:u.ci,a:'inputmode="numeric"'})}${F('unom','Nombre completo',{req:1,val:u.nombre})}${F('ucor','Correo',{req:1,type:'email',val:u.correo})}${F('utel','Teléfono',{val:u.tel,a:'inputmode="tel"'})}${u.id?'':F('urol','Rol',{type:'select',opts:['Administrador','Recepcionista','Médico'],val:'Recepcionista'})+F('upas','Contraseña inicial',{type:'password',req:1})}</div>`;
+function uVal(id){clr();let ok=true;const ci=V('uci'),c=V('ucor');
+ if(!/^\d{6,9}$/.test(ci))ok=E('uci','CI numérico de 6 a 9 dígitos.')&&ok;else if(USERS.some(u=>u.ci==ci&&u.id!=id))ok=E('uci','Este CI ya está registrado.')&&ok;
+ if(!V('unom'))ok=E('unom','Campo obligatorio.')&&ok;
+ if(!/^\S+@\S+\.\S+$/.test(c))ok=E('ucor','Correo no válido.')&&ok;else if(USERS.some(u=>u.correo.toLowerCase()==c.toLowerCase()&&u.id!=id))ok=E('ucor','Este correo ya está registrado.')&&ok;
+ if(V('utel')&&!/^\d{8}$/.test(V('utel')))ok=E('utel','Teléfono de 8 dígitos.')&&ok;
+ if(!id&&V('upas').length<8)ok=E('upas','Mínimo 8 caracteres.')&&ok;return ok}
+S['05']=()=>hd('Registrar usuario','Alta de personal con rol RBAC. El CI y el correo deben ser únicos; la contraseña se guarda cifrada (password_hash).')+sec('Datos de la cuenta',uForm()+`<div class="actions left"><button class="btn pri" onclick="saveU()">Registrar usuario</button></div>`);
+function saveU(){if(!uVal(0))return;const u={id:Date.now(),ci:V('uci'),nombre:V('unom'),correo:V('ucor'),tel:V('utel'),rol:V('urol'),estado:'Activo',pass:V('upas'),fails:0,lock:0};USERS.push(u);log('Registró usuario '+u.correo+' ('+u.rol+')','Usuarios');toast('Usuario registrado');go('06')}
+let UQ='',UR='';
+S['06']=()=>hd('Catálogo de usuarios','Consulta del personal registrado y su perfil.',`<button class="btn pri" onclick="go('05')">Registrar usuario</button>`)+
+ `<div class="filters"><div>${F('uq','Buscar por nombre, CI o correo',{val:UQ}).replace('<input','<input oninput="UQ=this.value;uft()"')}</div><div>${F('ur','Rol',{type:'select',val:UR,opts:[['','Todos'],'Administrador','Recepcionista','Médico']}).replace('<select','<select onchange="UR=this.value;uft()"')}</div></div><div id="ut">${uRows()}</div>`;
+function uRows(){const q=UQ.toLowerCase();return tbl(['Nombre','CI','Correo','Rol','Estado',''],USERS.filter(u=>(!UR||u.rol==UR)&&(u.nombre+u.ci+u.correo).toLowerCase().includes(q)).map(u=>Object.assign([h(u.nombre),`<span class="mono">${u.ci}</span>`,`<span class="mono">${u.correo}</span>`,u.rol,st(u.estado),`<button class="btn" onclick="prof(${u.id})">Ver perfil</button>`],{off:u.estado!='Activo'})),'No se encontraron usuarios.')}
+function uft(){$('#ut').innerHTML=uRows()}
+function prof(id){const u=USERS.find(x=>x.id==id);modal(`<h3 id="mt">${h(u.nombre)}</h3><dl class="kv"><dt>CI</dt><dd class="mono">${u.ci}</dd><dt>Correo</dt><dd class="mono">${u.correo}</dd><dt>Teléfono</dt><dd class="mono">${u.tel||'—'}</dd><dt>Rol</dt><dd>${u.rol}</dd><dt>Permisos</dt><dd>${PERM[u.rol].join(', ')}</dd><dt>Estado</dt><dd>${st(u.estado)}</dd></dl><div class="actions"><button class="btn" onclick="closeM()">Cerrar</button><button class="btn pri" onclick="closeM();EU=${u.id};go('07')">Modificar</button></div>`)}
+let EU=null;
+S['07']=()=>{const u=USERS.find(x=>x.id==(EU||ME.id));return hd('Modificar cuenta','Actualice los datos de contacto de una cuenta.')+sec('Cuenta',`<div class="form">${F('eu','Cuenta a modificar',{type:'select',val:u.id,opts:USERS.map(x=>[x.id,x.nombre+(x.id==ME.id?' (usted)':'')])}).replace('<select','<select onchange="EU=+this.value;re()"')}</div>`)+sec('Datos',uForm(u)+`<div class="actions left"><button class="btn" onclick="re()">Descartar</button><button class="btn pri" onclick="saveEU(${u.id})">Guardar cambios</button></div>`)};
+function saveEU(id){if(!uVal(id))return;const u=USERS.find(x=>x.id==id);Object.assign(u,{ci:V('uci'),nombre:V('unom'),correo:V('ucor'),tel:V('utel')});log('Modificó datos de cuenta '+u.correo,'Usuarios');toast('Cambios guardados');re()}
+let RU=2;
+S['08']=()=>{const u=USERS.find(x=>x.id==RU);return hd('Cambiar rol y permisos','Reasigna el rol operativo de un usuario y define los módulos permitidos por rol (RBAC).')+
+ sec('Rol del usuario',`<div class="form">${F('ru','Usuario',{type:'select',val:RU,opts:USERS.map(x=>[x.id,x.nombre])}).replace('<select','<select onchange="RU=+this.value;re()"')}${F('rr','Nuevo rol',{type:'select',val:u.rol,opts:['Administrador','Recepcionista','Médico']})}</div><div class="actions left"><button class="btn pri" onclick="chRol()">Aplicar rol</button></div>`)+
+ sec('Matriz de permisos por rol',`<div class="mx" role="table"><div role="row" class="mxr hd"><span role="columnheader">Módulo</span>${Object.keys(PERM).map(r=>`<span role="columnheader">${r}</span>`).join('')}</div>${MODS.map(m=>`<div role="row" class="mxr"><span role="rowheader">${m}</span>${Object.keys(PERM).map(r=>`<label class="ck"><input type="checkbox" data-r="${r}" data-m="${m}" ${PERM[r].includes(m)?'checked':''} ${r=='Administrador'&&m=='Usuarios'?'disabled':''}><span class="sr">${r} – ${m}</span></label>`).join('')}</div>`).join('')}</div><div class="actions left"><button class="btn pri" onclick="savePerm()">Guardar permisos</button></div>`)};
+function chRol(){const u=USERS.find(x=>x.id==RU),r=V('rr');if(r==u.rol){toast('El usuario ya tiene ese rol');return}if(u.id==ME.id&&r!='Administrador'){modal(`<h3 id="mt">No permitido</h3><p class="lead">No puede quitarse a sí mismo el rol de Administrador.</p><div class="actions"><button class="btn pri" onclick="closeM()">Entendido</button></div>`);return}
+ modal(`<h3 id="mt">Confirmar cambio de rol</h3><p class="lead">${h(u.nombre)}: <b>${u.rol}</b> → <b>${r}</b>. Los nuevos permisos aplican en su próximo acceso.</p><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn pri" onclick="doRol('${r}')">Cambiar rol</button></div>`)}
+function doRol(r){const u=USERS.find(x=>x.id==RU);log(`Cambió rol de ${u.correo}: ${u.rol} → ${r}`,'Usuarios');u.rol=r;closeM();toast('Rol actualizado');re()}
+function savePerm(){Object.keys(PERM).forEach(r=>PERM[r]=[...document.querySelectorAll(`.mx input[data-r="${r}"]:checked`)].map(i=>i.dataset.m));log('Actualizó matriz de permisos RBAC','Usuarios');toast('Permisos guardados')}
+S['09']=()=>hd('Suspender / inactivar cuenta','Baja lógica: la cuenta no puede iniciar sesión, pero su historial y bitácora se conservan.')+
+ tbl(['Nombre','Correo','Rol','Estado',''],USERS.map(u=>Object.assign([h(u.nombre)+(u.id==ME.id?' <span class="tag">usted</span>':''),`<span class="mono">${u.correo}</span>`,u.rol,st(u.estado),u.estado=='Activo'?`<button class="btn danger" onclick="susp(${u.id})">Suspender</button>`:`<button class="btn" onclick="react(${u.id})">Reactivar</button>`],{off:u.estado!='Activo'})));
+function susp(id){const u=USERS.find(x=>x.id==id);if(id==ME.id){modal(`<h3 id="mt">No permitido</h3><p class="lead">No puede inactivar la cuenta con la que tiene la sesión abierta.</p><div class="actions"><button class="btn pri" onclick="closeM()">Entendido</button></div>`);return}
+ modal(`<h3 id="mt">Suspender cuenta</h3><p class="lead">${h(u.nombre)} no podrá iniciar sesión. Puede reactivarla luego.</p><div class="form">${F('mot','Motivo',{full:1,req:1})}</div><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" onclick="doSusp(${id})">Suspender</button></div>`)}
+function doSusp(id){if(!E('mot',V('mot')?'':'Indique el motivo.'))return;const u=USERS.find(x=>x.id==id);u.estado='Inactivo';log(`Suspendió cuenta ${u.correo}: ${V('mot')}`,'Usuarios');closeM();toast('Cuenta suspendida');re()}
+function react(id){const u=USERS.find(x=>x.id==id);u.estado='Activo';log('Reactivó cuenta '+u.correo,'Usuarios');toast('Cuenta reactivada');re()}
+/* Auditoría */
+const feed=()=>tbl(['Fecha y hora','Usuario','Acción','Módulo'],BI.slice(0,6).map(b=>[`<span class="mono">${b[0]}</span>`,`<span class="mono">${b[1]}</span>`,h(b[2]),b[3]]));
+S['10']=()=>hd('Registro automático en bitácora','Cada operación crítica dispara un registro (trigger / middleware) con fecha, hora, usuario, acción, módulo e IP. No es editable.')+
+ sec('Eventos auditados',`<ul class="chips">${['Inicio y cierre de sesión','Bloqueos y recuperación','Alta, cambio y baja de usuarios','Cambios de rol y permisos','Pacientes y datos médicos','Médicos, horarios y bloqueos','Citas: programación, cancelación, asistencia'].map(x=>`<li>${x}</li>`).join('')}</ul>`)+
+ sec('Últimos eventos (en vivo)',`<p class="hint">Realice cualquier acción en otra pantalla y vuelva: aparecerá aquí.</p><div id="feed">${feed()}</div>`);
+let BF={m:'',u:'',d:'',h:''};
+S['11']=()=>hd('Consultar bitácora','Filtre por módulo, usuario y rango de fechas. Solo lectura.',`<button class="btn" onclick="toast('Exportación CSV disponible en Ciclo 2 (CU35)')">Exportar</button>`)+
+ `<div class="filters">${F('bm','Módulo',{type:'select',val:BF.m,opts:[['','Todos'],'Seguridad','Usuarios','Pacientes','Médicos','Citas']}).replace('<select','<select onchange="BF.m=this.value;bft()"')}${F('bu','Usuario',{val:BF.u}).replace('<input','<input oninput="BF.u=this.value;bft()"')}${F('bd','Desde',{type:'date',val:BF.d}).replace('<input','<input onchange="BF.d=this.value;bft()"')}${F('bh','Hasta',{type:'date',val:BF.h}).replace('<input','<input onchange="BF.h=this.value;bft()"')}</div><div id="bt">${bRows()}</div>`;
+function bRows(){const d2i=s=>s.slice(0,10).split('/').reverse().join('-');const r=BI.filter(b=>(!BF.m||b[3]==BF.m)&&b[1].includes(BF.u)&&(!BF.d||d2i(b[0])>=BF.d)&&(!BF.h||d2i(b[0])<=BF.h));return`<p class="hint">${r.length} registro(s)</p>`+tbl(['Fecha y hora','Usuario','Acción','Módulo','IP'],r.map(b=>[`<span class="mono">${b[0]}</span>`,`<span class="mono">${b[1]}</span>`,h(b[2]),b[3],`<span class="mono">${b[4]}</span>`]),'Sin registros para los filtros aplicados.')}
+function bft(){$('#bt').innerHTML=bRows()}
+/* Pacientes */
+const paForm=(p={})=>`<div class="form">${F('pci','CI',{req:1,val:p.ci,a:'inputmode="numeric"'+(p.ci?' readonly':'')})}${F('pnom','Nombre completo',{req:1,val:p.nombre})}${F('pfn','Fecha de nacimiento',{req:1,type:'date',val:p.fnac,a:`max="${TODAY}"`})}${F('ptel','Teléfono',{req:1,val:p.tel,a:'inputmode="tel"'})}${F('pdir','Dirección',{full:1,val:p.dir})}</div>`;
+function paVal(edit){clr();let ok=true;const ci=V('pci');
+ if(!edit){if(!/^\d{6,9}$/.test(ci))ok=E('pci',ci?'CI numérico de 6 a 9 dígitos.':'Campo obligatorio.')&&ok;else if(PA.some(p=>p.ci==ci))ok=E('pci','El documento de identidad ya se encuentra registrado a nombre de otro paciente.')&&ok}
+ if(!V('pnom'))ok=E('pnom','Campo obligatorio.')&&ok;if(!V('pfn'))ok=E('pfn','Campo obligatorio.')&&ok;if(!/^\d{8}$/.test(V('ptel')))ok=E('ptel',V('ptel')?'Teléfono de 8 dígitos.':'Campo obligatorio.')&&ok;
+ if(!ok)document.querySelector('.bad')?.focus();return ok}
+S['12']=()=>hd('Registrar paciente','Inscripción con CI único. Los campos con * son obligatorios.')+sec('Datos personales',paForm()+`<p class="hint">Pruebe con CI 7845123 para ver la validación de duplicado.</p><div class="actions left"><button class="btn pri" onclick="saveP()">Registrar paciente</button></div>`);
+saveP=function(){if(!paVal())return;const p={ci:V('pci'),nombre:V('pnom'),fnac:V('pfn'),tel:V('ptel'),dir:V('pdir'),activo:1,info:null,cont:[]};PA.unshift(p);log('Registró paciente CI '+p.ci,'Pacientes');toast(`Paciente ${p.nombre} registrado`);
+ modal(`<h3 id="mt">Paciente registrado</h3><p class="lead">${h(p.nombre)} · CI ${p.ci}. ¿Qué desea hacer ahora?</p><div class="actions wrap"><button class="btn" onclick="closeM();SP='${p.ci}';go('13')">Información médica</button><button class="btn" onclick="closeM();SP='${p.ci}';go('14')">Contacto de emergencia</button><button class="btn pri" onclick="closeM();BK.ci='${p.ci}';go('24')">Programar cita</button></div>`)};
+let SP='4412987';
+const spSel=(all)=>`<div class="form">${pSel('sp',SP,all).replace('<select','<select onchange="SP=this.value;re()"')}</div>`;
+S['13']=()=>{const p=PA.find(x=>x.ci==SP&&x.activo);const i=(p&&p.info)||{};return hd('Información médica básica','Datos clínicos de referencia del paciente activo.')+sec('Paciente',spSel())+(p?sec('Datos clínicos',`<div class="form">${F('isg','Tipo de sangre',{type:'select',req:1,val:i.sangre,opts:[['','— Seleccione —'],'O+','O−','A+','A−','B+','B−','AB+','AB−']})}${F('ial','Alergias conocidas',{req:1,val:i.alergias,a:'placeholder="Escriba «Ninguna» si no tiene"'})}${F('icr','Enfermedades crónicas',{req:1,val:i.cron})}${F('ime','Medicamentos habituales',{val:i.med})}${F('ian','Antecedentes relevantes',{full:1,type:'area',val:i.ant})}</div><div class="actions left"><button class="btn pri" onclick="saveI()">Guardar</button></div>`):`<p class="hint">Seleccione un paciente activo.</p>`)};
+function saveI(){clr();let ok=true;['isg','ial','icr'].forEach(k=>{if(!V(k))ok=E(k,'Sección obligatoria. Complete antes de guardar.')&&ok});if(!ok){toast('Hay secciones obligatorias vacías');return}
+ const p=PA.find(x=>x.ci==SP);p.info={sangre:V('isg'),alergias:V('ial'),cron:V('icr'),med:V('ime'),ant:V('ian')};log('Actualizó información médica CI '+p.ci,'Pacientes');toast('Información médica guardada')}
+S['14']=()=>{const p=PA.find(x=>x.ci==SP);return hd('Contacto de emergencia','Personas a contactar ante una emergencia del paciente.')+sec('Paciente',spSel(1))+(p?sec('Contactos registrados',tbl(['Nombre','Parentesco','Teléfono',''],p.cont.map((c,i)=>[h(c.nombre),h(c.par),`<span class="mono">${c.tel}</span>`,`<button class="btn" onclick="delC(${i})">Quitar</button>`]),'Sin contactos registrados.'))+sec('Agregar contacto',`<div class="form">${F('cn','Nombre',{req:1})}${F('cp','Parentesco',{type:'select',opts:['Madre','Padre','Esposo/a','Hijo/a','Hermano/a','Otro']})}${F('ct','Teléfono',{req:1,a:'inputmode="tel" placeholder="8 dígitos"'})}</div><div class="actions left"><button class="btn pri" onclick="addC()">Agregar</button></div>`):'')};
+function addC(){clr();let ok=true;if(!V('cn'))ok=E('cn','Campo obligatorio.')&&ok;if(!/^\d{8}$/.test(V('ct')))ok=E('ct','El teléfono debe tener 8 dígitos.')&&ok;if(!ok)return;const p=PA.find(x=>x.ci==SP);p.cont.push({nombre:V('cn'),par:V('cp'),tel:V('ct')});log('Registró contacto de emergencia CI '+p.ci,'Pacientes');toast('Contacto agregado');re()}
+function delC(i){const p=PA.find(x=>x.ci==SP);p.cont.splice(i,1);log('Quitó contacto de emergencia CI '+p.ci,'Pacientes');re()}
+let PQ='';
+S['15']=()=>hd('Buscar y modificar paciente','Busque por CI o nombre y actualice sus datos.',`<button class="btn pri" onclick="go('12')">Registrar paciente</button>`)+`<div class="filters"><div class="grow">${F('pq','Buscar por CI o nombre',{val:PQ,a:'placeholder="p. ej. 7845123"'}).replace('<input','<input oninput="PQ=this.value;pft()"')}</div></div><div id="pt">${pRows()}</div>`;
+function pRows(){const q=PQ.toLowerCase().trim(),r=PA.filter(p=>(p.ci+p.nombre).toLowerCase().includes(q));if(!r.length)return`<div class="emptybox"><p>No se encontraron registros coincidentes.</p><button class="btn pri" onclick="go('12')">Registrar paciente</button></div>`;
+ return tbl(['CI','Nombre completo','Teléfono','Nacimiento','Estado',''],r.map(p=>Object.assign([`<span class="mono">${p.ci}</span>`,h(p.nombre),`<span class="mono">${p.tel}</span>`,`<span class="mono">${fmt(p.fnac)}</span>`,st(p.activo?'Activo':'Inactivo'),`<button class="btn" onclick="edP('${p.ci}')">Modificar</button> <button class="btn ghost" onclick="SP='${p.ci}';go('16')">Historial</button>`],{off:!p.activo})))}
+function pft(){$('#pt').innerHTML=pRows()}
+function edP(ci){const p=PA.find(x=>x.ci==ci);modal(`<h3 id="mt">Modificar paciente</h3>${paForm(p)}<div class="actions"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn pri" onclick="saveEP('${ci}')">Guardar cambios</button></div>`)}
+function saveEP(ci){if(!paVal(1))return;const p=PA.find(x=>x.ci==ci);Object.assign(p,{nombre:V('pnom'),fnac:V('pfn'),tel:V('ptel'),dir:V('pdir')});log('Modificó datos del paciente CI '+ci,'Pacientes');closeM();toast('Datos actualizados');re()}
+S['16']=()=>{const r=CITAS.filter(c=>c.ci==SP).sort((a,b)=>(b.fecha+b.hora).localeCompare(a.fecha+a.hora));return hd('Historial de citas','Orden cronológico inverso.')+sec('Paciente',spSel(1))+sec('Citas',r.length?tbl(['Fecha','Hora','Especialidad','Médico','Motivo','Estado'],r.map(c=>[`<span class="mono">${fmt(c.fecha)}</span>`,`<span class="mono">${c.hora}</span>`,eN(MED.find(m=>m.id==c.med)?.esp),mN(c.med),h(c.motivo),st(c.estado)])):`<div class="emptybox"><p>El paciente no registra antecedentes de citas en el sistema.</p><button class="btn pri" onclick="BK.ci=SP;go('24')">Programar cita</button></div>`)};
+S['17']=()=>hd('Desactivar paciente','Baja lógica: el paciente no podrá recibir nuevas citas; su historial se conserva.')+tbl(['CI','Nombre','Citas pendientes','Estado',''],PA.map(p=>{const n=CITAS.filter(c=>c.ci==p.ci&&c.fecha>=TODAY&&(c.estado=='Programada'||c.estado=='Confirmada')).length;return Object.assign([`<span class="mono">${p.ci}</span>`,h(p.nombre),`<span class="mono">${n}</span>`,st(p.activo?'Activo':'Inactivo'),p.activo?`<button class="btn danger" onclick="offP('${p.ci}')">Desactivar</button>`:`<button class="btn" onclick="onP('${p.ci}')">Reactivar</button>`],{off:!p.activo})}));
+function pend(f){return CITAS.filter(c=>f(c)&&c.fecha>=TODAY&&(c.estado=='Programada'||c.estado=='Confirmada'))}
+function pendL(r){return `<ul class="plist">${r.map(c=>`<li><span class="mono">${c.cod}</span> ${fmt(c.fecha)} ${c.hora} · ${h(pN(c.ci))} · ${mN(c.med)}</li>`).join('')}</ul>`}
+offP=function(ci){const p=PA.find(x=>x.ci==ci),r=pend(c=>c.ci==ci);
+ if(r.length)return modal(`<h3 id="mt">Tiene citas pendientes</h3><p class="lead">Antes de desactivar a ${h(p.nombre)} debe cancelar o reasignar sus citas futuras:</p>${pendL(r)}<div class="form">${F('mot','Justificación de cancelación',{full:1,req:1})}</div><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" onclick="cancelAll(c=>c.ci=='${ci}',()=>doOff('${ci}'))">Cancelar citas y desactivar</button></div>`);
+ modal(`<h3 id="mt">Desactivar paciente</h3><p class="lead">${h(p.nombre)} (CI ${ci}) dejará de aparecer para nuevas citas. El historial se conserva.</p><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" onclick="doOff('${ci}')">Desactivar</button></div>`)};
+doOff=function(ci){PA.find(x=>x.ci==ci).activo=0;log('Baja lógica paciente CI '+ci,'Pacientes');closeM();toast('Paciente desactivado');re()};
+function onP(ci){PA.find(x=>x.ci==ci).activo=1;log('Reactivó paciente CI '+ci,'Pacientes');toast('Paciente reactivado');re()}
+function cancelAll(f,then){if(!E('mot',V('mot')?'':'Indique la justificación.'))return;pend(f).forEach(c=>{c.estado='Cancelada';log(`Canceló ${c.cod}: ${V('mot')}`,'Citas')});then()}
+/* Médicos */
+S['18']=()=>hd('Especialidades médicas','Catálogo de áreas de atención. No se permiten nombres duplicados.')+sec('Nueva especialidad',`<div class="row">${F('en','Nombre',{req:1})}<button class="btn pri" onclick="addE()">Agregar</button></div>`)+
+ tbl(['Especialidad','Médicos','Estado',''],ESP.map(e=>Object.assign([h(e.nombre),`<span class="mono">${MED.filter(m=>m.esp==e.id&&m.activo).length}</span>`,st(e.activo?'Activo':'Inactivo'),`<button class="btn" onclick="renE(${e.id})">Renombrar</button> <button class="btn ghost" onclick="togE(${e.id})">${e.activo?'Desactivar':'Activar'}</button>`],{off:!e.activo})));
+const dupE=(n,id)=>ESP.some(e=>e.nombre.toLowerCase()==n.toLowerCase()&&e.id!=id);
+function addE(){clr();const n=V('en');if(!E('en',!n?'Campo obligatorio.':dupE(n)?'La especialidad ya existe en el catálogo.':''))return;ESP.push({id:Date.now(),nombre:n,activo:1});log('Registró especialidad '+n,'Médicos');toast('Especialidad agregada');re()}
+function renE(id){const e=ESP.find(x=>x.id==id);modal(`<h3 id="mt">Renombrar especialidad</h3><div class="form">${F('enr','Nombre',{full:1,req:1,val:e.nombre})}</div><div class="actions"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn pri" onclick="doRen(${id})">Guardar</button></div>`)}
+function doRen(id){const n=V('enr');if(!E('enr',!n?'Campo obligatorio.':dupE(n,id)?'La especialidad ya existe en el catálogo.':''))return;ESP.find(x=>x.id==id).nombre=n;log('Renombró especialidad a '+n,'Médicos');closeM();toast('Especialidad actualizada');re()}
+function togE(id){const e=ESP.find(x=>x.id==id);if(e.activo&&MED.some(m=>m.esp==id&&m.activo)){modal(`<h3 id="mt">No se puede desactivar</h3><p class="lead">Hay médicos activos vinculados a ${h(e.nombre)}.</p><div class="actions"><button class="btn pri" onclick="closeM()">Entendido</button></div>`);return}e.activo=!e.activo;log((e.activo?'Activó':'Desactivó')+' especialidad '+e.nombre,'Médicos');re()}
+S['19']=()=>hd('Personal médico','Registro de médicos con matrícula única. Se crea su cuenta con rol Médico.',`<button class="btn pri" onclick="newM()">Registrar médico</button>`)+
+ tbl(['Médico','Matrícula','Especialidad','Correo','Estado'],MED.map(m=>Object.assign([h(m.nombre),`<span class="mono">${m.mat}</span>`,eN(m.esp),`<span class="mono">${m.correo}</span>`,st(m.activo?'Activo':'Inactivo')],{off:!m.activo})));
+function newM(){modal(`<h3 id="mt">Registrar médico</h3><div class="form">${F('mn','Nombre completo',{req:1,full:1})}${F('mci','CI',{req:1,a:'inputmode="numeric"'})}${F('mm','Matrícula profesional',{req:1,a:'placeholder="p. ej. PE-2210"'})}${F('me','Especialidad',{type:'select',opts:ESP.filter(e=>e.activo).map(e=>[e.id,e.nombre])})}${F('mc','Correo',{req:1,type:'email'})}</div><p class="hint">Pruebe matrícula PE-2210 para ver el duplicado.</p><div class="actions"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn pri" onclick="saveM()">Registrar</button></div>`)}
+function saveM(){clr();let ok=true;if(!V('mn'))ok=E('mn','Campo obligatorio.')&&ok;if(!/^\d{6,9}$/.test(V('mci')))ok=E('mci','CI numérico de 6 a 9 dígitos.')&&ok;
+ if(!V('mm'))ok=E('mm','Campo obligatorio.')&&ok;else if(MED.some(m=>m.mat.toLowerCase()==V('mm').toLowerCase()))ok=E('mm','La matrícula ya pertenece a otro profesional.')&&ok;
+ if(!/^\S+@\S+\.\S+$/.test(V('mc')))ok=E('mc','Correo no válido.')&&ok;else if(USERS.some(u=>u.correo==V('mc')))ok=E('mc','Este correo ya está registrado.')&&ok;if(!ok)return;
+ const m={id:Date.now(),nombre:V('mn'),ci:V('mci'),mat:V('mm').toUpperCase(),esp:+V('me'),correo:V('mc'),activo:1};MED.push(m);USERS.push({id:m.id,ci:m.ci,nombre:m.nombre,correo:m.correo,tel:'',rol:'Médico',estado:'Activo',pass:'vida2026',fails:0,lock:0});
+ log(`Registró médico ${m.nombre} (${m.mat})`,'Médicos');closeM();toast('Médico registrado. Configure su horario (CU20)');re()}
+let HM=1;
+S['20']=()=>{const H=HOR[HM]||{dias:[],ini:'08:00',fin:'12:00'};return hd('Configurar horarios','Jornada de atención por médico, fragmentada en bloques fijos de 30 minutos.')+sec('Médico',`<div class="form">${mSel('hm',HM).replace('<select','<select onchange="HM=+this.value;re()"')}</div>`)+
+ sec('Jornada',`<fieldset class="days"><legend>Días de atención</legend>${[1,2,3,4,5,6,0].map(d=>`<label class="ck day"><input type="checkbox" value="${d}" ${H.dias.includes(d)?'checked':''} onchange="hprev()"><span>${DN[d]}</span></label>`).join('')}</fieldset><div class="form">${F('hi','Hora de inicio',{type:'time',val:H.ini,a:'step="1800" onchange="hprev()"'})}${F('hf','Hora de fin',{type:'time',val:H.fin,a:'step="1800" onchange="hprev()"'})}${F('hb','Duración del bloque',{type:'select',opts:['30 minutos']})}</div><p class="hint" id="hpv" aria-live="polite"></p><div class="actions left"><button class="btn pri" onclick="saveH()">Guardar horario</button></div>`)};
+S['20'].init=()=>hprev();
+function hprev(){const d=[...document.querySelectorAll('.days input:checked')].length,i=V('hi'),f=V('hf');const el=$('#hpv');if(!el)return;el.textContent=i<f?`${times(i,f).length} bloques por día × ${d} día(s) = ${times(i,f).length*d} bloques semanales.`:''}
+function saveH(){clr();const dias=[...document.querySelectorAll('.days input:checked')].map(i=>+i.value),i=V('hi'),f=V('hf');if(!E('hf',i>=f?'Rango horario inválido: la hora de inicio debe ser anterior a la de fin.':''))return;if(!dias.length){toast('Seleccione al menos un día');return}
+ HOR[HM]={dias,ini:i,fin:f};log(`Configuró horario de ${mN(HM)}: ${dias.map(d=>DN[d]).join(',')} ${i}–${f}`,'Médicos');toast(`Horario guardado · ${times(i,f).length} bloques por día`)}
+S['21']=()=>hd('Desactivar médico','Baja lógica. Si tiene citas futuras, deben cancelarse o reasignarse antes.')+tbl(['Médico','Especialidad','Citas futuras','Estado',''],MED.map(m=>Object.assign([h(m.nombre),eN(m.esp),`<span class="mono">${pend(c=>c.med==m.id).length}</span>`,st(m.activo?'Activo':'Inactivo'),m.activo?`<button class="btn danger" onclick="offM(${m.id})">Desactivar</button>`:`<button class="btn" onclick="onM(${m.id})">Reactivar</button>`],{off:!m.activo})));
+function offM(id){const m=MED.find(x=>x.id==id),r=pend(c=>c.med==id),alt=MED.filter(x=>x.id!=id&&x.activo&&x.esp==m.esp);
+ if(r.length)return modal(`<h3 id="mt">Citas futuras agendadas</h3><p class="lead">${h(m.nombre)} tiene ${r.length} cita(s) pendiente(s). Reasígnelas o cancélelas para continuar:</p>${pendL(r)}${alt.length?`<div class="form">${F('ra','Reasignar a',{type:'select',full:1,opts:alt.map(a=>[a.id,a.nombre])})}</div><div class="actions"><button class="btn pri" onclick="reasg(${id})">Reasignar y desactivar</button></div>`:'<p class="hint">No hay otro médico activo de la misma especialidad para reasignar.</p>'}<div class="form">${F('mot','Justificación de cancelación',{full:1})}</div><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" onclick="cancelAll(c=>c.med==${id},()=>doOffM(${id}))">Cancelar citas y desactivar</button></div>`);
+ modal(`<h3 id="mt">Desactivar médico</h3><p class="lead">${h(m.nombre)} no generará nuevos bloques de agenda. El historial se conserva.</p><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" onclick="doOffM(${id})">Desactivar</button></div>`)}
+function reasg(id){const to=+V('ra');let n=0;pend(c=>c.med==id).forEach(c=>{if(CITAS.some(x=>x.med==to&&x.fecha==c.fecha&&x.hora==c.hora&&x.estado!='Cancelada')){c.estado='Cancelada'}else{c.med=to;n++}log(`Reasignó ${c.cod} a ${mN(to)}`,'Citas')});doOffM(id)}
+function doOffM(id){const m=MED.find(x=>x.id==id);m.activo=0;const u=USERS.find(x=>x.correo==m.correo);if(u)u.estado='Inactivo';log('Baja lógica médico '+m.nombre,'Médicos');closeM();toast('Médico desactivado');re()}
+function onM(id){const m=MED.find(x=>x.id==id);m.activo=1;log('Reactivó médico '+m.nombre,'Médicos');re()}
+S['22']=()=>hd('Bloquear agenda','Feriado (general, toda la clínica) o licencia (individual). Las fechas bloqueadas no admiten nuevas citas.')+sec('Nuevo bloqueo',`<div class="form">${F('bt','Tipo de bloqueo',{type:'select',opts:[['General','General (Feriado)'],['Individual','Individual (Licencia)']],val:'Individual'}).replace('<select','<select onchange="$(\'#bmw\').hidden=this.value==\'General\'"')}<div id="bmw">${mSel('bmd',2)}</div>${F('bd1','Fecha inicio',{type:'date',req:1,val:addD(3),a:`min="${TODAY}"`})}${F('bd2','Fecha fin',{type:'date',req:1,val:addD(3),a:`min="${TODAY}"`})}${F('bmo','Motivo',{full:1,req:1,a:'placeholder="p. ej. Feriado nacional, Licencia médica"'})}</div><div class="actions left"><button class="btn pri" onclick="aplB()">Aplicar bloqueo de agenda</button></div>`)+
+ sec('Bloqueos vigentes',tbl(['Tipo','Médico','Desde','Hasta','Motivo',''],BLOQ.map(b=>[b.tipo,b.tipo=='General'?'Todos':mN(b.med),`<span class="mono">${fmt(b.desde)}</span>`,`<span class="mono">${fmt(b.hasta)}</span>`,h(b.motivo),`<button class="btn" onclick="delB(${b.id})">Quitar</button>`]),'Sin bloqueos vigentes.'));
+function aplB(){clr();let ok=true;const t=V('bt'),a=V('bd1'),b=V('bd2'),m=+V('bmd');if(!a||a<TODAY)ok=E('bd1','Fecha inválida o pasada.')&&ok;if(!b||b<a)ok=E('bd2','La fecha fin debe ser igual o posterior a la de inicio.')&&ok;if(!V('bmo'))ok=E('bmo','Indique el motivo.')&&ok;if(!ok)return;
+ const f=c=>c.fecha>=a&&c.fecha<=b&&(t=='General'||c.med==m),r=pend(f),nb={id:Date.now(),tipo:t,med:t=='General'?null:m,desde:a,hasta:b,motivo:V('bmo')};
+ if(r.length)return modal(`<h3 id="mt">Citas afectadas</h3><p class="lead">Hay ${r.length} cita(s) en el rango. Debe cancelarlas con justificación (o reprogramarlas, CU26 · Ciclo 2):</p>${pendL(r)}<div class="form">${F('mot','Justificación',{full:1,req:1,val:nb.motivo})}</div><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" id="cab">Cancelar citas y bloquear</button></div>`),$('#cab').onclick=()=>cancelAll(f,()=>doB(nb));
+ doB(nb)}
+function doB(nb){BLOQ.push(nb);log(`Bloqueó agenda (${nb.tipo}) ${fmt(nb.desde)}–${fmt(nb.hasta)}: ${nb.motivo}`,'Médicos');closeM();toast('Bloqueo aplicado');re()}
+function delB(id){BLOQ=BLOQ.filter(b=>b.id!=id);log('Quitó bloqueo de agenda','Médicos');toast('Bloqueo eliminado');re()}
+/* CU23 disponibilidad */
+let DQ={esp:'',med:1,f:TODAY};
+S['23']=()=>{const ms=MED.filter(m=>m.activo&&(!DQ.esp||m.esp==DQ.esp));if(!ms.some(m=>m.id==DQ.med))DQ.med=ms[0]?.id;const sl=DQ.med?slots(DQ.med,DQ.f):[],fr=sl.filter(s=>s.s=='free'),b=DQ.med&&blq(DQ.med,DQ.f);
+ return hd('Consultar disponibilidad','Muestra solo los bloques de 30 minutos realmente libres, cruzando horarios con citas reservadas.')+
+ `<div class="filters">${F('de','Especialidad',{type:'select',val:DQ.esp,opts:[['','Todas'],...ESP.filter(e=>e.activo).map(e=>[e.id,e.nombre])]}).replace('<select','<select onchange="DQ.esp=this.value;re()"')}${F('dm','Médico',{type:'select',val:DQ.med,opts:ms.map(m=>[m.id,m.nombre])}).replace('<select','<select onchange="DQ.med=+this.value;re()"')}${F('df','Fecha',{type:'date',val:DQ.f,a:`min="${TODAY}"`}).replace('<input','<input onchange="if(this.value<TODAY){E(\'df\',\'No se pueden consultar fechas pasadas.\');this.value=DQ.f;return}DQ.f=this.value;re()"')}</div>`+
+ sec(`Bloques libres · ${mN(DQ.med)} · ${DN[new Date(DQ.f+'T12:00').getDay()]} ${fmt(DQ.f)}`,b?`<div class="emptybox"><p>Agenda bloqueada: ${h(b.motivo)} (${b.tipo}).</p></div>`:!sl.length?`<div class="emptybox"><p>El médico no atiende este día.</p></div>`:!fr.length?`<div class="emptybox"><p>No existen cupos disponibles para el médico en la fecha seleccionada.</p></div>`:`<p class="hint">${fr.length} de ${sl.length} bloques libres.</p><div class="slotlist">${fr.map(s=>`<button class="sbtn" onclick="Object.assign(BK,{f:DQ.f,sel:{med:DQ.med,t:'${s.t}'},mm:DQ.med});go('24')"><span class="mono">${s.t}</span><span>Programar</span></button>`).join('')}</div>`)};
+/* CU24 programar (Ciclo 2, funcional) */
+let BK={ci:'',f:TODAY,esp:'',sel:null,mm:1};
+book=function(){const ms=MED.filter(m=>m.activo&&(!BK.esp||m.esp==BK.esp));if(!ms.some(m=>m.id==BK.mm))BK.mm=ms[0]?.id;const all=ms.map(m=>({m,sl:slots(m.id,BK.f)}));const T=[...new Set(all.flatMap(x=>x.sl.map(s=>s.t)))].sort();
+ const cell=(m,s)=>{if(!s)return`<span class="slot na" aria-hidden="true"></span>`;const on=BK.sel&&BK.sel.med==m.id&&BK.sel.t==s.t;const lb={free:'Libre',busy:s.c?pN(s.c.ci).split(' ')[0]+' '+(pN(s.c.ci).split(' ')[1]||'')[0]+'.':'Ocupado',hol:s.b?.tipo=='General'?'Feriado':'Licencia',past:'Pasado'}[s.s];
+  return s.s=='free'?`<button class="slot free ${on?'sel':''}" aria-pressed="${on}" aria-label="${m.nombre} ${s.t} libre" onclick="pickB(${m.id},'${s.t}')">${on?'Seleccionado':'Libre'}</button>`:`<button class="slot ${s.s=='past'?'busy':s.s}" disabled aria-label="${m.nombre} ${s.t} ${lb}">${h(lb)}</button>`};
+ const mob=(all.find(x=>x.m.id==BK.mm)||{sl:[]}).sl;
+ return hd('Programar cita','Seleccione paciente y un bloque libre de 30 minutos. El sistema impide asignar dos pacientes al mismo médico en el mismo bloque (CU25).')+
+ `<div class="filters">${pSel('bci',BK.ci).replace('<select','<select onchange="BK.ci=this.value"')}${F('bfe','Fecha',{type:'date',val:BK.f,a:`min="${TODAY}"`}).replace('<input','<input onchange="if(this.value<TODAY){this.value=BK.f;toast(\'No se pueden elegir fechas pasadas\');return}BK.f=this.value;BK.sel=null;re()"')}${F('bes','Especialidad',{type:'select',val:BK.esp,opts:[['','Todas'],...ESP.filter(e=>e.activo).map(e=>[e.id,e.nombre])]}).replace('<select','<select onchange="BK.esp=this.value;BK.sel=null;re()"')}</div>
+ <div class="book"><div><div class="desk">${T.length?`<div class="slots" style="grid-template-columns:70px repeat(${all.length},minmax(0,1fr))"><div class="h"></div>${all.map(x=>`<div class="h">${h(x.m.nombre)}<br><span style="color:var(--mute);font-weight:400">${eN(x.m.esp)}</span></div>`).join('')}${T.map(t=>`<div class="t mono">${t}</div>`+all.map(x=>cell(x.m,x.sl.find(s=>s.t==t))).join('')).join('')}</div>`:'<div class="emptybox"><p>Ningún médico atiende en la fecha seleccionada.</p></div>'}
+ <div class="legend"><span><i></i>Libre</span><span><i style="background:#E6EBF3"></i>Ocupado</span><span><i style="background:#F3E2B8"></i>Feriado / licencia</span></div></div>
+ <div class="mobi">${F('bmm','Médico',{type:'select',val:BK.mm,opts:ms.map(m=>[m.id,m.nombre+' · '+eN(m.esp)])}).replace('<select','<select onchange="BK.mm=+this.value;BK.sel=null;re()"')}<div class="slotlist">${mob.length?mob.map(s=>{const on=BK.sel&&BK.sel.med==BK.mm&&BK.sel.t==s.t;return`<button class="sbtn ${s.s} ${on?'sel':''}" ${s.s=='free'?`onclick="pickB(${BK.mm},'${s.t}')"`:'disabled'} aria-pressed="${on}"><span class="mono">${s.t}</span><span>${s.s=='free'?(on?'Seleccionado':'Libre'):s.s=='hol'?'Bloqueado':s.s=='past'?'Pasado':'Ocupado'}</span></button>`}).join(''):'<p class="hint">El médico no atiende este día.</p>'}</div></div></div>
+ <div class="sum" aria-live="polite" id="sum">${sumB()}</div></div>`};
+function sumB(){if(!BK.sel)return`<h2>Resumen</h2><p style="color:var(--mute)">Ningún bloque seleccionado.</p>`;const m=MED.find(x=>x.id==BK.sel.med);
+ return`<h2>Resumen</h2><div class="mono" style="font-size:1.5rem">CM-0${SEQ}</div><dl class="kv"><dt>Paciente</dt><dd>${BK.ci?h(pN(BK.ci)):'<span class="rq">Sin seleccionar</span>'}</dd><dt>Médico</dt><dd>${h(m.nombre)}</dd><dt>Especialidad</dt><dd>${eN(m.esp)}</dd><dt>Fecha</dt><dd class="mono">${fmt(BK.f)}</dd><dt>Hora</dt><dd class="mono">${BK.sel.t}</dd><dt>Estado</dt><dd>${st('Programada')}</dd></dl>${F('bmot','Motivo de consulta',{full:1})}<div class="err" id="berr" aria-live="assertive"></div><button class="btn pri full" onclick="confB()">Confirmar cita</button>`}
+function pickB(m,t){BK.sel={med:m,t};BK.mm=m;document.querySelectorAll('.slot.sel,.sbtn.sel').forEach(s=>{s.classList.remove('sel');s.setAttribute('aria-pressed',false);s.lastChild.textContent?.length;});document.querySelectorAll(`[onclick="pickB(${m},'${t}')"]`).forEach(b=>{b.classList.add('sel');b.setAttribute('aria-pressed',true)});$('#sum').innerHTML=sumB();if(mob())$('#sum').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})}
+function confB(){const ci=V('bci')||BK.ci,s=BK.sel;if(!ci){$('#berr').textContent='Seleccione un paciente.';return}
+ if(CITAS.some(c=>c.med==s.med&&c.fecha==BK.f&&c.hora==s.t&&c.estado!='Cancelada')){$('#berr').textContent='El bloque acaba de ser ocupado (control de concurrencia). Elija otro.';return}
+ if(CITAS.some(c=>c.ci==ci&&c.fecha==BK.f&&c.hora==s.t&&c.estado!='Cancelada')){$('#berr').textContent='El paciente ya tiene una cita en ese horario.';return}
+ const c={cod:'CM-0'+SEQ++,ci,med:s.med,fecha:BK.f,hora:s.t,estado:'Programada',motivo:V('bmot')||'Consulta'};CITAS.push(c);log(`Programó cita ${c.cod} · ${pN(ci)} · ${mN(s.med)} ${fmt(c.fecha)} ${c.hora}`,'Citas');toast(`Cita ${c.cod} programada`);BK.sel=null;re()}
+/* CU30 agenda */
+let AGM=2,AGF=TODAY;
+agenda=function(){const r=CITAS.filter(c=>c.med==AGM&&c.fecha==AGF).sort((a,b)=>a.hora.localeCompare(b.hora));const c=k=>r.filter(a=>a.estado==k).length;
+ return hd('Agenda del día',`${mN(AGM)} · ${eN(MED.find(m=>m.id==AGM)?.esp)} · ${fmt(AGF)}`)+`<div class="filters">${mSel('agm',AGM,'Médico',1).replace('<select','<select onchange="AGM=+this.value;re()"')}${F('agf','Fecha',{type:'date',val:AGF}).replace('<input','<input onchange="AGF=this.value;re()"')}</div>`+
+ `<div class="counts"><div><b>${c('Programada')}</b><span>Programadas</span></div><div><b>${c('Confirmada')}</b><span>Confirmadas</span></div><div><b>${c('Atendida')}</b><span>Atendidas</span></div><div><b>${c('Inasistencia')}</b><span>Inasistencias</span></div></div>`+
+ tbl(['Hora','Código','Paciente','Motivo','Estado',''],r.map((a,i)=>[`<span class="mono">${a.hora}</span>`,`<span class="mono">${a.cod}</span>`,h(pN(a.ci)),h(a.motivo),st(a.estado),(a.estado=='Programada'?`<button class="btn" onclick="setE('${a.cod}','Confirmada')">Confirmar</button> `:'')+(a.estado=='Programada'||a.estado=='Confirmada'?`<button class="btn pri" onclick="setE('${a.cod}','Atendida')">Marcar atendida</button> <button class="btn" onclick="setE('${a.cod}','Inasistencia')">Inasistencia</button> <button class="btn ghost" onclick="cancelA('${a.cod}')">Cancelar</button>`:'')]),'No hay citas para este médico en la fecha.')};
+function setE(cod,e){const c=CITAS.find(x=>x.cod==cod);c.estado=e;log(`Cambió ${cod} a ${e}`,'Citas');toast(`${cod}: ${e}`);re()}
+cancelA=function(cod){const c=CITAS.find(x=>x.cod==cod);modal(`<h3 id="mt">Cancelar cita ${cod}</h3><p class="lead">${h(pN(c.ci))} · ${c.hora}. Queda registrada en la bitácora.</p><div class="form">${F('jus','Justificación',{full:1,req:1})}</div><div class="actions"><button class="btn" onclick="closeM()">Volver</button><button class="btn danger" onclick="if(E('jus',V('jus')?'':'Indique el motivo de la cancelación.')){setE('${cod}','Cancelada');log('Justificación ${cod}: '+V('jus'),'Citas');closeM()}">Cancelar cita</button></div>`)};
+/* registrar */
+Object.keys(S).forEach(k=>SCREEN[k]=S[k]);['24','25'].forEach(k=>SCREEN[k]=book);['29','30','31'].forEach(k=>SCREEN[k]=agenda);
+const _go=go;go=function(id,first){if(!ME&&$('#app').style.display=='grid'){logout();return}_go(id,first)};
+$('#u').value='admin@vidasalud.bo';
+const dm2=location.hash.match(/^#demo-?(\d\d)?/);if(dm2){if(dm2[1])cur=dm2[1];$('#p').value='vida2026';$('#lf').requestSubmit();if(/[&]d/.test(location.hash))hamb(true)}
+</script>
+</body></html>

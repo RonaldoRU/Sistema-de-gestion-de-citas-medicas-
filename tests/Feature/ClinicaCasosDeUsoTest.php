@@ -11,6 +11,7 @@ use App\Models\Paciente;
 use App\Models\Rol;
 use App\Models\Usuario;
 use App\Services\AuditoriaService;
+use Carbon\Carbon;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -602,8 +603,12 @@ class ClinicaCasosDeUsoTest extends TestCase
 
         $medico = Medico::first();
 
-        // 1. Disponibilidad con bloques de 15 minutos
-        $resDisp = $this->getJson("/api/citas/disponibilidad?id_medico={$medico->id_persona}&fecha=2026-11-15");
+        // 1. Disponibilidad con bloques de 15 minutos en un día de atención del médico
+        $horarioMedico = Horario::where('id_medico', $medico->id_persona)->where('activo', true)->first();
+        $diaSem = $horarioMedico ? $horarioMedico->dia_semana : 1;
+        $fechaTest = Carbon::now()->addDays(3)->next($diaSem)->toDateString();
+
+        $resDisp = $this->getJson("/api/citas/disponibilidad?id_medico={$medico->id_persona}&fecha={$fechaTest}");
         $resDisp->assertOk();
         $this->assertEquals(15, $resDisp->json('duracion_bloque_min'));
 

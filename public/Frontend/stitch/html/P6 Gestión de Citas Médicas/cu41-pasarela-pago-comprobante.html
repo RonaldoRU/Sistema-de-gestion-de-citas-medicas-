@@ -50,13 +50,14 @@
                 <label class="vs-label" for="pg-cita">Ficha / Cita médica a confirmar <span class="vs-req">*</span></label>
                 <select id="pg-cita" class="vs-select" required></select>
               </div>
-              <div class="vs-choice-grid vs-choice-grid--2">
+              <div class="vs-choice-grid vs-choice-grid--3" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
                 <label class="vs-choice"><input type="radio" name="metodo_pago" value="QR_SIMPLE" checked><div><div class="vs-choice__title">QR Simple Bolivia</div><div class="vs-choice__desc">Confirmación inmediata interbancaria</div></div></label>
-                <label class="vs-choice"><input type="radio" name="metodo_pago" value="TARJETA"><div><div class="vs-choice__title">Tarjeta Débito / Crédito</div><div class="vs-choice__desc">Tokenización segura Visa / Mastercard</div></div></label>
+                <label class="vs-choice"><input type="radio" name="metodo_pago" value="TARJETA"><div><div class="vs-choice__title">Tarjeta Débito / Crédito</div><div class="vs-choice__desc">Visa / Mastercard nacional</div></div></label>
+                <label class="vs-choice"><input type="radio" name="metodo_pago" value="STRIPE"><div><div class="vs-choice__title">Stripe Payments</div><div class="vs-choice__desc">Pasarela internacional Stripe</div></div></label>
               </div>
               <div class="vs-form-grid">
-                <div class="vs-field"><label class="vs-label" for="pg-monto">Monto de consulta (Bs) <span class="vs-req">*</span></label><input id="pg-monto" class="vs-input vs-input--mono" type="number" value="150" required></div>
-                <div class="vs-field"><label class="vs-label" for="pg-nit">NIT / CI para recibo <span class="vs-req">*</span></label><input id="pg-nit" class="vs-input vs-input--mono" type="text" value="10188329" required></div>
+                <div class="vs-field"><label class="vs-label" for="pg-monto">Monto de consulta (Bs) <span class="vs-req">*</span></label><input id="pg-monto" class="vs-input vs-input--mono" type="number" placeholder="150" required></div>
+                <div class="vs-field"><label class="vs-label" for="pg-nit">NIT / CI para recibo <span class="vs-req">*</span></label><input id="pg-nit" class="vs-input vs-input--mono" type="text" placeholder="NIT o CI del paciente" required></div>
               </div>
             </div>
             <div class="vs-card__foot">
@@ -67,13 +68,13 @@
 
           <aside class="vs-stack">
             <article class="vs-card vs-card--teal" id="cu41-comprobante-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Vista previa del comprobante digital</h3><p class="vs-card__sub">Clínica Vida Salud · Santa Cruz</p></div><span class="vs-badge vs-badge--ok" id="cu41-comp-estado">Listo</span></div>
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Vista previa del comprobante digital</h3><p class="vs-card__sub">Clínica Vida Salud · Santa Cruz</p></div><span class="vs-badge vs-badge--muted" id="cu41-comp-estado">Pendiente</span></div>
               <div class="vs-card__body">
                 <dl class="vs-dl">
-                  <dt>N.º Transacción</dt><dd class="vs-mono" id="cu41-comp-tx">TX-VS-2026-001</dd>
-                  <dt>Cita asociada</dt><dd class="vs-mono" id="cu41-comp-cita">CM-0001</dd>
-                  <dt>Método</dt><dd id="cu41-comp-metodo">QR Simple Bolivia</dd>
-                  <dt>Importe pagado</dt><dd class="vs-mono vs-strong" id="cu41-comp-monto">Bs 150,00</dd>
+                  <dt>N.º Transacción</dt><dd class="vs-mono" id="cu41-comp-tx">—</dd>
+                  <dt>Cita asociada</dt><dd class="vs-mono" id="cu41-comp-cita">—</dd>
+                  <dt>Método</dt><dd id="cu41-comp-metodo">—</dd>
+                  <dt>Importe pagado</dt><dd class="vs-mono vs-strong" id="cu41-comp-monto">—</dd>
                 </dl>
               </div>
               <div class="vs-card__foot">

@@ -45,30 +45,30 @@
         <section class="vs-card">
           <div class="vs-card__body vs-card__body--tight vs-row vs-row--between">
             <form class="vs-row vs-grow" onsubmit="event.preventDefault()">
-              <div class="vs-input-icon vs-grow" style="max-width:24rem"><svg class="vs-i"><use href="#i-hash"/></svg><input class="vs-input vs-input--mono" type="search" value="CM-0288" aria-label="Código de cita o CI del paciente" placeholder="CM-#### o CI del paciente"></div>
-              <button type="submit" class="vs-btn vs-btn--soft"><svg class="vs-i"><use href="#i-search"/></svg>Buscar cita</button>
+              <div class="vs-input-icon vs-grow" style="max-width:24rem"><svg class="vs-i"><use href="#i-hash"/></svg><input class="vs-input vs-input--mono" type="search" id="cu26-search-input" aria-label="Código de cita o CI del paciente" placeholder="CM-#### o CI del paciente"></div>
+              <button type="submit" class="vs-btn vs-btn--soft" id="cu26-search-btn"><svg class="vs-i"><use href="#i-search"/></svg>Buscar cita</button>
             </form>
             <span class="vs-small vs-muted">Solo citas con estado Programada o Confirmada</span>
           </div>
         </section>
 
-        <form class="vs-split" data-demo="Cita reprogramada" data-demo-sub="CM-0288 → miércoles 28/10 09:00 · bloque anterior liberado" novalidate>
+        <form class="vs-split" novalidate>
           <div class="vs-stack">
             <article class="vs-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Cita actual</h3><p class="vs-card__sub">Se liberará al confirmar</p></div><span class="vs-badge vs-badge--info"><span class="vs-badge__dot"></span>Programada</span></div>
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Cita a reprogramar</h3><p class="vs-card__sub" id="cu26-estado-sub">Selecciona una cita médica</p></div><span class="vs-badge vs-badge--muted" id="cu26-badge-estado">Pendiente</span></div>
               <div class="vs-card__body">
                 <div class="vs-split vs-split--even">
                   <dl class="vs-dl">
-                    <dt>Código</dt><dd class="vs-mono">CM-0288</dd>
-                    <dt>Paciente</dt><dd>Paola Paz Terceros · CI 10188329</dd>
-                    <dt>Teléfono</dt><dd class="vs-mono">76840518</dd>
-                    <dt>Motivo</dt><dd>Dolor de cabeza recurrente</dd>
+                    <dt>Código</dt><dd class="vs-mono" id="cu26-codigo">—</dd>
+                    <dt>Paciente</dt><dd id="cu26-paciente">Ingresa código o CI</dd>
+                    <dt>Teléfono</dt><dd class="vs-mono" id="cu26-telefono">—</dd>
+                    <dt>Motivo</dt><dd id="cu26-motivo">—</dd>
                   </dl>
                   <dl class="vs-dl">
-                    <dt>Especialidad</dt><dd>Medicina General</dd>
-                    <dt>Médico</dt><dd>Dr. Juan Ronaldo Rojas Ugarte</dd>
-                    <dt>Fecha y hora</dt><dd class="vs-mono">Lun 26/10/2026 · 10:00 – 10:30</dd>
-                    <dt>Registrada</dt><dd>djustiniano · 19/10/2026</dd>
+                    <dt>Especialidad</dt><dd id="cu26-especialidad">—</dd>
+                    <dt>Médico</dt><dd id="cu26-medico">—</dd>
+                    <dt>Fecha y hora</dt><dd class="vs-mono" id="cu26-fecha-hora">—</dd>
+                    <dt>Registrada</dt><dd id="cu26-registrada">—</dd>
                   </dl>
                 </div>
               </div>
@@ -78,23 +78,16 @@
               <div class="vs-card__head"><div><h3 class="vs-card__title">Nuevo bloque</h3><p class="vs-card__sub">Puedes mantener el médico o elegir otro de la misma especialidad</p></div></div>
               <div class="vs-card__body vs-form">
                 <div class="vs-form-grid vs-form-grid--3">
-                  <div class="vs-field"><label class="vs-label" for="r-med">Médico</label><select id="r-med" class="vs-select"><option selected>MED-001 · Dr. Juan Ronaldo Rojas Ugarte</option><option>MED-003 · Dr. Fernando Arteaga Ribera</option><option>MED-006 · Dra. Gabriela Peña Salvatierra</option><option>MED-009 · Dr. Ricardo Égüez Parada</option></select></div>
-                  <div class="vs-field"><label class="vs-label" for="r-fecha">Nueva fecha <span class="vs-req">*</span></label><input id="r-fecha" class="vs-input vs-input--mono" type="date" value="2026-10-28" min="2026-10-26" required></div>
+                  <div class="vs-field"><label class="vs-label" for="r-med">Médico</label><select id="r-med" class="vs-select"><option value="">Selecciona un médico...</option></select></div>
+                  <div class="vs-field"><label class="vs-label" for="r-fecha">Nueva fecha <span class="vs-req">*</span></label><input id="r-fecha" class="vs-input vs-input--mono" type="date" required></div>
                   <div class="vs-field"><label class="vs-label" for="r-motivo">Motivo del cambio <span class="vs-req">*</span></label><select id="r-motivo" class="vs-select" required><option value="">Selecciona…</option><option selected>Solicitud del paciente</option><option>Bloqueo de agenda del médico</option><option>Reasignación de médico</option><option>Otro</option></select></div>
                 </div>
                 <div class="vs-row vs-row--between">
-                  <span class="vs-small vs-strong">Miércoles 28/10 · Dr. Rojas · 08:00–12:00</span>
+                  <span class="vs-small vs-strong" id="cu26-horario-sub">Bloques disponibles</span>
                   <div class="vs-legend"><span><i class="free"></i>Libre</span><span><i class="busy"></i>Reservado</span><span><i class="sel"></i>Nuevo</span></div>
                 </div>
-                <div class="vs-slots" data-slots="repro">
-                  <button type="button" class="vs-slot vs-slot--busy" disabled>08:00<small>CM-0293</small></button>
-                  <button type="button" class="vs-slot vs-slot--free" data-time="08:30" aria-pressed="false">08:30<small>Libre</small></button>
-                  <button type="button" class="vs-slot vs-slot--free is-selected" data-time="09:00" aria-pressed="true">09:00<small>Libre</small></button>
-                  <button type="button" class="vs-slot vs-slot--busy" disabled>09:30<small>CM-0294</small></button>
-                  <button type="button" class="vs-slot vs-slot--free" data-time="10:00" aria-pressed="false">10:00<small>Libre</small></button>
-                  <button type="button" class="vs-slot vs-slot--free" data-time="10:30" aria-pressed="false">10:30<small>Libre</small></button>
-                  <button type="button" class="vs-slot vs-slot--busy" disabled>11:00<small>CM-0292</small></button>
-                  <button type="button" class="vs-slot vs-slot--free" data-time="11:30" aria-pressed="false">11:30<small>Libre</small></button>
+                <div class="vs-slots" data-slots="repro" id="cu26-slots-container">
+                  <p class="vs-muted" style="text-align:center;padding:1.5rem;width:100%;">Selecciona médico y fecha para consultar turnos disponibles en tiempo real.</p>
                 </div>
               </div>
             </article>
@@ -104,17 +97,17 @@
             <article class="vs-card vs-card--accent">
               <div class="vs-card__head"><div><h3 class="vs-card__title">Antes → Después</h3></div></div>
               <div class="vs-card__body vs-stack vs-stack--sm">
-                <div class="vs-agenda__item vs-agenda__item--cancel"><div><div class="vs-agenda__title vs-mono">Lun 26/10 · 10:00</div><div class="vs-agenda__sub">Dr. Rojas · bloque que se libera</div></div><span class="vs-badge vs-badge--muted">Antes</span></div>
+                <div class="vs-agenda__item vs-agenda__item--cancel"><div><div class="vs-agenda__title vs-mono" id="cu26-antes-fecha">—</div><div class="vs-agenda__sub" id="cu26-antes-med">Bloque actual</div></div><span class="vs-badge vs-badge--muted">Antes</span></div>
                 <div style="text-align:center;color:var(--vs-muted)"><svg class="vs-i"><use href="#i-arrow-right"/></svg></div>
-                <div class="vs-agenda__item vs-agenda__item--now"><div><div class="vs-agenda__title vs-mono">Mié 28/10 · <span data-slot-summary="repro" data-empty="—">09:00</span></div><div class="vs-agenda__sub">Dr. Rojas · nuevo bloque</div></div><span class="vs-badge vs-badge--info">Después</span></div>
+                <div class="vs-agenda__item vs-agenda__item--now"><div><div class="vs-agenda__title vs-mono" id="cu26-despues-fecha">—</div><div class="vs-agenda__sub" id="cu26-despues-med">Nuevo bloque seleccionado</div></div><span class="vs-badge vs-badge--info">Después</span></div>
                 <dl class="vs-dl" style="margin-top:.5rem">
-                  <dt>Estado</dt><dd>Se mantiene <span class="vs-badge vs-badge--info">Programada</span></dd>
-                  <dt>Código</dt><dd class="vs-mono">CM-0288 (sin cambios)</dd>
-                  <dt>Recordatorio</dt><dd>Se reprograma la llamada para el 27/10</dd>
+                  <dt>Estado</dt><dd>Se mantiene <span class="vs-badge vs-badge--info" id="cu26-estado-badge">Programada</span></dd>
+                  <dt>Código</dt><dd class="vs-mono" id="cu26-resumen-cod">—</dd>
+                  <dt>Recordatorio</dt><dd>Se reprograma notificación automática</dd>
                 </dl>
               </div>
               <div class="vs-card__foot" style="flex-direction:column;align-items:stretch;gap:.5rem">
-                <button type="submit" class="vs-btn vs-btn--primary vs-btn--block" data-slot-confirm="repro"><svg class="vs-i"><use href="#i-repeat"/></svg>Confirmar reprogramación</button>
+                <button type="submit" class="vs-btn vs-btn--primary vs-btn--block" id="cu26-btn-confirmar"><svg class="vs-i"><use href="#i-repeat"/></svg>Confirmar reprogramación</button>
                 <a href="cu30-agenda-diaria.html" class="vs-btn vs-btn--ghost vs-btn--block">Cancelar y volver</a>
               </div>
             </article>
@@ -130,9 +123,8 @@
 
             <article class="vs-card">
               <div class="vs-card__head"><div><h3 class="vs-card__title">Pendientes por bloqueo de agenda</h3><p class="vs-card__sub">Desde CU23</p></div></div>
-              <ul class="vs-list vs-list--boxed">
-                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">CM-0301 · Paola Paz Terceros</div><div class="vs-list-row__sub">Dra. Montero · 09/11 08:30 · licencia</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Cita cargada" data-toast-sub="CM-0301 lista para reprogramar">Cargar</button></li>
-                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">CM-0305 · Camila Choque Peña</div><div class="vs-list-row__sub">Dra. Montero · 11/11 14:00 · licencia</div></div><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Cita cargada" data-toast-sub="CM-0305 lista para reprogramar">Cargar</button></li>
+              <ul class="vs-list vs-list--boxed" id="cu26-pendientes-list">
+                <li class="vs-list-row" style="color:var(--vs-muted);padding:1rem;text-align:center;">No hay citas pendientes por bloqueo</li>
               </ul>
             </article>
           </aside>

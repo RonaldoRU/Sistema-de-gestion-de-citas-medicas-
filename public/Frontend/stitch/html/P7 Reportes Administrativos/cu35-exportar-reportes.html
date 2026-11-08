@@ -59,9 +59,9 @@
               <fieldset class="vs-fieldset">
                 <legend class="vs-legend"><span class="vs-legend__num">2</span>Filtros</legend>
                 <div class="vs-form-grid vs-form-grid--3">
-                  <div class="vs-field"><label class="vs-label" for="ex-desde">Desde</label><input id="ex-desde" class="vs-input vs-input--mono" type="date" value="2026-10-01"></div>
-                  <div class="vs-field"><label class="vs-label" for="ex-hasta">Hasta</label><input id="ex-hasta" class="vs-input vs-input--mono" type="date" value="2026-10-26"></div>
-                  <div class="vs-field"><label class="vs-label" for="ex-esp">Especialidad</label><select id="ex-esp" class="vs-select"><option>Todas</option><option>Medicina General</option><option>Pediatría</option><option>Ginecología</option><option>Odontología</option><option>Cardiología</option><option>Traumatología</option><option>Dermatología</option></select></div>
+                  <div class="vs-field"><label class="vs-label" for="ex-desde">Desde</label><input id="ex-desde" class="vs-input vs-input--mono" type="date"></div>
+                  <div class="vs-field"><label class="vs-label" for="ex-hasta">Hasta</label><input id="ex-hasta" class="vs-input vs-input--mono" type="date"></div>
+                  <div class="vs-field"><label class="vs-label" for="ex-esp">Especialidad</label><select id="ex-esp" class="vs-select"><option value="">Todas las especialidades</option></select></div>
                 </div>
               </fieldset>
               <hr class="vs-divider">
@@ -83,19 +83,16 @@
               </fieldset>
             </div>
             <div class="vs-card__foot">
-              <span>Vista previa: <span class="vs-mono">reporte_citas_2026-10-01_2026-10-26.csv</span> · ~204 filas</span>
+              <span>Descarga en tiempo real generada desde la base de datos</span>
               <button type="submit" class="vs-btn vs-btn--primary"><svg class="vs-i"><use href="#i-download"/></svg>Generar y descargar</button>
             </div>
           </form>
 
           <aside class="vs-stack">
             <article class="vs-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Historial de exportaciones</h3><p class="vs-card__sub">Últimos 30 días</p></div></div>
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Historial de exportaciones</h3><p class="vs-card__sub">Registrado en PostgreSQL</p></div></div>
               <ul class="vs-list vs-list--boxed">
-                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--teal" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-file-csv"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Citas por período · 01–24/10</div><div class="vs-list-row__sub">CSV · scolque · 24/10 18:02 · 198 filas</div></div><button type="button" class="vs-icon-btn" title="Descargar de nuevo" data-toast="Descarga iniciada" data-toast-sub="reporte_citas_2026-10-01_2026-10-24.csv"><svg class="vs-i"><use href="#i-download"/></svg></button></li>
-                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--rose" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-file-pdf"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Atenciones por médico · septiembre</div><div class="vs-list-row__sub">PDF · scolque · 01/10 09:15 · 6 páginas</div></div><button type="button" class="vs-icon-btn" title="Descargar de nuevo" data-toast="Descarga iniciada" data-toast-sub="atenciones_medico_2026-09.pdf"><svg class="vs-i"><use href="#i-download"/></svg></button></li>
-                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--rose" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-file-pdf"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Control de asistencia · septiembre</div><div class="vs-list-row__sub">PDF · scolque · 01/10 09:12 · 4 páginas</div></div><button type="button" class="vs-icon-btn" title="Descargar de nuevo" data-toast="Descarga iniciada" data-toast-sub="asistencia_2026-09.pdf"><svg class="vs-i"><use href="#i-download"/></svg></button></li>
-                <li class="vs-list-row"><span class="vs-kpi__icon vs-kpi__icon--teal" style="width:2.25rem;height:2.25rem"><svg class="vs-i"><use href="#i-file-csv"/></svg></span><div class="vs-list-row__body"><div class="vs-list-row__title">Padrón de pacientes</div><div class="vs-list-row__sub">CSV · scolque · 28/09 16:40 · 68 filas</div></div><button type="button" class="vs-icon-btn" title="Descargar de nuevo" data-toast="Descarga iniciada" data-toast-sub="padron_pacientes_2026-09-28.csv"><svg class="vs-i"><use href="#i-download"/></svg></button></li>
+                <li class="vs-list-row"><div class="vs-list-row__body"><div class="vs-list-row__title">Consultando historial de reportes...</div></div></li>
               </ul>
             </article>
             <article class="vs-card vs-card--accent">

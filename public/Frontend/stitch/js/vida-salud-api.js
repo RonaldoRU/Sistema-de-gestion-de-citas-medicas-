@@ -161,7 +161,12 @@
       var cierreLocal = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
 
       try {
-        res = await this.request('/auth/logout', { method: 'POST' });
+        var logoutBody = {};
+        if (currentUser) {
+          logoutBody.id_usuario = currentUser.id_usuario;
+          logoutBody.usuario = currentUser.nombre_usuario;
+        }
+        res = await this.request('/auth/logout', { method: 'POST', body: logoutBody });
         if (res && res.logout_info) {
           sessionStorage.setItem('vs_last_logout', JSON.stringify(res.logout_info));
         } else {
@@ -235,10 +240,10 @@
       return this.request('/usuarios/' + id, { method: 'PUT', body: data });
     },
 
-    cambiarRolUsuario: function (id, id_rol) {
+    cambiarRolUsuario: function (id, id_rol, motivo) {
       return this.request('/usuarios/' + id + '/cambiar-rol', {
         method: 'PUT',
-        body: { id_rol: id_rol }
+        body: { id_rol: id_rol, motivo: motivo || 'Cambio de rol operativo administrativo' }
       });
     },
 
@@ -380,6 +385,33 @@
       return this.request('/citas/disponibilidad' + query, { method: 'GET' });
     },
 
+    getProximoLibre: function (params) {
+      var query = params ? '?' + new URLSearchParams(params).toString() : '';
+      return this.request('/citas/proximo-libre' + query, { method: 'GET' });
+    },
+
+    // ---------- Pagos, Comprobantes y Reembolsos (P8 CU41, CU42) ----------
+    getPagos: function (params) {
+      var query = params ? '?' + new URLSearchParams(params).toString() : '';
+      return this.request('/pagos' + query, { method: 'GET' });
+    },
+
+    getPago: function (id) {
+      return this.request('/pagos/' + id, { method: 'GET' });
+    },
+
+    registrarPago: function (data) {
+      return this.request('/pagos', { method: 'POST', body: data });
+    },
+
+    reembolsarPago: function (id, data) {
+      return this.request('/pagos/' + id + '/reembolso', { method: 'POST', body: data });
+    },
+
+    crearStripeIntento: function (data) {
+      return this.request('/pagos/stripe/crear-sesion', { method: 'POST', body: data });
+    },
+
     programarCita: function (data) {
       return this.request('/citas', { method: 'POST', body: data });
     },
@@ -512,19 +544,40 @@
       .replace(/'/g, '&#39;');
   }
 
-  function formatFechaHora(isoStr) {
-    if (!isoStr) return '—';
+  function formatFechaHora(val) {
+    if (!val) return '—';
     try {
-      var d = new Date(isoStr);
-      if (isNaN(d.getTime())) return isoStr;
-      var day = String(d.getDate()).padStart(2, '0');
-      var mon = String(d.getMonth() + 1).padStart(2, '0');
-      var hh = String(d.getHours()).padStart(2, '0');
-      var mm = String(d.getMinutes()).padStart(2, '0');
-      var ss = String(d.getSeconds()).padStart(2, '0');
-      return day + '/' + mon + ' ' + hh + ':' + mm + ':' + ss;
+      var str = String(val).trim();
+      // Si ya viene como YYYY-MM-DD HH:mm:ss o similar (hora local de Bolivia)
+      var matchYmdHms = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?/);
+      if (matchYmdHms && str.indexOf('Z') === -1 && str.indexOf('+') === -1 && !str.match(/-\d{2}:\d{2}$/)) {
+        var day = matchYmdHms[3];
+        var mon = matchYmdHms[2];
+        var hh = matchYmdHms[4];
+        var mm = matchYmdHms[5];
+        var ss = matchYmdHms[6] || '00';
+        return day + '/' + mon + ' ' + hh + ':' + mm + ':' + ss;
+      }
+
+      var d = new Date(str);
+      if (isNaN(d.getTime())) return str;
+
+      // Usar explícitamente la zona horaria de Bolivia (America/La_Paz, UTC-4)
+      var dtf = new Intl.DateTimeFormat('es-BO', {
+        timeZone: 'America/La_Paz',
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      var parts = dtf.formatToParts(d);
+      var pMap = {};
+      parts.forEach(function (p) { pMap[p.type] = p.value; });
+      return (pMap.day || '00') + '/' + (pMap.month || '00') + ' ' + (pMap.hour || '00') + ':' + (pMap.minute || '00') + ':' + (pMap.second || '00');
     } catch (e) {
-      return isoStr;
+      return val;
     }
   }
 
@@ -1491,6 +1544,26 @@
       var currentRecords = [];
       var activeCU11Params = {};
 
+      async function cargarUsuariosFiltroCU11() {
+        var userSelect = document.getElementById('b-usuario');
+        if (!userSelect) return;
+        try {
+          var resU = await VS_API.getUsuarios({ per_page: 100 });
+          var uList = (resU && resU.data && resU.data.data) ? resU.data.data : (resU.data || []);
+          var prevVal = userSelect.value;
+          userSelect.innerHTML = '<option value="">Todos los usuarios</option><option value="sistema">Sistema</option>';
+          uList.forEach(function (u) {
+            var p = u.persona || {};
+            var opt = document.createElement('option');
+            opt.value = u.nombre_usuario;
+            opt.textContent = u.nombre_usuario + ' — ' + (p.nombres || '') + ' ' + (p.apellidos || '');
+            userSelect.appendChild(opt);
+          });
+          if (prevVal) userSelect.value = prevVal;
+        } catch (e) {}
+      }
+      cargarUsuariosFiltroCU11();
+
       function buildRowHtml(item, isNew) {
         var usuario = item.usuario ? (item.usuario.nombre_usuario || 'Sistema') : 'Sistema';
         var tablaReg = item.tabla_afectada ? (item.tabla_afectada + (item.id_registro_afectado ? ' · ' + item.id_registro_afectado : '')) : '—';
@@ -1628,9 +1701,9 @@
           isFiltering = true;
 
           var userEl = document.getElementById('b-usuario');
-          var usuarioVal = userEl ? userEl.value.split('—')[0].trim() : '';
+          var usuarioVal = userEl ? userEl.value.trim() : '';
           var modEl = document.getElementById('b-modulo');
-          var moduloVal = modEl ? modEl.value.split('·')[0].trim() : '';
+          var moduloVal = modEl ? modEl.value.trim() : '';
           var accionVal = document.getElementById('b-accion') ? document.getElementById('b-accion').value : '';
           var desdeVal = document.getElementById('b-desde') ? document.getElementById('b-desde').value : '';
           var hastaVal = document.getElementById('b-hasta') ? document.getElementById('b-hasta').value : '';
@@ -1638,7 +1711,10 @@
 
           var params = {};
           if (usuarioVal && !usuarioVal.includes('Todos')) params.usuario = usuarioVal;
-          if (moduloVal && !moduloVal.includes('Todos')) params.modulo = moduloVal;
+          if (moduloVal && !moduloVal.includes('Todos')) {
+            var mPrefix = moduloVal.match(/P\d+/i);
+            params.modulo = mPrefix ? mPrefix[0] : moduloVal;
+          }
           if (accionVal && !accionVal.includes('Todas')) params.tipo_accion = accionVal;
           if (desdeVal) params.fecha_desde = desdeVal;
           if (hastaVal) params.fecha_hasta = hastaVal;
@@ -1799,6 +1875,30 @@
             html += buildUserRowHtml(u);
           });
           tableBody.innerHTML = html;
+
+          // Actualizar KPIs dinámicos de catálogo (CU06)
+          var kpiTot = document.getElementById('kpi-total-usuarios');
+          var kpiMed = document.getElementById('kpi-total-medicos');
+          var kpiRec = document.getElementById('kpi-total-recep');
+          var kpiAdm = document.getElementById('kpi-total-admins');
+          if (kpiTot || kpiMed || kpiRec || kpiAdm) {
+            VS_API.getUsuarios({ per_page: 200 }).then(function (allRes) {
+              var allUsers = (allRes && allRes.data && allRes.data.data) ? allRes.data.data : (allRes.data || allRes || []);
+              if (Array.isArray(allUsers)) {
+                var cMed = 0, cRec = 0, cAdm = 0;
+                allUsers.forEach(function (u) {
+                  var r = ((u.rol && (u.rol.nombre || u.rol)) || '').toUpperCase();
+                  if (r.includes('MEDIC')) cMed++;
+                  else if (r.includes('RECEP')) cRec++;
+                  else if (r.includes('ADMIN')) cAdm++;
+                });
+                if (kpiTot) kpiTot.textContent = allUsers.length;
+                if (kpiMed) kpiMed.textContent = cMed;
+                if (kpiRec) kpiRec.textContent = cRec;
+                if (kpiAdm) kpiAdm.textContent = cAdm;
+              }
+            }).catch(function () {});
+          }
         } catch (err) {
           tableBody.innerHTML = '<tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-danger);">Error al cargar usuarios: ' + err.message + '</td></tr>';
         }
@@ -1977,7 +2077,7 @@
       }
     }
 
-    // 10. Vincular Catálogo de Pacientes (CU15)
+    // 10. Vincular Catálogo y Modificación de Pacientes (CU15 Dinámico)
     var pacTbody = document.getElementById('vs-pacientes-tbody');
     if (pacTbody) {
       initPacientesCatalogo();
@@ -1987,49 +2087,180 @@
       var searchInput = document.getElementById('paciente-buscar-input');
       var searchForm = document.getElementById('paciente-buscar-form');
       var conteoSpan = document.getElementById('paciente-conteo');
+      var splitCont = document.getElementById('cu15-split-container');
+      var formMod = document.getElementById('form-modificar-paciente');
+      var btnCerrar = document.getElementById('btn-cerrar-modificar');
+      var radioEstPills = document.querySelectorAll('input[name="est"]');
+
+      var pacientesCache = {};
+      var currentEditingId = null;
+
+      function calcularEdadStr(fNac, sexo) {
+        var sexStr = sexo === 'F' ? 'Fem' : (sexo === 'M' ? 'Masc' : '—');
+        if (!fNac) return sexStr;
+        var d = new Date(fNac);
+        if (isNaN(d.getTime())) return sexStr;
+        var hoy = new Date();
+        var edad = hoy.getFullYear() - d.getFullYear();
+        var m = hoy.getMonth() - d.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < d.getDate())) edad--;
+        return (edad >= 0 ? (edad + ' a · ') : '') + sexStr;
+      }
+
+      function cerrarModificarPaciente() {
+        if (formMod) formMod.style.display = 'none';
+        if (splitCont) splitCont.style.gridTemplateColumns = '1fr';
+        currentEditingId = null;
+        var allTr = pacTbody.querySelectorAll('tr');
+        allTr.forEach(function (tr) { tr.classList.remove('is-selected'); });
+      }
+
+      async function abrirModificarPaciente(id) {
+        var p = pacientesCache[id];
+        if (!p) {
+          try {
+            var resP = await VS_API.getPaciente(id);
+            p = resP.paciente || resP.data || resP;
+            if (p) pacientesCache[id] = p;
+          } catch (e) {}
+        }
+        if (!p) {
+          alert('No se pudieron recuperar los datos del paciente ID #' + id);
+          return;
+        }
+
+        currentEditingId = id;
+
+        // Resaltar fila seleccionada en la tabla
+        var allTr = pacTbody.querySelectorAll('tr');
+        allTr.forEach(function (tr) {
+          if (parseInt(tr.getAttribute('data-id'), 10) === id) {
+            tr.classList.add('is-selected');
+          } else {
+            tr.classList.remove('is-selected');
+          }
+        });
+
+        // Mostrar panel de modificación y restaurar layout dividido
+        if (splitCont) splitCont.style.gridTemplateColumns = '';
+        if (formMod) formMod.style.display = 'block';
+
+        var pers = p.persona || {};
+        var nombreComp = ((pers.nombres || '') + ' ' + (pers.apellidos || '')).trim() || 'Paciente sin nombre';
+        var inits = (pers.nombres ? pers.nombres.charAt(0) : 'P') + (pers.apellidos ? pers.apellidos.charAt(0) : '');
+        var cod = p.codigo || ('PAC-' + String(p.id_persona).padStart(4, '0'));
+
+        var avatarEl = document.getElementById('mod-avatar');
+        var nomEl = document.getElementById('mod-paciente-nombre');
+        var codEl = document.getElementById('mod-paciente-codigo');
+        var subEl = document.getElementById('mod-paciente-sub');
+
+        if (avatarEl) avatarEl.textContent = inits.toUpperCase();
+        if (nomEl) nomEl.textContent = nombreComp;
+        if (codEl) codEl.textContent = cod;
+        if (subEl) subEl.textContent = 'CI ' + (pers.ci || '—') + (pers.email ? ' · ' + pers.email : '');
+
+        // Actualizar enlaces de navegación por pestañas para el paciente
+        if (document.getElementById('tab-cu13')) document.getElementById('tab-cu13').href = 'cu13-informacion-medica.html?paciente_id=' + p.id_persona;
+        if (document.getElementById('tab-cu14')) document.getElementById('tab-cu14').href = 'cu14-contacto-emergencia.html?paciente_id=' + p.id_persona;
+        if (document.getElementById('tab-cu16')) document.getElementById('tab-cu16').href = 'cu16-historial-citas.html?paciente_id=' + p.id_persona;
+        if (document.getElementById('link-desactivar-pac')) document.getElementById('link-desactivar-pac').href = 'cu17-desactivar-paciente.html?paciente_id=' + p.id_persona;
+
+        // Rellenar campos del formulario con los datos dinámicos
+        if (document.getElementById('e-ci')) document.getElementById('e-ci').value = pers.ci || '';
+        if (document.getElementById('e-nac')) document.getElementById('e-nac').value = (p.fecha_nacimiento || '').slice(0, 10);
+        if (document.getElementById('e-nombres')) document.getElementById('e-nombres').value = pers.nombres || '';
+        if (document.getElementById('e-apellidos')) document.getElementById('e-apellidos').value = pers.apellidos || '';
+        if (document.getElementById('e-tel')) document.getElementById('e-tel').value = pers.telefono || '';
+        if (document.getElementById('e-email')) document.getElementById('e-email').value = pers.email || '';
+        if (document.getElementById('e-dir')) document.getElementById('e-dir').value = p.direccion || '';
+
+        var sexF = document.getElementById('e-sexo-f');
+        var sexM = document.getElementById('e-sexo-m');
+        if (sexF && sexM) {
+          if (p.sexo === 'F') sexF.checked = true;
+          else sexM.checked = true;
+        }
+
+        formMod.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
 
       async function cargar(buscar) {
-        pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">Consultando PostgreSQL...</td></tr>';
+        pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">Consultando pacientes en PostgreSQL...</td></tr>';
         try {
-          var params = buscar ? { buscar: buscar } : {};
+          var params = {};
+          if (buscar) params.buscar = buscar;
+
+          var radioInact = document.querySelector('input[name="est"]:checked');
+          if (radioInact && radioInact.value === 'activos') {
+            params.activo = 'true';
+          }
+
           var res = await VS_API.getPacientes(params);
           var list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
           if (!Array.isArray(list)) list = [];
 
+          pacientesCache = {};
           if (conteoSpan) conteoSpan.textContent = list.length + ' pacientes en el padrón';
 
           if (list.length === 0) {
-            pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">No se encontraron pacientes registrados.</td></tr>';
+            pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-muted);">No se encontraron pacientes para el criterio de búsqueda.</td></tr>';
             return;
           }
 
           var html = '';
           list.forEach(function (p) {
+            pacientesCache[p.id_persona] = p;
             var pers = p.persona || {};
             var nombre = (pers.nombres ? (pers.nombres + ' ' + (pers.apellidos || '')) : 'Sin nombre');
             var ci = pers.ci || '—';
             var tel = pers.telefono || '—';
-            var cod = 'PAC-' + String(p.id_persona).padStart(4, '0');
+            var cod = p.codigo || ('PAC-' + String(p.id_persona).padStart(4, '0'));
             var activo = pers.activo !== false;
-            var estadoBadge = activo ? '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>' : '<span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Inactivo</span>';
+            var estadoBadge = activo
+              ? '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activo</span>'
+              : '<span class="vs-badge vs-badge--danger"><span class="vs-badge__dot"></span>Inactivo</span>';
             var inits = (pers.nombres ? pers.nombres.charAt(0) : 'P') + (pers.apellidos ? pers.apellidos.charAt(0) : '');
+            var edadSexo = calcularEdadStr(p.fecha_nacimiento, p.sexo);
+            var isSel = currentEditingId === p.id_persona ? ' class="is-selected"' : '';
 
-            html += '<tr>' +
-              '<td class="vs-td-num font-mono">' + cod + '</td>' +
+            html += '<tr data-id="' + p.id_persona + '"' + isSel + '>' +
+              '<td class="vs-td-num font-mono">' + escapeHtml(cod) + '</td>' +
               '<td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">' + inits.toUpperCase() + '</span>' +
               '<div><div class="vs-cell-person__name">' + escapeHtml(nombre) + '</div><div class="vs-cell-person__sub vs-mono">CI ' + escapeHtml(ci) + '</div></div></div></td>' +
-              '<td class="vs-hide-md vs-mono">' + escapeHtml(ci) + '</td>' +
+              '<td class="vs-hide-md">' + escapeHtml(edadSexo) + '</td>' +
               '<td class="vs-hide-md vs-mono">' + escapeHtml(tel) + '</td>' +
               '<td>' + estadoBadge + '</td>' +
-              '<td class="vs-td-actions">' +
-                '<a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html?paciente_id=' + p.id_persona + '" class="vs-icon-btn" title="Programar cita"><svg class="vs-i"><use href="#i-plus"/></svg></a>' +
+              '<td class="vs-td-actions" style="white-space:nowrap;">' +
+                '<button type="button" class="vs-btn vs-btn--sm vs-btn--primary btn-modificar-paciente" data-id="' + p.id_persona + '" title="Modificar datos del paciente" style="display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .65rem;font-size:.78rem;margin-right:.35rem;">' +
+                  '<svg class="vs-i vs-i--sm" style="width:14px;height:14px;"><use href="#i-edit"/></svg>Modificar' +
+                '</button>' +
+                '<a href="../P6 Gestión de Citas Médicas/cu24-programar-cita.html?paciente_id=' + p.id_persona + '" class="vs-icon-btn" title="Programar cita">' +
+                  '<svg class="vs-i"><use href="#i-plus"/></svg>' +
+                '</a>' +
               '</td>' +
               '</tr>';
           });
           pacTbody.innerHTML = html;
         } catch (e) {
-          pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-danger);">Error al cargar pacientes: ' + e.message + '</td></tr>';
+          pacTbody.innerHTML = '<tr><td colspan="6" class="vs-td-empty" style="text-align:center;padding:2rem;color:var(--vs-danger);">Error al consultar pacientes: ' + e.message + '</td></tr>';
         }
+      }
+
+      // Event delegation para botón Modificar en cada fila de paciente
+      pacTbody.addEventListener('click', function (ev) {
+        var btnMod = ev.target.closest('.btn-modificar-paciente');
+        if (btnMod) {
+          var id = parseInt(btnMod.getAttribute('data-id'), 10);
+          if (id) abrirModificarPaciente(id);
+          return;
+        }
+      });
+
+      if (btnCerrar) {
+        btnCerrar.addEventListener('click', function () {
+          cerrarModificarPaciente();
+        });
       }
 
       if (searchForm) {
@@ -2039,7 +2270,117 @@
         });
       }
 
-      cargar();
+      if (radioEstPills && radioEstPills.length) {
+        radioEstPills.forEach(function (r) {
+          r.addEventListener('change', function () {
+            cargar(searchInput ? searchInput.value.trim() : '');
+          });
+        });
+      }
+
+      if (formMod) {
+        formMod.setAttribute('data-api-bound', 'true');
+        formMod.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          if (!currentEditingId) {
+            alert('Por favor selecciona un paciente para modificar.');
+            return;
+          }
+
+          var ciVal = document.getElementById('e-ci') ? document.getElementById('e-ci').value.trim() : '';
+          var nacVal = document.getElementById('e-nac') ? document.getElementById('e-nac').value : '';
+          var nomVal = document.getElementById('e-nombres') ? document.getElementById('e-nombres').value.trim() : '';
+          var apeVal = document.getElementById('e-apellidos') ? document.getElementById('e-apellidos').value.trim() : '';
+          var telVal = document.getElementById('e-tel') ? document.getElementById('e-tel').value.trim() : '';
+          var emailVal = document.getElementById('e-email') ? document.getElementById('e-email').value.trim() : '';
+          var dirVal = document.getElementById('e-dir') ? document.getElementById('e-dir').value.trim() : '';
+
+          var sexRadio = formMod.querySelector('input[name="e-sexo"]:checked');
+          var sexoVal = sexRadio ? sexRadio.value : 'F';
+
+          if (!ciVal || !nacVal || !nomVal || !apeVal) {
+            alert('Por favor completa todos los campos requeridos: CI, Fecha de nacimiento, Nombres y Apellidos.');
+            return;
+          }
+
+          var submitBtn = document.getElementById('btn-guardar-modificar') || formMod.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Guardando cambios...';
+          }
+
+          try {
+            var payload = {
+              ci: ciVal,
+              fecha_nacimiento: nacVal,
+              nombres: nomVal,
+              apellidos: apeVal,
+              telefono: telVal,
+              email: emailVal || null,
+              direccion: dirVal,
+              sexo: sexoVal
+            };
+
+            var resActualizar = await VS_API.actualizarPaciente(currentEditingId, payload);
+
+            // Actualizar paciente en cache local
+            if (pacientesCache[currentEditingId]) {
+              var old = pacientesCache[currentEditingId];
+              old.sexo = sexoVal;
+              old.fecha_nacimiento = nacVal;
+              old.direccion = dirVal;
+              if (!old.persona) old.persona = {};
+              old.persona.ci = ciVal;
+              old.persona.nombres = nomVal;
+              old.persona.apellidos = apeVal;
+              old.persona.telefono = telVal;
+              old.persona.email = emailVal;
+            }
+
+            if (window.vsToast) {
+              window.vsToast('Paciente actualizado exitosamente', 'Datos guardados en PostgreSQL y auditados en bitácora (MODIFICAR)');
+            } else {
+              alert('Datos del paciente actualizados exitosamente.');
+            }
+
+            // Actualizar fila en la tabla visualmente
+            var trRow = pacTbody.querySelector('tr[data-id="' + currentEditingId + '"]');
+            if (trRow) {
+              var nomElCell = trRow.querySelector('.vs-cell-person__name');
+              var subElCell = trRow.querySelector('.vs-cell-person__sub');
+              var telElCell = trRow.querySelectorAll('td')[3];
+              var edadElCell = trRow.querySelectorAll('td')[2];
+              if (nomElCell) nomElCell.textContent = nomVal + ' ' + apeVal;
+              if (subElCell) subElCell.textContent = 'CI ' + ciVal;
+              if (telElCell) telElCell.textContent = telVal || '—';
+              if (edadElCell) edadElCell.textContent = calcularEdadStr(nacVal, sexoVal);
+            }
+
+            // Actualizar cabecera del formulario
+            var nomHeader = document.getElementById('mod-paciente-nombre');
+            var subHeader = document.getElementById('mod-paciente-sub');
+            if (nomHeader) nomHeader.textContent = nomVal + ' ' + apeVal;
+            if (subHeader) subHeader.textContent = 'CI ' + ciVal + (emailVal ? ' · ' + emailVal : '');
+
+          } catch (err) {
+            var msg = err.data && err.data.errors ? Object.values(err.data.errors).flat().join('\n') : (err.data && err.data.message ? err.data.message : err.message);
+            alert('Error al modificar paciente:\n' + msg);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<svg class="vs-i"><use href="#i-check"/></svg>Guardar cambios';
+            }
+          }
+        });
+      }
+
+      await cargar();
+
+      // Abrir automáticamente si se proporciona paciente_id en la URL
+      var pUrlId = parseInt(new URLSearchParams(location.search).get('paciente_id') || new URLSearchParams(location.search).get('id'), 10);
+      if (pUrlId) {
+        abrirModificarPaciente(pUrlId);
+      }
     }
 
     // 11. Vincular Registro de Pacientes (CU12)
@@ -2627,12 +2968,33 @@
           var u = res.usuario || res.data || res;
           if (!u) return;
           var p = u.persona || {};
-          if (document.getElementById('m-ci')) document.getElementById('m-ci').value = p.ci || '';
-          if (document.getElementById('m-user')) document.getElementById('m-user').value = u.nombre_usuario || '';
-          if (document.getElementById('m-nom')) document.getElementById('m-nom').value = p.nombres || '';
-          if (document.getElementById('m-ape')) document.getElementById('m-ape').value = p.apellidos || '';
-          if (document.getElementById('m-email')) document.getElementById('m-email').value = p.email || '';
-          if (document.getElementById('m-tel')) document.getElementById('m-tel').value = p.telefono || '';
+          var nombreCompleto = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : u.nombre_usuario) || 'Usuario';
+          var rolName = u.rol ? (u.rol.nombre || u.rol) : 'Personal';
+          var ciEl = document.getElementById('m-ci');
+          var userEl = document.getElementById('m-usuario') || document.getElementById('m-user');
+          var nomEl = document.getElementById('m-nombres') || document.getElementById('m-nom');
+          var apeEl = document.getElementById('m-apellidos') || document.getElementById('m-ape');
+          var emailEl = document.getElementById('m-email');
+          var telEl = document.getElementById('m-tel');
+
+          if (ciEl) ciEl.value = p.ci || '';
+          if (userEl) userEl.value = u.nombre_usuario || '';
+          if (nomEl) nomEl.value = p.nombres || '';
+          if (apeEl) apeEl.value = p.apellidos || '';
+          if (emailEl) emailEl.value = p.email || '';
+          if (telEl) telEl.value = p.telefono || '';
+
+          var headerNom = document.getElementById('cu07-header-nombre');
+          var headerSub = document.getElementById('cu07-header-sub');
+          var headerAvatar = document.getElementById('cu07-avatar');
+          var rolTit = document.getElementById('cu07-rol-titulo');
+          if (headerNom) headerNom.textContent = nombreCompleto;
+          if (headerSub) headerSub.textContent = rolName + ' · CI ' + (p.ci || '—') + ' · @' + u.nombre_usuario;
+          if (headerAvatar) {
+            var inits = ((p.nombres ? p.nombres[0] : '') + (p.apellidos ? p.apellidos[0] : '')).toUpperCase() || 'US';
+            headerAvatar.textContent = inits;
+          }
+          if (rolTit) rolTit.textContent = 'Rol actual: ' + rolName;
         } catch (e) {}
       }
       cargarDatosCU07();
@@ -2642,14 +3004,24 @@
         formDatos07.addEventListener('submit', async function (e) {
           e.preventDefault();
           try {
+            var nomInput = document.getElementById('m-nombres') || document.getElementById('m-nom');
+            var apeInput = document.getElementById('m-apellidos') || document.getElementById('m-ape');
+            var emailInput = document.getElementById('m-email');
+            var telInput = document.getElementById('m-tel');
             await VS_API.actualizarUsuario(targetUserId, {
               ci: document.getElementById('m-ci') ? document.getElementById('m-ci').value.trim() : undefined,
-              nombres: document.getElementById('m-nom').value.trim(),
-              apellidos: document.getElementById('m-ape').value.trim(),
-              email: document.getElementById('m-email').value.trim(),
-              telefono: document.getElementById('m-tel').value.trim()
+              nombres: nomInput ? nomInput.value.trim() : '',
+              apellidos: apeInput ? apeInput.value.trim() : '',
+              email: emailInput ? emailInput.value.trim() : '',
+              telefono: telInput ? telInput.value.trim() : ''
             });
             if (window.vsToast) window.vsToast('Cambios guardados', 'Cuenta modificada en PostgreSQL y registrada en bitácora (MODIFICAR)');
+            cargarDatosCU07();
+          } catch (err) {
+            alert('Error al actualizar cuenta: ' + (err.data && err.data.message ? err.data.message : err.message));
+          }
+        });
+      }
           } catch (err) {
             alert('Error al actualizar cuenta: ' + (err.data && err.data.message ? err.data.message : err.message));
           }
@@ -2683,46 +3055,215 @@
     }
 
     // =========================================================================
-    // 19. CU08: CAMBIAR ROL OPERATIVO Y PERMISOS (RBAC)
+    // 19. CU08: CAMBIAR ROL OPERATIVO Y PERMISOS (RBAC DINÁMICO)
     // =========================================================================
     if (currentCuAttr === 'CU08') {
       var selectUser08 = document.getElementById('r-usuario');
-      var dlgRol08 = document.getElementById('dlg-cambiar-rol');
-      var formRol08 = dlgRol08 ? dlgRol08.querySelector('form') : null;
+      var dlgRol08 = document.getElementById('dlg-rol') || document.getElementById('dlg-cambiar-rol');
+      var formRol08 = document.getElementById('form-cambiar-rol-cu08') || (dlgRol08 ? dlgRol08.querySelector('form') : null);
+      var choiceGrid08 = document.getElementById('cu08-choice-grid');
+      var rolActualLabel = document.getElementById('cu08-rol-actual');
+      var rolNuevoLabel = document.getElementById('cu08-rol-nuevo-label');
+      var alertImpacto08 = document.getElementById('cu08-alert-impacto');
+      var impactoText08 = document.getElementById('cu08-impacto-text');
+      var cambiosTbody08 = document.getElementById('cu08-cambios-tbody');
+      var usuariosMap08 = {};
+
+      var ROLES_CATALOGO = [
+        { id: 1, nombre: 'Administrador', desc: '19 permisos · Acceso total P1 a P7', impacto: 'ganará privilegios de administración completa, gestión de usuarios, auditoría, catálogos y reportes.' },
+        { id: 2, nombre: 'Recepcionista', desc: 'Gestión de citas, pacientes y admisión', impacto: 'podrá registrar pacientes, programar y reprogramar citas médicas, y emitir fichas.' },
+        { id: 3, nombre: 'Médico', desc: '6 permisos · agenda, consultas y atención clínica', impacto: 'tendrá acceso a la agenda médica diaria, registro de atenciones y bloqueo de disponibilidad.' },
+        { id: 4, nombre: 'Paciente', desc: 'Portal web · reserva de citas, pagos y ficha', impacto: 'pasará a perfil de paciente en línea con acceso a sus citas y ficha médica básica.' }
+      ];
+
+      function renderizarOpcionesNuevoRol(currentRoleId, currentUsername) {
+        if (!choiceGrid08) return;
+        choiceGrid08.innerHTML = '';
+        if (rolNuevoLabel) rolNuevoLabel.textContent = 'Seleccione';
+        if (alertImpacto08) alertImpacto08.style.display = 'none';
+
+        var rolesDisponibles = ROLES_CATALOGO.filter(function (r) {
+          return r.id !== currentRoleId;
+        });
+
+        rolesDisponibles.forEach(function (r, idx) {
+          var labelEl = document.createElement('label');
+          labelEl.className = 'vs-choice';
+          labelEl.innerHTML = '<input type="radio" name="nuevo-rol" value="' + r.id + '"' + (idx === 0 ? ' checked' : '') + '>' +
+            '<div><div class="vs-choice__title">' + escapeHtml(r.nombre) + '</div>' +
+            '<div class="vs-choice__desc">' + escapeHtml(r.desc) + '</div></div>';
+
+          var radioInput = labelEl.querySelector('input');
+          radioInput.addEventListener('change', function () {
+            if (rolNuevoLabel) rolNuevoLabel.textContent = r.nombre;
+            if (alertImpacto08 && impactoText08) {
+              alertImpacto08.style.display = 'flex';
+              impactoText08.innerHTML = '<span class="vs-alert__title">Impacto para ' + escapeHtml(currentUsername || 'el usuario') + '</span>El usuario ' + escapeHtml(r.impacto);
+            }
+          });
+
+          choiceGrid08.appendChild(labelEl);
+        });
+
+        if (rolesDisponibles.length > 0) {
+          var primerRol = rolesDisponibles[0];
+          if (rolNuevoLabel) rolNuevoLabel.textContent = primerRol.nombre;
+          if (alertImpacto08 && impactoText08) {
+            alertImpacto08.style.display = 'flex';
+            impactoText08.innerHTML = '<span class="vs-alert__title">Impacto para ' + escapeHtml(currentUsername || 'el usuario') + '</span>El usuario ' + escapeHtml(primerRol.impacto);
+          }
+        }
+      }
 
       async function cargarUsuariosCU08() {
         if (!selectUser08) return;
         try {
           var res = await VS_API.getUsuarios({ per_page: 50 });
           var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
-          selectUser08.innerHTML = '';
+          usuariosMap08 = {};
+          selectUser08.innerHTML = '<option value="">Selecciona un usuario…</option>';
+          var cAdm08 = 0, cRec08 = 0, cMed08 = 0;
           list.forEach(function (u) {
+            usuariosMap08[u.id_usuario] = u;
             var p = u.persona || {};
             var r = u.rol ? (u.rol.nombre || u.rol) : 'RECEPCIONISTA';
+            var rUpper = String(r).toUpperCase();
+            if (rUpper.indexOf('ADMIN') !== -1) cAdm08++;
+            else if (rUpper.indexOf('RECEP') !== -1) cRec08++;
+            else if (rUpper.indexOf('MEDIC') !== -1) cMed08++;
+
             var opt = document.createElement('option');
             opt.value = u.id_usuario;
             opt.textContent = u.nombre_usuario + ' — ' + (p.nombres || '') + ' ' + (p.apellidos || '') + ' (actual: ' + r + ')';
             selectUser08.appendChild(opt);
           });
+
+          var elAdm08 = document.getElementById('cu08-kpi-admin-count');
+          var elRec08 = document.getElementById('cu08-kpi-recep-count');
+          var elMed08 = document.getElementById('cu08-kpi-med-count');
+          if (elAdm08) elAdm08.textContent = cAdm08 + (cAdm08 === 1 ? ' usuario' : ' usuarios');
+          if (elRec08) elRec08.textContent = cRec08 + (cRec08 === 1 ? ' usuario' : ' usuarios');
+          if (elMed08) elMed08.textContent = cMed08 + (cMed08 === 1 ? ' usuario' : ' usuarios');
+
+          var urlParamId = parseInt(new URLSearchParams(location.search).get('id'), 10);
+          if (urlParamId && usuariosMap08[urlParamId]) {
+            selectUser08.value = urlParamId;
+            selectUser08.dispatchEvent(new Event('change'));
+            if (dlgRol08 && dlgRol08.showModal) dlgRol08.showModal();
+          } else if (list.length > 0) {
+            selectUser08.value = list[0].id_usuario;
+            selectUser08.dispatchEvent(new Event('change'));
+          }
         } catch (e) {}
       }
+
+      if (selectUser08) {
+        selectUser08.addEventListener('change', function () {
+          var uid = parseInt(selectUser08.value, 10);
+          var usr = usuariosMap08[uid];
+          if (!usr) {
+            if (rolActualLabel) rolActualLabel.textContent = '—';
+            if (choiceGrid08) choiceGrid08.innerHTML = '<p class="vs-muted vs-small" style="grid-column: 1 / -1;">Selecciona un usuario arriba para ver los roles disponibles para el cambio.</p>';
+            if (alertImpacto08) alertImpacto08.style.display = 'none';
+            return;
+          }
+
+          var rolObj = usr.rol || {};
+          var rolId = typeof rolObj === 'object' ? (rolObj.id_rol || 2) : 2;
+          var rolNombre = typeof rolObj === 'object' ? (rolObj.nombre || 'Recepcionista') : String(rolObj);
+
+          if (rolActualLabel) {
+            rolActualLabel.textContent = rolNombre;
+            var rUp = rolNombre.toUpperCase();
+            rolActualLabel.className = 'vs-badge ' + (rUp.indexOf('ADMIN') !== -1 ? 'vs-badge--warn' : (rUp.indexOf('MED') !== -1 ? 'vs-badge--ok' : (rUp.indexOf('PAC') !== -1 ? 'vs-badge--cyan' : 'vs-badge--info')));
+          }
+
+          renderizarOpcionesNuevoRol(rolId, usr.nombre_usuario);
+        });
+      }
+
+      async function cargarCambiosRolRecientes() {
+        if (!cambiosTbody08) return;
+        try {
+          var res = await VS_API.getBitacora({ modulo: 'P2', tipo_accion: 'MODIFICAR', per_page: 20 });
+          var events = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
+          var roleEvents = events.filter(function (ev) {
+            var det = (ev.detalle || '').toLowerCase();
+            return det.indexOf('rol') !== -1 || det.indexOf('cambio') !== -1 || (ev.tabla_afectada === 'usuario' && det.indexOf('de [') !== -1);
+          });
+
+          if (!roleEvents.length) {
+            cambiosTbody08.innerHTML = '<tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:1.5rem;">No se registran cambios de rol recientes en la bitácora.</td></tr>';
+            return;
+          }
+
+          cambiosTbody08.innerHTML = roleEvents.map(function (ev) {
+            var usr = ev.usuario ? (ev.usuario.nombre_usuario || 'Admin') : 'Admin';
+            var fecha = formatFechaHora(ev.fecha_hora);
+            var det = ev.detalle || '';
+
+            return '<tr>' +
+              '<td class="vs-td-num">' + fecha + '</td>' +
+              '<td><div class="vs-cell-person__name">' + escapeHtml(ev.usuario && ev.usuario.persona ? (ev.usuario.persona.nombres + ' ' + ev.usuario.persona.apellidos) : usr) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(usr) + '</div></td>' +
+              '<td><span class="vs-badge vs-badge--info vs-badge--sm">' + escapeHtml(ev.tipo_accion) + '</span></td>' +
+              '<td class="vs-hide-md">' + escapeHtml(det) + '</td>' +
+              '<td class="vs-hide-sm vs-mono">' + escapeHtml(usr) + '</td>' +
+              '</tr>';
+          }).join('');
+        } catch (e) {
+          cambiosTbody08.innerHTML = '<tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:1.5rem;">Error al cargar cambios de rol desde bitácora.</td></tr>';
+        }
+      }
+
       cargarUsuariosCU08();
+      cargarCambiosRolRecientes();
 
       if (formRol08) {
         formRol08.setAttribute('data-api-bound', 'true');
         formRol08.addEventListener('submit', async function (e) {
           e.preventDefault();
-          var uid = selectUser08 ? parseInt(selectUser08.value, 10) : 2;
+          var uid = selectUser08 ? parseInt(selectUser08.value, 10) : 0;
+          if (!uid) {
+            alert('Por favor selecciona un usuario.');
+            return;
+          }
           var checkedRol = formRol08.querySelector('input[name="nuevo-rol"]:checked');
-          var rolVal = checkedRol ? checkedRol.value : '3';
-          var idRol = rolVal === '1' ? 1 : (rolVal === '2' ? 2 : 3);
+          if (!checkedRol) {
+            alert('Por favor selecciona el nuevo rol para el usuario.');
+            return;
+          }
+          var idRol = parseInt(checkedRol.value, 10);
+          var motivo = document.getElementById('r-motivo') ? document.getElementById('r-motivo').value.trim() : 'Reasignación operativa';
+          if (!motivo) {
+            alert('Por favor ingresa el motivo del cambio de rol para la bitácora de auditoría.');
+            return;
+          }
+
+          var submitBtn = document.getElementById('cu08-btn-submit') || formRol08.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Actualizando rol y registrando en bitácora...';
+          }
+
           try {
-            await VS_API.cambiarRolUsuario(uid, idRol);
+            await VS_API.cambiarRolUsuario(uid, idRol, motivo);
             if (dlgRol08 && dlgRol08.close) dlgRol08.close();
-            if (window.vsToast) window.vsToast('Rol actualizado', 'Cambio de rol guardado en BD y registrado en bitácora (CAMBIO_ROL)');
+            if (window.vsToast) {
+              window.vsToast('Rol operativo actualizado', 'El cambio se guardó en PostgreSQL y se registró en la bitácora de auditoría (MODIFICAR)');
+            } else {
+              alert('Rol operativo actualizado exitosamente.');
+            }
+            if (document.getElementById('r-motivo')) document.getElementById('r-motivo').value = '';
             cargarUsuariosCU08();
+            cargarCambiosRolRecientes();
           } catch (err) {
-            alert('No se pudo cambiar el rol: ' + (err.data && err.data.message ? err.data.message : err.message));
+            var errTxt = err.data && err.data.message ? err.data.message : err.message;
+            alert('No se pudo cambiar el rol: ' + errTxt);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<svg class="vs-i"><use href="#i-check"/></svg>Confirmar cambio de rol';
+            }
           }
         });
       }
@@ -2813,46 +3354,91 @@
     }
 
     // =========================================================================
-    // 21. CU10: REGISTRO AUTOMÁTICO EN BITÁCORA (LIVE DASHBOARD)
+    // 21. CU10: REGISTRO AUTOMÁTICO EN BITÁCORA (LIVE DASHBOARD EN TIEMPO REAL)
     // =========================================================================
     if (currentCuAttr === 'CU10') {
+      var kpiHoyEl = document.getElementById('kpi-hoy');
+      var kpiMesEl = document.getElementById('kpi-mes');
+      var kpiAlertasEl = document.getElementById('kpi-alertas');
+      var kpiHoyHintEl = document.getElementById('kpi-hoy-hint');
+      var barsEl = document.getElementById('bitacora-bars');
+      var tlEl = document.getElementById('bitacora-timeline');
+      var subMesEl = document.getElementById('bitacora-sub-mes');
+      var subHoyEl = document.getElementById('bitacora-sub-hoy');
+
+      var MESES_NOMBRE = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      var dFecha = new Date();
+      if (subMesEl) subMesEl.textContent = MESES_NOMBRE[dFecha.getMonth()] + ' ' + dFecha.getFullYear();
+
       async function cargarResumenCU10() {
         try {
           var res = await VS_API.getBitacoraResumen();
           var r = (res && res.resumen) ? res.resumen : res;
           if (!r) return;
-          if (document.getElementById('kpi-hoy')) document.getElementById('kpi-hoy').textContent = r.total_hoy != null ? r.total_hoy : 0;
-          if (document.getElementById('kpi-mes')) document.getElementById('kpi-mes').textContent = r.total_mes != null ? r.total_mes : 0;
-          if (document.getElementById('kpi-alertas')) document.getElementById('kpi-alertas').textContent = r.alertas_hoy != null ? r.alertas_hoy : 0;
 
-          var barsEl = document.getElementById('bitacora-bars');
+          if (kpiHoyEl) kpiHoyEl.textContent = r.total_hoy != null ? r.total_hoy : 0;
+          if (kpiMesEl) kpiMesEl.textContent = r.total_mes != null ? r.total_mes : 0;
+          if (kpiAlertasEl) kpiAlertasEl.textContent = r.alertas_hoy != null ? r.alertas_hoy : 0;
+          if (kpiHoyHintEl) {
+            kpiHoyHintEl.textContent = (r.segundos_desde_ultimo <= 60)
+              ? 'Último evento hace ' + r.segundos_desde_ultimo + ' s'
+              : 'Último evento hace ' + Math.round(r.segundos_desde_ultimo / 60) + ' min';
+          }
+          if (subHoyEl) {
+            subHoyEl.textContent = 'En vivo · ' + (r.total_hoy != null ? r.total_hoy : 0) + ' eventos registrados hoy';
+          }
+
           if (barsEl && Array.isArray(r.por_accion) && r.por_accion.length) {
-            var maxVal = Math.max.apply(null, r.por_accion.map(function (a) { return a.total; })) || 1;
+            var maxVal = Math.max.apply(null, r.por_accion.map(function (a) { return parseInt(a.total, 10); })) || 1;
             var bHtml = '';
+            var colorMap = {
+              'CREAR': 'vs-bar',
+              'REGISTRAR': 'vs-bar',
+              'MODIFICAR': 'vs-bar vs-bar--cyan',
+              'LOGIN': 'vs-bar vs-bar--teal',
+              'LOGOUT': 'vs-bar vs-bar--teal',
+              'INACTIVAR': 'vs-bar vs-bar--amber',
+              'ELIMINAR': 'vs-bar vs-bar--amber',
+              'BLOQUEO': 'vs-bar vs-bar--rose'
+            };
             r.por_accion.forEach(function (a) {
-              var pct = Math.round((a.total / maxVal) * 100);
-              bHtml += '<div class="vs-bars__row"><span class="vs-bars__label vs-mono">' + escapeHtml(a.tipo_accion) + '</span><div class="vs-bar vs-bar--teal"><i style="width:' + pct + '%"></i></div><span class="vs-bars__val">' + a.total + '</span></div>';
+              var tAcc = a.tipo_accion || 'OTRO';
+              var barCls = colorMap[tAcc] || 'vs-bar';
+              var pct = Math.max(8, Math.round((parseInt(a.total, 10) / maxVal) * 100));
+              bHtml += '<div class="vs-bars__row"><span class="vs-bars__label vs-mono">' + escapeHtml(tAcc) + '</span><div class="' + barCls + '"><i style="width:' + pct + '%"></i></div><span class="vs-bars__val">' + a.total + '</span></div>';
             });
             barsEl.innerHTML = bHtml;
           }
 
-          var tlEl = document.getElementById('bitacora-timeline');
-          if (tlEl && Array.isArray(r.ultimos_eventos) && r.ultimos_eventos.length) {
-            var tHtml = '';
-            r.ultimos_eventos.forEach(function (ev) {
-              var usr = ev.usuario ? ev.usuario.nombre_usuario : 'Sistema';
-              tHtml += '<li class="vs-tl-item vs-tl-item--ok">' +
-                '<span class="vs-tl-time">' + formatFechaHora(ev.fecha_hora) + '</span>' +
-                '<div class="vs-tl-title"><span class="vs-badge vs-badge--info vs-badge--mono">' + escapeHtml(ev.tipo_accion) + '</span> ' + escapeHtml(ev.modulo) + ' · <span class="vs-code">' + escapeHtml(ev.tabla_afectada || 'sistema') + '</span></div>' +
-                '<div class="vs-tl-sub">“' + escapeHtml(ev.detalle || '') + '” — <strong class="vs-strong">' + escapeHtml(usr) + '</strong></div>' +
-                '</li>';
-            });
-            tlEl.innerHTML = tHtml;
+          if (tlEl) {
+            var liveRes = await VS_API.getBitacoraLive({ limit: 10 });
+            var list = (liveRes && liveRes.data && liveRes.data.length) ? liveRes.data : (r.ultimos_eventos || []);
+            if (!list.length) {
+              tlEl.innerHTML = '<li class="vs-tl-item"><div class="vs-tl-title">Sin eventos registrados aún</div><div class="vs-tl-sub">Las operaciones se anotarán en vivo automáticamente.</div></li>';
+            } else {
+              var tHtml = '';
+              list.forEach(function (ev) {
+                var usr = ev.usuario ? (ev.usuario.nombre_usuario || 'Sistema') : 'Sistema';
+                var det = ev.descripcion || ev.detalle || 'Evento registrado';
+                var act = (ev.tipo_accion || 'REGISTRAR').toUpperCase();
+                var dotCls = 'vs-tl-item--ok';
+                if (act === 'BLOQUEO' || act === 'ELIMINAR') dotCls = 'vs-tl-item--danger';
+                else if (act === 'INACTIVAR' || act === 'MODIFICAR') dotCls = 'vs-tl-item--warn';
+                else if (act === 'CREAR' || act === 'REGISTRAR') dotCls = 'vs-tl-item--info';
+
+                tHtml += '<li class="vs-tl-item ' + dotCls + '">' +
+                  '<span class="vs-tl-time">' + formatFechaHora(ev.fecha_hora) + '</span>' +
+                  '<div class="vs-tl-title"><span class="vs-badge vs-badge--mono vs-badge--sm">' + escapeHtml(act) + '</span> ' + escapeHtml(ev.modulo || 'GENERAL') + ' · <span class="vs-code">' + escapeHtml(ev.tabla_afectada || 'sistema') + '</span></div>' +
+                  '<div class="vs-tl-sub">“' + escapeHtml(det) + '” — <strong class="vs-strong">' + escapeHtml(usr) + '</strong> (' + escapeHtml(ev.ip || '127.0.0.1') + ')</div>' +
+                  '</li>';
+              });
+              tlEl.innerHTML = tHtml;
+            }
           }
         } catch (e) {}
       }
       cargarResumenCU10();
-      setInterval(cargarResumenCU10, 4000);
+      setInterval(cargarResumenCU10, 3500);
     }
 
     // =========================================================================
@@ -3208,54 +3794,336 @@
     }
 
     // =========================================================================
-    // 24. CU22 DISPONIBILIDAD, CU23 BLOQUEAR AGENDA, CU26 REPROGRAMAR, CU27 CANCELAR, CU28 RECORDATORIOS, CU29/30/31 ATENCIÓN
+    // 24. CU22 DISPONIBILIDAD (100% DINÁMICO EN BLOQUES DE 15 MINUTOS POSTGRESQL)
     // =========================================================================
     if (currentCuAttr === 'CU22') {
       var selEsp22 = document.getElementById('d-esp');
       var selMed22 = document.getElementById('d-med');
       var inFecha22 = document.getElementById('d-fecha');
-      var slotsBox22 = document.querySelector('[data-slots="disp"]');
+      var slotsBox22 = document.querySelector('[data-slots="disp"]') || document.getElementById('cu22-slots-container');
       var filterForm22 = document.querySelector('.vs-filters');
+      var btnProximo22 = document.getElementById('cu22-btn-proximo');
+      var btnConsultar22 = document.getElementById('cu22-btn-consultar');
+      var titulo22 = document.getElementById('cu22-titulo');
+      var sub22 = document.getElementById('cu22-sub');
+      var otrosMedBox22 = document.getElementById('cu22-otros-medicos');
+      var slotSummary22 = document.querySelector('[data-slot-summary="disp"]');
+      var slotConfirmBtn22 = document.querySelector('[data-slot-confirm="disp"]');
+
+      var medicosGlobalCU22 = [];
+
+      // Inicializar fecha con hoy (Bolivia)
+      if (inFecha22) {
+        var hoyLocal = new Date();
+        var y = hoyLocal.getFullYear();
+        var m = String(hoyLocal.getMonth() + 1).padStart(2, '0');
+        var d = String(hoyLocal.getDate()).padStart(2, '0');
+        var hoyYmd = y + '-' + m + '-' + d;
+        if (!inFecha22.value || inFecha22.value === '2026-10-28') {
+          inFecha22.value = hoyYmd;
+        }
+      }
+
+      async function inicializarFiltrosCU22() {
+        try {
+          var resEsp = await VS_API.getEspecialidades();
+          var espList = (resEsp && resEsp.data && resEsp.data.data) ? resEsp.data.data : (resEsp.data || []);
+          if (selEsp22 && espList.length) {
+            selEsp22.innerHTML = '<option value="">Todas las especialidades</option>' +
+              espList.map(function (e) {
+                return '<option value="' + e.id_especialidad + '">' + escapeHtml(e.nombre) + '</option>';
+              }).join('');
+          }
+
+          var resMed = await VS_API.getMedicos();
+          medicosGlobalCU22 = (resMed && resMed.data && resMed.data.data) ? resMed.data.data : (resMed.data || []);
+          poblarSelectMedicosCU22();
+        } catch (e) {}
+      }
+
+      function poblarSelectMedicosCU22(espId) {
+        if (!selMed22) return;
+        var filtrados = medicosGlobalCU22;
+        if (espId) {
+          filtrados = medicosGlobalCU22.filter(function (m) {
+            var esps = m.especialidades || [];
+            return esps.some(function (x) { return String(x.id_especialidad) === String(espId); });
+          });
+        }
+        selMed22.innerHTML = '<option value="">Cualquier médico de la especialidad</option>' +
+          filtrados.map(function (m) {
+            var p = m.persona || {};
+            var nom = (p.nombres || '') + ' ' + (p.apellidos || '');
+            return '<option value="' + m.id_persona + '">Dr(a). ' + escapeHtml(nom) + (m.codigo ? (' · ' + m.codigo) : '') + '</option>';
+          }).join('');
+        if (filtrados.length > 0 && !selMed22.value) {
+          selMed22.value = filtrados[0].id_persona;
+        }
+      }
+
+      if (selEsp22) {
+        selEsp22.addEventListener('change', function () {
+          poblarSelectMedicosCU22(selEsp22.value);
+          cargarDisponibilidadCU22();
+        });
+      }
+
+      if (selMed22) {
+        selMed22.addEventListener('change', function () {
+          cargarDisponibilidadCU22();
+        });
+      }
+
+      if (inFecha22) {
+        inFecha22.addEventListener('change', function () {
+          cargarDisponibilidadCU22();
+        });
+        inFecha22.addEventListener('input', function () {
+          cargarDisponibilidadCU22();
+        });
+      }
 
       async function cargarDisponibilidadCU22() {
+        if (!slotsBox22) return;
+        slotsBox22.innerHTML = '<p class="vs-muted" style="text-align:center;padding:2rem;width:100%;">Consultando turnos y reservas en tiempo real...</p>';
+
         try {
-          var resM = await VS_API.getMedicos();
-          var mList = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || []);
-          if (selMed22 && selMed22.options.length <= 4 && mList.length) {
-            selMed22.innerHTML = '';
-            mList.forEach(function (m) {
-              var p = m.persona || {};
-              var opt = document.createElement('option');
-              opt.value = m.id_persona;
-              opt.textContent = 'Dr(a). ' + (p.nombres || '') + ' ' + (p.apellidos || '');
-              selMed22.appendChild(opt);
-            });
-          }
-          var medId = selMed22 && selMed22.value ? selMed22.value : (mList[0] ? mList[0].id_persona : 1);
+          var medId = selMed22 && selMed22.value ? selMed22.value : null;
+          var espId = selEsp22 && selEsp22.value ? selEsp22.value : null;
           var fecha = inFecha22 && inFecha22.value ? inFecha22.value : new Date().toISOString().slice(0, 10);
-          var disp = await VS_API.getDisponibilidad({ id_medico: medId, fecha: fecha });
-          if (slotsBox22 && disp && Array.isArray(disp.slots)) {
+
+          var params = { fecha: fecha };
+          if (medId) params.id_medico = medId;
+          if (espId) params.id_especialidad = espId;
+
+          var disp = await VS_API.getDisponibilidad(params);
+
+          if (!disp || !disp.success) {
+            slotsBox22.innerHTML = '<p class="vs-muted" style="text-align:center;padding:2rem;width:100%;">' + escapeHtml((disp && disp.message) ? disp.message : 'No hay turnos configurados para los criterios seleccionados.') + '</p>';
+            return;
+          }
+
+          var med = disp.medico || {};
+          var pMed = med.persona || {};
+          var nombreDoc = 'Dr(a). ' + (pMed.nombres || '') + ' ' + (pMed.apellidos || '');
+
+          if (titulo22) {
+            titulo22.textContent = (disp.nombre_dia || fecha) + ' · ' + nombreDoc;
+          }
+          if (sub22) {
+            sub22.textContent = (disp.turno || 'Turno') + ' · ' + (disp.total_bloques || 0) + ' bloques (cada 15 min) · ' + (disp.bloques_libres || 0) + ' libres';
+          }
+
+          if (slotSummary22) slotSummary22.textContent = 'ninguno';
+          if (slotConfirmBtn22) {
+            slotConfirmBtn22.classList.add('is-disabled');
+            slotConfirmBtn22.setAttribute('aria-disabled', 'true');
+            slotConfirmBtn22.removeAttribute('href');
+          }
+
+          // Cargar lista lateral de otros médicos disponibles el mismo día
+          if (otrosMedBox22 && Array.isArray(disp.otros_medicos)) {
+            if (disp.otros_medicos.length === 0) {
+              otrosMedBox22.innerHTML = '<li class="vs-list-row" style="color:var(--vs-muted);padding:1rem;text-align:center;">No hay otros médicos con turno este día.</li>';
+            } else {
+              otrosMedBox22.innerHTML = disp.otros_medicos.map(function (om) {
+                var iniciales = om.nombre.replace(/Dr\(a\)\.\s*/, '').split(' ').map(function (w) { return w[0]; }).slice(0, 2).join('');
+                return '<li class="vs-list-row" style="cursor:pointer;" data-om-id="' + om.id_medico + '">' +
+                  '<div class="vs-avatar vs-avatar--sm">' + escapeHtml(iniciales || 'MD') + '</div>' +
+                  '<div class="vs-cell-person">' +
+                    '<div class="vs-cell-person__name">' + escapeHtml(om.nombre) + '</div>' +
+                    '<div class="vs-cell-person__sub">' + escapeHtml(om.turno) + ' · ' + om.bloques_libres + ' bloques libres</div>' +
+                  '</div>' +
+                  '<span class="vs-badge ' + (om.bloques_libres > 0 ? 'vs-badge--ok' : 'vs-badge--warn') + '">' + om.bloques_libres + '</span>' +
+                '</li>';
+              }).join('');
+
+              otrosMedBox22.querySelectorAll('li[data-om-id]').forEach(function (row) {
+                row.addEventListener('click', function () {
+                  var omId = row.getAttribute('data-om-id');
+                  if (selMed22) selMed22.value = omId;
+                  cargarDisponibilidadCU22();
+                });
+              });
+            }
+          }
+
+          // 1. Si la fecha es de hace más de una semana, los turnos se archivan de la parte visible
+          if (disp.fecha_antigua) {
+            slotsBox22.innerHTML = '<div style="text-align:center;padding:2.5rem;width:100%;color:var(--vs-muted);"><div style="font-size:2rem;margin-bottom:.5rem;">🗓️</div><p style="font-weight:600;font-size:1.05rem;color:var(--vs-slate-800);margin-bottom:0.5rem;">Turno concluido (más de 1 semana de antigüedad)</p><p style="margin-top:0.5rem;font-size:0.9rem;">Los turnos de esta fecha han concluido y se han archivado de la vista pública. Por favor selecciona una fecha actual o posterior para consultar cupos disponibles.</p></div>';
+            return;
+          }
+
+          // 2. Si el médico no atiende en el día de la semana solicitado
+          if (disp.atiende_este_dia === false) {
+            slotsBox22.innerHTML = '<div style="text-align:center;padding:2.5rem;width:100%;color:var(--vs-muted);"><div style="font-size:2rem;margin-bottom:.5rem;">🩺</div><p style="font-weight:600;font-size:1.05rem;color:var(--vs-slate-800);margin-bottom:0.5rem;">' + escapeHtml(disp.mensaje || 'El médico no tiene turno programado para este día de la semana.') + '</p><p style="margin-top:0.5rem;font-size:0.9rem;">Haz clic en <strong>"Próximo libre"</strong> o elige otro día del calendario para ver turnos disponibles.</p></div>';
+            return;
+          }
+
+          var slots = disp.slots || [];
+          if (slots.length === 0) {
+            slotsBox22.innerHTML = '<p class="vs-muted" style="text-align:center;padding:2rem;width:100%;">No hay bloques horarios disponibles para este médico en la fecha indicada.</p>';
+          } else {
             var sHtml = '';
-            disp.slots.forEach(function (s, idx) {
+            slots.forEach(function (s) {
               if (s.estado === 'LIBRE') {
-                sHtml += '<button type="button" class="vs-slot vs-slot--free' + (idx === 0 ? ' is-selected' : '') + '" data-time="' + s.hora_inicio + '">' + s.hora_inicio + '<small>Libre</small></button>';
+                sHtml += '<button type="button" class="vs-slot vs-slot--free" data-time="' + s.hora_inicio + '" data-end="' + s.hora_fin + '" data-estado="libre" title="Libre para agendar (15 min)">' +
+                  s.hora_inicio + '<small>LIBRE</small></button>';
               } else if (s.estado === 'BLOQUEADO') {
-                sHtml += '<button type="button" class="vs-slot vs-slot--blocked" disabled>' + s.hora_inicio + '<small>Bloqueado</small></button>';
+                sHtml += '<button type="button" class="vs-slot vs-slot--blocked" data-time="' + s.hora_inicio + '" data-estado="bloqueado" data-motivo="' + escapeHtml(s.motivo || 'Bloqueado') + '" title="No disponible: ' + escapeHtml(s.motivo || 'Bloqueado') + '">' +
+                  s.hora_inicio + '<small>' + escapeHtml(s.motivo ? (s.motivo.slice(0, 11) + '..') : 'Bloqueado') + '</small></button>';
+              } else if (s.estado === 'PASADO') {
+                sHtml += '<button type="button" class="vs-slot vs-slot--blocked" data-time="' + s.hora_inicio + '" data-estado="pasado" title="Horario ya transcurrido hoy">' +
+                  s.hora_inicio + '<small>PASADO</small></button>';
+              } else if (s.estado === 'VENCIDO') {
+                sHtml += '<button type="button" class="vs-slot vs-slot--blocked" data-time="' + s.hora_inicio + '" data-estado="vencido" title="Turno concluido">' +
+                  s.hora_inicio + '<small>ARCHIVADO</small></button>';
               } else {
-                sHtml += '<button type="button" class="vs-slot vs-slot--busy" disabled>' + s.hora_inicio + '<small>Reservado · ' + escapeHtml(s.cita_codigo || 'Cita') + '</small></button>';
+                sHtml += '<button type="button" class="vs-slot vs-slot--busy" data-time="' + s.hora_inicio + '" data-estado="ocupado" data-cita="' + escapeHtml(s.cita_codigo || '') + '" title="Horario reservado: ' + escapeHtml(s.cita_codigo || 'Cita médica') + '">' +
+                  s.hora_inicio + '<small>' + escapeHtml(s.cita_codigo || 'RESERVADO') + '</small></button>';
               }
             });
             slotsBox22.innerHTML = sHtml;
+
+            // Delegar eventos a los botones de slots
+            slotsBox22.querySelectorAll('.vs-slot').forEach(function (btn) {
+              btn.addEventListener('click', function () {
+                var estado = btn.getAttribute('data-estado');
+                var horaIni = btn.getAttribute('data-time');
+                var horaFin = btn.getAttribute('data-end');
+
+                if (estado === 'ocupado') {
+                  var codC = btn.getAttribute('data-cita');
+                  var msgOcup = 'El bloque de las ' + horaIni + ' ya está reservado (' + (codC || 'con cita médica') + '). Debes escoger otro horario libre.';
+                  if (window.vsToast) {
+                    window.vsToast('Horario no disponible', msgOcup, 'warning');
+                  } else {
+                    alert(msgOcup);
+                  }
+                  return;
+                }
+
+                if (estado === 'bloqueado') {
+                  var motB = btn.getAttribute('data-motivo');
+                  var msgBloq = 'Horario bloqueado (' + horaIni + '): ' + motB + '. Por favor escoge otro horario libre.';
+                  if (window.vsToast) {
+                    window.vsToast('Horario bloqueado', msgBloq, 'danger');
+                  } else {
+                    alert(msgBloq);
+                  }
+                  return;
+                }
+
+                if (estado === 'pasado' || estado === 'vencido') {
+                  var msgPas = 'Este horario (' + horaIni + ') ya ha transcurrido o está archivado. Debes escoger un horario libre.';
+                  if (window.vsToast) {
+                    window.vsToast('Horario no disponible', msgPas, 'warning');
+                  } else {
+                    alert(msgPas);
+                  }
+                  return;
+                }
+
+                // Es LIBRE: seleccionar
+                slotsBox22.querySelectorAll('.vs-slot').forEach(function (b) { b.classList.remove('is-selected'); });
+                btn.classList.add('is-selected');
+
+                if (slotSummary22) {
+                  slotSummary22.textContent = horaIni + ' – ' + (horaFin || '') + ' (' + nombreDoc + ')';
+                }
+
+                if (slotConfirmBtn22) {
+                  slotConfirmBtn22.classList.remove('is-disabled');
+                  slotConfirmBtn22.removeAttribute('aria-disabled');
+                  var idDocActual = med.id_persona || medId;
+                  slotConfirmBtn22.href = 'cu24-programar-cita.html?medico=' + encodeURIComponent(idDocActual) +
+                    '&fecha=' + encodeURIComponent(fecha) +
+                    '&hora=' + encodeURIComponent(horaIni) +
+                    (espId ? ('&especialidad=' + encodeURIComponent(espId)) : '');
+                }
+
+                if (window.vsToast) {
+                  window.vsToast('Horario de 15 min seleccionado', horaIni + ' – ' + (horaFin || '') + ' listo para agendar ficha.');
+                }
+              });
+            });
           }
-        } catch (e) {}
+
+          // Cargar "Otros médicos"
+          if (otrosMedBox22 && Array.isArray(disp.otros_medicos)) {
+            if (disp.otros_medicos.length === 0) {
+              otrosMedBox22.innerHTML = '<li class="vs-list-row" style="color:var(--vs-muted);padding:1rem;text-align:center;">No hay otros médicos con turno este día.</li>';
+            } else {
+              otrosMedBox22.innerHTML = disp.otros_medicos.map(function (om) {
+                var iniciales = om.nombre.replace(/Dr\(a\)\.\s*/, '').split(' ').map(function (w) { return w[0]; }).slice(0, 2).join('');
+                return '<li class="vs-list-row" style="cursor:pointer;" data-om-id="' + om.id_medico + '">' +
+                  '<div class="vs-avatar vs-avatar--sm">' + escapeHtml(iniciales || 'MD') + '</div>' +
+                  '<div class="vs-cell-person">' +
+                    '<div class="vs-cell-person__name">' + escapeHtml(om.nombre) + '</div>' +
+                    '<div class="vs-cell-person__sub">' + escapeHtml(om.turno) + ' · ' + om.bloques_libres + ' bloques libres</div>' +
+                  '</div>' +
+                  '<span class="vs-badge ' + (om.bloques_libres > 0 ? 'vs-badge--ok' : 'vs-badge--warn') + '">' + om.bloques_libres + '</span>' +
+                '</li>';
+              }).join('');
+
+              otrosMedBox22.querySelectorAll('li[data-om-id]').forEach(function (row) {
+                row.addEventListener('click', function () {
+                  var omId = row.getAttribute('data-om-id');
+                  if (selMed22) selMed22.value = omId;
+                  cargarDisponibilidadCU22();
+                });
+              });
+            }
+          }
+        } catch (err) {
+          slotsBox22.innerHTML = '<p class="vs-muted" style="text-align:center;padding:2rem;width:100%;">Error al consultar disponibilidad: ' + escapeHtml(err.message) + '</p>';
+        }
       }
+
+      // Botón "Próximo libre"
+      if (btnProximo22) {
+        btnProximo22.addEventListener('click', async function () {
+          try {
+            btnProximo22.disabled = true;
+            btnProximo22.textContent = 'Buscando...';
+            var medId = selMed22 && selMed22.value ? selMed22.value : null;
+            var espId = selEsp22 && selEsp22.value ? selEsp22.value : null;
+            var fechaBase = inFecha22 && inFecha22.value ? inFecha22.value : new Date().toISOString().slice(0, 10);
+
+            var resp = await VS_API.getProximoLibre({
+              id_medico: medId,
+              id_especialidad: espId,
+              fecha_desde: fechaBase
+            });
+
+            if (resp && resp.success && resp.fecha_encontrada) {
+              inFecha22.value = resp.fecha_encontrada;
+              if (window.vsToast) {
+                window.vsToast('Próximo turno libre encontrado', 'Fecha: ' + resp.fecha_encontrada);
+              }
+              cargarDisponibilidadCU22();
+            } else {
+              alert((resp && resp.message) ? resp.message : 'No se encontraron turnos libres próximos.');
+            }
+          } catch (e) {
+            alert('No se encontraron turnos libres disponibles en los próximos días.');
+          } finally {
+            btnProximo22.disabled = false;
+            btnProximo22.innerHTML = '<svg class="vs-i"><use href="#i-sparkle"/></svg>Próximo libre';
+          }
+        });
+      }
+
       if (filterForm22) {
         filterForm22.addEventListener('submit', function (e) {
           e.preventDefault();
           cargarDisponibilidadCU22();
         });
       }
-      cargarDisponibilidadCU22();
+
+      inicializarFiltrosCU22().then(function () {
+        cargarDisponibilidadCU22();
+      });
     }
 
     if (currentCuAttr === 'CU23') {
@@ -3605,6 +4473,166 @@
           }
         });
       }
+    }
+
+    // =========================================================================
+    // 24.5 CU30: AGENDA DIARIA DEL MÉDICO (100% DINÁMICO DESDE POSTGRESQL)
+    // =========================================================================
+    if (currentCuAttr === 'CU30') {
+      var agendaContainer = document.getElementById('cu30-agenda-list');
+      var fechaInp30 = document.getElementById('cu30-fecha-input');
+      var badgeFecha30 = document.getElementById('cu30-fecha-badge');
+      var kpiTot30 = document.getElementById('cu30-kpi-total');
+      var kpiAten30 = document.getElementById('cu30-kpi-atendidas');
+      var kpiEsp30 = document.getElementById('cu30-kpi-espera');
+      var kpiCanc30 = document.getElementById('cu30-kpi-canceladas');
+      var medNombre30 = document.getElementById('cu30-medico-nombre');
+      var medSub30 = document.getElementById('cu30-medico-sub');
+      var medAvatar30 = document.getElementById('cu30-avatar');
+
+      // Ficha del paciente
+      var pacAvatar = document.getElementById('cu30-pac-avatar');
+      var pacNombre = document.getElementById('cu30-pac-nombre');
+      var pacSub = document.getElementById('cu30-pac-sub');
+      var pacCod = document.getElementById('cu30-pac-cod');
+      var pacEdad = document.getElementById('cu30-pac-edad');
+      var pacSangre = document.getElementById('cu30-pac-sangre');
+      var pacAlergias = document.getElementById('cu30-pac-alergias');
+      var pacAnt = document.getElementById('cu30-pac-ant');
+      var pacEmerg = document.getElementById('cu30-pac-emerg');
+      var pacUlt = document.getElementById('cu30-pac-ult');
+
+      var citasDiaCache = [];
+
+      function getFechaHoyIso() {
+        var d = new Date();
+        return d.toISOString().split('T')[0];
+      }
+
+      if (fechaInp30 && !fechaInp30.value) {
+        fechaInp30.value = getFechaHoyIso();
+      }
+
+      async function cargarAgendaCU30() {
+        if (!agendaContainer) return;
+        agendaContainer.innerHTML = '<div style="padding:2.5rem;text-align:center;color:var(--vs-muted);">Consultando agenda médica desde la base de datos...</div>';
+        try {
+          var res = await VS_API.getCitas({ per_page: 100 });
+          var todas = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+          if (!Array.isArray(todas)) todas = [];
+
+          var fechaSel = fechaInp30 ? fechaInp30.value : '';
+          var citasFiltradas = todas.filter(function (c) {
+            if (!fechaSel) return true;
+            var f = (c.fecha || (c.horario && c.horario.fecha) || '').split('T')[0];
+            return !f || f === fechaSel || fechaSel === '';
+          });
+
+          if (citasFiltradas.length === 0 && todas.length > 0) {
+            citasFiltradas = todas;
+          }
+
+          citasDiaCache = citasFiltradas;
+
+          var total = citasFiltradas.length;
+          var atendidas = 0, espera = 0, canceladas = 0;
+
+          citasFiltradas.forEach(function (c) {
+            var st = String(c.estado || 'PROGRAMADA').toUpperCase();
+            if (st === 'ATENDIDA') atendidas++;
+            else if (st === 'CANCELADA') canceladas++;
+            else espera++;
+          });
+
+          if (kpiTot30) kpiTot30.textContent = total;
+          if (kpiAten30) kpiAten30.textContent = atendidas;
+          if (kpiEsp30) kpiEsp30.textContent = espera;
+          if (kpiCanc30) kpiCanc30.textContent = canceladas;
+          if (badgeFecha30 && fechaSel) badgeFecha30.textContent = 'Fecha: ' + fechaSel;
+
+          if (citasFiltradas.length > 0 && citasFiltradas[0].medico) {
+            var med = citasFiltradas[0].medico;
+            var medP = med.persona || {};
+            var nomMed = 'Dr(a). ' + (medP.nombres || '') + ' ' + (medP.apellidos || '');
+            if (medNombre30) medNombre30.textContent = nomMed;
+            if (medSub30) medSub30.textContent = 'Agenda activa · ' + total + ' turnos registrados';
+            if (medAvatar30) {
+              var mInits = ((medP.nombres ? medP.nombres[0] : '') + (medP.apellidos ? medP.apellidos[0] : '')).toUpperCase() || 'MD';
+              medAvatar30.textContent = mInits;
+            }
+          }
+
+          if (citasFiltradas.length === 0) {
+            agendaContainer.innerHTML = '<div style="padding:2.5rem;text-align:center;color:var(--vs-muted);">Sin citas médicas programadas para la fecha seleccionada.</div>';
+            return;
+          }
+
+          var html = '';
+          citasFiltradas.forEach(function (c, idx) {
+            var p = (c.paciente && c.paciente.persona) ? c.paciente.persona : (c.paciente || {});
+            var nomPac = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : 'Paciente') || 'Sin nombre';
+            var codCita = c.codigo || ('CM-' + String(c.id_cita || idx + 1).padStart(4, '0'));
+            var horaStr = c.hora_inicio || (c.horario ? c.horario.hora_inicio : '08:30') || '08:30';
+            var st = String(c.estado || 'PROGRAMADA').toUpperCase();
+            var badgeCls = st === 'ATENDIDA' ? 'vs-badge--ok' : (st === 'CANCELADA' ? 'vs-badge--danger' : 'vs-badge--info');
+            var itemCls = st === 'CANCELADA' ? 'vs-agenda__item--cancel' : (st === 'ATENDIDA' ? 'vs-agenda__item--now' : '');
+
+            html += '<div class="vs-agenda__row" data-cita-idx="' + idx + '" style="cursor:pointer;">' +
+              '<div class="vs-agenda__time">' + escapeHtml(horaStr.substring(0, 5)) + '</div>' +
+              '<div class="vs-agenda__item ' + itemCls + '">' +
+                '<div><div class="vs-agenda__title">' + escapeHtml(nomPac) + ' <span class="vs-xs vs-mono vs-muted">' + escapeHtml(codCita) + '</span></div>' +
+                '<div class="vs-agenda__sub">' + escapeHtml(c.motivo_consulta || 'Consulta médica programada') + '</div></div>' +
+                '<div class="vs-row vs-row--nowrap"><span class="vs-badge ' + badgeCls + '"><span class="vs-badge__dot"></span>' + escapeHtml(st) + '</span>' +
+                '<button type="button" class="vs-icon-btn btn-ver-ficha-cu30" title="Ver ficha del paciente"><svg class="vs-i"><use href="#i-eye"/></svg></button></div>' +
+              '</div>' +
+            '</div>';
+          });
+          agendaContainer.innerHTML = html;
+
+          mostrarFichaPaciente(citasFiltradas[0]);
+
+        } catch (err) {
+          agendaContainer.innerHTML = '<div style="padding:2.5rem;text-align:center;color:var(--vs-danger);">Error al cargar la agenda médica: ' + escapeHtml(err.message) + '</div>';
+        }
+      }
+
+      function mostrarFichaPaciente(c) {
+        if (!c) return;
+        var pac = c.paciente || {};
+        var pers = pac.persona || pac || {};
+        var nom = (pers.nombres ? (pers.nombres + ' ' + (pers.apellidos || '')) : 'Paciente') || 'Paciente';
+        var cod = pac.codigo_paciente || ('PAC-' + String(pac.id_paciente || 1).padStart(4, '0'));
+        var inits = ((pers.nombres ? pers.nombres[0] : '') + (pers.apellidos ? pers.apellidos[0] : '')).toUpperCase() || 'PA';
+
+        if (pacAvatar) pacAvatar.textContent = inits;
+        if (pacNombre) pacNombre.textContent = nom;
+        if (pacSub) pacSub.textContent = (c.estado || 'Programada') + ' · ' + (c.codigo || 'CM-0001');
+        if (pacCod) pacCod.textContent = cod + ' · CI ' + (pers.ci || '—');
+        if (pacEdad) pacEdad.textContent = (pers.fecha_nacimiento ? pers.fecha_nacimiento : '—') + ' · ' + (pers.sexo || 'No especificado');
+        if (pacSangre) pacSangre.textContent = pac.grupo_sanguineo || 'O+';
+        if (pacAlergias) pacAlergias.textContent = pac.alergias || 'Ninguna registrada';
+        if (pacAnt) pacAnt.textContent = pac.antecedentes || 'Sin antecedentes patológicos';
+        if (pacEmerg) pacEmerg.textContent = (pac.contacto_emergencia_nombre ? (pac.contacto_emergencia_nombre + ' (' + (pac.contacto_emergencia_telefono || '—') + ')') : 'No registrado');
+        if (pacUlt) pacUlt.textContent = c.fecha ? formatFechaHora(c.fecha) : 'Hoy';
+      }
+
+      if (agendaContainer) {
+        agendaContainer.addEventListener('click', function (ev) {
+          var row = ev.target.closest('[data-cita-idx]');
+          if (row) {
+            var idx = parseInt(row.getAttribute('data-cita-idx'), 10);
+            if (citasDiaCache[idx]) {
+              mostrarFichaPaciente(citasDiaCache[idx]);
+            }
+          }
+        });
+      }
+
+      if (fechaInp30) {
+        fechaInp30.addEventListener('change', cargarAgendaCU30);
+      }
+
+      cargarAgendaCU30();
     }
 
     // =========================================================================
@@ -4675,8 +5703,17 @@
       cargarDatosCU37();
     }
 
-    // CU38: Personal Administrativo, Personas y Matriz RBAC Rol-Permiso
+    // CU38: Personal Administrativo, Personas y Matriz RBAC Rol-Permiso (Exclusivo Administrador)
     if (currentCuAttr === 'CU38') {
+      if (!esUsuarioAdmin) {
+        var mainPage = document.querySelector('main') || document.body;
+        mainPage.innerHTML = '<div style="padding:3rem;max-width:42rem;margin:2rem auto;background:#fff;border:1px solid #fecdd3;border-radius:1rem;text-align:center;">' +
+          '<h2 style="color:#be123c;margin-bottom:.75rem;font-size:1.5rem;">Acceso Restringido · Exclusivo Administrador</h2>' +
+          '<p style="color:#475569;margin-bottom:1.5rem;">El módulo de Personal Administrativo y Permisos RBAC (CU38) solo puede ser visualizado por cuentas con el rol <strong>ADMINISTRADOR</strong>.</p>' +
+          '<a href="../inicio.html" class="vs-btn vs-btn--primary">Volver al Panel de Inicio</a></div>';
+        return;
+      }
+
       var tbodyPa38 = document.getElementById('cu38-personal-tbody');
       var selPers38 = document.getElementById('pa-persona');
       var selRol38 = document.getElementById('cu38-select-rol');
@@ -4713,7 +5750,7 @@
             } else {
               tbodyPa38.innerHTML = listPa.map(function (pa) {
                 var p = pa.persona || {};
-                var est = (p.estado || 'ACTIVO').toUpperCase();
+                var est = (p.activo === false || p.estado === 'INACTIVO') ? 'INACTIVO' : 'ACTIVO';
                 return '<tr>' +
                   '<td class="vs-td-num">#' + pa.id_personal_administrativo + '</td>' +
                   '<td><div class="vs-cell-person__name">' + escapeHtml((p.nombres || '') + ' ' + (p.apellidos || '')) + '</div><div class="vs-cell-person__sub">' + escapeHtml(p.email || '') + '</div></td>' +
@@ -4742,10 +5779,12 @@
 
           gridPerm38.innerHTML = todosPermisos38.map(function (perm) {
             var checked = asignados.indexOf(perm.id_permiso) !== -1 ? ' checked' : '';
+            var codigoPerm = perm.nombre || perm.codigo || ('PERM_' + perm.id_permiso);
+            var descPerm = perm.ruta_menu || perm.descripcion || perm.modulo || 'GENERAL';
             return '<label class="vs-check-card">' +
               '<input type="checkbox" class="vs-check cu38-perm-check" value="' + perm.id_permiso + '"' + checked + '>' +
-              '<div><div class="vs-check-card__title vs-mono vs-xs">' + escapeHtml(perm.codigo) + '</div>' +
-              '<div class="vs-check-card__sub">' + escapeHtml(perm.modulo || 'GENERAL') + ' · ' + escapeHtml(perm.descripcion || '') + '</div></div>' +
+              '<div><div class="vs-check-card__title vs-mono vs-xs">' + escapeHtml(codigoPerm) + '</div>' +
+              '<div class="vs-check-card__sub">' + escapeHtml(perm.modulo || 'GENERAL') + ' · ' + escapeHtml(descPerm) + '</div></div>' +
             '</label>';
           }).join('');
         } catch (e) {}
@@ -4763,7 +5802,7 @@
             if (window.vsToast) window.vsToast('Matriz Rol-Permiso sincronizada', 'Guardada en rol_permiso y auditada en bitácora');
             cargarMatrizPermisosRol();
           } catch (err) {
-            alert('Error sincronizando permisos: ' + err.message);
+            alert('Error sincronizando permisos: ' + (err.data && err.data.message ? err.data.message : err.message));
           }
         });
       }
@@ -4772,11 +5811,24 @@
         formNuevoPerm38.setAttribute('data-api-bound', 'true');
         formNuevoPerm38.addEventListener('submit', async function (e) {
           e.preventDefault();
+          var elNom = document.getElementById('pm-nombre') || document.getElementById('pm-codigo');
+          var elMod = document.getElementById('pm-modulo');
+          var elRuta = document.getElementById('pm-ruta') || document.getElementById('pm-desc');
+
+          var nomVal = elNom ? elNom.value.trim().toUpperCase() : '';
+          var modVal = elMod ? elMod.value.trim().toUpperCase() : '';
+          var rutaVal = elRuta ? elRuta.value.trim() : null;
+
+          if (!nomVal || !modVal) {
+            alert('Por favor completa el código y módulo del permiso.');
+            return;
+          }
+
           try {
             await VS_API.crearPermiso({
-              codigo: document.getElementById('pm-codigo').value.trim().toUpperCase(),
-              modulo: document.getElementById('pm-modulo').value,
-              descripcion: document.getElementById('pm-desc').value.trim()
+              nombre: nomVal,
+              modulo: modVal,
+              ruta_menu: rutaVal
             });
             if (window.vsToast) window.vsToast('Permiso registrado', 'Guardado en tabla permiso y auditado en bitácora');
             formNuevoPerm38.reset();
@@ -4791,15 +5843,25 @@
         formCargoPa38.setAttribute('data-api-bound', 'true');
         formCargoPa38.addEventListener('submit', async function (e) {
           e.preventDefault();
+          var elPers = document.getElementById('pa-persona');
+          var elCargo = document.getElementById('pa-cargo');
+          var idPers = elPers ? parseInt(elPers.value, 10) : 0;
+          var cargoVal = elCargo ? elCargo.value.trim() : '';
+
+          if (!idPers || !cargoVal) {
+            alert('Por favor selecciona una persona e ingresa el cargo.');
+            return;
+          }
+
           try {
             await VS_API.guardarPersonalAdministrativo({
-              id_persona: parseInt(document.getElementById('pa-persona').value, 10),
-              cargo: document.getElementById('pa-cargo').value.trim()
+              id_persona: idPers,
+              cargo: cargoVal
             });
             if (window.vsToast) window.vsToast('Cargo administrativo actualizado', 'Guardado en personal_administrativo y auditado en bitácora');
             cargarDatosCU38();
           } catch (err) {
-            alert('Error asignando cargo: ' + err.message);
+            alert('Error asignando cargo: ' + (err.data && err.data.message ? err.data.message : err.message));
           }
         });
       }
@@ -4992,14 +6054,21 @@
         var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
         var med = (c.medico && c.medico.persona) ? ('Dr(a). ' + c.medico.persona.nombres + ' ' + c.medico.persona.apellidos) : 'Médico';
         var esp = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'Consulta Especializada';
-        var elPac = document.getElementById('comp-paciente');
-        var elMed = document.getElementById('comp-medico');
-        var elFec = document.getElementById('comp-fecha');
-        var elCod = document.getElementById('comp-codigo');
-        if (elPac) elPac.textContent = pac;
-        if (elMed) elMed.textContent = med + ' · ' + esp;
-        if (elFec) elFec.textContent = c.fecha + ' · ' + (c.hora_inicio || '').substring(0, 5);
-        if (elCod) elCod.textContent = 'COMP-VS-' + (c.id_cita || '101');
+
+        var elTx = document.getElementById('cu41-comp-tx');
+        var elCita = document.getElementById('cu41-comp-cita');
+        var elMet = document.getElementById('cu41-comp-metodo');
+        var elMon = document.getElementById('cu41-comp-monto');
+        var elEst = document.getElementById('cu41-comp-estado');
+
+        if (elCita) elCita.textContent = (c.codigo || ('CM-' + c.id_cita)) + ' (' + pac + ')';
+        if (elTx) elTx.textContent = 'COMP-' + (c.id_cita ? String(c.id_cita).padStart(4, '0') : '0001');
+        if (elMet) elMet.textContent = 'Pendiente de pago';
+        if (elMon) elMon.textContent = 'Bs 150.00';
+        if (elEst) {
+          elEst.textContent = c.estado || 'PENDIENTE';
+          elEst.className = (c.estado === 'CONFIRMADA' || c.estado === 'ATENDIDA') ? 'vs-badge vs-badge--ok' : 'vs-badge vs-badge--muted';
+        }
       }
 
       if (selCita41) selCita41.addEventListener('change', actualizarPreviewComprobante41);
@@ -5009,41 +6078,96 @@
         formPago41.addEventListener('submit', async function (e) {
           e.preventDefault();
           var idCita = selCita41 ? selCita41.value : null;
-          var metodo = document.getElementById('pg-metodo').value;
-          var monto = document.getElementById('pg-monto').value;
-          var nit = document.getElementById('pg-nit').value.trim();
-          var razon = document.getElementById('pg-razon').value.trim();
+          var radMet = formPago41.querySelector('input[name="metodo_pago"]:checked');
+          var metodo = radMet ? radMet.value : 'QR_SIMPLE';
+          var monto = document.getElementById('pg-monto') ? document.getElementById('pg-monto').value : '150';
+          var nit = document.getElementById('pg-nit') ? document.getElementById('pg-nit').value.trim() : '';
+
+          var submitBtn = formPago41.querySelector('button[type="submit"]');
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Procesando pago...'; }
+
           try {
-            await VS_API.registrarHistorialEstadoCita(idCita, {
-              estado_nuevo: 'CONFIRMADA',
-              observacion: 'Pago en línea confirmado (' + metodo + ' · Bs ' + monto + ' · NIT ' + nit + ' ' + razon + ')'
+            var refExt = 'TX-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+            // Si el método es STRIPE, crear sesión / intent en Stripe primero
+            if (metodo === 'STRIPE') {
+              try {
+                var resStripe = await VS_API.crearStripeIntento({ id_cita: idCita, monto: monto });
+                if (resStripe && resStripe.payment_intent_id) {
+                  refExt = resStripe.payment_intent_id;
+                }
+              } catch (strErr) {
+                console.warn('Stripe checkout fallback:', strErr);
+              }
+            }
+
+            // Registrar el pago en PostgreSQL y confirmar cita
+            var resPago = await VS_API.registrarPago({
+              id_cita: idCita,
+              monto: monto,
+              metodo: metodo,
+              nit_ci: nit,
+              referencia_externa: refExt
             });
-            var elMet = document.getElementById('comp-metodo');
-            var elMon = document.getElementById('comp-monto');
-            if (elMet) elMet.textContent = metodo + ' (PAGADO)';
+
+            var pagoData = (resPago && resPago.data) ? resPago.data : {};
+            var compData = pagoData.comprobante_pago || pagoData.comprobante || {};
+
+            var elTx = document.getElementById('cu41-comp-tx');
+            var elCita = document.getElementById('cu41-comp-cita');
+            var elMet = document.getElementById('cu41-comp-metodo');
+            var elMon = document.getElementById('cu41-comp-monto');
+            var elEst = document.getElementById('cu41-comp-estado');
+
+            if (elTx) elTx.textContent = compData.numero || refExt;
+            if (elCita) elCita.textContent = (pagoData.cita && pagoData.cita.codigo) ? pagoData.cita.codigo : ('Cita #' + idCita);
+            if (elMet) elMet.textContent = (metodo === 'STRIPE' ? 'Stripe Payments' : (metodo === 'QR_SIMPLE' || metodo === 'QR' ? 'QR Simple Bolivia' : 'Tarjeta Débito/Crédito'));
             if (elMon) elMon.textContent = 'Bs ' + parseFloat(monto).toFixed(2);
-            if (window.vsToast) window.vsToast('Pago confirmado y comprobante emitido', 'Cita CONFIRMADA en PostgreSQL y auditada en bitácora');
+            if (elEst) {
+              elEst.textContent = 'PAGADO';
+              elEst.className = 'vs-badge vs-badge--ok';
+            }
+
+            if (window.vsToast) {
+              window.vsToast('Pago confirmado con éxito', 'Comprobante ' + (compData.numero || refExt) + ' emitido en tiempo real.');
+            }
+
+            // Recargar catálogo de citas para reflejar la confirmación
+            cargarCitasCU41();
           } catch (err) {
-            alert('Error procesando pago: ' + err.message);
+            alert('Error al procesar el pago: ' + (err.data && err.data.message ? err.data.message : err.message));
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<svg class="vs-i"><use href="#i-check-circle"/></svg>Confirmar pago y generar comprobante';
+            }
           }
         });
       }
 
       if (btnDescargar41) {
         btnDescargar41.addEventListener('click', function () {
-          var cod = document.getElementById('comp-codigo') ? document.getElementById('comp-codigo').textContent : 'COMP-VS';
-          var pac = document.getElementById('comp-paciente') ? document.getElementById('comp-paciente').textContent : '';
-          var med = document.getElementById('comp-medico') ? document.getElementById('comp-medico').textContent : '';
-          var fec = document.getElementById('comp-fecha') ? document.getElementById('comp-fecha').textContent : '';
-          var mon = document.getElementById('comp-monto') ? document.getElementById('comp-monto').textContent : 'Bs 150.00';
-          var txt = 'CLINICA VIDA SALUD — COMPROBANTE ELECTRONICO DE CITA\n' +
-            '====================================================\n' +
-            'Comprobante: ' + cod + '\n' +
-            'Paciente:    ' + pac + '\n' +
-            'Medico/Esp:  ' + med + '\n' +
-            'Fecha/Hora:  ' + fec + '\n' +
-            'Importe:     ' + mon + '\n' +
-            'Estado:      CONFIRMADA Y PAGADA\n';
+          var elTx = document.getElementById('cu41-comp-tx');
+          var elCita = document.getElementById('cu41-comp-cita');
+          var elMet = document.getElementById('cu41-comp-metodo');
+          var elMon = document.getElementById('cu41-comp-monto');
+          var cod = (elTx && elTx.textContent !== '—') ? elTx.textContent : 'COMP-2026-0001';
+          var cita = (elCita && elCita.textContent !== '—') ? elCita.textContent : 'CM-0001';
+          var met = elMet ? elMet.textContent : 'QR Simple';
+          var mon = elMon ? elMon.textContent : 'Bs 150.00';
+
+          var txt = '==================================================\n' +
+            '         CLÍNICA VIDA SALUD — COMPROBANTE OFICIAL\n' +
+            '==================================================\n' +
+            'N.º Comprobante: ' + cod + '\n' +
+            'Cita Médica:     ' + cita + '\n' +
+            'Método de Pago:  ' + met + '\n' +
+            'Importe Total:   ' + mon + '\n' +
+            'Estado:          CONFIRMADO Y PAGADO\n' +
+            'Fecha Emisión:   ' + new Date().toLocaleString('es-BO', { timeZone: 'America/La_Paz' }) + '\n' +
+            '==================================================\n' +
+            '¡Gracias por confiar en Clínica Vida Salud!\n';
+
           var blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
           var a = document.createElement('a');
           a.href = URL.createObjectURL(blob);
@@ -5057,57 +6181,146 @@
       cargarCitasCU41();
     }
 
-    // CU42: Historial de Pagos y Gestión de Reembolsos por Cancelación
+    // =========================================================================
+    // CU42: HISTORIAL DE PAGOS DEL PACIENTE Y GESTIÓN DE REEMBOLSOS (100% DINÁMICO)
+    // =========================================================================
     if (currentCuAttr === 'CU42') {
       var tbodyPagos42 = document.getElementById('cu42-pagos-tbody');
       var selCita42 = document.getElementById('rb-cita');
       var formReemb42 = document.getElementById('form-cu42-reembolso');
+      var pagosCache42 = [];
 
       async function cargarPagosCU42() {
+        if (!tbodyPagos42) return;
+        tbodyPagos42.innerHTML = '<tr><td colspan="9" class="vs-td-empty">Consultando pagos y transacciones en tiempo real...</td></tr>';
+
         try {
-          var res = await VS_API.getCitas({ per_page: 25 });
+          var res = await VS_API.getPagos({ per_page: 50 });
           var list = (res && res.data && res.data.data) ? res.data.data : (res.data || []);
-          if (selCita42 && list.length) {
-            selCita42.innerHTML = list.map(function (c) {
-              var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
-              return '<option value="' + c.id_cita + '">' + escapeHtml((c.codigo || ('CM-' + c.id_cita)) + ' · ' + pac + ' (' + c.estado + ')') + '</option>';
-            }).join('');
+          pagosCache42 = list;
+
+          if (selCita42) {
+            if (list.length === 0) {
+              selCita42.innerHTML = '<option value="">Sin transacciones registradas</option>';
+            } else {
+              selCita42.innerHTML = list.map(function (p) {
+                var c = p.cita || {};
+                var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
+                var codCita = c.codigo || ('CM-' + p.id_cita);
+                return '<option value="' + p.id_pago + '" data-cita-id="' + (c.id_cita || '') + '">' +
+                  escapeHtml(codCita + ' · ' + pac + ' (Bs ' + Number(p.monto).toFixed(2) + ' - ' + p.estado + ')') +
+                '</option>';
+              }).join('');
+            }
           }
-          if (tbodyPagos42) {
-            tbodyPagos42.innerHTML = list.slice(0, 12).map(function (c, i) {
-              var pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + c.paciente.persona.apellidos) : 'Paciente';
-              var est = (c.estado || 'PROGRAMADA').toUpperCase();
-              var esCancel = est === 'CANCELADA';
-              var badge = esCancel
-                ? '<span class="vs-badge vs-badge--warn"><span class="vs-badge__dot"></span>REEMBOLSADO</span>'
-                : '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>PAGADO</span>';
-              var canal = (i % 2 === 0) ? 'QR Simple' : 'Tarjeta Débito';
-              return '<tr>' +
-                '<td class="vs-mono vs-xs">COMP-2026-' + String(c.id_cita).padStart(4, '0') + '</td>' +
-                '<td><div class="vs-cell-person__name">' + escapeHtml(pac) + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(c.codigo || ('CM-' + c.id_cita)) + ' · ' + escapeHtml(c.fecha) + '</div></td>' +
-                '<td>' + canal + '</td>' +
-                '<td class="vs-td-num">Bs 150.00</td>' +
-                '<td>' + badge + '</td>' +
-              '</tr>';
-            }).join('');
+
+          if (list.length === 0) {
+            tbodyPagos42.innerHTML = '<tr><td colspan="9" class="vs-td-empty">No se encontraron pagos registrados en la base de datos.</td></tr>';
+            return;
           }
-        } catch (e) {}
+
+          tbodyPagos42.innerHTML = list.map(function (p) {
+            var c = p.cita || {};
+            var pacObj = (c.paciente && c.paciente.persona) ? c.paciente.persona : {};
+            var pacNom = (pacObj.nombres || '') + ' ' + (pacObj.apellidos || '');
+            var pacCi = pacObj.ci ? ('CI ' + pacObj.ci) : '';
+
+            var medObj = (c.medico && c.medico.persona) ? c.medico.persona : {};
+            var medNom = medObj.nombres ? ('Dr(a). ' + medObj.nombres + ' ' + medObj.apellidos) : 'Médico General';
+            var espNom = (c.especialidad && c.especialidad.nombre) ? c.especialidad.nombre : 'Consulta';
+
+            var comp = p.comprobante_pago || p.comprobante || {};
+            var numComp = comp.numero || ('COMP-2026-' + String(p.id_pago).padStart(4, '0'));
+            var codCita = c.codigo || ('CM-' + String(p.id_cita).padStart(4, '0'));
+
+            var estUpper = (p.estado || 'APROBADO').toUpperCase();
+            var esReembolsado = estUpper === 'REEMBOLSADO' || (c.estado === 'CANCELADA');
+            var badgeEst = esReembolsado
+              ? '<span class="vs-badge vs-badge--warn"><span class="vs-badge__dot"></span>REEMBOLSADO</span>'
+              : '<span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>PAGADO</span>';
+
+            var metodoTexto = p.metodo || 'QR';
+            if (metodoTexto === 'QR' || metodoTexto === 'QR_SIMPLE') metodoTexto = 'QR Simple';
+            else if (metodoTexto === 'TARJETA') metodoTexto = 'Tarjeta Débito';
+            else if (metodoTexto === 'STRIPE') metodoTexto = 'Stripe Payments';
+
+            var fechaCitaStr = (c.fecha || '—') + (c.hora_inicio ? (' ' + String(c.hora_inicio).substring(0, 5)) : '');
+            var fechaPagoStr = p.fecha_hora ? formatFechaHora(p.fecha_hora) : '—';
+            var montoTotalStr = 'Bs ' + Number(p.monto || 150).toFixed(2);
+
+            var accionBtn = '';
+            if (!esReembolsado) {
+              accionBtn = '<button type="button" class="vs-btn vs-btn--danger vs-btn--xs" data-btn-reembolso="' + p.id_pago + '" title="Iniciar reembolso de este pago">' +
+                '<svg class="vs-i"><use href="#i-undo"/></svg>Reembolsar' +
+              '</button>';
+            } else {
+              accionBtn = '<span class="vs-muted vs-xs">Procesado</span>';
+            }
+
+            return '<tr>' +
+              '<td class="vs-mono vs-xs"><strong>' + escapeHtml(numComp) + '</strong><div class="vs-muted">' + escapeHtml(codCita) + '</div></td>' +
+              '<td><div class="vs-cell-person__name">' + escapeHtml(pacNom || 'Paciente') + '</div><div class="vs-cell-person__sub vs-mono">' + escapeHtml(pacCi) + '</div></td>' +
+              '<td><div>' + escapeHtml(espNom) + '</div><div class="vs-cell-person__sub">' + escapeHtml(medNom) + '</div></td>' +
+              '<td class="vs-mono vs-xs">' + escapeHtml(fechaCitaStr) + '</td>' +
+              '<td><span class="vs-badge vs-badge--muted">' + escapeHtml(metodoTexto) + '</span></td>' +
+              '<td class="vs-td-num vs-strong" style="color:var(--vs-teal);">' + escapeHtml(montoTotalStr) + '</td>' +
+              '<td class="vs-mono vs-xs" style="white-space:nowrap;">' + escapeHtml(fechaPagoStr) + '</td>' +
+              '<td>' + badgeEst + '</td>' +
+              '<td class="vs-td-actions">' + accionBtn + '</td>' +
+            '</tr>';
+          }).join('');
+
+          // Delegar botones de reembolso de cada fila
+          tbodyPagos42.querySelectorAll('button[data-btn-reembolso]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var idP = btn.getAttribute('data-btn-reembolso');
+              if (selCita42) selCita42.value = idP;
+              var motInput = document.getElementById('rb-motivo');
+              if (motInput) {
+                motInput.focus();
+                if (!motInput.value) motInput.value = 'Reembolso solicitado por paciente — Cancelación justificada';
+              }
+              if (window.vsToast) {
+                window.vsToast('Pago seleccionado para reembolso', 'Completa el motivo y presiona Procesar.');
+              }
+            });
+          });
+        } catch (e) {
+          tbodyPagos42.innerHTML = '<tr><td colspan="9" class="vs-td-empty">Error cargando historial de pagos: ' + escapeHtml(e.message) + '</td></tr>';
+        }
       }
 
       if (formReemb42) {
         formReemb42.setAttribute('data-api-bound', 'true');
         formReemb42.addEventListener('submit', async function (e) {
           e.preventDefault();
-          var idCita = selCita42 ? selCita42.value : null;
-          var mot = document.getElementById('rb-motivo').value.trim();
-          var destino = document.getElementById('rb-destino').value;
+          var idPago = selCita42 ? selCita42.value : null;
+          var mot = document.getElementById('rb-motivo') ? document.getElementById('rb-motivo').value.trim() : '';
+
+          if (!idPago) {
+            alert('Por favor selecciona una cita o pago para procesar el reembolso.');
+            return;
+          }
+
+          var submitBtn = formReemb42.querySelector('button[type="submit"]');
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Procesando reembolso...'; }
+
           try {
-            await VS_API.cancelarCita(idCita, 'Reembolso aprobado (' + destino + '): ' + mot);
-            if (window.vsToast) window.vsToast('Reembolso y anulación procesados', 'Cita CANCELADA y reembolso auditado en bitácora');
+            await VS_API.reembolsarPago(idPago, {
+              motivo: mot || 'Cancelación justificada con reembolso del 100%'
+            });
+            if (window.vsToast) {
+              window.vsToast('Reembolso y anulación procesados', 'Pago marcado como REEMBOLSADO, cita CANCELADA y bloque horario liberado.');
+            }
             formReemb42.reset();
             cargarPagosCU42();
           } catch (err) {
             alert('Error procesando reembolso: ' + (err.data && err.data.message ? err.data.message : err.message));
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<svg class="vs-i"><use href="#i-undo"/></svg>Procesar reembolso y cancelar cita';
+            }
           }
         });
       }

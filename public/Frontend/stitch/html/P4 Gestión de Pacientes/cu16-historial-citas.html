@@ -46,10 +46,10 @@
         <section class="vs-card">
           <div class="vs-card__body vs-card__body--tight vs-row vs-row--between">
             <div class="vs-row" style="gap:.85rem">
-              <span class="vs-avatar vs-avatar--lg vs-avatar--sky">JE</span>
+              <span class="vs-avatar vs-avatar--lg vs-avatar--sky" id="cu16-paciente-avatar">--</span>
               <div>
-                <div class="vs-h3">Jimena Égüez Choque <span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Activa</span></div>
-                <div class="vs-xs vs-muted"><span class="vs-mono">PAC-0016</span> · CI <span class="vs-mono">12181643</span> · 50 años · Femenino · <span class="vs-mono">75666779</span> · registrada el 05/08/2026</div>
+                <div class="vs-h3" id="cu16-paciente-nombre">Cargando paciente...</div>
+                <div class="vs-xs vs-muted" id="cu16-paciente-sub">Consultando citas registradas en PostgreSQL...</div>
               </div>
             </div>
             <nav class="vs-tabs" aria-label="Secciones del paciente">
@@ -62,65 +62,29 @@
         </section>
 
         <section class="vs-grid vs-grid--4">
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Citas totales</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-calendar"/></svg></span></div><p class="vs-kpi__value">4</p><p class="vs-kpi__hint">Desde agosto de 2026</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Atendidas</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal">2</p><p class="vs-kpi__hint vs-kpi__hint--ok">Odontología · Medicina General</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Inasistencias</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-alert"/></svg></span></div><p class="vs-kpi__value">1</p><p class="vs-kpi__hint vs-kpi__hint--warn">05/10/2026 · sin aviso</p></article>
-          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Próxima cita</span><span class="vs-kpi__icon vs-kpi__icon--slate"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value" style="font-size:1.4rem">Hoy 08:30</p><p class="vs-kpi__hint">CM-0283 · Dr. Rojas · Confirmada</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Citas totales</span><span class="vs-kpi__icon"><svg class="vs-i"><use href="#i-calendar"/></svg></span></div><p class="vs-kpi__value" id="kpi-citas-totales">—</p><p class="vs-kpi__hint">Historial en el sistema</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Atendidas</span><span class="vs-kpi__icon vs-kpi__icon--teal"><svg class="vs-i"><use href="#i-check-circle"/></svg></span></div><p class="vs-kpi__value vs-kpi__value--teal" id="kpi-citas-atendidas">—</p><p class="vs-kpi__hint vs-kpi__hint--ok">Consultas concluidas</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Inasistencias / Canceladas</span><span class="vs-kpi__icon vs-kpi__icon--amber"><svg class="vs-i"><use href="#i-alert"/></svg></span></div><p class="vs-kpi__value" id="kpi-citas-canceladas">—</p><p class="vs-kpi__hint vs-kpi__hint--warn">Turnos no asistidos</p></article>
+          <article class="vs-card vs-kpi"><div class="vs-kpi__top"><span class="vs-kpi__label">Próxima cita</span><span class="vs-kpi__icon vs-kpi__icon--slate"><svg class="vs-i"><use href="#i-clock"/></svg></span></div><p class="vs-kpi__value" id="kpi-citas-proxima" style="font-size:1.4rem">—</p><p class="vs-kpi__hint">Estado de agenda</p></article>
         </section>
 
         <section class="vs-card">
           <div class="vs-card__head">
             <div><h3 class="vs-card__title">Citas de la paciente</h3><p class="vs-card__sub">Ordenadas de la más reciente a la más antigua</p></div>
             <form class="vs-row" onsubmit="event.preventDefault()">
-              <select class="vs-select" aria-label="Filtrar por estado" style="min-width:11rem"><option>Todos los estados</option><option>Programada</option><option>Confirmada</option><option>Atendida</option><option>Cancelada</option><option>Inasistencia</option></select>
-              <select class="vs-select" aria-label="Filtrar por especialidad" style="min-width:11rem"><option>Todas las especialidades</option><option>Medicina General</option><option>Odontología</option></select>
-              <button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" data-toast="Historial exportado" data-toast-sub="historial_PAC-0016.pdf"><svg class="vs-i"><use href="#i-printer"/></svg>Imprimir</button>
+              <select class="vs-select" aria-label="Filtrar por estado" style="min-width:11rem"><option value="">Todos los estados</option><option>Programada</option><option>Confirmada</option><option>Atendida</option><option>Cancelada</option><option>Inasistencia</option></select>
+              <select class="vs-select" aria-label="Filtrar por especialidad" style="min-width:11rem"><option value="">Todas las especialidades</option><option>Medicina General</option><option>Odontología</option></select>
             </form>
           </div>
           <div class="vs-table-wrap">
             <table class="vs-table">
               <thead><tr><th>Código</th><th>Fecha y hora</th><th>Especialidad / Médico</th><th class="vs-hide-md">Motivo</th><th>Estado</th><th class="vs-hide-md">Observación médica</th><th class="vs-td-actions">Acciones</th></tr></thead>
               <tbody>
-                <tr>
-                  <td class="vs-td-num">CM-0283</td>
-                  <td class="vs-td-num">26/10/2026 08:30</td>
-                  <td><div class="vs-cell-person__name">Medicina General</div><div class="vs-cell-person__sub">Dr. Juan Ronaldo Rojas Ugarte</div></td>
-                  <td class="vs-hide-md">Control de presión arterial</td>
-                  <td><span class="vs-badge vs-badge--cyan"><span class="vs-badge__dot"></span>Confirmada</span></td>
-                  <td class="vs-hide-md vs-muted">—</td>
-                  <td class="vs-td-actions"><a href="../P6 Gestión de Citas Médicas/cu26-reprogramar-cita.html" class="vs-icon-btn" title="Reprogramar"><svg class="vs-i"><use href="#i-repeat"/></svg></a><a href="../P6 Gestión de Citas Médicas/cu27-cancelar-cita.html" class="vs-icon-btn vs-icon-btn--danger" title="Cancelar"><svg class="vs-i"><use href="#i-calendar-x"/></svg></a></td>
-                </tr>
-                <tr>
-                  <td class="vs-td-num">CM-0150</td>
-                  <td class="vs-td-num">05/10/2026 08:30</td>
-                  <td><div class="vs-cell-person__name">Medicina General</div><div class="vs-cell-person__sub">Dr. Juan Ronaldo Rojas Ugarte</div></td>
-                  <td class="vs-hide-md">Control de presión arterial</td>
-                  <td><span class="vs-badge vs-badge--warn"><span class="vs-badge__dot"></span>Inasistencia</span></td>
-                  <td class="vs-hide-md vs-muted">Paciente no se presentó</td>
-                  <td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Ver detalle" data-open-dialog="dlg-detalle"><svg class="vs-i"><use href="#i-eye"/></svg></button></td>
-                </tr>
-                <tr>
-                  <td class="vs-td-num">CM-0062</td>
-                  <td class="vs-td-num">11/09/2026 09:00</td>
-                  <td><div class="vs-cell-person__name">Medicina General</div><div class="vs-cell-person__sub">Dr. Juan Ronaldo Rojas Ugarte</div></td>
-                  <td class="vs-hide-md">Control de presión arterial</td>
-                  <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Atendida</span></td>
-                  <td class="vs-hide-md">Se indica tratamiento y control en 15 días</td>
-                  <td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Ver detalle" data-open-dialog="dlg-detalle"><svg class="vs-i"><use href="#i-eye"/></svg></button></td>
-                </tr>
-                <tr>
-                  <td class="vs-td-num">CM-0033</td>
-                  <td class="vs-td-num">02/09/2026 11:30</td>
-                  <td><div class="vs-cell-person__name">Odontología</div><div class="vs-cell-person__sub">Dr. Marcelo Terceros Chávez</div></td>
-                  <td class="vs-hide-md">Control de ortodoncia</td>
-                  <td><span class="vs-badge vs-badge--ok"><span class="vs-badge__dot"></span>Atendida</span></td>
-                  <td class="vs-hide-md">Se deriva a especialista para valoración</td>
-                  <td class="vs-td-actions"><button type="button" class="vs-icon-btn" title="Ver detalle" data-open-dialog="dlg-detalle"><svg class="vs-i"><use href="#i-eye"/></svg></button></td>
-                </tr>
+                <tr><td colspan="7" class="vs-td-empty" style="text-align:center;padding:2.5rem;color:var(--vs-muted);">Consultando historial de citas médicas del paciente...</td></tr>
               </tbody>
             </table>
           </div>
-          <div class="vs-card__foot"><span>4 citas · tasa de asistencia 67 % (2 de 3 concluidas)</span><span class="vs-xs">Si el paciente no tuviera citas se mostraría “Sin historial registrado” (A1)</span></div>
+          <div class="vs-card__foot"><span id="cu16-footer-info">Historial médico institucional</span><span class="vs-xs">Si el paciente no tuviera citas se mostraría “Sin historial registrado” (A1)</span></div>
         </section>
 
       </div>

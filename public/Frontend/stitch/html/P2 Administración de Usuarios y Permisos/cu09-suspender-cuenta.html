@@ -56,50 +56,9 @@
             </div>
             <div class="vs-table-wrap">
               <table class="vs-table">
-                <thead><tr><th>Usuario</th><th>Rol</th><th class="vs-hide-md">Último acceso</th><th class="vs-hide-md">Citas futuras</th><th class="vs-td-actions">Acción</th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--amber">SC</span><div><div class="vs-cell-person__name">Silvia Irene Colque López <span class="vs-badge vs-badge--muted">tú</span></div><div class="vs-cell-person__sub vs-mono">scolque</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--warn">Administrador</span></td>
-                    <td class="vs-hide-md vs-td-num">Hoy 07:52</td>
-                    <td class="vs-hide-md vs-td-num">—</td>
-                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--ghost vs-btn--sm" disabled title="No puedes inactivar tu propia cuenta"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar</button></td>
-                  </tr>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">RV</span><div><div class="vs-cell-person__name">Rosa María Vaca Cuéllar</div><div class="vs-cell-person__sub vs-mono">rvaca</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--info">Recepcionista</span></td>
-                    <td class="vs-hide-md vs-td-num">Hoy 08:01</td>
-                    <td class="vs-hide-md vs-td-num">—</td>
-                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar</button></td>
-                  </tr>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--rose">JM</span><div><div class="vs-cell-person__name">Jorge Luis Mendoza Paz</div><div class="vs-cell-person__sub vs-mono">jmendoza · bloqueado temporal</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--info">Recepcionista</span></td>
-                    <td class="vs-hide-md vs-td-num">Ayer 09:37</td>
-                    <td class="vs-hide-md vs-td-num">—</td>
-                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar</button></td>
-                  </tr>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">JR</span><div><div class="vs-cell-person__name">Dr. Juan Ronaldo Rojas Ugarte</div><div class="vs-cell-person__sub vs-mono">jrojas · Medicina General</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--ok">Médico</span></td>
-                    <td class="vs-hide-md vs-td-num">Hoy 08:04</td>
-                    <td class="vs-hide-md vs-td-num"><span class="vs-badge vs-badge--warn">6 citas</span></td>
-                    <td class="vs-td-actions"><a href="../P5 Gestión Médica y Horarios/cu21-desactivar-medico.html" class="vs-btn vs-btn--ghost vs-btn--sm" title="Los médicos se desactivan desde CU21"><svg class="vs-i"><use href="#i-arrow-right"/></svg>Ver CU21</a></td>
-                  </tr>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--teal">PG</span><div><div class="vs-cell-person__name">Dra. Patricia Gutiérrez Melgar</div><div class="vs-cell-person__sub vs-mono">pgutierrez · Pediatría</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--ok">Médico</span></td>
-                    <td class="vs-hide-md vs-td-num">Ayer 12:16</td>
-                    <td class="vs-hide-md vs-td-num"><span class="vs-badge vs-badge--warn">4 citas</span></td>
-                    <td class="vs-td-actions"><a href="../P5 Gestión Médica y Horarios/cu21-desactivar-medico.html" class="vs-btn vs-btn--ghost vs-btn--sm"><svg class="vs-i"><use href="#i-arrow-right"/></svg>Ver CU21</a></td>
-                  </tr>
-                  <tr>
-                    <td><div class="vs-cell-person"><span class="vs-avatar vs-avatar--sm vs-avatar--sky">DJ</span><div><div class="vs-cell-person__name">Daniela Justiniano Áñez</div><div class="vs-cell-person__sub vs-mono">djustiniano</div></div></div></td>
-                    <td><span class="vs-badge vs-badge--info">Recepcionista</span></td>
-                    <td class="vs-hide-md vs-td-num">Ayer 14:02</td>
-                    <td class="vs-hide-md vs-td-num">—</td>
-                    <td class="vs-td-actions"><button type="button" class="vs-btn vs-btn--danger-soft vs-btn--sm" data-open-dialog="dlg-inactivar"><svg class="vs-i"><use href="#i-ban"/></svg>Inactivar</button></td>
-                  </tr>
+                <thead><tr><th>Usuario</th><th>Rol</th><th class="vs-hide-md">Estado</th><th class="vs-hide-md">Último acceso</th><th class="vs-td-actions">Acción</th></tr></thead>
+                <tbody id="vs-cu09-tbody">
+                  <tr><td colspan="5" class="vs-td-empty" style="text-align:center;padding:2.5rem;color:var(--vs-muted);">Cargando cuentas activas desde la base de datos...</td></tr>
                 </tbody>
               </table>
             </div>

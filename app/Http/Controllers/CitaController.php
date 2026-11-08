@@ -472,21 +472,39 @@ class CitaController extends Controller
 
         $carbonFecha = Carbon::parse($fecha);
         $diaSemana = $carbonFecha->dayOfWeekIso; // 1 = Lunes, 7 = Domingo
+        $haceUnaSemana = now()->setTimezone('America/La_Paz')->subDays(7)->startOfDay();
+        $esFechaAntigua = $carbonFecha->lt($haceUnaSemana);
+
+        $diasEsp = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
+        $mesesEsp = [1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril', 5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto', 9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'];
+        $nombreDia = ($diasEsp[$diaSemana] ?? '').' '.$carbonFecha->format('d').' de '.($mesesEsp[$carbonFecha->month] ?? '').' de '.$carbonFecha->format('Y');
 
         $horario = Horario::where('id_medico', $medico->id_persona)
             ->where('dia_semana', $diaSemana)
             ->where('activo', true)
             ->first();
 
-        $tieneHorarioEseDia = true;
         if (! $horario) {
-            $tieneHorarioEseDia = false;
-            // Si el médico no atiende ese día, buscar su horario habitual para referencia o turno por defecto
-            $horario = Horario::where('id_medico', $medico->id_persona)->where('activo', true)->first();
+            return response()->json([
+                'success' => true,
+                'fecha' => $fecha,
+                'fecha_antigua' => $esFechaAntigua,
+                'atiende_este_dia' => false,
+                'nombre_dia' => $nombreDia,
+                'turno' => 'Sin turno programado',
+                'duracion_bloque_min' => $duracion,
+                'total_bloques' => 0,
+                'bloques_libres' => 0,
+                'mensaje' => "El Dr(a). {$medico->persona?->nombres} {$medico->persona?->apellidos} no atiende los días ".($diasEsp[$diaSemana] ?? 'seleccionados').'. Por favor consulta otra fecha o utiliza "Próximo libre".',
+                'medico' => $medico,
+                'bloqueo' => null,
+                'slots' => [],
+                'otros_medicos' => $this->obtenerOtrosMedicosDisponibles($medico->id_persona, $idEspecialidad, $fecha, $diaSemana),
+            ]);
         }
 
-        $horaInicioStr = $horario ? substr((string) $horario->hora_inicio, 0, 5) : '08:00';
-        $horaFinStr = $horario ? substr((string) $horario->hora_fin, 0, 5) : '12:00';
+        $horaInicioStr = substr((string) $horario->hora_inicio, 0, 5);
+        $horaFinStr = substr((string) $horario->hora_fin, 0, 5);
 
         $bloqueo = BloqueoAgenda::where('fecha_inicio', '<=', $fecha)
             ->where('fecha_fin', '>=', $fecha)
@@ -503,6 +521,8 @@ class CitaController extends Controller
         $slots = [];
         $actual = Carbon::createFromFormat('H:i', $horaInicioStr);
         $fin = Carbon::createFromFormat('H:i', $horaFinStr);
+        $horaActualBolivia = now()->setTimezone('America/La_Paz');
+        $esHoy = $carbonFecha->isToday();
 
         while ($actual->copy()->addMinutes($duracion)->lte($fin)) {
             $hIni = $actual->format('H:i');
@@ -517,14 +537,15 @@ class CitaController extends Controller
                 return $cIni < $hFin && $cFin > $hIni;
             });
 
-            if (! $tieneHorarioEseDia) {
+            if ($esFechaAntigua) {
+                // Si la fecha tiene más de 1 semana, los turnos se archivan de la parte visible
                 $slots[] = [
                     'hora_inicio' => $hIni,
                     'hora_fin' => $hFin,
-                    'estado' => 'BLOQUEADO',
+                    'estado' => 'VENCIDO',
                     'disponible' => false,
-                    'cita_codigo' => null,
-                    'motivo' => 'Médico no atiende en el día seleccionado',
+                    'cita_codigo' => $citaOcup?->codigo,
+                    'motivo' => 'Turno concluido (más de 1 semana de antigüedad)',
                 ];
             } elseif ($bloqueo) {
                 $slots[] = [
@@ -543,7 +564,16 @@ class CitaController extends Controller
                     'disponible' => false,
                     'cita_codigo' => $citaOcup->codigo,
                     'id_cita' => $citaOcup->id_cita,
-                    'motivo' => 'Horario reservado',
+                    'motivo' => 'Horario reservado con cita '.$citaOcup->codigo,
+                ];
+            } elseif ($esHoy && Carbon::createFromFormat('H:i', $hIni)->lt($horaActualBolivia)) {
+                $slots[] = [
+                    'hora_inicio' => $hIni,
+                    'hora_fin' => $hFin,
+                    'estado' => 'PASADO',
+                    'disponible' => false,
+                    'cita_codigo' => null,
+                    'motivo' => 'Horario ya transcurrido hoy',
                 ];
             } else {
                 $slots[] = [
@@ -562,9 +592,30 @@ class CitaController extends Controller
         $totalBloques = count($slots);
         $bloquesLibres = count(array_filter($slots, fn ($s) => $s['estado'] === 'LIBRE'));
 
-        // Consultar otros médicos disponibles para ese mismo día
-        $otrosMedicosList = Medico::with('persona')
-            ->where('id_persona', '!=', $medico->id_persona)
+        return response()->json([
+            'success' => true,
+            'fecha' => $fecha,
+            'fecha_antigua' => $esFechaAntigua,
+            'atiende_este_dia' => true,
+            'nombre_dia' => $nombreDia,
+            'turno' => "Turno {$horaInicioStr}–{$horaFinStr}",
+            'duracion_bloque_min' => $duracion,
+            'total_bloques' => $totalBloques,
+            'bloques_libres' => $bloquesLibres,
+            'medico' => $medico,
+            'bloqueo' => $bloqueo,
+            'slots' => $slots,
+            'otros_medicos' => $this->obtenerOtrosMedicosDisponibles($medico->id_persona, $idEspecialidad, $fecha, $diaSemana),
+        ]);
+    }
+
+    /**
+     * Helper para obtener otros médicos con turnos disponibles en el mismo día.
+     */
+    private function obtenerOtrosMedicosDisponibles(int $idMedicoActual, mixed $idEspecialidad, string $fecha, int $diaSemana): array
+    {
+        return Medico::with('persona')
+            ->where('id_persona', '!=', $idMedicoActual)
             ->when($idEspecialidad, function ($q) use ($idEspecialidad): void {
                 $q->whereHas('especialidades', fn ($sq) => $sq->where('especialidad.id_especialidad', $idEspecialidad));
             })
@@ -584,36 +635,18 @@ class CitaController extends Controller
 
                 $hIni = $hor ? substr((string) $hor->hora_inicio, 0, 5) : '08:00';
                 $hFin = $hor ? substr((string) $hor->hora_fin, 0, 5) : '12:00';
-                $totalPosibles = 16; // 4 horas * 4 bloques de 15 min
-                $libres = $bloq ? 0 : max(0, $totalPosibles - $citasCount);
+                $totalPosibles = $hor ? 16 : 0;
+                $libres = (! $hor || $bloq) ? 0 : max(0, $totalPosibles - $citasCount);
 
                 return [
                     'id_medico' => $om->id_persona,
                     'nombre' => 'Dr(a). '.($om->persona?->nombres ?? '').' '.($om->persona?->apellidos ?? ''),
-                    'turno' => "{$hIni}–{$hFin}",
+                    'turno' => $hor ? "{$hIni}–{$hFin}" : 'No atiende este día',
                     'bloques_libres' => $libres,
                     'activo' => ! $bloq && $libres > 0,
                 ];
-            });
-
-        // Formato amigable de fecha en español
-        $diasEsp = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
-        $mesesEsp = [1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril', 5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto', 9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'];
-        $nombreDia = ($diasEsp[$diaSemana] ?? '').' '.$carbonFecha->format('d').' de '.($mesesEsp[$carbonFecha->month] ?? '').' de '.$carbonFecha->format('Y');
-
-        return response()->json([
-            'success' => true,
-            'fecha' => $fecha,
-            'nombre_dia' => $nombreDia,
-            'turno' => "Turno {$horaInicioStr}–{$horaFinStr}",
-            'duracion_bloque_min' => $duracion,
-            'total_bloques' => $totalBloques,
-            'bloques_libres' => $bloquesLibres,
-            'medico' => $medico,
-            'bloqueo' => $bloqueo,
-            'slots' => $slots,
-            'otros_medicos' => $otrosMedicosList,
-        ]);
+            })
+            ->toArray();
     }
 
     /**

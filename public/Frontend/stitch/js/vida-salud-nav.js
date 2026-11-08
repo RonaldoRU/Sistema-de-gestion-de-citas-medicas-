@@ -307,6 +307,13 @@
       return;
     }
 
+    // CU38 (Personal administrativo y permisos) es de acceso exclusivo para el rol Administrador
+    if (!isUserAdmin && activeCu === 'CU38') {
+      alert('El módulo de Personal Administrativo y Permisos RBAC (CU38) es exclusivo para el rol Administrador.');
+      window.location.replace(pagePrefix() + (isPaciente ? 'P4%20Gesti%C3%B3n%20de%20Pacientes/cu13-informacion-medica.html' : 'inicio.html'));
+      return;
+    }
+
     NAV.packages.forEach(function (pkg) {
       if (pkg.id === 'P3' && !isUserAdmin) {
         return; // Bitácora y auditoría exclusiva para el rol Administrador
@@ -315,6 +322,10 @@
       var visibleItems = pkg.items.filter(function (it) {
         // Al haber iniciado sesión, ocultar las opciones de Iniciar sesión y Cerrar sesión del menú hamburguesa
         if (pkg.id === 'P1' && (it.cu === 'CU01' || it.cu === 'CU02' || it.action === 'logout')) {
+          return false;
+        }
+        // CU38 visible únicamente para el rol Administrador
+        if (it.cu === 'CU38' && !isUserAdmin) {
           return false;
         }
         if (isPaciente) {

@@ -3813,12 +3813,15 @@
       var medicosGlobalCU22 = [];
 
       // Inicializar fecha con hoy (Bolivia)
-      if (inFecha22 && !inFecha22.value) {
+      if (inFecha22) {
         var hoyLocal = new Date();
         var y = hoyLocal.getFullYear();
         var m = String(hoyLocal.getMonth() + 1).padStart(2, '0');
         var d = String(hoyLocal.getDate()).padStart(2, '0');
-        inFecha22.value = y + '-' + m + '-' + d;
+        var hoyYmd = y + '-' + m + '-' + d;
+        if (!inFecha22.value || inFecha22.value === '2026-10-28') {
+          inFecha22.value = hoyYmd;
+        }
       }
 
       async function inicializarFiltrosCU22() {
@@ -3875,6 +3878,9 @@
         inFecha22.addEventListener('change', function () {
           cargarDisponibilidadCU22();
         });
+        inFecha22.addEventListener('input', function () {
+          cargarDisponibilidadCU22();
+        });
       }
 
       async function cargarDisponibilidadCU22() {
@@ -3905,7 +3911,7 @@
             titulo22.textContent = (disp.nombre_dia || fecha) + ' · ' + nombreDoc;
           }
           if (sub22) {
-            sub22.textContent = (disp.turno || 'Turno') + ' · ' + disp.total_bloques + ' bloques (cada 15 min) · ' + disp.bloques_libres + ' libres';
+            sub22.textContent = (disp.turno || 'Turno') + ' · ' + (disp.total_bloques || 0) + ' bloques (cada 15 min) · ' + (disp.bloques_libres || 0) + ' libres';
           }
 
           if (slotSummary22) slotSummary22.textContent = 'ninguno';
@@ -3915,6 +3921,45 @@
             slotConfirmBtn22.removeAttribute('href');
           }
 
+          // Cargar lista lateral de otros médicos disponibles el mismo día
+          if (otrosMedBox22 && Array.isArray(disp.otros_medicos)) {
+            if (disp.otros_medicos.length === 0) {
+              otrosMedBox22.innerHTML = '<li class="vs-list-row" style="color:var(--vs-muted);padding:1rem;text-align:center;">No hay otros médicos con turno este día.</li>';
+            } else {
+              otrosMedBox22.innerHTML = disp.otros_medicos.map(function (om) {
+                var iniciales = om.nombre.replace(/Dr\(a\)\.\s*/, '').split(' ').map(function (w) { return w[0]; }).slice(0, 2).join('');
+                return '<li class="vs-list-row" style="cursor:pointer;" data-om-id="' + om.id_medico + '">' +
+                  '<div class="vs-avatar vs-avatar--sm">' + escapeHtml(iniciales || 'MD') + '</div>' +
+                  '<div class="vs-cell-person">' +
+                    '<div class="vs-cell-person__name">' + escapeHtml(om.nombre) + '</div>' +
+                    '<div class="vs-cell-person__sub">' + escapeHtml(om.turno) + ' · ' + om.bloques_libres + ' bloques libres</div>' +
+                  '</div>' +
+                  '<span class="vs-badge ' + (om.bloques_libres > 0 ? 'vs-badge--ok' : 'vs-badge--warn') + '">' + om.bloques_libres + '</span>' +
+                '</li>';
+              }).join('');
+
+              otrosMedBox22.querySelectorAll('li[data-om-id]').forEach(function (row) {
+                row.addEventListener('click', function () {
+                  var omId = row.getAttribute('data-om-id');
+                  if (selMed22) selMed22.value = omId;
+                  cargarDisponibilidadCU22();
+                });
+              });
+            }
+          }
+
+          // 1. Si la fecha es de hace más de una semana, los turnos se archivan de la parte visible
+          if (disp.fecha_antigua) {
+            slotsBox22.innerHTML = '<div style="text-align:center;padding:2.5rem;width:100%;color:var(--vs-muted);"><div style="font-size:2rem;margin-bottom:.5rem;">🗓️</div><p style="font-weight:600;font-size:1.05rem;color:var(--vs-slate-800);margin-bottom:0.5rem;">Turno concluido (más de 1 semana de antigüedad)</p><p style="margin-top:0.5rem;font-size:0.9rem;">Los turnos de esta fecha han concluido y se han archivado de la vista pública. Por favor selecciona una fecha actual o posterior para consultar cupos disponibles.</p></div>';
+            return;
+          }
+
+          // 2. Si el médico no atiende en el día de la semana solicitado
+          if (disp.atiende_este_dia === false) {
+            slotsBox22.innerHTML = '<div style="text-align:center;padding:2.5rem;width:100%;color:var(--vs-muted);"><div style="font-size:2rem;margin-bottom:.5rem;">🩺</div><p style="font-weight:600;font-size:1.05rem;color:var(--vs-slate-800);margin-bottom:0.5rem;">' + escapeHtml(disp.mensaje || 'El médico no tiene turno programado para este día de la semana.') + '</p><p style="margin-top:0.5rem;font-size:0.9rem;">Haz clic en <strong>"Próximo libre"</strong> o elige otro día del calendario para ver turnos disponibles.</p></div>';
+            return;
+          }
+
           var slots = disp.slots || [];
           if (slots.length === 0) {
             slotsBox22.innerHTML = '<p class="vs-muted" style="text-align:center;padding:2rem;width:100%;">No hay bloques horarios disponibles para este médico en la fecha indicada.</p>';
@@ -3922,11 +3967,17 @@
             var sHtml = '';
             slots.forEach(function (s) {
               if (s.estado === 'LIBRE') {
-                sHtml += '<button type="button" class="vs-slot vs-slot--free" data-time="' + s.hora_inicio + '" data-end="' + s.hora_fin + '" title="Libre para agendar (15 min)">' +
+                sHtml += '<button type="button" class="vs-slot vs-slot--free" data-time="' + s.hora_inicio + '" data-end="' + s.hora_fin + '" data-estado="libre" title="Libre para agendar (15 min)">' +
                   s.hora_inicio + '<small>LIBRE</small></button>';
               } else if (s.estado === 'BLOQUEADO') {
                 sHtml += '<button type="button" class="vs-slot vs-slot--blocked" data-time="' + s.hora_inicio + '" data-estado="bloqueado" data-motivo="' + escapeHtml(s.motivo || 'Bloqueado') + '" title="No disponible: ' + escapeHtml(s.motivo || 'Bloqueado') + '">' +
                   s.hora_inicio + '<small>' + escapeHtml(s.motivo ? (s.motivo.slice(0, 11) + '..') : 'Bloqueado') + '</small></button>';
+              } else if (s.estado === 'PASADO') {
+                sHtml += '<button type="button" class="vs-slot vs-slot--blocked" data-time="' + s.hora_inicio + '" data-estado="pasado" title="Horario ya transcurrido hoy">' +
+                  s.hora_inicio + '<small>PASADO</small></button>';
+              } else if (s.estado === 'VENCIDO') {
+                sHtml += '<button type="button" class="vs-slot vs-slot--blocked" data-time="' + s.hora_inicio + '" data-estado="vencido" title="Turno concluido">' +
+                  s.hora_inicio + '<small>ARCHIVADO</small></button>';
               } else {
                 sHtml += '<button type="button" class="vs-slot vs-slot--busy" data-time="' + s.hora_inicio + '" data-estado="ocupado" data-cita="' + escapeHtml(s.cita_codigo || '') + '" title="Horario reservado: ' + escapeHtml(s.cita_codigo || 'Cita médica') + '">' +
                   s.hora_inicio + '<small>' + escapeHtml(s.cita_codigo || 'RESERVADO') + '</small></button>';
@@ -3943,20 +3994,32 @@
 
                 if (estado === 'ocupado') {
                   var codC = btn.getAttribute('data-cita');
+                  var msgOcup = 'El bloque de las ' + horaIni + ' ya está reservado (' + (codC || 'con cita médica') + '). Debes escoger otro horario libre.';
                   if (window.vsToast) {
-                    window.vsToast('Horario ya reservado', 'El bloque de las ' + horaIni + ' tiene la cita ' + codC + '. Debes escoger otro horario libre.', 'warning');
+                    window.vsToast('Horario no disponible', msgOcup, 'warning');
                   } else {
-                    alert('Este horario (' + horaIni + ') ya está reservado (' + codC + '). Por favor escoge un horario libre.');
+                    alert(msgOcup);
                   }
                   return;
                 }
 
                 if (estado === 'bloqueado') {
                   var motB = btn.getAttribute('data-motivo');
+                  var msgBloq = 'Horario bloqueado (' + horaIni + '): ' + motB + '. Por favor escoge otro horario libre.';
                   if (window.vsToast) {
-                    window.vsToast('Horario no disponible', 'Bloqueado por: ' + motB + '. Por favor escoge otro horario libre.', 'danger');
+                    window.vsToast('Horario bloqueado', msgBloq, 'danger');
                   } else {
-                    alert('Horario no disponible (' + horaIni + '): ' + motB);
+                    alert(msgBloq);
+                  }
+                  return;
+                }
+
+                if (estado === 'pasado' || estado === 'vencido') {
+                  var msgPas = 'Este horario (' + horaIni + ') ya ha transcurrido o está archivado. Debes escoger un horario libre.';
+                  if (window.vsToast) {
+                    window.vsToast('Horario no disponible', msgPas, 'warning');
+                  } else {
+                    alert(msgPas);
                   }
                   return;
                 }
@@ -3980,7 +4043,7 @@
                 }
 
                 if (window.vsToast) {
-                  window.vsToast('Horario de 15 min seleccionado', horaIni + ' – ' + horaFin + ' listo para programar cita.');
+                  window.vsToast('Horario de 15 min seleccionado', horaIni + ' – ' + (horaFin || '') + ' listo para agendar ficha.');
                 }
               });
             });
