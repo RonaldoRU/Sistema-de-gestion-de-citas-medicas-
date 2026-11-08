@@ -19,6 +19,7 @@ class UsuarioSeeder extends Seeder
         $usuarios = [
             // Administradores
             ['ci' => '11757436', 'nombre_usuario' => 'scolque', 'id_rol' => 1, 'estado' => 'ACTIVO'],
+            ['ci' => '14567212', 'nombre_usuario' => 'rrivero', 'id_rol' => 1, 'estado' => 'ACTIVO'],
             ['ci' => '1000001', 'nombre_usuario' => 'admin', 'id_rol' => 1, 'estado' => 'ACTIVO'],
 
             // Recepcionistas

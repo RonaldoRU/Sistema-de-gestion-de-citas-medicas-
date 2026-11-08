@@ -332,7 +332,7 @@ const IC = [
 ];
 
 const $ = s => document.querySelector(s);
-let cur = "22";
+let cur = "dashboard";
 let loginTries = 0;
 
 // Escape HTML seguro
@@ -366,6 +366,9 @@ const HB = [
 ];
 
 function hd(t, p, r = '') {
+  if (cur === 'dashboard') {
+    return `<div class="head" style="--hb:#E3ECF8;--hc:#1E4E8C"><div><h1>${t}</h1><p>${p}</p></div>${r}</div>`;
+  }
   const i = P.findIndex(pkg => pkg[1].some(c => c[0] == cur));
   const c = HB[i] || HB[0];
   return `<div class="head" style="--hb:${c[0]};--hc:${c[1]}"><div><h1>${t}</h1><p>${p}</p></div>${r}</div>`;
@@ -423,7 +426,19 @@ function hamb(force) {
 }
 
 function nav() {
-  $('#nav').innerHTML = P.map((p, i) => `
+  const isDash = cur === 'dashboard';
+  const dashHtml = `
+    <div style="padding:.5rem .8rem .3rem;">
+      <a href="#dashboard" ${isDash ? 'aria-current="page" style="background:rgba(255,255,255,.16);color:#fff;border-left:4px solid #7FD3E0;font-weight:600;"' : 'style="border-left:4px solid transparent;"'} onclick="go('dashboard');return false;" style="display:flex;align-items:center;gap:.7rem;padding:.75rem 1rem;color:#E8EEF7;text-decoration:none;border-radius:4px;font-size:.88rem;transition:background var(--t);background:rgba(255,255,255,.06);">
+        <span style="display:inline-flex;color:#7FD3E0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </span>
+        <span class="nm">Panel Principal (Dashboard)</span>
+      </a>
+    </div>
+  `;
+
+  $('#nav').innerHTML = dashHtml + P.map((p, i) => `
     <div class="pkg ${p[1].some(c => c[0] == cur) ? 'open' : ''}">
       <button aria-expanded="${p[1].some(c => c[0] == cur)}" data-tip="${p[0]}" onclick="tog(this)">
         <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${IC[i]}</svg></span>
@@ -451,10 +466,14 @@ async function go(id, first) {
   if (mob()) $('#app').classList.remove('drawer');
   nav();
 
-  const pk = P.find(p => p[1].some(c => c[0] == id));
-  const cu = pk ? pk[1].find(c => c[0] == id) : [id, 'Detalle de operación'];
+  if (id === 'dashboard') {
+    $('#crumb').innerHTML = `Sistema / <b>Panel Principal (Dashboard)</b>`;
+  } else {
+    const pk = P.find(p => p[1].some(c => c[0] == id));
+    const cu = pk ? pk[1].find(c => c[0] == id) : [id, 'Detalle de operación'];
+    $('#crumb').innerHTML = `${pk ? pk[0] : 'Sistema'} / <b>${cu[1]}</b>`;
+  }
 
-  $('#crumb').innerHTML = `${pk ? pk[0] : 'Sistema'} / <b>${cu[1]}</b>`;
   const v = $('#view');
   v.classList.add('out');
 
@@ -473,6 +492,155 @@ async function go(id, first) {
     }
   }, first ? 0 : 120);
 }
+
+// =========================================================================
+// PANEL PRINCIPAL (DASHBOARD)
+// =========================================================================
+S['dashboard'] = async () => {
+  const user = VS_API.getUser();
+  const userName = user ? ((user.nombres || '') + ' ' + (user.apellidos || user.nombre_usuario || '')).trim() : 'Administrador';
+  const userRol = user && user.rol ? (user.rol.nombre || 'Administrador') : 'Administrador';
+
+  let totalCitas = 0;
+  let totalPacientes = 0;
+  let totalMedicos = 0;
+  let recaudacionHoy = 0;
+  let citasHoy = [];
+  let bitacoraReciente = [];
+
+  try {
+    const [citasRes, pacRes, medRes, pagosRes, bitaRes] = await Promise.all([
+      VS_API.citas.listar({ fecha: hoyISO(), per_page: 10 }).catch(() => ({ data: { data: [] } })),
+      VS_API.pacientes.listar({ per_page: 5 }).catch(() => ({ data: { total: 0 } })),
+      VS_API.medicos.listar({ per_page: 50 }).catch(() => ({ data: [] })),
+      VS_API.pagos.listar({ fecha: hoyISO() }).catch(() => ({ data: [] })),
+      VS_API.bitacora.listar({ per_page: 6 }).catch(() => ({ data: [] }))
+    ]);
+
+    const listaCitas = (citasRes.data && citasRes.data.data) || (Array.isArray(citasRes.data) ? citasRes.data : []);
+    totalCitas = (citasRes.data && citasRes.data.total !== undefined) ? citasRes.data.total : listaCitas.length;
+    citasHoy = listaCitas.slice(0, 6);
+
+    totalPacientes = (pacRes.data && pacRes.data.total !== undefined) ? pacRes.data.total : (Array.isArray(pacRes.data) ? pacRes.data.length : 0);
+
+    const listaMedicos = Array.isArray(medRes.data) ? medRes.data : ((medRes.data && medRes.data.data) || []);
+    totalMedicos = listaMedicos.length;
+
+    const listaPagos = Array.isArray(pagosRes.data) ? pagosRes.data : ((pagosRes.data && pagosRes.data.data) || []);
+    recaudacionHoy = listaPagos.reduce((acc, p) => acc + (parseFloat(p.monto) || 0), 0);
+
+    const listaBit = Array.isArray(bitaRes.data) ? bitaRes.data : ((bitaRes.data && bitaRes.data.data) || []);
+    bitacoraReciente = listaBit.slice(0, 6);
+  } catch (e) {
+    console.warn('Dashboard datos parciales:', e);
+  }
+
+  const badgeEstado = (st) => {
+    st = (st || 'PROGRAMADA').toUpperCase();
+    if (st === 'CONFIRMADA' || st === 'ATENDIDA') return `<span class="badge" style="background:#E1F2E9;color:#245C47;font-weight:600;">● ${st}</span>`;
+    if (st === 'CANCELADA' || st === 'INASISTENCIA') return `<span class="badge" style="background:#FBE6E3;color:#9B2E17;font-weight:600;">● ${st}</span>`;
+    return `<span class="badge" style="background:#E3ECF8;color:#1E4E8C;font-weight:600;">● ${st}</span>`;
+  };
+
+  const filasCitas = citasHoy.length ? citasHoy.map(c => [
+    `<b>${h(c.codigo || 'CM-' + c.id_cita)}</b>`,
+    h(c.paciente?.persona ? `${c.paciente.persona.nombres} ${c.paciente.persona.apellidos}` : 'Paciente'),
+    h(c.medico?.persona ? `Dr(a). ${c.medico.persona.nombres} ${c.medico.persona.apellidos}` : 'Médico'),
+    h(c.especialidad?.nombre || 'General'),
+    `<span class="mono">${h((c.hora_inicio || '').slice(0, 5))}</span>`,
+    badgeEstado(c.estado),
+    `<button class="btn sec" style="padding:.25rem .6rem;font-size:.78rem;" onclick="go('22')">Ver Horario</button>`
+  ]) : [];
+
+  const filasBitacora = bitacoraReciente.length ? bitacoraReciente.map(b => `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:.65rem 0;border-bottom:1px solid var(--line);font-size:.84rem;">
+      <div style="flex:1;padding-right:.8rem;">
+        <span style="display:inline-block;padding:.15rem .45rem;border-radius:3px;font-size:.72rem;font-weight:600;background:#E3ECF8;color:#1E4E8C;margin-right:.4rem;">${h(b.tipo_accion || 'ACCIÓN')}</span>
+        <b style="color:var(--ink);">${h(b.modulo || 'Sistema')}</b>: ${h(b.detalle || b.descripcion || 'Operación')}
+        <div style="color:var(--mute);font-size:.75rem;margin-top:.2rem;">Usuario: <span class="mono">${h(b.usuario?.nombre_usuario || b.id_usuario || 'Sistema')}</span> · IP: <span class="mono">${h(b.ip || '127.0.0.1')}</span></div>
+      </div>
+      <div class="mono" style="color:var(--mute);font-size:.76rem;white-space:nowrap;">
+        ${h((b.fecha_hora || '').replace('T', ' ').slice(0, 19))}
+      </div>
+    </div>
+  `).join('') : '<p style="color:var(--mute);padding:1rem 0;text-align:center;">Sin actividad reciente.</p>';
+
+  const fechaBoliviaStr = new Date().toLocaleDateString('es-BO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  return `
+    ${hd('Panel de Control Principal', `Clínica Vida Salud · Santa Cruz, Bolivia · <em>${fechaBoliviaStr}</em>`)}
+
+    <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:1.4rem 1.8rem;margin-bottom:1.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h2 style="font-size:1.4rem;font-family:var(--serif);color:#173E70;margin:0 0 .3rem;">¡Bienvenido(a), ${h(userName)}!</h2>
+        <p style="margin:0;color:var(--mute);font-size:.88rem;">Sesión activa con privilegios de <b>${h(userRol)}</b>. Sistema en tiempo real enlazado a la base de datos PostgreSQL.</p>
+      </div>
+      <div style="display:flex;gap:.6rem;align-items:center;">
+        <span class="badge" style="background:#E1F2E9;color:#245C47;font-weight:600;padding:.4rem .8rem;border-radius:20px;">● Base de Datos Operativa</span>
+      </div>
+    </div>
+
+    <!-- TARJETAS DE MÉTRICAS -->
+    <div class="counts">
+      <div><b>${totalCitas}</b><span>Citas agendadas hoy</span></div>
+      <div><b>${totalPacientes}</b><span>Pacientes registrados</span></div>
+      <div><b>${totalMedicos}</b><span>Médicos en catálogo</span></div>
+      <div><b>Bs ${recaudacionHoy.toFixed(2)}</b><span>Recaudación del día</span></div>
+    </div>
+
+    <!-- ACCIONES RÁPIDAS -->
+    <div class="card" style="margin-bottom:1.8rem;">
+      <h2 style="font-size:1.15rem;margin-bottom:1rem;color:#173E70;">Acciones Rápidas del Sistema</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.8rem;">
+        <button class="btn pri" onclick="go('22')" style="justify-content:center;gap:.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Disponibilidad (15 min)
+        </button>
+        <button class="btn sec" onclick="go('24')" style="justify-content:center;gap:.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Programar Cita Médica
+        </button>
+        <button class="btn sec" onclick="go('12')" style="justify-content:center;gap:.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          Registrar Paciente
+        </button>
+        <button class="btn sec" onclick="go('41')" style="justify-content:center;gap:.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Registrar Pago / Ficha
+        </button>
+        <button class="btn sec" onclick="go('11')" style="justify-content:center;gap:.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Bitácora en Tiempo Real
+        </button>
+        <button class="btn sec" onclick="go('43')" style="justify-content:center;gap:.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Reporte de Ingresos
+        </button>
+      </div>
+    </div>
+
+    <!-- CUADRÍCULA DE DOS PANELES: AGENDA DE HOY Y AUDITORÍA RECIENTE -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:1.5rem;">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h2 style="font-size:1.15rem;color:#173E70;margin:0;">Agenda Médica de Hoy (${citasHoy.length})</h2>
+          <button class="btn ghost" style="font-size:.8rem;padding:.2rem .5rem;" onclick="go('22')">Ver horarios →</button>
+        </div>
+        ${tbl(['CÓDIGO', 'PACIENTE', 'MÉDICO', 'ESPECIALIDAD', 'HORA', 'ESTADO', 'ACCIÓN'], filasCitas, 'No hay citas registradas para hoy.')}
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h2 style="font-size:1.15rem;color:#173E70;margin:0;">Auditoría Reciente (Bitácora)</h2>
+          <button class="btn ghost" style="font-size:.8rem;padding:.2rem .5rem;" onclick="go('11')">Ver bitácora →</button>
+        </div>
+        <div style="display:flex;flex-direction:column;">
+          ${filasBitacora}
+        </div>
+      </div>
+    </div>
+  `;
+};
 
 // =========================================================================
 // P1: AUTENTICACIÓN Y SESIÓN (CU01, CU02, CU03, CU04, CU37)
@@ -504,7 +672,7 @@ $('#lf').onsubmit = async function (e) {
     $('#app').style.display = 'grid';
     $('#p').value = '';
     toast('¡Bienvenido(a) a Clínica Vida Salud!');
-    go(cur, true);
+    go('dashboard', true);
   } catch (err) {
     loginTries++;
     const errMsg = err.message || 'Credenciales incorrectas.';

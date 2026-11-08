@@ -15,6 +15,7 @@ class PersonaSeeder extends Seeder
         $personas = [
             // Administradores
             ['ci' => '11757436', 'nombres' => 'Silvia Irene', 'apellidos' => 'Colque López', 'telefono' => '76945876', 'email' => 'scolque@vidasalud.com.bo', 'activo' => true],
+            ['ci' => '14567212', 'nombres' => 'Ronald', 'apellidos' => 'Rivero Fernandez', 'telefono' => '73127317', 'email' => 'ronaldorojasugarte@gmail.com', 'activo' => true],
             ['ci' => '1000001', 'nombres' => 'Carlos Alberto', 'apellidos' => 'Administrador General', 'telefono' => '71234567', 'email' => 'admin@vidasalud.com', 'activo' => true],
 
             // Recepcionistas

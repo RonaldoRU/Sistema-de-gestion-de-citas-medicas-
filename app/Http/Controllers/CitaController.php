@@ -530,7 +530,7 @@ class CitaController extends Controller
 
         $citasOcupadas = Cita::where('id_medico', $medico->id_persona)
             ->where('fecha', $fecha)
-            ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA', 'EN_ESPERA', 'EN_ATENCION'])
+            ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA'])
             ->get();
 
         $slots = [];
@@ -645,7 +645,7 @@ class CitaController extends Controller
 
                 $citasCount = Cita::where('id_medico', $om->id_persona)
                     ->where('fecha', $fecha)
-                    ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA', 'EN_ESPERA', 'EN_ATENCION'])
+                    ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA'])
                     ->count();
 
                 $hIni = $hor ? substr((string) $hor->hora_inicio, 0, 5) : '08:00';
