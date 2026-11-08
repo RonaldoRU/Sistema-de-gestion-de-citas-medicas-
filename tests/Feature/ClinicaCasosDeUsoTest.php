@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bitacora;
 use App\Models\Cita;
 use App\Models\Especialidad;
 use App\Models\Horario;
@@ -9,6 +10,7 @@ use App\Models\Medico;
 use App\Models\Paciente;
 use App\Models\Rol;
 use App\Models\Usuario;
+use App\Services\AuditoriaService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -512,5 +514,135 @@ class ClinicaCasosDeUsoTest extends TestCase
 
         // CU43: Catálogo de reportes en BD
         $this->getJson('/api/reportes')->assertOk();
+    }
+
+    /**
+     * MÓDULO 8: CU41 y CU42 - Pagos, Comprobantes Digitales, Stripe y Reembolsos.
+     */
+    public function test_cu41_cu42_pagos_comprobantes_reembolsos_y_stripe(): void
+    {
+        $admin = Usuario::where('id_rol', 1)->first();
+        $this->actingAs($admin);
+
+        $medico = Medico::first();
+        $paciente = Paciente::first();
+        $especialidad = Especialidad::first();
+
+        $resCita = $this->postJson('/api/citas', [
+            'id_paciente' => $paciente->id_persona,
+            'id_medico' => $medico->id_persona,
+            'id_especialidad' => $especialidad->id_especialidad,
+            'fecha' => '2026-11-20',
+            'hora_inicio' => '10:00',
+            'motivo_consulta' => 'Consulta para pago y comprobante',
+        ]);
+        $cita = Cita::findOrFail($resCita->json('cita.id_cita'));
+
+        // 1. Endpoint Stripe Session
+        $resStripe = $this->postJson('/api/pagos/stripe/crear-sesion', [
+            'id_cita' => $cita->id_cita,
+            'monto' => 150.00,
+        ]);
+        $resStripe->assertOk();
+        $this->assertNotEmpty($resStripe->json('payment_intent_id'));
+
+        // 2. Registrar Pago (CU41)
+        $resPago = $this->postJson('/api/pagos', [
+            'id_cita' => $cita->id_cita,
+            'monto' => 150.00,
+            'metodo' => 'STRIPE',
+            'nit_ci' => '12181643',
+            'referencia_externa' => $resStripe->json('payment_intent_id'),
+        ]);
+        $resPago->assertStatus(201);
+        $idPago = $resPago->json('data.id_pago');
+
+        $this->assertDatabaseHas('pago', [
+            'id_pago' => $idPago,
+            'estado' => 'APROBADO',
+        ]);
+        $this->assertDatabaseHas('comprobante_pago', [
+            'id_pago' => $idPago,
+        ]);
+
+        // La cita debe quedar en CONFIRMADA
+        $this->assertEquals('CONFIRMADA', $cita->fresh()->estado);
+
+        // 3. Listar Historial de Pagos (CU42)
+        $resList = $this->getJson('/api/pagos');
+        $resList->assertOk();
+        $this->assertGreaterThan(0, count($resList->json('data.data')));
+
+        // 4. Procesar Reembolso y Cancelación (CU42)
+        $resReemb = $this->postJson("/api/pagos/{$idPago}/reembolso", [
+            'motivo' => 'Paciente solicitó cancelación con 24h de anticipación',
+        ]);
+        $resReemb->assertOk();
+
+        $this->assertDatabaseHas('pago', [
+            'id_pago' => $idPago,
+            'estado' => 'REEMBOLSADO',
+        ]);
+        $this->assertDatabaseHas('reembolso', [
+            'id_pago' => $idPago,
+            'estado' => 'PROCESADO',
+        ]);
+
+        // La cita debe pasar a CANCELADA liberando el bloque horario
+        $this->assertEquals('CANCELADA', $cita->fresh()->estado);
+    }
+
+    /**
+     * MÓDULO 6: CU22 - Disponibilidad de 15 Minutos y Restricción Anti-duplicados de Bitácora.
+     */
+    public function test_cu22_disponibilidad_15_minutos_y_antiduplicados_bitacora(): void
+    {
+        $admin = Usuario::where('id_rol', 1)->first();
+        $this->actingAs($admin);
+
+        $medico = Medico::first();
+
+        // 1. Disponibilidad con bloques de 15 minutos
+        $resDisp = $this->getJson("/api/citas/disponibilidad?id_medico={$medico->id_persona}&fecha=2026-11-15");
+        $resDisp->assertOk();
+        $this->assertEquals(15, $resDisp->json('duracion_bloque_min'));
+
+        $slots = $resDisp->json('slots');
+        $this->assertNotEmpty($slots);
+        $this->assertEquals('08:00', $slots[0]['hora_inicio']);
+        $this->assertEquals('08:15', $slots[0]['hora_fin']);
+
+        // 2. Restricción Anti-duplicados de Bitácora
+        $countAntes = Bitacora::count();
+
+        // Primer registro
+        AuditoriaService::registrar(
+            'P6_CITAS',
+            'MODIFICAR',
+            'cita',
+            9999,
+            'Prueba de deduplicación exacta para evitar entradas dobles'
+        );
+        $this->assertEquals($countAntes + 1, Bitacora::count());
+
+        // Segundo registro IDÉNTICO en el mismo segundo/ventana: NO debe insertarse
+        AuditoriaService::registrar(
+            'P6_CITAS',
+            'MODIFICAR',
+            'cita',
+            9999,
+            'Prueba de deduplicación exacta para evitar entradas dobles'
+        );
+        $this->assertEquals($countAntes + 1, Bitacora::count());
+
+        // Registro con un campo DIFERENTE (detalle distinto): SÍ debe insertarse
+        AuditoriaService::registrar(
+            'P6_CITAS',
+            'MODIFICAR',
+            'cita',
+            9999,
+            'Detalle diferente para comprobar que la restricción no se levanta si cambia un campo'
+        );
+        $this->assertEquals($countAntes + 2, Bitacora::count());
     }
 }

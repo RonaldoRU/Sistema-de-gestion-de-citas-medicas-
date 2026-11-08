@@ -12,6 +12,7 @@ use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\MedicoEspecialidadController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\PersonalAdministrativoController;
@@ -192,6 +193,7 @@ Route::middleware('auth')->group(function (): void {
     Route::prefix('citas')->group(function (): void {
         Route::get('/', [CitaController::class, 'index'])->name('api.citas.index');
         Route::get('/disponibilidad', [CitaController::class, 'disponibilidad'])->name('api.citas.disponibilidad');
+        Route::get('/proximo-libre', [CitaController::class, 'proximoLibre'])->name('api.citas.proximoLibre');
         Route::post('/', [CitaController::class, 'store'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.citas.store');
         Route::put('/{id}/reprogramar', [CitaController::class, 'reprogramar'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.citas.reprogramar');
         Route::put('/{id}/cancelar', [CitaController::class, 'cancelar'])->name('api.citas.cancelar');
@@ -216,6 +218,17 @@ Route::middleware('auth')->group(function (): void {
     Route::prefix('reportes')->middleware('rol:ADMINISTRADOR')->group(function (): void {
         Route::get('/', [ReporteController::class, 'index'])->name('api.reportes.index');
         Route::post('/', [ReporteController::class, 'store'])->name('api.reportes.store');
+    });
+
+    // =====================================================================
+    // PAQUETE P8: PAGOS, COMPROBANTES Y REEMBOLSOS (STRIPE / QR / TARJETA)
+    // =====================================================================
+    Route::prefix('pagos')->group(function (): void {
+        Route::get('/', [PagoController::class, 'index'])->name('api.pagos.index');
+        Route::post('/', [PagoController::class, 'store'])->name('api.pagos.store');
+        Route::get('/{id}', [PagoController::class, 'show'])->name('api.pagos.show');
+        Route::post('/{id}/reembolso', [PagoController::class, 'reembolsar'])->name('api.pagos.reembolso');
+        Route::post('/stripe/crear-sesion', [PagoController::class, 'crearIntentoStripe'])->name('api.pagos.stripe.session');
     });
 
 });

@@ -35,7 +35,7 @@
           <div class="vs-page-head__text">
             <p class="vs-eyebrow">P6 · Gestión de Citas Médicas</p>
             <h2 class="vs-h1">Consultar disponibilidad horaria</h2>
-            <p class="vs-lead">Elige especialidad, médico y fecha para ver los bloques de 30 minutos libres. Se descuentan las citas ya reservadas, los bloqueos de agenda y los bloques pasados.</p>
+            <p class="vs-lead">Elige especialidad, médico y fecha para ver los bloques de 15 minutos en tiempo real. Se descuentan las citas ya reservadas, los bloqueos de agenda y turnos no laborables.</p>
           </div>
           <div class="vs-page-head__side">
             <span class="vs-trace"><span class="vs-trace__cu">CU22</span><span class="vs-trace__actor">Recepcionista</span></span>
@@ -82,24 +82,11 @@
             </article>
 
             <article class="vs-card vs-card--accent">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Casos especiales</h3></div></div>
+              <div class="vs-card__head"><div><h3 class="vs-card__title">Reglas de disponibilidad</h3></div></div>
               <div class="vs-card__body vs-rules">
                 <div class="vs-rule vs-rule--warn"><span class="vs-rule__k">Sin bloques libres (A1)</span>Se muestra “No hay disponibilidad para la fecha” y el botón “Próximo libre” salta al siguiente día con cupo.</div>
                 <div class="vs-rule vs-rule--danger"><span class="vs-rule__k">Agenda bloqueada (A2)</span>Feriados o licencias (CU23) muestran el día completo como bloqueado con su motivo.</div>
                 <div class="vs-rule vs-rule--info"><span class="vs-rule__k">Día sin turno</span>Si el médico no atiende ese día de la semana se sugiere el día de atención más cercano.</div>
-              </div>
-            </article>
-
-            <article class="vs-card">
-              <div class="vs-card__head"><div><h3 class="vs-card__title">Ejemplo de día bloqueado</h3><p class="vs-card__sub">Lunes 02/11/2026 · Feriado nacional</p></div></div>
-              <div class="vs-card__body">
-                <div class="vs-slots">
-                  <span class="vs-slot vs-slot--blocked">08:00<small>Feriado</small></span>
-                  <span class="vs-slot vs-slot--blocked">08:30<small>Feriado</small></span>
-                  <span class="vs-slot vs-slot--blocked">09:00<small>Feriado</small></span>
-                  <span class="vs-slot vs-slot--blocked">09:30<small>Feriado</small></span>
-                </div>
-                <p class="vs-xs vs-muted" style="margin-top:.6rem">Día de Todos los Difuntos · bloqueo general (aplica a todos los médicos)</p>
               </div>
             </article>
           </aside>

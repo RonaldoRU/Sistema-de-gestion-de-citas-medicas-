@@ -443,13 +443,14 @@ class CitaController extends Controller
     }
 
     /**
-     * Consulta los bloques de disponibilidad horaria de 30 minutos de un médico en una fecha específica.
+     * Consulta los bloques dinámicos de disponibilidad horaria de 15 minutos de un médico en una fecha específica (CU22).
      */
     public function disponibilidad(Request $request): JsonResponse
     {
         $fecha = $request->input('fecha', now()->toDateString());
         $idMedico = $request->input('id_medico');
         $idEspecialidad = $request->input('id_especialidad');
+        $duracion = 15; // Fichas y bloques configurados a 15 minutos según requerimiento
 
         $medicoQuery = Medico::with(['persona', 'especialidades']);
         if ($idMedico) {
@@ -469,15 +470,23 @@ class CitaController extends Controller
             ], 404);
         }
 
-        $diaSemana = Carbon::parse($fecha)->dayOfWeekIso;
+        $carbonFecha = Carbon::parse($fecha);
+        $diaSemana = $carbonFecha->dayOfWeekIso; // 1 = Lunes, 7 = Domingo
+
         $horario = Horario::where('id_medico', $medico->id_persona)
             ->where('dia_semana', $diaSemana)
             ->where('activo', true)
-            ->first() ?? Horario::where('id_medico', $medico->id_persona)->where('activo', true)->first();
+            ->first();
+
+        $tieneHorarioEseDia = true;
+        if (! $horario) {
+            $tieneHorarioEseDia = false;
+            // Si el médico no atiende ese día, buscar su horario habitual para referencia o turno por defecto
+            $horario = Horario::where('id_medico', $medico->id_persona)->where('activo', true)->first();
+        }
 
         $horaInicioStr = $horario ? substr((string) $horario->hora_inicio, 0, 5) : '08:00';
         $horaFinStr = $horario ? substr((string) $horario->hora_fin, 0, 5) : '12:00';
-        $duracion = $horario ? (int) $horario->duracion_bloque_min : 30;
 
         $bloqueo = BloqueoAgenda::where('fecha_inicio', '<=', $fecha)
             ->where('fecha_fin', '>=', $fecha)
@@ -488,9 +497,8 @@ class CitaController extends Controller
 
         $citasOcupadas = Cita::where('id_medico', $medico->id_persona)
             ->where('fecha', $fecha)
-            ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA'])
-            ->get()
-            ->keyBy(fn ($c) => substr((string) $c->hora_inicio, 0, 5));
+            ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA', 'EN_ESPERA', 'EN_ATENCION'])
+            ->get();
 
         $slots = [];
         $actual = Carbon::createFromFormat('H:i', $horaInicioStr);
@@ -501,42 +509,146 @@ class CitaController extends Controller
             $siguiente = $actual->copy()->addMinutes($duracion);
             $hFin = $siguiente->format('H:i');
 
-            if ($bloqueo) {
+            // Verificar si hay cita en este rango de 15 minutos
+            $citaOcup = $citasOcupadas->first(function ($c) use ($hIni, $hFin): bool {
+                $cIni = substr((string) $c->hora_inicio, 0, 5);
+                $cFin = substr((string) $c->hora_fin, 0, 5);
+
+                return $cIni < $hFin && $cFin > $hIni;
+            });
+
+            if (! $tieneHorarioEseDia) {
                 $slots[] = [
                     'hora_inicio' => $hIni,
                     'hora_fin' => $hFin,
                     'estado' => 'BLOQUEADO',
+                    'disponible' => false,
+                    'cita_codigo' => null,
+                    'motivo' => 'Médico no atiende en el día seleccionado',
+                ];
+            } elseif ($bloqueo) {
+                $slots[] = [
+                    'hora_inicio' => $hIni,
+                    'hora_fin' => $hFin,
+                    'estado' => 'BLOQUEADO',
+                    'disponible' => false,
                     'cita_codigo' => null,
                     'motivo' => $bloqueo->motivo,
                 ];
-            } elseif ($citasOcupadas->has($hIni)) {
-                $citaOcup = $citasOcupadas->get($hIni);
+            } elseif ($citaOcup) {
                 $slots[] = [
                     'hora_inicio' => $hIni,
                     'hora_fin' => $hFin,
                     'estado' => 'OCUPADO',
+                    'disponible' => false,
                     'cita_codigo' => $citaOcup->codigo,
                     'id_cita' => $citaOcup->id_cita,
+                    'motivo' => 'Horario reservado',
                 ];
             } else {
                 $slots[] = [
                     'hora_inicio' => $hIni,
                     'hora_fin' => $hFin,
                     'estado' => 'LIBRE',
+                    'disponible' => true,
                     'cita_codigo' => null,
+                    'motivo' => null,
                 ];
             }
 
             $actual = $siguiente;
         }
 
+        $totalBloques = count($slots);
+        $bloquesLibres = count(array_filter($slots, fn ($s) => $s['estado'] === 'LIBRE'));
+
+        // Consultar otros médicos disponibles para ese mismo día
+        $otrosMedicosList = Medico::with('persona')
+            ->where('id_persona', '!=', $medico->id_persona)
+            ->when($idEspecialidad, function ($q) use ($idEspecialidad): void {
+                $q->whereHas('especialidades', fn ($sq) => $sq->where('especialidad.id_especialidad', $idEspecialidad));
+            })
+            ->limit(5)
+            ->get()
+            ->map(function ($om) use ($fecha, $diaSemana): array {
+                $hor = Horario::where('id_medico', $om->id_persona)->where('dia_semana', $diaSemana)->where('activo', true)->first();
+                $bloq = BloqueoAgenda::where('fecha_inicio', '<=', $fecha)->where('fecha_fin', '>=', $fecha)
+                    ->where(function ($q) use ($om): void {
+                        $q->where('aplica_a_todos', true)->orWhere('id_medico', $om->id_persona);
+                    })->exists();
+
+                $citasCount = Cita::where('id_medico', $om->id_persona)
+                    ->where('fecha', $fecha)
+                    ->whereIn('estado', ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA', 'EN_ESPERA', 'EN_ATENCION'])
+                    ->count();
+
+                $hIni = $hor ? substr((string) $hor->hora_inicio, 0, 5) : '08:00';
+                $hFin = $hor ? substr((string) $hor->hora_fin, 0, 5) : '12:00';
+                $totalPosibles = 16; // 4 horas * 4 bloques de 15 min
+                $libres = $bloq ? 0 : max(0, $totalPosibles - $citasCount);
+
+                return [
+                    'id_medico' => $om->id_persona,
+                    'nombre' => 'Dr(a). '.($om->persona?->nombres ?? '').' '.($om->persona?->apellidos ?? ''),
+                    'turno' => "{$hIni}–{$hFin}",
+                    'bloques_libres' => $libres,
+                    'activo' => ! $bloq && $libres > 0,
+                ];
+            });
+
+        // Formato amigable de fecha en español
+        $diasEsp = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
+        $mesesEsp = [1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril', 5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto', 9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'];
+        $nombreDia = ($diasEsp[$diaSemana] ?? '').' '.$carbonFecha->format('d').' de '.($mesesEsp[$carbonFecha->month] ?? '').' de '.$carbonFecha->format('Y');
+
         return response()->json([
             'success' => true,
             'fecha' => $fecha,
+            'nombre_dia' => $nombreDia,
+            'turno' => "Turno {$horaInicioStr}–{$horaFinStr}",
+            'duracion_bloque_min' => $duracion,
+            'total_bloques' => $totalBloques,
+            'bloques_libres' => $bloquesLibres,
             'medico' => $medico,
             'bloqueo' => $bloqueo,
             'slots' => $slots,
+            'otros_medicos' => $otrosMedicosList,
         ]);
+    }
+
+    /**
+     * Busca la fecha más próxima con bloques libres disponibles para un médico o especialidad.
+     */
+    public function proximoLibre(Request $request): JsonResponse
+    {
+        $fechaInicio = $request->input('fecha_desde', now()->toDateString());
+        $idMedico = $request->input('id_medico');
+        $idEspecialidad = $request->input('id_especialidad');
+
+        for ($d = 1; $d <= 21; $d++) {
+            $fechaPrueba = Carbon::parse($fechaInicio)->addDays($d)->toDateString();
+            $subReq = Request::create('/api/citas/disponibilidad', 'GET', [
+                'fecha' => $fechaPrueba,
+                'id_medico' => $idMedico,
+                'id_especialidad' => $idEspecialidad,
+            ]);
+
+            $resp = $this->disponibilidad($subReq);
+            $datos = $resp->getData(true);
+
+            if (($datos['success'] ?? false) && ($datos['bloques_libres'] ?? 0) > 0) {
+                return response()->json([
+                    'success' => true,
+                    'fecha_encontrada' => $fechaPrueba,
+                    'datos' => $datos,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No se encontraron turnos libres en las próximas 3 semanas.',
+        ], 404);
     }
 
     /**

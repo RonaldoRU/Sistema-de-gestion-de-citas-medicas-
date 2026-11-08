@@ -50,9 +50,10 @@
                 <label class="vs-label" for="pg-cita">Ficha / Cita médica a confirmar <span class="vs-req">*</span></label>
                 <select id="pg-cita" class="vs-select" required></select>
               </div>
-              <div class="vs-choice-grid vs-choice-grid--2">
+              <div class="vs-choice-grid vs-choice-grid--3" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
                 <label class="vs-choice"><input type="radio" name="metodo_pago" value="QR_SIMPLE" checked><div><div class="vs-choice__title">QR Simple Bolivia</div><div class="vs-choice__desc">Confirmación inmediata interbancaria</div></div></label>
-                <label class="vs-choice"><input type="radio" name="metodo_pago" value="TARJETA"><div><div class="vs-choice__title">Tarjeta Débito / Crédito</div><div class="vs-choice__desc">Tokenización segura Visa / Mastercard</div></div></label>
+                <label class="vs-choice"><input type="radio" name="metodo_pago" value="TARJETA"><div><div class="vs-choice__title">Tarjeta Débito / Crédito</div><div class="vs-choice__desc">Visa / Mastercard nacional</div></div></label>
+                <label class="vs-choice"><input type="radio" name="metodo_pago" value="STRIPE"><div><div class="vs-choice__title">Stripe Payments</div><div class="vs-choice__desc">Pasarela internacional Stripe</div></div></label>
               </div>
               <div class="vs-form-grid">
                 <div class="vs-field"><label class="vs-label" for="pg-monto">Monto de consulta (Bs) <span class="vs-req">*</span></label><input id="pg-monto" class="vs-input vs-input--mono" type="number" placeholder="150" required></div>

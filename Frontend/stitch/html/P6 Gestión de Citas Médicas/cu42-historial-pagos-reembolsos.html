@@ -41,12 +41,24 @@
 
         <section class="vs-split vs-split--wide">
           <article class="vs-card">
-            <div class="vs-card__head"><div><h3 class="vs-card__title">Fichas médicas y estado de transacción</h3><p class="vs-card__sub">Listado de citas médicas y su estado de confirmación</p></div></div>
+            <div class="vs-card__head"><div><h3 class="vs-card__title">Fichas médicas y estado de transacción</h3><p class="vs-card__sub">Listado de pagos reales y su estado de confirmación / reembolso</p></div></div>
             <div class="vs-table-wrap">
               <table class="vs-table vs-table--compact">
-                <thead><tr><th>Ficha</th><th>Paciente</th><th>Especialidad</th><th>Fecha</th><th>Estado cita</th><th class="vs-td-actions">Acción</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>N.º Comprobante / Cita</th>
+                    <th>Paciente</th>
+                    <th>Especialidad / Médico</th>
+                    <th>Fecha Cita</th>
+                    <th>Método</th>
+                    <th>Monto Total</th>
+                    <th>Fecha de Pago</th>
+                    <th>Estado</th>
+                    <th class="vs-td-actions">Acción</th>
+                  </tr>
+                </thead>
                 <tbody id="cu42-pagos-tbody">
-                  <tr><td colspan="6" class="vs-td-empty">Consultando citas y transacciones...</td></tr>
+                  <tr><td colspan="9" class="vs-td-empty">Consultando pagos y transacciones desde la base de datos...</td></tr>
                 </tbody>
               </table>
             </div>

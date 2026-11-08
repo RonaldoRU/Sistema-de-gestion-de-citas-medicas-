@@ -92,6 +92,42 @@ class AuditoriaService
             request()->attributes->set('vs_audit_logged', true);
         }
 
+        // Restricción anti-duplicados: Evitar registrar más de una vez la misma acción en la bitácora
+        // Si todos los campos son idénticos dentro de una ventana de 15 segundos, no duplicar.
+        // Si cualquier campo es diferente, la restricción NO aplica y se registra normalmente.
+        $queryDuplicado = Bitacora::where('modulo', strtoupper($modulo))
+            ->where('tipo_accion', $tipoUpper)
+            ->where('fecha_hora', '>=', now()->subSeconds(15));
+
+        if ($userId === null) {
+            $queryDuplicado->whereNull('id_usuario');
+        } else {
+            $queryDuplicado->where('id_usuario', $userId);
+        }
+
+        if ($tablaAfectada === null) {
+            $queryDuplicado->whereNull('tabla_afectada');
+        } else {
+            $queryDuplicado->where('tabla_afectada', $tablaAfectada);
+        }
+
+        if ($idRegistroAfectado === null) {
+            $queryDuplicado->whereNull('id_registro_afectado');
+        } else {
+            $queryDuplicado->where('id_registro_afectado', $idRegistroAfectado);
+        }
+
+        if ($detalleTexto === null) {
+            $queryDuplicado->whereNull('detalle');
+        } else {
+            $queryDuplicado->where('detalle', $detalleTexto);
+        }
+
+        $existente = $queryDuplicado->latest('id_bitacora')->first();
+        if ($existente) {
+            return $existente;
+        }
+
         return Bitacora::create([
             'id_usuario' => $userId,
             'fecha_hora' => now(),
