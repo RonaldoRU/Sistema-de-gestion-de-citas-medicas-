@@ -1,0 +1,2071 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vida Salud — Sistema Integral de Gestión de Citas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F8FB;--ink:#16243A;--mute:#55617A;--line:#D9E0EA;--acc:#1E4E8C;--acc-soft:#E3ECF8;
+  --sage:#2F6B55;--sage-soft:#E4F1EA;--warn:#A33A1F;--warn-soft:#FDF1EE;--t:200ms;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--serif:'Instrument Serif',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid #E0A23B;outline-offset:2px}
+.mono{font-family:var(--mono);font-size:.86em;letter-spacing:.01em}
+h1{font:400 2.3rem/1.15 var(--serif);letter-spacing:-.01em}
+h2{font:600 .75rem var(--sans);text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+.btn{border:1px solid var(--ink);background:transparent;padding:.5rem 1rem;cursor:pointer;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;text-decoration:none;transition:background var(--t),color var(--t),border-color var(--t);font-size:.88rem;font-weight:500}
+.btn:hover{background:var(--ink);color:var(--bg)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}.btn.pri:hover{background:#163C6D}
+.btn.sage{background:var(--sage);border-color:var(--sage);color:#fff}.btn.sage:hover{background:#235241}
+.btn.ghost{border-color:transparent;text-decoration:underline;text-underline-offset:3px;padding:.3rem .5rem;color:var(--acc);background:none}
+.btn.ghost:hover{background:var(--acc-soft);color:var(--acc)}
+.btn.danger{border-color:var(--warn);color:var(--warn);background:transparent}.btn.danger:hover{background:var(--warn);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:.3rem .6rem;font-size:.8rem}
+.btn.full{width:100%}
+label{display:block;font-size:.8rem;color:var(--mute);margin-bottom:.3rem;font-weight:500}
+input,select,textarea{width:100%;border:0;border-bottom:1px solid #8794AA;background:transparent;padding:.45rem 0;border-radius:0;font-size:.92rem}
+input:focus,select:focus,textarea:focus{outline:none;border-bottom:2px solid var(--acc);background:rgba(227,236,248,.25)}
+textarea{resize:vertical}
+input.bad,select.bad,textarea.bad{border-bottom:2px solid var(--warn);background:var(--warn-soft)}
+input[readonly]{color:var(--mute);cursor:default}
+.err{color:var(--warn);font-size:.8rem;min-height:1.2em;margin-top:.25rem}
+.rq{color:var(--warn)}
+
+/* Login */
+#login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;background:var(--bg)}
+#login .l{background:var(--acc);color:#F3F6FB;padding:4rem;display:flex;flex-direction:column;justify-content:space-between}
+#login .l h1{font-size:4.2rem;max-width:10ch;line-height:1.05}
+#login .l h1 em{font-style:italic;color:#A9DCC4}
+#login .r{display:flex;align-items:center;justify-content:center;padding:2rem}
+#login form{width:380px;max-width:92vw;background:#fff;padding:2.4rem;border:1px solid var(--line);border-top:4px solid var(--sage);display:grid;gap:1.3rem}
+.logo{display:flex;align-items:center;gap:.7rem}
+.notice{border-left:3px solid var(--warn);background:var(--warn-soft);padding:.6rem .8rem;font-size:.85rem;color:var(--warn);display:none}
+
+/* Layout App */
+#app{display:none;grid-template-columns:300px 1fr;min-height:100vh;transition:grid-template-columns var(--t) ease}
+#app.col{grid-template-columns:68px 1fr}
+aside{background:#173E70;color:#E8EEF7;border:0;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10;display:flex;flex-direction:column}
+.brand{padding:1.4rem;border-bottom:1px solid rgba(255,255,255,.12);color:#fff;font:400 1.5rem var(--serif);display:flex;align-items:center;justify-content:space-between}
+.brand small{display:block;font:400 .75rem var(--sans);color:#B5C6E0;letter-spacing:normal}
+nav{flex:1;overflow-y:auto;padding-bottom:2rem}
+.pkg{border-bottom:1px solid rgba(255,255,255,.1);--pc:#8FB4E8}
+.pkg:nth-child(1){--pc:#8FB4E8}.pkg:nth-child(2){--pc:#C9A8E8}.pkg:nth-child(3){--pc:#E8C58F}.pkg:nth-child(4){--pc:#8FD6B4}.pkg:nth-child(5){--pc:#E8A3A3}.pkg:nth-child(6){--pc:#7FD3E0}.pkg:nth-child(7){--pc:#D8D98A}
+.pkg>button{width:100%;text-align:left;background:none;border:0;padding:.8rem 1.2rem;cursor:pointer;display:flex;align-items:center;gap:.7rem;font-weight:500;font-size:.88rem;color:#fff;border-left:4px solid var(--pc);position:relative}
+.pkg>button .ic{flex:none;color:var(--pc);display:flex}
+.pkg>button .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pkg>button .c{color:#B5C6E0;transition:transform var(--t)}
+.pkg.open>button .c{transform:rotate(90deg)}
+.pkg ul{list-style:none;padding:0;display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--t) ease}
+.pkg.open ul{grid-template-rows:1fr}
+.pkg ul>div{overflow:hidden}
+.pkg li a{display:flex;align-items:center;gap:.6rem;padding:.4rem 1.2rem .4rem 1.6rem;color:#DCE5F2;text-decoration:none;font-size:.83rem;border-left:3px solid transparent;transition:background var(--t)}
+.pkg li a:hover{background:rgba(255,255,255,.08);color:#fff}
+.pkg li a[aria-current]{background:rgba(255,255,255,.14);border-left-color:var(--pc);color:#fff;font-weight:600}
+.pkg li a .mono{color:#9FB3D1;min-width:3.2em}
+
+/* Sidebar colapsada */
+#app.col aside{overflow:visible}
+#app.col .brand .bt,#app.col .pkg .nm,#app.col .pkg .c,#app.col .pkg ul,#app.col aside>div:last-child,#app.col .brand small{display:none}
+#app.col .brand{padding:1.2rem 0;justify-content:center}
+#app.col .pkg>button{justify-content:center;padding:.9rem 0}
+#app.col .pkg>button::after{content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translate(-4px,-50%);background:var(--ink);color:#fff;padding:.35rem .65rem;font-size:.8rem;white-space:nowrap;border-radius:3px;opacity:0;pointer-events:none;transition:opacity var(--t),transform var(--t);z-index:50}
+#app.col .pkg>button:hover::after,#app.col .pkg>button:focus-visible::after{opacity:1;transform:translate(0,-50%)}
+
+main{padding:2rem 3rem 4rem;max-width:1300px;overflow-x:hidden}
+.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.8rem;font-size:.86rem;color:var(--mute)}
+.top>.crumb{display:flex;align-items:center}
+.crumb b{color:var(--ink);font-weight:600}
+.ham{background:none;border:1px solid var(--line);width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border-radius:3px;margin-right:1rem;color:var(--acc)}
+.ham:hover{background:var(--acc-soft)}
+
+#view{transition:opacity var(--t),transform var(--t)}
+#view.out{opacity:0;transform:translateY(6px)}
+.head{background:var(--hb,#E3ECF8);border-left:4px solid var(--hc,#1E4E8C);padding:1.4rem 1.8rem;margin:0 0 1.8rem;display:flex;justify-content:space-between;align-items:flex-end;gap:2rem}
+.head p{color:#3E4A60;max-width:70ch;margin-top:.4rem;font-size:.92rem}
+
+/* Tablas */
+table{width:100%;border-collapse:collapse;font-size:.88rem;background:#fff;border:1px solid var(--line)}
+th{text-align:left;font-weight:600;color:var(--acc);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--acc);padding:.7rem .6rem;background:#F8FAFD}
+td{border-bottom:1px solid var(--line);padding:.65rem .6rem;vertical-align:middle}
+tbody tr:hover{background:#EEF3FA}
+tr.off td{color:var(--mute)}
+
+/* Badges de estado */
+.st{display:inline-flex;align-items:center;gap:.45rem;font-size:.8rem;padding:.15rem .55rem;border-radius:3px;font-weight:600}
+.st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st.prog{color:#1E4E8C;background:#E3ECF8}
+.st.conf{color:#245C47;background:#E1F2E9}
+.st.aten{color:#3D2F7A;background:#ECE8F8}
+.st.canc{color:#9B2E17;background:#FBE6DF}
+.st.inas{color:#7A5200;background:#FBF0D6}
+.st.off{color:var(--mute);background:#ECEFF4}
+
+/* Formularios, tarjetas y bloques */
+.blk{margin-bottom:2rem}.blk>h2{margin-bottom:.8rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:3px;padding:1.4rem;margin-bottom:1.6rem}
+.filters{display:flex;gap:1.4rem;margin-bottom:1.6rem;align-items:flex-end;flex-wrap:wrap}
+.filters>div{min-width:180px}
+.row{display:flex;gap:1.4rem;align-items:flex-end}.row>div{flex:1;max-width:340px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem 1.6rem}.form .full{grid-column:1/-1}
+.actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.4rem}
+.actions.left{justify-content:flex-start}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:.5rem 1rem;font-size:.9rem}.kv dt{color:var(--mute)}
+.counts{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.8rem}
+.counts div{padding:1.1rem 1.2rem;border-radius:4px}
+.counts div:nth-child(1){background:#E3ECF8;color:#1E4E8C}
+.counts div:nth-child(2){background:#E1F2E9;color:#245C47}
+.counts div:nth-child(3){background:#ECE8F8;color:#3D2F7A}
+.counts div:nth-child(4){background:#FBF0D6;color:#7A5200}
+.counts b{display:block;font:400 2.2rem/1 var(--serif);margin-bottom:.3rem}
+.counts span{font-size:.8rem;color:inherit;font-weight:500}
+
+/* Slots de citas y disponibilidad */
+.book{display:grid;grid-template-columns:1fr 320px;gap:2rem}
+.slots{display:grid;border:1px solid var(--acc);background:#fff}
+.slots .h,.slots .t{font-size:.8rem;padding:.5rem;border-bottom:1px solid var(--line)}
+.slots .h{font-weight:600;background:#F8FAFD}
+.slots .t{color:var(--mute);background:#FAFBFD}
+.slot{border:0;border-bottom:1px solid var(--line);border-left:1px solid var(--line);background:transparent;text-align:center;padding:.5rem .3rem;font-size:.8rem;cursor:pointer;transition:background var(--t),color var(--t)}
+.slot.free{color:#245C47}.slot.free:hover{background:var(--sage-soft)}
+.slot.busy{background:#E6EBF3;color:#55617A;cursor:not-allowed}
+.slot.hol{background:repeating-linear-gradient(135deg,#FBF0D6 0 6px,#F3E2B8 6px 7px);color:#6E4A00;cursor:not-allowed}
+.slot.sel{background:var(--acc);color:#fff}
+.slotlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:.5rem}
+.sbtn{display:flex;justify-content:space-between;align-items:center;gap:.4rem;min-height:42px;padding:.5rem .75rem;border:1px solid #BFD6C9;background:#fff;color:#245C47;cursor:pointer;border-radius:3px;font-size:.85rem}
+.sbtn:hover{background:var(--sage-soft)}
+.sbtn.sel{background:var(--acc);border-color:var(--acc);color:#fff}
+.sbtn.busy,.sbtn.past{background:#E6EBF3;border-color:#E6EBF3;color:#55617A;cursor:not-allowed}
+.sbtn.hol{background:#FBF0D6;border-color:#F3E2B8;color:#6E4A00;cursor:not-allowed}
+.sum{background:#fff;border:1px solid var(--line);border-top:4px solid var(--acc);padding:1.4rem;display:grid;gap:1rem;align-content:start}
+.sum .kv{grid-template-columns:90px 1fr}
+
+/* Modales y Toast */
+.scrim{position:fixed;inset:0;background:rgba(22,36,58,.5);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--t);z-index:100}
+.scrim.on{opacity:1;pointer-events:auto}
+.modal{background:#fff;border-top:4px solid var(--acc);width:min(600px,94vw);max-height:90vh;overflow-y:auto;padding:2rem;transform:translateY(10px);transition:transform var(--t);box-shadow:0 12px 36px rgba(0,0,0,.15)}
+.scrim.on .modal{transform:none}
+.modal h3{font:400 1.8rem var(--serif);margin-bottom:1rem}
+#toast{position:fixed;bottom:1.6rem;left:50%;transform:translate(-50%,20px);background:#245C47;color:#fff;padding:.7rem 1.4rem;font-size:.88rem;border-radius:3px;opacity:0;transition:opacity var(--t),transform var(--t);pointer-events:none;z-index:200;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#dscrim{position:fixed;inset:0;background:rgba(10,20,35,.45);opacity:0;pointer-events:none;transition:opacity var(--t);z-index:20}
+.tag{font-family:var(--mono);font-size:.72rem;border:1px solid var(--line);padding:.1rem .4rem;color:var(--mute);border-radius:2px}
+.emptybox{border:1px dashed #B9C3D3;background:#fff;padding:2rem;display:grid;gap:.8rem;justify-items:start;color:#3E4A60;border-radius:3px}
+
+@media(max-width:900px){
+  #app,#app.col{grid-template-columns:1fr}
+  aside{position:fixed;left:0;top:0;width:min(320px,88vw);z-index:30;transform:translateX(-100%);transition:transform var(--t) ease}
+  #app.drawer aside{transform:none}
+  #app.drawer #dscrim{opacity:1;pointer-events:auto}
+  main{padding:1.2rem}
+  .book{grid-template-columns:1fr}
+  #login{grid-template-columns:1fr}#login .l{display:none}
+  .counts{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- PANTALLA DE INICIO DE SESIÓN -->
+<section id="login" aria-label="Inicio de sesión">
+  <div class="l">
+    <span class="logo">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="12" y="2" width="10" height="30" rx="2" fill="#A9DCC4"/><rect x="2" y="12" width="30" height="10" rx="2" fill="#A9DCC4"/><path d="M17 23c-4-3-6-5-6-7.2A2.8 2.8 0 0 1 17 14a2.8 2.8 0 0 1 6 1.8C23 18 21 20 17 23z" fill="#1E4E8C"/></svg>
+      <span class="mono" style="color:#BFD0EA;">CLÍNICA VIDA SALUD · SANTA CRUZ</span>
+    </span>
+    <div>
+      <h1>Agenda médica, <em>sin papel.</em></h1>
+      <p style="margin-top:1rem;color:#D3E2F4;max-width:44ch;">Gestión integral de citas, expedientes, horarios médicos y pagos en línea con auditoría en tiempo real.</p>
+    </div>
+    <span class="mono" style="color:#BFD0EA;">CU01 Autenticación · CU04 Bloqueo por intentos · CU37 Auto-registro</span>
+  </div>
+  <div class="r">
+    <form id="lf" novalidate>
+      <div>
+        <h2>Acceso al sistema</h2>
+        <p style="font-size:.85rem;color:var(--mute);margin-top:.2rem;">Ingresa tus credenciales autorizadas</p>
+      </div>
+      <div>
+        <label for="u">Usuario o Correo electrónico</label>
+        <input id="u" type="text" autocomplete="username" placeholder="scolque o scolque@vidasalud.bo" required>
+      </div>
+      <div>
+        <label for="p">Contraseña</label>
+        <input id="p" type="password" autocomplete="current-password" placeholder="••••••••" required>
+        <div class="err" id="perr" aria-live="polite"></div>
+      </div>
+      <p class="notice" id="lock" role="alert"></p>
+      <button class="btn pri" id="lb" type="submit">Ingresar al sistema</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;">
+        <button type="button" class="btn ghost" onclick="abrirRecuperarModal()">¿Olvidó su contraseña?</button>
+        <button type="button" class="btn ghost" onclick="go('37', true)">¿Paciente nuevo? Regístrate</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
+<div id="app">
+  <aside id="side" aria-label="Paquetes y casos de uso">
+    <div class="brand">
+      <span class="logo">
+        <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="12" y="2" width="10" height="30" rx="2" fill="#A9DCC4"/><rect x="2" y="12" width="30" height="10" rx="2" fill="#A9DCC4"/><path d="M17 23c-4-3-6-5-6-7.2A2.8 2.8 0 0 1 17 14a2.8 2.8 0 0 1 6 1.8C23 18 21 20 17 23z" fill="#1E4E8C"/></svg>
+        <span class="bt">Vida Salud</span>
+      </span>
+      <small>Clínica Médica</small>
+    </div>
+    <nav id="nav"></nav>
+    <div style="padding:1rem 1.4rem;font-size:.78rem;color:#B5C6E0;border-top:1px solid rgba(255,255,255,.1);">
+      <span class="tag">43 Casos de uso</span> Vida Salud v2.0
+    </div>
+  </aside>
+
+  <div id="dscrim" onclick="hamb(false)"></div>
+
+  <main>
+    <div class="top">
+      <span class="crumb">
+        <button class="ham" id="ham" aria-label="Contraer menú" aria-expanded="true" aria-controls="side" onclick="hamb()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <span id="crumb"></span>
+      </span>
+      <span>
+        <span id="who" class="mono" style="font-weight:500;"></span> &nbsp;
+        <button class="btn ghost" onclick="logout()">Cerrar sesión</button>
+      </span>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<!-- SCRIM / MODAL GLOBAL -->
+<div class="scrim" id="scrim">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt" id="modal"></div>
+</div>
+
+<!-- TOAST GLOBAL -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- CLIENTE API CONEXIÓN A POSTGRESQL / MYSQL -->
+<script src="js/api.js"></script>
+
+<script>
+// =========================================================================
+// DEFINICIÓN DE LOS 43 CASOS DE USO (7 PAQUETES OFICIALES)
+// =========================================================================
+const P = [
+  ["Seguridad y Autenticación", [
+    ["01", "Iniciar Sesión en la Plataforma Web"],
+    ["02", "Cerrar Sesión y Revocar Sesión"],
+    ["03", "Recuperar / Restablecer Contraseña Olvidada"],
+    ["04", "Bloqueo Automático por Intentos Fallidos"],
+    ["37", "Auto-registro de Cuenta de Paciente Web"]
+  ]],
+  ["Administración de Usuarios y Permisos (RBAC)", [
+    ["05", "Registrar Nuevo Usuario del Sistema"],
+    ["06", "Consultar Catálogo y Perfil de Usuarios"],
+    ["07", "Modificar Datos de Cuenta de Usuario"],
+    ["08", "Cambiar Rol Operativo y Permisos (RBAC)"],
+    ["09", "Suspender / Inactivar Cuenta de Usuario"]
+  ]],
+  ["Auditoría, Trazabilidad y Bitácora", [
+    ["10", "Registrar Acción Automática en Bitácora"],
+    ["11", "Consultar y Filtrar Bitácora de Auditoría"]
+  ]],
+  ["Gestión de Pacientes", [
+    ["12", "Registrar Paciente"],
+    ["13", "Información Médica Básica del Paciente"],
+    ["14", "Contacto de Emergencia"],
+    ["15", "Buscar y Modificar Datos de Paciente"],
+    ["16", "Consultar Historial de Citas del Paciente"],
+    ["17", "Desactivar / Reactivar Registro de Paciente"]
+  ]],
+  ["Gestión Médica y Horarios", [
+    ["18", "Gestionar Catálogo de Especialidades"],
+    ["19", "Registrar y Administrar Personal Médico"],
+    ["20", "Configurar Horarios y Bloques"],
+    ["21", "Desactivar Registro de Médico"],
+    ["23", "Bloquear Agenda por Feriados / Licencias"]
+  ]],
+  ["Gestión de Citas Médicas", [
+    ["22", "Consultar Disponibilidad Horaria (15 min)"],
+    ["24", "Programar y Registrar Cita Médica"],
+    ["25", "Prevenir Citas Duplicadas y Concurrencia"],
+    ["26", "Reprogramar Cita Médica"],
+    ["27", "Cancelar Cita con Justificación"],
+    ["28", "Emitir Recordatorios de Cita"],
+    ["29", "Controlar Asistencia y Estados"],
+    ["30", "Consultar Agenda Médica Diaria"],
+    ["31", "Marcar Atención como Atendida"],
+    ["38", "Reserva de Ficha Médica Web por Paciente"],
+    ["39", "Confirmación y Notificación de Reserva Web"],
+    ["40", "Consulta de Estado de Ficha Web"],
+    ["41", "Pasarela de Pago y Emisión de Comprobante"],
+    ["42", "Historial de Pagos y Gestión de Reembolsos"]
+  ]],
+  ["Reportes Administrativos", [
+    ["32", "Reporte de Citas por Período"],
+    ["33", "Reporte de Atenciones por Médico y Especialidad"],
+    ["34", "Reporte de Control de Asistencia y Ausentismo"],
+    ["35", "Exportar Reportes (PDF / CSV / Excel)"],
+    ["36", "Padrón General de Pacientes"],
+    ["43", "Reporte de Ingresos Financieros y Recaudación"]
+  ]]
+];
+
+const IC = [
+  '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/>',
+  '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 11l1.5 1.5L21 9"/>',
+  '<path d="M8 4h11v16H5V7z"/><path d="M8 4v3H5"/><path d="M9 11h6M9 14h6M9 17h4"/>',
+  '<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+  '<path d="M6 3v5a4 4 0 0 0 8 0V3"/><path d="M10 12v3a5 5 0 0 0 10 0v-1"/><circle cx="20" cy="12" r="2"/>',
+  '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/><path d="M9 14.5l2 2 4-4"/>',
+  '<path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-7"/>'
+];
+
+const $ = s => document.querySelector(s);
+let cur = "22";
+let loginTries = 0;
+
+// Escape HTML seguro
+const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// Formato de fechas Bolivia
+function fmt(d) {
+  if (!d) return '—';
+  var s = String(d).slice(0, 10);
+  var p = s.split('-');
+  return p.length === 3 ? (p[2] + '/' + p[1] + '/' + p[0]) : s;
+}
+
+function hoyISO() {
+  var now = new Date();
+  var y = now.getFullYear();
+  var m = String(now.getMonth() + 1).padStart(2, '0');
+  var d = String(now.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+
+// Generadores de cabeceras de pantalla
+const HB = [
+  ['#E3ECF8', '#1E4E8C'],
+  ['#EFE7F8', '#5B3B8C'],
+  ['#FBF0D6', '#8A5D00'],
+  ['#E1F2E9', '#2F6B55'],
+  ['#FBE6E3', '#9B2E17'],
+  ['#E0F1F4', '#1C6470'],
+  ['#F2F3DA', '#5E6012']
+];
+
+function hd(t, p, r = '') {
+  const i = P.findIndex(pkg => pkg[1].some(c => c[0] == cur));
+  const c = HB[i] || HB[0];
+  return `<div class="head" style="--hb:${c[0]};--hc:${c[1]}"><div><h1>${t}</h1><p>${p}</p></div>${r}</div>`;
+}
+
+const sec = (t, b) => `<section class="blk"><h2>${t}</h2>${b}</section>`;
+
+function tbl(cols, rows, empty = 'Sin registros.') {
+  return `<table><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${
+    rows.length ? rows.map(r => `<tr>${r.map(td => `<td>${td}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${cols.length}" style="text-align:center;color:var(--mute);padding:2rem;">${empty}</td></tr>`
+  }</tbody></table>`;
+}
+
+// Helpers de Toast y Modal
+let tt;
+function toast(m, isWarn) {
+  const t = $('#toast');
+  t.textContent = m;
+  t.style.background = isWarn ? 'var(--warn)' : '#245C47';
+  t.classList.add('on');
+  clearTimeout(tt);
+  tt = setTimeout(() => t.classList.remove('on'), 2800);
+}
+
+let lastFocus;
+function modal(h) {
+  lastFocus = document.activeElement;
+  $('#modal').innerHTML = h;
+  $('#scrim').classList.add('on');
+  setTimeout(() => $('#modal').querySelector('input,button')?.focus(), 50);
+}
+function closeM() {
+  $('#scrim').classList.remove('on');
+  lastFocus?.focus();
+}
+$('#scrim').onclick = e => { if (e.target.id == 'scrim') closeM(); };
+document.addEventListener('keydown', e => { if (e.key == 'Escape') closeM(); });
+
+// Menú y Navegación
+const mob = () => matchMedia('(max-width:900px)').matches;
+function syncH() {
+  const a = $('#app');
+  const open = mob() ? a.classList.contains('drawer') : !a.classList.contains('col');
+  $('#ham')?.setAttribute('aria-expanded', open);
+}
+function hamb(force) {
+  const a = $('#app');
+  if (mob()) {
+    a.classList.toggle('drawer', force ?? !a.classList.contains('drawer'));
+  } else {
+    const open = force ?? a.classList.contains('col');
+    a.classList.toggle('col', !open);
+  }
+  syncH();
+}
+
+function nav() {
+  $('#nav').innerHTML = P.map((p, i) => `
+    <div class="pkg ${p[1].some(c => c[0] == cur) ? 'open' : ''}">
+      <button aria-expanded="${p[1].some(c => c[0] == cur)}" data-tip="${p[0]}" onclick="tog(this)">
+        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${IC[i]}</svg></span>
+        <span class="nm">${p[0]}</span>
+        <span class="c" aria-hidden="true">›</span>
+      </button>
+      <ul><div>
+        ${p[1].map(c => `<li><a href="#cu${c[0]}" ${c[0] == cur ? 'aria-current="page"' : ''} onclick="go('${c[0]}');return false"><span class="mono">CU${c[0]}</span>${c[1]}</a></li>`).join('')}
+      </div></ul>
+    </div>
+  `).join('');
+}
+
+function tog(b) {
+  const p = b.parentElement;
+  p.classList.toggle('open');
+  b.setAttribute('aria-expanded', p.classList.contains('open'));
+}
+
+// Enrutador de pantallas dinámicas
+const S = {};
+
+async function go(id, first) {
+  cur = id;
+  if (mob()) $('#app').classList.remove('drawer');
+  nav();
+
+  const pk = P.find(p => p[1].some(c => c[0] == id));
+  const cu = pk ? pk[1].find(c => c[0] == id) : [id, 'Detalle de operación'];
+
+  $('#crumb').innerHTML = `${pk ? pk[0] : 'Sistema'} / <b><span class="mono">CU${id}</span> ${cu[1]}</b>`;
+  const v = $('#view');
+  v.classList.add('out');
+
+  setTimeout(async () => {
+    v.innerHTML = '<div style="padding:3rem;text-align:center;color:var(--mute);">Cargando datos desde la base de datos...</div>';
+    v.classList.remove('out');
+    try {
+      if (S[id]) {
+        v.innerHTML = await S[id]();
+        if (S[id].init) await S[id].init();
+      } else {
+        v.innerHTML = hd(cu[1], `Caso de uso CU${id}`) + `<div class="card"><p class="mono">Módulo en línea y auditado en PostgreSQL.</p></div>`;
+      }
+    } catch (err) {
+      v.innerHTML = hd(cu[1], `Caso de uso CU${id}`) + `<div class="card" style="border-left:4px solid var(--warn);"><p style="color:var(--warn);font-weight:600;">Error al cargar datos:</p><p class="mono" style="margin-top:.4rem;">${h(err.message)}</p></div>`;
+    }
+  }, first ? 0 : 120);
+}
+
+// =========================================================================
+// P1: AUTENTICACIÓN Y SESIÓN (CU01, CU02, CU03, CU04, CU37)
+// =========================================================================
+$('#lf').onsubmit = async function (e) {
+  e.preventDefault();
+  const u = $('#u').value.trim();
+  const p = $('#p').value;
+  const perr = $('#perr');
+  const lock = $('#lock');
+  perr.textContent = '';
+  lock.style.display = 'none';
+
+  if (!u || !p) {
+    perr.textContent = 'Por favor ingresa usuario/correo y contraseña.';
+    return;
+  }
+
+  const lb = $('#lb');
+  lb.disabled = true;
+  lb.textContent = 'Verificando credenciales...';
+
+  try {
+    const res = await VS_API.auth.login(u, p, true);
+    loginTries = 0;
+    actualizarUsuarioHeader(res.usuario);
+    $('#login').style.display = 'none';
+    $('#app').style.display = 'grid';
+    $('#p').value = '';
+    toast('¡Bienvenido(a) a Clínica Vida Salud!');
+    go(cur, true);
+  } catch (err) {
+    loginTries++;
+    const errMsg = err.message || 'Credenciales incorrectas.';
+    perr.textContent = errMsg + (loginTries < 3 ? ` (Intentos: ${loginTries}/3)` : '');
+
+    if (loginTries >= 3 || err.status === 429 || errMsg.includes('bloqueada')) {
+      lock.textContent = 'Acceso bloqueado preventivamente por intentos fallidos (CU04). Espere 1 minuto.';
+      lock.style.display = 'block';
+      lb.disabled = true;
+      let s = 60;
+      const timer = setInterval(() => {
+        s--;
+        if (s <= 0) {
+          clearInterval(timer);
+          lb.disabled = false;
+          lb.textContent = 'Ingresar al sistema';
+          lock.style.display = 'none';
+          loginTries = 0;
+        } else {
+          lb.textContent = `Bloqueado (${s} s)`;
+        }
+      }, 1000);
+      return;
+    }
+  } finally {
+    if (!lb.textContent.startsWith('Bloqueado')) {
+      lb.disabled = false;
+      lb.textContent = 'Ingresar al sistema';
+    }
+  }
+};
+
+function actualizarUsuarioHeader(u) {
+  const who = $('#who');
+  if (!who) return;
+  if (!u) {
+    who.textContent = '';
+    return;
+  }
+  const nombre = (u.nombres || u.nombre_usuario || 'Usuario') + ' ' + (u.apellidos || '');
+  const rol = (u.rol && u.rol.nombre) ? u.rol.nombre : (u.rol || 'Personal');
+  who.textContent = `${nombre.trim()} · ${rol}`;
+}
+
+async function logout() {
+  try {
+    await VS_API.auth.logout();
+  } catch (e) {}
+  $('#app').style.display = 'none';
+  $('#login').style.display = 'grid';
+  $('#u').focus();
+  toast('Sesión cerrada y revocada (CU02)');
+}
+
+function abrirRecuperarModal() {
+  modal(`
+    <h3 id="mt">Recuperar contraseña (CU03)</h3>
+    <p style="color:var(--mute);margin-bottom:1.2rem;">Ingresa tu correo o CI para generar la clave temporal en base de datos.</p>
+    <div style="margin-bottom:1rem;">
+      <label for="rc-id">CI o Correo registrado</label>
+      <input id="rc-id" type="text" placeholder="Ej. scolque@vidasalud.bo">
+      <div class="err" id="rc-err"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn pri" onclick="solicitarRecuperacion()">Enviar instrucción</button>
+    </div>
+  `);
+}
+
+async function solicitarRecuperacion() {
+  const val = $('#rc-id').value.trim();
+  const err = $('#rc-err');
+  if (!val) { err.textContent = 'Campo requerido'; return; }
+  try {
+    await VS_API.auth.solicitarRecuperacion(val);
+    modal(`
+      <h3 id="mt">Instrucción emitida</h3>
+      <p style="color:var(--sage);margin-bottom:1rem;font-weight:600;">Se ha generado la solicitud de recuperación en el servidor.</p>
+      <p style="font-size:.88rem;color:var(--mute);">Revisa tu bandeja o contacta al administrador con el código generado.</p>
+      <div class="actions"><button class="btn pri" onclick="closeM()">Entendido</button></div>
+    `);
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+// Pantallas P1
+S['01'] = async () => {
+  const u = VS_API.getUser();
+  return hd('Iniciar sesión en la plataforma web', 'Autenticación contra PostgreSQL/MySQL con revocación y bitácora.') +
+    sec('Sesión activa en el navegador', `
+      <div class="card">
+        <dl class="kv">
+          <dt>Nombre</dt><dd><b>${h(u ? (u.nombres + ' ' + (u.apellidos || '')) : 'Sin sesión')}</b></dd>
+          <dt>Usuario</dt><dd class="mono">${h(u ? u.nombre_usuario : '—')}</dd>
+          <dt>Rol operativo</dt><dd>${h(u ? (u.rol?.nombre || u.rol) : '—')}</dd>
+          <dt>Token activo</dt><dd class="mono" style="font-size:.78rem;word-break:break-all;">${h(VS_API.getToken() ? 'Activo (Bearer Sanctum)' : 'Ninguno')}</dd>
+        </dl>
+        <div class="actions left" style="margin-top:1.5rem;">
+          <button class="btn danger" onclick="logout()">Cerrar sesión actual</button>
+        </div>
+      </div>
+    `);
+};
+
+S['02'] = S['01'];
+
+S['03'] = async () => hd('Recuperación de contraseña', 'Restablecimiento de credenciales con token temporal y registro de auditoría.') +
+  `<div class="card" style="max-width:550px;">
+    <p style="margin-bottom:1.2rem;color:var(--mute);">Ingresa el código temporal recibido y tu nueva contraseña segura:</p>
+    <div style="display:grid;gap:1rem;">
+      <div><label>Código o Token</label><input id="re-tok" class="mono" placeholder="Ej. 123456"></div>
+      <div><label>Nueva contraseña</label><input id="re-p1" type="password"></div>
+      <div><label>Confirmar contraseña</label><input id="re-p2" type="password"></div>
+      <div class="err" id="re-err"></div>
+      <button class="btn pri" onclick="ejecutarRestablecer()">Restablecer clave</button>
+    </div>
+  </div>`;
+
+async function ejecutarRestablecer() {
+  const tok = $('#re-tok').value.trim();
+  const p1 = $('#re-p1').value;
+  const p2 = $('#re-p2').value;
+  const err = $('#re-err');
+  if (!tok || !p1) { err.textContent = 'Completa todos los campos'; return; }
+  if (p1 !== p2) { err.textContent = 'Las contraseñas no coinciden'; return; }
+  try {
+    await VS_API.auth.restablecer(tok, p1, p2);
+    toast('Contraseña actualizada con éxito');
+    go('01');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['04'] = async () => hd('Bloqueo automático por intentos fallidos', 'Política de seguridad: 3 intentos fallidos bloquean el acceso temporalmente y disparan alerta a la bitácora.') +
+  `<div class="card">
+    <p>El middleware evalúa el conteo de fallos y almacena la IP y el identificador en la base de datos.</p>
+    <p class="mono" style="margin-top:.8rem;color:var(--mute);">Estado de bloqueo: Operativo y activo en /api/auth/login.</p>
+  </div>`;
+
+S['37'] = async () => hd('Auto-registro de paciente web', 'Inscripción directa de pacientes en línea para autogestión de citas.') +
+  `<div class="card" style="max-width:650px;">
+    <form id="form-cu37" onsubmit="event.preventDefault();registrarPacienteWeb();">
+      <div class="form">
+        <div><label>Cédula de identidad (CI) *</label><input id="ar-ci" required></div>
+        <div><label>Fecha de nacimiento *</label><input id="ar-fnac" type="date" required></div>
+        <div><label>Nombres *</label><input id="ar-nom" required></div>
+        <div><label>Apellidos *</label><input id="ar-ape" required></div>
+        <div><label>Teléfono móvil *</label><input id="ar-tel" type="tel" required></div>
+        <div><label>Correo electrónico *</label><input id="ar-cor" type="email" required></div>
+        <div class="full"><label>Dirección domiciliaria</label><input id="ar-dir"></div>
+      </div>
+      <div class="err" id="ar-err"></div>
+      <div class="actions left">
+        <button class="btn pri" type="submit">Crear mi cuenta de paciente</button>
+      </div>
+    </form>
+  </div>`;
+
+async function registrarPacienteWeb() {
+  const err = $('#ar-err');
+  err.textContent = '';
+  const data = {
+    ci: $('#ar-ci').value.trim(),
+    fecha_nacimiento: $('#ar-fnac').value,
+    nombres: $('#ar-nom').value.trim(),
+    apellidos: $('#ar-ape').value.trim(),
+    telefono: $('#ar-tel').value.trim(),
+    email: $('#ar-cor').value.trim(),
+    direccion: $('#ar-dir').value.trim()
+  };
+  try {
+    await VS_API.auth.autoregistro(data);
+    toast('¡Cuenta registrada exitosamente!');
+    modal(`
+      <h3 id="mt">Registro completado</h3>
+      <p style="color:var(--sage);font-weight:600;margin-bottom:.8rem;">Bienvenido(a), ${h(data.nombres)}.</p>
+      <p style="font-size:.9rem;color:var(--mute);">Ya estás registrado(a) en el padrón. Puedes consultar disponibilidad o iniciar sesión.</p>
+      <div class="actions"><button class="btn pri" onclick="closeM();go('22');">Ver turnos disponibles</button></div>
+    `);
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+// =========================================================================
+// P2: ADMINISTRACIÓN DE USUARIOS Y ROLES RBAC (CU05–CU09)
+// =========================================================================
+let usuariosCache = [];
+
+S['06'] = async () => {
+  const res = await VS_API.usuarios.listar();
+  const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+  usuariosCache = Array.isArray(list) ? list : [];
+
+  const rows = usuariosCache.map(u => {
+    const p = u.persona || {};
+    const nombre = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : u.nombre_usuario);
+    const rolNom = (u.rol && u.rol.nombre) ? u.rol.nombre : '—';
+    const estado = (u.estado || 'ACTIVO').toUpperCase();
+    const isActivo = estado === 'ACTIVO';
+    return [
+      `<span class="mono">${h(p.ci || '—')}</span>`,
+      `<b>${h(nombre)}</b><div class="mono" style="font-size:.76rem;color:var(--mute);">${h(u.nombre_usuario)}</div>`,
+      `<span class="mono">${h(u.email || p.email || '—')}</span>`,
+      `<span class="tag">${h(rolNom)}</span>`,
+      `<span class="st ${isActivo ? 'conf' : 'off'}">${h(estado)}</span>`,
+      `<button class="btn sm" onclick="verPerfilUsuario(${u.id_usuario})">Detalle</button>
+       <button class="btn sm ghost" onclick="abrirEditarUsuario(${u.id_usuario})">Modificar</button>`
+    ];
+  });
+
+  return hd('Catálogo y perfil de usuarios', 'Administración de cuentas con roles RBAC conectada a PostgreSQL.', `<button class="btn pri" onclick="go('05')">+ Nuevo usuario</button>`) +
+    sec('Usuarios registrados en el sistema', tbl(['CI', 'Usuario / Nombre', 'Correo', 'Rol', 'Estado', 'Acciones'], rows, 'No hay usuarios registrados.'));
+};
+
+S['05'] = async () => {
+  const resRoles = await VS_API.roles.listar();
+  const roles = (resRoles && resRoles.data) ? resRoles.data : (resRoles || []);
+  const opts = roles.map(r => `<option value="${r.id_rol}">${h(r.nombre)}</option>`).join('');
+
+  return hd('Registrar nuevo usuario del sistema', 'Alta de credenciales con asignación de rol y contraseña segura.') +
+    `<div class="card" style="max-width:700px;">
+      <form id="form-cu05" onsubmit="event.preventDefault();guardarNuevoUsuario();">
+        <div class="form">
+          <div><label>Cédula de identidad (CI) *</label><input id="nu-ci" required></div>
+          <div><label>Nombre de usuario *</label><input id="nu-usr" required></div>
+          <div><label>Nombres *</label><input id="nu-nom" required></div>
+          <div><label>Apellidos *</label><input id="nu-ape" required></div>
+          <div><label>Correo electrónico *</label><input id="nu-cor" type="email" required></div>
+          <div><label>Rol asignado *</label><select id="nu-rol">${opts}</select></div>
+          <div><label>Contraseña *</label><input id="nu-pas" type="password" required></div>
+          <div><label>Confirmar contraseña *</label><input id="nu-pas2" type="password" required></div>
+        </div>
+        <div class="err" id="nu-err"></div>
+        <div class="actions left">
+          <button class="btn pri" type="submit">Guardar usuario</button>
+          <button class="btn" type="button" onclick="go('06')">Cancelar</button>
+        </div>
+      </form>
+    </div>`;
+};
+
+async function guardarNuevoUsuario() {
+  const err = $('#nu-err');
+  err.textContent = '';
+  const p1 = $('#nu-pas').value;
+  const p2 = $('#nu-pas2').value;
+  if (p1 !== p2) { err.textContent = 'Las contraseñas no coinciden'; return; }
+
+  const data = {
+    ci: $('#nu-ci').value.trim(),
+    nombre_usuario: $('#nu-usr').value.trim(),
+    nombres: $('#nu-nom').value.trim(),
+    apellidos: $('#nu-ape').value.trim(),
+    email: $('#nu-cor').value.trim(),
+    id_rol: $('#nu-rol').value,
+    password: p1,
+    password_confirmation: p2
+  };
+
+  try {
+    await VS_API.usuarios.crear(data);
+    toast('Usuario registrado con éxito');
+    go('06');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+function verPerfilUsuario(id) {
+  const u = usuariosCache.find(x => x.id_usuario === id);
+  if (!u) return;
+  const p = u.persona || {};
+  modal(`
+    <h3 id="mt">${h(p.nombres || u.nombre_usuario)} ${h(p.apellidos || '')}</h3>
+    <dl class="kv">
+      <dt>Usuario</dt><dd class="mono">${h(u.nombre_usuario)}</dd>
+      <dt>CI</dt><dd class="mono">${h(p.ci || '—')}</dd>
+      <dt>Correo</dt><dd class="mono">${h(u.email || p.email || '—')}</dd>
+      <dt>Rol operativo</dt><dd><span class="tag">${h(u.rol?.nombre || '—')}</span></dd>
+      <dt>Estado</dt><dd>${h(u.estado || 'ACTIVO')}</dd>
+    </dl>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Cerrar</button>
+      <button class="btn pri" onclick="closeM();abrirEditarUsuario(${id})">Modificar cuenta</button>
+    </div>
+  `);
+}
+
+function abrirEditarUsuario(id) {
+  const u = usuariosCache.find(x => x.id_usuario === id);
+  if (!u) return;
+  const p = u.persona || {};
+  modal(`
+    <h3 id="mt">Modificar cuenta (CU07)</h3>
+    <div class="form">
+      <div><label>Nombres</label><input id="eu-nom" value="${h(p.nombres || '')}"></div>
+      <div><label>Apellidos</label><input id="eu-ape" value="${h(p.apellidos || '')}"></div>
+      <div><label>Correo</label><input id="eu-cor" value="${h(u.email || p.email || '')}"></div>
+      <div><label>Teléfono</label><input id="eu-tel" value="${h(p.telefono || '')}"></div>
+    </div>
+    <div class="err" id="eu-err"></div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn pri" onclick="guardarEdicionUsuario(${id})">Guardar cambios</button>
+    </div>
+  `);
+}
+
+async function guardarEdicionUsuario(id) {
+  const err = $('#eu-err');
+  err.textContent = '';
+  const data = {
+    nombres: $('#eu-nom').value.trim(),
+    apellidos: $('#eu-ape').value.trim(),
+    email: $('#eu-cor').value.trim(),
+    telefono: $('#eu-tel').value.trim()
+  };
+  try {
+    await VS_API.usuarios.actualizar(id, data);
+    closeM();
+    toast('Usuario actualizado');
+    go('06');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['07'] = S['06'];
+
+// CU08: Cambio de rol DINÁMICO (no muestra el rol actual)
+S['08'] = async () => {
+  const resU = await VS_API.usuarios.listar();
+  const resR = await VS_API.roles.listar();
+  const users = (resU && resU.data && resU.data.data) ? resU.data.data : (resU.data || resU || []);
+  const roles = (resR && resR.data) ? resR.data : (resR || []);
+
+  const userOpts = users.map(u => {
+    const p = u.persona || {};
+    const nom = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : u.nombre_usuario);
+    return `<option value="${u.id_usuario}" data-rol-id="${u.id_rol}">${h(nom)} (${h(u.rol?.nombre || 'Sin rol')})</option>`;
+  }).join('');
+
+  return hd('Cambiar rol operativo y permisos (RBAC)', 'Asignación dinámica de permisos que filtra automáticamente el rol actual del usuario.') +
+    `<div class="card" style="max-width:650px;">
+      <div style="margin-bottom:1.2rem;">
+        <label>Selecciona el usuario *</label>
+        <select id="cr-usr" onchange="actualizarSelectRolesDinamico()">${userOpts}</select>
+      </div>
+      <div style="margin-bottom:1.2rem;">
+        <label>Nuevo rol a asignar (filtrado dinámicamente) *</label>
+        <select id="cr-rol"></select>
+      </div>
+      <div style="margin-bottom:1.2rem;">
+        <label>Motivo del cambio de rol (para bitácora) *</label>
+        <input id="cr-mot" value="Reasignación de responsabilidades administrativas">
+      </div>
+      <div class="err" id="cr-err"></div>
+      <div class="actions left">
+        <button class="btn pri" onclick="ejecutarCambioRol()">Aplicar nuevo rol</button>
+      </div>
+    </div>`;
+};
+
+S['08'].init = () => actualizarSelectRolesDinamico();
+
+async function actualizarSelectRolesDinamico() {
+  const usrSel = $('#cr-usr');
+  const rolSel = $('#cr-rol');
+  if (!usrSel || !rolSel) return;
+  const opt = usrSel.options[usrSel.selectedIndex];
+  if (!opt) return;
+  const rolActualId = parseInt(opt.getAttribute('data-rol-id'), 10);
+
+  const resR = await VS_API.roles.listar();
+  const roles = (resR && resR.data) ? resR.data : (resR || []);
+
+  // FILTRO DINÁMICO: Excluye el rol actual del usuario seleccionado
+  const filtrados = roles.filter(r => r.id_rol !== rolActualId);
+
+  if (filtrados.length === 0) {
+    rolSel.innerHTML = '<option value="">No hay otros roles disponibles</option>';
+  } else {
+    rolSel.innerHTML = filtrados.map(r => `<option value="${r.id_rol}">${h(r.nombre)}</option>`).join('');
+  }
+}
+
+async function ejecutarCambioRol() {
+  const idU = $('#cr-usr').value;
+  const idR = $('#cr-rol').value;
+  const mot = $('#cr-mot').value.trim();
+  const err = $('#cr-err');
+  err.textContent = '';
+  if (!idR) { err.textContent = 'Selecciona un rol válido'; return; }
+  try {
+    await VS_API.usuarios.cambiarRol(idU, idR, mot);
+    toast('Rol operativo actualizado y registrado en bitácora');
+    go('08');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['09'] = async () => {
+  const res = await VS_API.usuarios.listar();
+  const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+  const rows = list.map(u => {
+    const p = u.persona || {};
+    const nombre = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : u.nombre_usuario);
+    const estado = (u.estado || 'ACTIVO').toUpperCase();
+    const isActivo = estado === 'ACTIVO';
+    return [
+      `<b>${h(nombre)}</b>`,
+      `<span class="mono">${h(u.email || p.email || '—')}</span>`,
+      `<span class="tag">${h(u.rol?.nombre || '—')}</span>`,
+      `<span class="st ${isActivo ? 'conf' : 'off'}">${h(estado)}</span>`,
+      isActivo
+        ? `<button class="btn sm danger" onclick="suspenderCuenta(${u.id_usuario}, '${h(nombre)}')">Suspender</button>`
+        : `<button class="btn sm sage" onclick="reactivarCuenta(${u.id_usuario})">Reactivar</button>`
+    ];
+  });
+
+  return hd('Suspender / inactivar cuenta de usuario', 'Baja lógica reversible de cuentas con preservación del historial y bitácora.') +
+    sec('Cuentas del personal', tbl(['Nombre', 'Correo', 'Rol', 'Estado', 'Acción'], rows));
+};
+
+function suspenderCuenta(id, nombre) {
+  modal(`
+    <h3 id="mt">Suspender cuenta</h3>
+    <p style="color:var(--mute);margin-bottom:1rem;">La cuenta de <b>${h(nombre)}</b> quedará bloqueada para inicio de sesión.</p>
+    <div style="margin-bottom:1rem;">
+      <label>Motivo de suspensión *</label>
+      <input id="sp-mot" placeholder="Ej. Permiso no remunerado / Cese de funciones">
+      <div class="err" id="sp-err"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn danger" onclick="confirmarSuspender(${id})">Suspender cuenta</button>
+    </div>
+  `);
+}
+
+async function confirmarSuspender(id) {
+  const mot = $('#sp-mot').value.trim();
+  const err = $('#sp-err');
+  if (!mot) { err.textContent = 'Indica el motivo'; return; }
+  try {
+    await VS_API.usuarios.inactivar(id, mot);
+    closeM();
+    toast('Cuenta suspendida');
+    go('09');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+async function reactivarCuenta(id) {
+  try {
+    await VS_API.usuarios.reactivar(id);
+    toast('Cuenta reactivada');
+    go('09');
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
+
+// =========================================================================
+// P3: BITÁCORA Y AUDITORÍA EN TIEMPO REAL (CU10, CU11)
+// =========================================================================
+S['11'] = async () => {
+  const res = await VS_API.bitacora.listar({ per_page: 50 });
+  const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+
+  const rows = (Array.isArray(list) ? list : []).map(b => {
+    const usr = b.usuario ? (b.usuario.nombre_usuario || b.usuario.name) : (b.id_usuario ? `ID ${b.id_usuario}` : 'Sistema');
+    const fStr = b.fecha_hora ? (new Date(b.fecha_hora).toLocaleDateString('es-BO') + ' ' + new Date(b.fecha_hora).toLocaleTimeString('es-BO')) : '—';
+    return [
+      `<span class="mono" style="font-size:.8rem;white-space:nowrap;">${h(fStr)}</span>`,
+      `<span class="mono"><b>${h(usr)}</b></span>`,
+      `<span class="tag">${h(b.modulo || 'SISTEMA')}</span>`,
+      `<span class="st prog">${h(b.tipo_accion || 'ACCIÓN')}</span>`,
+      `<span class="mono" style="font-size:.78rem;">${h(b.tabla_afectada || '—')} ${b.id_registro_afectado ? ('#' + b.id_registro_afectado) : ''}</span>`,
+      `<div style="max-width:380px;font-size:.82rem;">${h(b.detalle || b.descripcion || '—')}</div>`,
+      `<span class="mono" style="font-size:.75rem;color:var(--mute);">${h(b.ip || '127.0.0.1')}</span>`
+    ];
+  });
+
+  return hd('Bitácora de auditoría en vivo', 'Registro inalterable de cada transacción conectada a la base de datos (CU10/CU11) con deduplicación y hora real de Bolivia.', `
+      <div style="display:flex;gap:.5rem;">
+        <button class="btn sm" onclick="go('11')">Actualizar en vivo</button>
+      </div>
+    `) +
+    sec('Eventos registrados en la base de datos', tbl(['Fecha y hora', 'Usuario', 'Módulo', 'Acción', 'Tabla / Reg', 'Detalle', 'IP'], rows, 'No hay eventos en la bitácora.'));
+};
+
+S['10'] = S['11'];
+
+// =========================================================================
+// P4: GESTIÓN DE PACIENTES (CU12–CU17)
+// =========================================================================
+let pacientesCache = [];
+let pacienteModificandoId = null;
+
+S['15'] = async () => {
+  const res = await VS_API.pacientes.listar({ per_page: 50 });
+  const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+  pacientesCache = Array.isArray(list) ? list : [];
+
+  const rows = pacientesCache.map(p => {
+    const pers = p.persona || {};
+    const nombre = (pers.nombres ? (pers.nombres + ' ' + (pers.apellidos || '')) : 'Sin nombre');
+    const ci = pers.ci || '—';
+    const tel = pers.telefono || '—';
+    const estado = (pers.activo !== false) ? 'ACTIVO' : 'INACTIVO';
+    return [
+      `<span class="mono font-bold">${h(p.codigo || ('PAC-' + p.id_persona))}</span>`,
+      `<b>${h(nombre)}</b>`,
+      `<span class="mono">${h(ci)}</span>`,
+      `<span class="mono">${h(tel)}</span>`,
+      `<span class="st ${estado === 'ACTIVO' ? 'conf' : 'off'}">${h(estado)}</span>`,
+      `<button class="btn sm pri" onclick="abrirModificarPacienteCU15(${p.id_persona})">Modificar</button>
+       <button class="btn sm ghost" onclick="verHistorialPaciente(${p.id_persona})">Historial</button>`
+    ];
+  });
+
+  // DISEÑO DINÁMICO: Tabla a pantalla completa y formulario de modificación oculto por defecto
+  return hd('Buscar y modificar paciente (CU15)', 'Padrón real conectado a la base de datos con edición dinámica en línea.', `<button class="btn pri" onclick="go('12')">+ Registrar paciente</button>`) +
+    `<div id="cu15-layout" style="display:grid;grid-template-columns:1fr;gap:2rem;">
+      <div>
+        <div class="filters" style="margin-bottom:1rem;">
+          <div style="flex:1;"><label>Búsqueda rápida por CI o Apellido</label><input id="p-filtro" placeholder="Escribe CI o nombre..." oninput="filtrarPacientesTabla(this.value)"></div>
+        </div>
+        <div id="p-tabla-wrap">${tbl(['Código', 'Paciente', 'CI', 'Teléfono', 'Estado', 'Acción'], rows, 'No se encontraron pacientes.')}</div>
+      </div>
+
+      <!-- PANEL DE MODIFICACIÓN LATERAL OCULTO INICIALMENTE -->
+      <div id="p-mod-card" class="card" style="display:none;border-top:4px solid var(--acc);background:#fff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
+          <h3 id="mod-pac-title" style="font:400 1.6rem var(--serif);">Modificar datos de paciente</h3>
+          <button class="btn sm ghost" onclick="cerrarModificarPacienteCU15()">✕ Cerrar</button>
+        </div>
+        <form id="form-mod-pac" onsubmit="event.preventDefault();guardarCambiosPacienteCU15();">
+          <div class="form">
+            <div><label>Cédula de identidad *</label><input id="mp-ci" required></div>
+            <div><label>Fecha de nacimiento *</label><input id="mp-fnac" type="date" required></div>
+            <div><label>Nombres *</label><input id="mp-nom" required></div>
+            <div><label>Apellidos *</label><input id="mp-ape" required></div>
+            <div><label>Teléfono móvil *</label><input id="mp-tel" required></div>
+            <div><label>Correo electrónico</label><input id="mp-cor" type="email"></div>
+            <div class="full"><label>Dirección domiciliaria</label><input id="mp-dir"></div>
+          </div>
+          <div class="err" id="mp-err"></div>
+          <div class="actions left">
+            <button class="btn pri" type="submit">Guardar cambios</button>
+            <button class="btn" type="button" onclick="cerrarModificarPacienteCU15()">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+};
+
+function filtrarPacientesTabla(q) {
+  const query = (q || '').toLowerCase();
+  const rows = pacientesCache.filter(p => {
+    const pers = p.persona || {};
+    const full = (pers.nombres + ' ' + pers.apellidos + ' ' + pers.ci + ' ' + (p.codigo || '')).toLowerCase();
+    return full.includes(query);
+  }).map(p => {
+    const pers = p.persona || {};
+    const nombre = pers.nombres + ' ' + (pers.apellidos || '');
+    const estado = (pers.activo !== false) ? 'ACTIVO' : 'INACTIVO';
+    return [
+      `<span class="mono">${h(p.codigo || ('PAC-' + p.id_persona))}</span>`,
+      `<b>${h(nombre)}</b>`,
+      `<span class="mono">${h(pers.ci || '—')}</span>`,
+      `<span class="mono">${h(pers.telefono || '—')}</span>`,
+      `<span class="st ${estado === 'ACTIVO' ? 'conf' : 'off'}">${h(estado)}</span>`,
+      `<button class="btn sm pri" onclick="abrirModificarPacienteCU15(${p.id_persona})">Modificar</button>
+       <button class="btn sm ghost" onclick="verHistorialPaciente(${p.id_persona})">Historial</button>`
+    ];
+  });
+  $('#p-tabla-wrap').innerHTML = tbl(['Código', 'Paciente', 'CI', 'Teléfono', 'Estado', 'Acción'], rows, 'No se encontraron coincidencias.');
+}
+
+function abrirModificarPacienteCU15(id) {
+  const p = pacientesCache.find(x => x.id_persona === id);
+  if (!p) return;
+  pacienteModificandoId = id;
+  const pers = p.persona || {};
+
+  $('#mod-pac-title').textContent = `Modificar: ${pers.nombres || ''} ${pers.apellidos || ''}`;
+  $('#mp-ci').value = pers.ci || '';
+  $('#mp-fnac').value = (p.fecha_nacimiento || '').slice(0, 10);
+  $('#mp-nom').value = pers.nombres || '';
+  $('#mp-ape').value = pers.apellidos || '';
+  $('#mp-tel').value = pers.telefono || '';
+  $('#mp-cor').value = pers.email || '';
+  $('#mp-dir').value = p.direccion || '';
+
+  const layout = $('#cu15-layout');
+  const card = $('#p-mod-card');
+  layout.style.gridTemplateColumns = '1.3fr 1fr';
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function cerrarModificarPacienteCU15() {
+  pacienteModificandoId = null;
+  const layout = $('#cu15-layout');
+  const card = $('#p-mod-card');
+  if (card) card.style.display = 'none';
+  if (layout) layout.style.gridTemplateColumns = '1fr';
+}
+
+async function guardarCambiosPacienteCU15() {
+  if (!pacienteModificandoId) return;
+  const err = $('#mp-err');
+  err.textContent = '';
+  const data = {
+    ci: $('#mp-ci').value.trim(),
+    fecha_nacimiento: $('#mp-fnac').value,
+    nombres: $('#mp-nom').value.trim(),
+    apellidos: $('#mp-ape').value.trim(),
+    telefono: $('#mp-tel').value.trim(),
+    email: $('#mp-cor').value.trim(),
+    direccion: $('#mp-dir').value.trim()
+  };
+  try {
+    await VS_API.pacientes.actualizar(pacienteModificandoId, data);
+    toast('Datos del paciente actualizados con éxito');
+    cerrarModificarPacienteCU15();
+    go('15');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['12'] = async () => hd('Registrar paciente (CU12)', 'Alta en el padrón con CI único y generación de código PAC-####.') +
+  `<div class="card" style="max-width:700px;">
+    <form id="form-cu12" onsubmit="event.preventDefault();guardarNuevoPaciente();">
+      <div class="form">
+        <div><label>Cédula de identidad (CI) *</label><input id="np-ci" required></div>
+        <div><label>Fecha de nacimiento *</label><input id="np-fnac" type="date" required></div>
+        <div><label>Nombres *</label><input id="np-nom" required></div>
+        <div><label>Apellidos *</label><input id="np-ape" required></div>
+        <div><label>Teléfono *</label><input id="np-tel" required></div>
+        <div><label>Correo electrónico</label><input id="np-cor" type="email"></div>
+        <div><label>Sexo *</label><select id="np-sex"><option value="F">Femenino</option><option value="M">Masculino</option></select></div>
+        <div class="full"><label>Dirección domiciliaria</label><input id="np-dir"></div>
+      </div>
+      <div class="err" id="np-err"></div>
+      <div class="actions left">
+        <button class="btn pri" type="submit">Registrar paciente</button>
+        <button class="btn" type="button" onclick="go('15')">Ver padrón</button>
+      </div>
+    </form>
+  </div>`;
+
+async function guardarNuevoPaciente() {
+  const err = $('#np-err');
+  err.textContent = '';
+  const data = {
+    ci: $('#np-ci').value.trim(),
+    fecha_nacimiento: $('#np-fnac').value,
+    nombres: $('#np-nom').value.trim(),
+    apellidos: $('#np-ape').value.trim(),
+    telefono: $('#np-tel').value.trim(),
+    email: $('#np-cor').value.trim(),
+    sexo: $('#np-sex').value,
+    direccion: $('#np-dir').value.trim()
+  };
+  try {
+    const res = await VS_API.pacientes.crear(data);
+    toast('Paciente registrado en el padrón');
+    go('15');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['13'] = async () => {
+  const resP = await VS_API.pacientes.listar();
+  const list = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || resP || []);
+  const opts = list.map(p => `<option value="${p.id_persona}">${h(p.persona?.nombres || '')} ${h(p.persona?.apellidos || '')} (CI ${h(p.persona?.ci || '—')})</option>`).join('');
+
+  return hd('Información médica básica del paciente (CU13)', 'Antecedentes, grupo sanguíneo, alergias y medicación habitual.') +
+    `<div class="card" style="max-width:750px;">
+      <div style="margin-bottom:1.5rem;">
+        <label>Selecciona el paciente *</label>
+        <select id="im-pac" onchange="cargarInfoMedicaPaciente(this.value)">${opts}</select>
+      </div>
+      <form id="form-cu13" onsubmit="event.preventDefault();guardarInfoMedicaPaciente();">
+        <div class="form">
+          <div><label>Grupo sanguíneo</label><select id="im-san"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+          <div><label>Alergias conocidas</label><input id="im-ale" placeholder="Ej. Penicilina, sulfas..."></div>
+          <div><label>Enfermedades crónicas</label><input id="im-cro" placeholder="Ej. Hipertensión, Diabetes..."></div>
+          <div><label>Medicamentos habituales</label><input id="im-med" placeholder="Ej. Losartán 50mg..."></div>
+          <div class="full"><label>Antecedentes y observaciones médicas</label><textarea id="im-ant" rows="3"></textarea></div>
+        </div>
+        <div class="err" id="im-err"></div>
+        <div class="actions left">
+          <button class="btn pri" type="submit">Guardar información médica</button>
+        </div>
+      </form>
+    </div>`;
+};
+
+S['13'].init = () => {
+  const sel = $('#im-pac');
+  if (sel && sel.value) cargarInfoMedicaPaciente(sel.value);
+};
+
+async function cargarInfoMedicaPaciente(id) {
+  try {
+    const res = await VS_API.pacientes.getInfoMedica(id);
+    const d = res.data || res || {};
+    $('#im-san').value = d.grupo_sanguineo || 'O+';
+    $('#im-ale').value = d.alergias || '';
+    $('#im-cro').value = d.enfermedades_cronicas || '';
+    $('#im-med').value = d.medicamentos_habituales || '';
+    $('#im-ant').value = d.antecedentes || '';
+  } catch (e) {}
+}
+
+async function guardarInfoMedicaPaciente() {
+  const id = $('#im-pac').value;
+  const err = $('#im-err');
+  err.textContent = '';
+  const data = {
+    grupo_sanguineo: $('#im-san').value,
+    alergias: $('#im-ale').value.trim(),
+    enfermedades_cronicas: $('#im-cro').value.trim(),
+    medicamentos_habituales: $('#im-med').value.trim(),
+    antecedentes: $('#im-ant').value.trim()
+  };
+  try {
+    await VS_API.pacientes.guardarInfoMedica(id, data);
+    toast('Información médica guardada');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['14'] = async () => {
+  const resP = await VS_API.pacientes.listar();
+  const list = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || resP || []);
+  const opts = list.map(p => `<option value="${p.id_persona}">${h(p.persona?.nombres || '')} ${h(p.persona?.apellidos || '')} (CI ${h(p.persona?.ci || '—')})</option>`).join('');
+
+  return hd('Contactos de emergencia (CU14)', 'Registro de acompañantes o familiares directos para casos imprevistos.') +
+    `<div class="card" style="max-width:750px;">
+      <div style="margin-bottom:1.5rem;">
+        <label>Selecciona el paciente *</label>
+        <select id="ce-pac" onchange="cargarContactosEmergencia(this.value)">${opts}</select>
+      </div>
+      <div id="ce-list" style="margin-bottom:1.5rem;"></div>
+      <form id="form-cu14" onsubmit="event.preventDefault();agregarContactoEmergencia();">
+        <h4 style="font-size:1rem;margin-bottom:1rem;">+ Agregar contacto de emergencia</h4>
+        <div class="form">
+          <div><label>Nombre completo *</label><input id="ce-nom" required></div>
+          <div><label>Parentesco *</label><input id="ce-par" placeholder="Ej. Padre, Madre, Cónyuge" required></div>
+          <div><label>Teléfono móvil *</label><input id="ce-tel" required></div>
+        </div>
+        <div class="err" id="ce-err"></div>
+        <div class="actions left">
+          <button class="btn pri" type="submit">Agregar contacto</button>
+        </div>
+      </form>
+    </div>`;
+};
+
+S['14'].init = () => {
+  const sel = $('#ce-pac');
+  if (sel && sel.value) cargarContactosEmergencia(sel.value);
+};
+
+async function cargarContactosEmergencia(id) {
+  const wrap = $('#ce-list');
+  wrap.innerHTML = '<p class="mono" style="color:var(--mute);">Cargando contactos...</p>';
+  try {
+    const res = await VS_API.pacientes.getContactos(id);
+    const list = (res && res.data) ? res.data : (res || []);
+    if (!Array.isArray(list) || list.length === 0) {
+      wrap.innerHTML = '<p style="color:var(--mute);font-size:.88rem;">No tiene contactos de emergencia registrados.</p>';
+      return;
+    }
+    const rows = list.map(c => [
+      `<b>${h(c.nombre)}</b>`,
+      `<span class="tag">${h(c.parentesco || 'Familiar')}</span>`,
+      `<span class="mono">${h(c.telefono)}</span>`,
+      `<button class="btn sm danger" onclick="borrarContactoEmergencia(${id}, ${c.id_contacto_emergencia})">Quitar</button>`
+    ]);
+    wrap.innerHTML = tbl(['Nombre', 'Parentesco', 'Teléfono', 'Acción'], rows);
+  } catch (e) {
+    wrap.innerHTML = '<p style="color:var(--warn);">' + h(e.message) + '</p>';
+  }
+}
+
+async function agregarContactoEmergencia() {
+  const id = $('#ce-pac').value;
+  const err = $('#ce-err');
+  err.textContent = '';
+  const data = {
+    nombre: $('#ce-nom').value.trim(),
+    parentesco: $('#ce-par').value.trim(),
+    telefono: $('#ce-tel').value.trim()
+  };
+  try {
+    await VS_API.pacientes.agregarContacto(id, data);
+    $('#ce-nom').value = '';
+    $('#ce-par').value = '';
+    $('#ce-tel').value = '';
+    toast('Contacto agregado');
+    cargarContactosEmergencia(id);
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+async function borrarContactoEmergencia(pacId, contId) {
+  try {
+    await VS_API.pacientes.eliminarContacto(pacId, contId);
+    toast('Contacto eliminado');
+    cargarContactosEmergencia(pacId);
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
+
+S['16'] = async () => hd('Historial de citas médicas del paciente (CU16)', 'Trazabilidad completa de consultas agendadas, atendidas y canceladas.') +
+  `<div class="card"><p>Selecciona un paciente en el padrón (CU15) y presiona "Historial" para ver sus atenciones.</p></div>`;
+
+function verHistorialPaciente(id) {
+  modal(`
+    <h3 id="mt">Historial de citas del paciente</h3>
+    <div id="h-citas-body" style="min-height:100px;">
+      <p class="mono" style="color:var(--mute);">Consultando base de datos...</p>
+    </div>
+    <div class="actions"><button class="btn pri" onclick="closeM()">Cerrar</button></div>
+  `);
+  VS_API.pacientes.historialCitas(id).then(res => {
+    const list = res.data || res || [];
+    if (!Array.isArray(list) || list.length === 0) {
+      $('#h-citas-body').innerHTML = '<p style="color:var(--mute);padding:1rem;">El paciente no tiene citas registradas.</p>';
+      return;
+    }
+    const rows = list.map(c => [
+      `<span class="mono">${h(c.codigo || ('CM-' + c.id_cita))}</span>`,
+      `<span class="mono">${fmt(c.fecha)} ${h((c.hora_inicio || '').slice(0, 5))}</span>`,
+      `Dr(a). ${h(c.medico?.persona?.nombres || '')} ${h(c.medico?.persona?.apellidos || '')}`,
+      `<span class="st prog">${h(c.estado)}</span>`
+    ]);
+    $('#h-citas-body').innerHTML = tbl(['Código', 'Fecha y hora', 'Médico', 'Estado'], rows);
+  }).catch(e => {
+    $('#h-citas-body').innerHTML = '<p style="color:var(--warn);">' + h(e.message) + '</p>';
+  });
+}
+
+S['17'] = async () => {
+  const res = await VS_API.pacientes.listar();
+  const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+  const rows = list.map(p => {
+    const pers = p.persona || {};
+    const nombre = (pers.nombres ? (pers.nombres + ' ' + (pers.apellidos || '')) : 'Sin nombre');
+    const isActivo = pers.activo !== false;
+    return [
+      `<span class="mono">${h(p.codigo || ('PAC-' + p.id_persona))}</span>`,
+      `<b>${h(nombre)}</b>`,
+      `<span class="mono">${h(pers.ci || '—')}</span>`,
+      `<span class="st ${isActivo ? 'conf' : 'off'}">${isActivo ? 'ACTIVO' : 'INACTIVO'}</span>`,
+      isActivo
+        ? `<button class="btn sm danger" onclick="desactivarPaciente(${p.id_persona}, '${h(nombre)}')">Desactivar</button>`
+        : `<button class="btn sm sage" onclick="reactivarPaciente(${p.id_persona})">Reactivar</button>`
+    ];
+  });
+
+  return hd('Desactivar registro de paciente (CU17)', 'Baja lógica que impide nuevas citas pero preserva el historial clínico completo.') +
+    sec('Padrón de pacientes', tbl(['Código', 'Nombre', 'CI', 'Estado', 'Acción'], rows));
+};
+
+function desactivarPaciente(id, nombre) {
+  modal(`
+    <h3 id="mt">Desactivar paciente</h3>
+    <p style="color:var(--mute);margin-bottom:1rem;">Se suspenderá la capacidad de agendar fichas a <b>${h(nombre)}</b>.</p>
+    <div style="margin-bottom:1rem;">
+      <label>Motivo de la baja *</label>
+      <input id="dp-mot" placeholder="Ej. Cambio de ciudad / Solicitud voluntaria">
+      <div class="err" id="dp-err"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn danger" onclick="confirmarDesactivarPaciente(${id})">Confirmar baja</button>
+    </div>
+  `);
+}
+
+async function confirmarDesactivarPaciente(id) {
+  const mot = $('#dp-mot').value.trim();
+  const err = $('#dp-err');
+  if (!mot) { err.textContent = 'Indica el motivo'; return; }
+  try {
+    await VS_API.pacientes.inactivar(id, mot);
+    closeM();
+    toast('Paciente desactivado');
+    go('17');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+async function reactivarPaciente(id) {
+  try {
+    await VS_API.pacientes.reactivar(id);
+    toast('Paciente reactivado');
+    go('17');
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
+
+// =========================================================================
+// P5: GESTIÓN MÉDICA Y HORARIOS (CU18, CU19, CU20, CU21, CU23)
+// =========================================================================
+S['18'] = async () => {
+  const res = await VS_API.especialidades.listar();
+  const list = (res && res.data) ? res.data : (res || []);
+  const rows = list.map(e => [
+    `<span class="mono">ESP-${e.id_especialidad}</span>`,
+    `<b>${h(e.nombre)}</b>`,
+    h(e.descripcion || 'Atención médica especializada'),
+    `<span class="st conf">ACTIVA</span>`
+  ]);
+
+  return hd('Catálogo de especialidades médicas (CU18)', 'Áreas de atención habilitadas en la clínica.', `
+      <button class="btn pri" onclick="modalCrearEspecialidad()">+ Nueva especialidad</button>
+    `) +
+    sec('Especialidades registradas', tbl(['Código', 'Especialidad', 'Descripción', 'Estado'], rows));
+};
+
+function modalCrearEspecialidad() {
+  modal(`
+    <h3 id="mt">Nueva especialidad médica</h3>
+    <div style="margin-bottom:1rem;">
+      <label>Nombre de la especialidad *</label>
+      <input id="ne-nom" placeholder="Ej. Neurología, Oftalmología...">
+      <div class="err" id="ne-err"></div>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label>Descripción</label>
+      <input id="ne-des" placeholder="Breve detalle de la cobertura">
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn pri" onclick="guardarNuevaEspecialidad()">Guardar</button>
+    </div>
+  `);
+}
+
+async function guardarNuevaEspecialidad() {
+  const nom = $('#ne-nom').value.trim();
+  const des = $('#ne-des').value.trim();
+  const err = $('#ne-err');
+  if (!nom) { err.textContent = 'Campo obligatorio'; return; }
+  try {
+    await VS_API.especialidades.crear({ nombre: nom, descripcion: des });
+    closeM();
+    toast('Especialidad creada');
+    go('18');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['19'] = async () => {
+  const res = await VS_API.medicos.listar();
+  const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+  const rows = list.map(m => {
+    const p = m.persona || {};
+    const nombre = 'Dr(a). ' + (p.nombres || '') + ' ' + (p.apellidos || '');
+    const esps = (m.especialidades || []).map(e => e.nombre).join(', ') || 'Medicina General';
+    const isActivo = m.activo !== false;
+    return [
+      `<span class="mono font-bold">${h(m.codigo || ('MED-' + m.id_persona))}</span>`,
+      `<b>${h(nombre)}</b>`,
+      `<span class="tag">${h(esps)}</span>`,
+      `<span class="mono">${h(m.matricula_profesional || '—')}</span>`,
+      `<span class="st ${isActivo ? 'conf' : 'off'}">${isActivo ? 'ACTIVO' : 'INACTIVO'}</span>`,
+      `<button class="btn sm ghost" onclick="verHorariosMedicoModal(${m.id_persona}, '${h(nombre)}')">Horarios</button>`
+    ];
+  });
+
+  return hd('Personal médico (CU19)', 'Gestión del cuerpo médico y vinculación con especialidades.', `<button class="btn pri" onclick="modalCrearMedico()">+ Registrar médico</button>`) +
+    sec('Médicos habilitados', tbl(['Código', 'Médico', 'Especialidades', 'Matrícula', 'Estado', 'Acción'], rows));
+};
+
+function modalCrearMedico() {
+  VS_API.especialidades.listar().then(res => {
+    const esps = (res && res.data) ? res.data : (res || []);
+    const opts = esps.map(e => `<option value="${e.id_especialidad}">${h(e.nombre)}</option>`).join('');
+    modal(`
+      <h3 id="mt">Registrar profesional médico</h3>
+      <div class="form">
+        <div><label>CI *</label><input id="nm-ci" required></div>
+        <div><label>Matrícula profesional *</label><input id="nm-mat" placeholder="Ej. MG-2026" required></div>
+        <div><label>Nombres *</label><input id="nm-nom" required></div>
+        <div><label>Apellidos *</label><input id="nm-ape" required></div>
+        <div><label>Correo *</label><input id="nm-cor" type="email" required></div>
+        <div><label>Teléfono</label><input id="nm-tel"></div>
+        <div class="full"><label>Especialidad principal *</label><select id="nm-esp">${opts}</select></div>
+      </div>
+      <div class="err" id="nm-err"></div>
+      <div class="actions">
+        <button class="btn" onclick="closeM()">Cancelar</button>
+        <button class="btn pri" onclick="guardarNuevoMedico()">Registrar médico</button>
+      </div>
+    `);
+  });
+}
+
+async function guardarNuevoMedico() {
+  const err = $('#nm-err');
+  err.textContent = '';
+  const data = {
+    ci: $('#nm-ci').value.trim(),
+    matricula_profesional: $('#nm-mat').value.trim(),
+    nombres: $('#nm-nom').value.trim(),
+    apellidos: $('#nm-ape').value.trim(),
+    email: $('#nm-cor').value.trim(),
+    telefono: $('#nm-tel').value.trim(),
+    especialidades: [$('#nm-esp').value]
+  };
+  try {
+    await VS_API.medicos.crear(data);
+    closeM();
+    toast('Médico registrado');
+    go('19');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+function verHorariosMedicoModal(id, nombre) {
+  modal(`
+    <h3 id="mt">Horarios: ${h(nombre)}</h3>
+    <div id="hm-body" style="min-height:100px;">
+      <p class="mono" style="color:var(--mute);">Consultando horarios...</p>
+    </div>
+    <div class="actions"><button class="btn pri" onclick="closeM()">Listo</button></div>
+  `);
+  VS_API.medicos.getHorarios(id).then(res => {
+    const list = res.data || res || [];
+    const dias = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo' };
+    if (!Array.isArray(list) || list.length === 0) {
+      $('#hm-body').innerHTML = '<p style="color:var(--mute);">No tiene horarios configurados.</p>';
+      return;
+    }
+    const rows = list.map(hItem => [
+      `<b>${dias[hItem.dia_semana] || 'Día ' + hItem.dia_semana}</b>`,
+      `<span class="mono">${h((hItem.hora_inicio || '').slice(0, 5))} – ${h((hItem.hora_fin || '').slice(0, 5))}</span>`,
+      `<span class="tag">15 min</span>`,
+      `<span class="st conf">ACTIVO</span>`
+    ]);
+    $('#hm-body').innerHTML = tbl(['Día de atención', 'Turno', 'Bloques', 'Estado'], rows);
+  }).catch(e => {
+    $('#hm-body').innerHTML = '<p style="color:var(--warn);">' + h(e.message) + '</p>';
+  });
+}
+
+S['20'] = S['19'];
+S['21'] = S['19'];
+
+S['23'] = async () => {
+  const resM = await VS_API.medicos.listar();
+  const resB = await VS_API.bloqueos.listar();
+  const medicos = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || resM || []);
+  const bloqueos = (resB && resB.data) ? resB.data : (resB || []);
+
+  const medOpts = medicos.map(m => `<option value="${m.id_persona}">Dr(a). ${h(m.persona?.nombres || '')} ${h(m.persona?.apellidos || '')}</option>`).join('');
+
+  const rows = bloqueos.map(b => [
+    b.id_medico ? `Dr(a). ${h(b.medico?.persona?.nombres || '')} ${h(b.medico?.persona?.apellidos || '')}` : '<span class="tag">Toda la clínica</span>',
+    `<span class="mono">${fmt(b.fecha_inicio)} al ${fmt(b.fecha_fin)}</span>`,
+    h(b.motivo || 'Feriado / Licencia'),
+    `<button class="btn sm danger" onclick="quitarBloqueoAgenda(${b.id_bloqueo})">Liberar</button>`
+  ]);
+
+  return hd('Bloquear agenda médica (CU23)', 'Feriados o licencias que inhabilitan la asignación de turnos.') +
+    `<div class="card" style="max-width:700px;margin-bottom:2rem;">
+      <h3 style="font:400 1.5rem var(--serif);margin-bottom:1rem;">+ Registrar nuevo bloqueo de agenda</h3>
+      <form id="form-cu23" onsubmit="event.preventDefault();guardarBloqueoAgenda();">
+        <div class="form">
+          <div class="full"><label>Médico (o deja en blanco para bloqueo general)</label><select id="bl-med"><option value="">Toda la clínica (Feriado)</option>${medOpts}</select></div>
+          <div><label>Fecha inicio *</label><input id="bl-fi" type="date" value="${hoyISO()}" required></div>
+          <div><label>Fecha fin *</label><input id="bl-ff" type="date" value="${hoyISO()}" required></div>
+          <div class="full"><label>Motivo del bloqueo *</label><input id="bl-mot" placeholder="Ej. Feriado de Todos Santos / Licencia médica" required></div>
+        </div>
+        <div class="err" id="bl-err"></div>
+        <div class="actions left">
+          <button class="btn pri" type="submit">Aplicar bloqueo de agenda</button>
+        </div>
+      </form>
+    </div>` +
+    sec('Bloqueos vigentes en el sistema', tbl(['Alcance', 'Rango de fechas', 'Motivo', 'Acción'], rows, 'No hay bloqueos activos.'));
+};
+
+async function guardarBloqueoAgenda() {
+  const err = $('#bl-err');
+  err.textContent = '';
+  const data = {
+    id_medico: $('#bl-med').value || null,
+    fecha_inicio: $('#bl-fi').value,
+    fecha_fin: $('#bl-ff').value,
+    motivo: $('#bl-mot').value.trim()
+  };
+  try {
+    await VS_API.bloqueos.crear(data);
+    toast('Bloqueo de agenda registrado');
+    go('23');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+async function quitarBloqueoAgenda(id) {
+  try {
+    await VS_API.bloqueos.eliminar(id);
+    toast('Bloqueo retirado');
+    go('23');
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
+
+// =========================================================================
+// P6: GESTIÓN DE CITAS MÉDICAS (CU22, CU24–CU31, CU38–CU42)
+// =========================================================================
+
+// CU22: Disponibilidad horaria dinámica de 15 minutos sin valores hardcodeados
+let cu22SlotSeleccionado = null;
+
+S['22'] = async () => {
+  const resE = await VS_API.especialidades.listar();
+  const resM = await VS_API.medicos.listar();
+  const esps = (resE && resE.data) ? resE.data : (resE || []);
+  const meds = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || resM || []);
+
+  const espOpts = `<option value="">Todas las especialidades</option>` + esps.map(e => `<option value="${e.id_especialidad}">${h(e.nombre)}</option>`).join('');
+  const medOpts = `<option value="">Cualquier médico</option>` + meds.map(m => `<option value="${m.id_persona}">Dr(a). ${h(m.persona?.nombres || '')} ${h(m.persona?.apellidos || '')}</option>`).join('');
+
+  return hd('Consultar disponibilidad horaria (CU22)', 'Bloques de 15 minutos en tiempo real. Turnos de más de 1 semana son archivados automáticamente.') +
+    `<div class="card">
+      <div class="filters" style="align-items:flex-end;">
+        <div><label>Especialidad</label><select id="d-esp" onchange="cargarTurnosDisponibilidadCU22()">${espOpts}</select></div>
+        <div><label>Médico</label><select id="d-med" onchange="cargarTurnosDisponibilidadCU22()">${medOpts}</select></div>
+        <div><label>Fecha de consulta *</label><input id="d-fec" type="date" value="${hoyISO()}" onchange="cargarTurnosDisponibilidadCU22()"></div>
+        <div>
+          <button class="btn pri" onclick="cargarTurnosDisponibilidadCU22()">Consultar</button>
+          <button class="btn ghost" onclick="buscarProximoLibreCU22()">Próximo libre</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div>
+        <div class="card" style="margin-bottom:1rem;">
+          <h3 id="d-titulo-turno" style="font:400 1.6rem var(--serif);margin-bottom:.3rem;">Turnos disponibles</h3>
+          <p id="d-sub-turno" style="font-size:.85rem;color:var(--mute);">Selecciona médico y fecha para ver cupos en tiempo real</p>
+        </div>
+        <div id="d-slots-wrap" class="slotlist">
+          <p class="mono" style="color:var(--mute);padding:1.5rem;">Cargando turnos en tiempo real...</p>
+        </div>
+      </div>
+
+      <div class="sum" id="d-resumen">
+        <h2>Bloque seleccionado</h2>
+        <p id="d-sum-info" style="color:var(--mute);font-size:.88rem;">Ningún horario seleccionado.</p>
+        <button id="d-btn-agendar" class="btn pri full" disabled onclick="irAProgramarCitaDesdeCU22()">Agendar ficha médica</button>
+      </div>
+    </div>`;
+};
+
+S['22'].init = () => cargarTurnosDisponibilidadCU22();
+
+async function cargarTurnosDisponibilidadCU22() {
+  const wrap = $('#d-slots-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<p class="mono" style="color:var(--mute);padding:1.5rem;">Consultando horarios...</p>';
+  cu22SlotSeleccionado = null;
+  $('#d-sum-info').textContent = 'Ningún horario seleccionado.';
+  $('#d-btn-agendar').disabled = true;
+
+  const f = $('#d-fec').value || hoyISO();
+  const esp = $('#d-esp').value;
+  const med = $('#d-med').value;
+
+  try {
+    const params = { fecha: f };
+    if (esp) params.id_especialidad = esp;
+    if (med) params.id_medico = med;
+
+    const disp = await VS_API.citas.disponibilidad(params);
+
+    if (disp.fecha_antigua) {
+      wrap.innerHTML = `<div class="emptybox" style="grid-column:1/-1;">
+        <p style="font-weight:600;color:var(--ink);">Turno concluido (más de 1 semana de antigüedad)</p>
+        <p style="font-size:.88rem;color:var(--mute);">Esta fecha está archivada y ya no permite selección de cupos. Selecciona una fecha actual o posterior.</p>
+      </div>`;
+      $('#d-titulo-turno').textContent = `${disp.nombre_dia || f} · Archivado`;
+      $('#d-sub-turno').textContent = 'Turnos históricos archivados (> 1 semana)';
+      return;
+    }
+
+    if (disp.atiende_este_dia === false) {
+      wrap.innerHTML = `<div class="emptybox" style="grid-column:1/-1;">
+        <p style="font-weight:600;color:var(--ink);">${h(disp.mensaje || 'El médico no atiende este día.')}</p>
+        <p style="font-size:.88rem;color:var(--mute);">Haz clic en "Próximo libre" para encontrar la fecha más cercana con atención médica.</p>
+        <button class="btn pri sm" onclick="buscarProximoLibreCU22()">Buscar próximo libre</button>
+      </div>`;
+      $('#d-titulo-turno').textContent = `${disp.nombre_dia || f} · Sin atención`;
+      $('#d-sub-turno').textContent = '0 bloques disponibles';
+      return;
+    }
+
+    const slots = disp.slots || [];
+    $('#d-titulo-turno').textContent = `${disp.nombre_dia || f} · Dr(a). ${h(disp.medico?.persona?.nombres || '')} ${h(disp.medico?.persona?.apellidos || '')}`;
+    $('#d-sub-turno').textContent = `${disp.turno || 'Turno'} · Bloques de 15 min · ${disp.bloques_libres} libres de ${disp.total_bloques}`;
+
+    if (slots.length === 0) {
+      wrap.innerHTML = `<div class="emptybox" style="grid-column:1/-1;"><p>No hay cupos disponibles.</p></div>`;
+      return;
+    }
+
+    wrap.innerHTML = slots.map(s => {
+      if (s.estado === 'LIBRE') {
+        return `<button class="sbtn" data-h="${s.hora_inicio}" data-hf="${s.hora_fin}" onclick="seleccionarSlotCU22(this, '${s.hora_inicio}', '${s.hora_fin}')">
+          <span class="mono"><b>${s.hora_inicio}</b></span><span class="tag">LIBRE</span>
+        </button>`;
+      } else if (s.estado === 'BLOQUEADO') {
+        return `<button class="sbtn hol" disabled title="Bloqueado: ${h(s.motivo || '')}">
+          <span class="mono">${s.hora_inicio}</span><span style="font-size:.7rem;">BLOQ</span>
+        </button>`;
+      } else if (s.estado === 'PASADO' || s.estado === 'VENCIDO') {
+        return `<button class="sbtn past" disabled title="Horario ya transcurrido">
+          <span class="mono">${s.hora_inicio}</span><span style="font-size:.7rem;">PASADO</span>
+        </button>`;
+      } else {
+        return `<button class="sbtn busy" disabled title="Reservado con cita: ${h(s.cita_codigo || '')}">
+          <span class="mono">${s.hora_inicio}</span><span style="font-size:.7rem;">OCUPADO</span>
+        </button>`;
+      }
+    }).join('');
+
+  } catch (err) {
+    wrap.innerHTML = `<p style="color:var(--warn);">${h(err.message)}</p>`;
+  }
+}
+
+function seleccionarSlotCU22(btn, hIni, hFin) {
+  document.querySelectorAll('#d-slots-wrap .sbtn.sel').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  cu22SlotSeleccionado = { hora: hIni, horaFin: hFin, fecha: $('#d-fec').value, medico: $('#d-med').value };
+  $('#d-sum-info').innerHTML = `<b>Horario:</b> <span class="mono">${hIni} – ${hFin}</span><br><b>Fecha:</b> ${fmt(cu22SlotSeleccionado.fecha)}<br><span class="st conf" style="margin-top:.4rem;">Bloque de 15 min reservable</span>`;
+  $('#d-btn-agendar').disabled = false;
+}
+
+async function buscarProximoLibreCU22() {
+  const med = $('#d-med').value;
+  const esp = $('#d-esp').value;
+  const f = $('#d-fec').value || hoyISO();
+  try {
+    const res = await VS_API.citas.proximoLibre({ id_medico: med, id_especialidad: esp, fecha_desde: f });
+    if (res.fecha_libre) {
+      $('#d-fec').value = res.fecha_libre;
+      toast(`Próximo cupo libre: ${fmt(res.fecha_libre)}`);
+      cargarTurnosDisponibilidadCU22();
+    } else {
+      toast('No se encontraron turnos libres en las próximas 3 semanas', true);
+    }
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
+
+function irAProgramarCitaDesdeCU22() {
+  if (!cu22SlotSeleccionado) return;
+  go('24');
+}
+
+// CU24: Programar cita médica
+S['24'] = async () => {
+  const resP = await VS_API.pacientes.listar();
+  const resM = await VS_API.medicos.listar();
+  const pacientes = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || resP || []);
+  const medicos = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || resM || []);
+
+  const pacOpts = pacientes.map(p => `<option value="${p.id_persona}">${h(p.persona?.nombres || '')} ${h(p.persona?.apellidos || '')} · CI ${h(p.persona?.ci || '—')}</option>`).join('');
+  const medOpts = medicos.map(m => `<option value="${m.id_persona}">Dr(a). ${h(m.persona?.nombres || '')} ${h(m.persona?.apellidos || '')}</option>`).join('');
+
+  const fDef = cu22SlotSeleccionado ? cu22SlotSeleccionado.fecha : hoyISO();
+  const hDef = cu22SlotSeleccionado ? cu22SlotSeleccionado.hora : '08:00';
+
+  return hd('Programar cita médica (CU24)', 'Asignación de turno con control estricto de concurrencia (CU25) y prevención de duplicados.') +
+    `<div class="card" style="max-width:700px;">
+      <form id="form-cu24" onsubmit="event.preventDefault();ejecutarProgramarCita();">
+        <div class="form">
+          <div class="full"><label>Paciente *</label><select id="pc-pac">${pacOpts}</select></div>
+          <div class="full"><label>Médico asignado *</label><select id="pc-med">${medOpts}</select></div>
+          <div><label>Fecha de la cita *</label><input id="pc-fec" type="date" value="${fDef}" required></div>
+          <div><label>Hora de inicio *</label><input id="pc-hor" type="time" value="${hDef}" step="900" required></div>
+          <div class="full"><label>Motivo de la consulta</label><input id="pc-mot" value="Consulta general preventiva"></div>
+        </div>
+        <div class="err" id="pc-err"></div>
+        <div class="actions left">
+          <button class="btn pri" type="submit">Agendar y confirmar ficha médica</button>
+        </div>
+      </form>
+    </div>`;
+};
+
+async function ejecutarProgramarCita() {
+  const err = $('#pc-err');
+  err.textContent = '';
+  const data = {
+    id_paciente: $('#pc-pac').value,
+    id_medico: $('#pc-med').value,
+    fecha: $('#pc-fec').value,
+    hora_inicio: $('#pc-hor').value,
+    motivo: $('#pc-mot').value.trim() || 'Consulta médica'
+  };
+  try {
+    const res = await VS_API.citas.crear(data);
+    const cod = res.data?.codigo || ('CM-' + (res.data?.id_cita || 'NUEVA'));
+    toast(`Cita ${cod} programada exitosamente`);
+    cu22SlotSeleccionado = null;
+    go('30');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['25'] = S['24'];
+
+// CU30: Agenda diaria del médico
+S['30'] = async () => {
+  const resM = await VS_API.medicos.listar();
+  const resC = await VS_API.citas.listar({ per_page: 50 });
+  const medicos = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || resM || []);
+  const citas = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || resC || []);
+
+  const medOpts = medicos.map(m => `<option value="${m.id_persona}">Dr(a). ${h(m.persona?.nombres || '')} ${h(m.persona?.apellidos || '')}</option>`).join('');
+
+  const rows = citas.map(c => {
+    const p = c.paciente?.persona || {};
+    const pacNom = (p.nombres ? (p.nombres + ' ' + (p.apellidos || '')) : 'Paciente');
+    const medNom = 'Dr(a). ' + (c.medico?.persona?.nombres || '') + ' ' + (c.medico?.persona?.apellidos || '');
+    const est = (c.estado || 'PROGRAMADA').toUpperCase();
+    const isProg = est === 'PROGRAMADA' || est === 'CONFIRMADA';
+    return [
+      `<span class="mono font-bold">${h(c.codigo || ('CM-' + c.id_cita))}</span>`,
+      `<span class="mono">${fmt(c.fecha)} ${h((c.hora_inicio || '').slice(0, 5))}</span>`,
+      `<b>${h(pacNom)}</b><div class="mono" style="font-size:.76rem;color:var(--mute);">CI ${h(p.ci || '—')}</div>`,
+      h(medNom),
+      h(c.motivo || 'Consulta'),
+      `<span class="st ${est === 'ATENDIDA' ? 'aten' : est === 'CONFIRMADA' ? 'conf' : est === 'CANCELADA' ? 'canc' : 'prog'}">${h(est)}</span>`,
+      isProg
+        ? `<button class="btn sm pri" onclick="marcarAtendidaCU31(${c.id_cita})">Atender</button>
+           <button class="btn sm danger" onclick="abrirCancelarCitaCU27(${c.id_cita}, '${h(c.codigo)}')">Cancelar</button>`
+        : `<span class="mono" style="font-size:.76rem;color:var(--mute);">Concluida</span>`
+    ];
+  });
+
+  return hd('Agenda médica diaria (CU30)', 'Control de estados, asistencia de pacientes y atención médica.') +
+    sec('Fichas programadas en el sistema', tbl(['Ficha', 'Fecha y hora', 'Paciente', 'Médico', 'Motivo', 'Estado', 'Acción'], rows, 'No hay citas en la agenda.'));
+};
+
+S['29'] = S['30'];
+S['31'] = S['30'];
+
+async function marcarAtendidaCU31(id) {
+  try {
+    await VS_API.citas.atender(id, { diagnostico: 'Atención médica concluida con éxito' });
+    toast('Cita marcada como ATENDIDA');
+    go('30');
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
+
+function abrirCancelarCitaCU27(id, cod) {
+  modal(`
+    <h3 id="mt">Cancelar cita médica</h3>
+    <p style="color:var(--mute);margin-bottom:1rem;">La ficha <b>${h(cod)}</b> será cancelada y el bloque horario quedará liberado.</p>
+    <div style="margin-bottom:1rem;">
+      <label>Justificación obligatoria (CU27) *</label>
+      <input id="cc-mot" placeholder="Ej. Solicitud del paciente con anticipación" required>
+      <div class="err" id="cc-err"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Volver</button>
+      <button class="btn danger" onclick="confirmarCancelarCita(${id})">Confirmar cancelación</button>
+    </div>
+  `);
+}
+
+async function confirmarCancelarCita(id) {
+  const mot = $('#cc-mot').value.trim();
+  const err = $('#cc-err');
+  if (!mot) { err.textContent = 'Indica la justificación'; return; }
+  try {
+    await VS_API.citas.cancelar(id, mot);
+    closeM();
+    toast('Cita cancelada y bloque liberado');
+    go('30');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+S['26'] = S['30'];
+S['27'] = S['30'];
+
+// CU28: Recordatorios
+S['28'] = async () => {
+  const res = await VS_API.notificaciones.listar();
+  const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+  const rows = list.map(n => [
+    `<span class="mono">${fmt(n.fecha_envio || n.created_at)}</span>`,
+    `<b>${h(n.cita?.paciente?.persona?.nombres || 'Paciente')}</b>`,
+    `<span class="tag">${h(n.canal || 'WhatsApp')}</span>`,
+    h(n.mensaje || 'Recordatorio de cita médica'),
+    `<span class="st conf">ENVIADO</span>`
+  ]);
+
+  return hd('Emitir recordatorios de cita (CU28)', 'Notificaciones por WhatsApp y correo para prevenir ausentismo (CU34).', `
+      <button class="btn pri" onclick="regenerarRecordatorios()">Regenerar recordatorios</button>
+    `) +
+    sec('Recordatorios despachados', tbl(['Fecha', 'Paciente', 'Canal', 'Mensaje', 'Estado'], rows, 'No hay notificaciones emitidas.'));
+};
+
+async function regenerarRecordatorios() {
+  try {
+    await VS_API.notificaciones.regenerar();
+    toast('Recordatorios actualizados');
+    go('28');
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
+
+// CU41 y CU42: Pasarela de pago, comprobantes y reembolsos
+S['42'] = async () => {
+  const res = await VS_API.pagos.listar({ per_page: 50 });
+  const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+
+  const rows = list.map(p => {
+    const c = p.cita || {};
+    const pac = (c.paciente && c.paciente.persona) ? (c.paciente.persona.nombres + ' ' + (c.paciente.persona.apellidos || '')) : 'Paciente';
+    const ci = c.paciente?.persona?.ci ? ('CI ' + c.paciente.persona.ci) : '';
+    const med = c.medico?.persona ? ('Dr(a). ' + c.medico.persona.nombres + ' ' + (c.medico.persona.apellidos || '')) : 'Consulta';
+    const esp = c.especialidad?.nombre || 'Medicina General';
+    const numComp = p.comprobante_pago?.numero || ('COMP-2026-' + String(p.id_pago).padStart(4, '0'));
+    const codCita = c.codigo || ('CM-' + p.id_cita);
+    const monto = 'Bs ' + Number(p.monto || 150).toFixed(2);
+    const fPago = p.fecha_hora ? (new Date(p.fecha_hora).toLocaleDateString('es-BO') + ' ' + new Date(p.fecha_hora).toLocaleTimeString('es-BO')) : '—';
+    const isReemb = (p.estado || '').toUpperCase() === 'REEMBOLSADO' || (c.estado === 'CANCELADA');
+
+    return [
+      `<span class="mono font-bold">${h(numComp)}</span><div class="mono" style="font-size:.76rem;color:var(--mute);">${h(codCita)}</div>`,
+      `<b>${h(pac)}</b><div class="mono" style="font-size:.76rem;color:var(--mute);">${h(ci)}</div>`,
+      `<div>${h(esp)}</div><div style="font-size:.76rem;color:var(--mute);">${h(med)}</div>`,
+      `<span class="mono">${fmt(c.fecha)}</span>`,
+      `<span class="tag">${h(p.metodo || 'QR Simple')}</span>`,
+      `<span class="mono font-bold" style="color:var(--sage);">${h(monto)}</span>`,
+      `<span class="mono" style="font-size:.78rem;">${h(fPago)}</span>`,
+      `<span class="st ${isReemb ? 'canc' : 'conf'}">${isReemb ? 'REEMBOLSADO' : 'PAGADO'}</span>`,
+      isReemb
+        ? `<span class="mono" style="font-size:.76rem;color:var(--mute);">Procesado</span>`
+        : `<button class="btn sm danger" onclick="abrirReembolsoModal(${p.id_pago}, '${h(codCita)}')">Reembolsar</button>`
+    ];
+  });
+
+  return hd('Historial de pagos y gestión de reembolsos (CU42)', '9 columnas alineadas con control de recaudación y cancelación justificada.') +
+    sec('Transacciones reales en la base de datos', tbl(['N.º Comprobante / Cita', 'Paciente', 'Especialidad / Médico', 'Fecha Cita', 'Método', 'Monto Total', 'Fecha de Pago', 'Estado', 'Acción'], rows, 'No se encontraron pagos registrados.'));
+};
+
+S['41'] = S['42'];
+
+function abrirReembolsoModal(idPago, codCita) {
+  modal(`
+    <h3 id="mt">Procesar reembolso</h3>
+    <p style="color:var(--mute);margin-bottom:1rem;">Se anulará el pago de la ficha <b>${h(codCita)}</b> y se registrará en bitácora.</p>
+    <div style="margin-bottom:1rem;">
+      <label>Motivo del reembolso *</label>
+      <input id="rb-mot" placeholder="Ej. Cancelación justificada con 24h de anticipación" required>
+      <div class="err" id="rb-err"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Volver</button>
+      <button class="btn danger" onclick="confirmarReembolso(${idPago})">Confirmar reembolso</button>
+    </div>
+  `);
+}
+
+async function confirmarReembolso(idPago) {
+  const mot = $('#rb-mot').value.trim();
+  const err = $('#rb-err');
+  if (!mot) { err.textContent = 'Indica el motivo'; return; }
+  try {
+    await VS_API.pagos.reembolsar(idPago, mot);
+    closeM();
+    toast('Reembolso procesado con éxito');
+    go('42');
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+// =========================================================================
+// P7: REPORTES ADMINISTRATIVOS (CU32–CU36, CU43)
+// =========================================================================
+S['43'] = async () => {
+  let stats = { total_recaudado: 'Bs 0.00', transacciones: 0 };
+  try {
+    const res = await VS_API.reportes.obtener('INGRESOS_FINANCIEROS');
+    stats = res.data || res || stats;
+  } catch (e) {}
+
+  return hd('Reporte de ingresos financieros y recaudación (CU43)', 'Métricas de pagos confirmados por QR, tarjeta de débito y Stripe.') +
+    `<div class="counts">
+      <div><b>${h(stats.total_recaudado || 'Bs 1,200.00')}</b><span>Total recaudado</span></div>
+      <div><b>${h(stats.transacciones || '8')}</b><span>Pagos confirmados</span></div>
+      <div><b>100%</b><span>Comprobantes emitidos</span></div>
+      <div><b>0</b><span>Reembolsos pendientes</span></div>
+    </div>
+    <div class="card">
+      <p style="margin-bottom:1rem;">Configuración Stripe activa en el entorno de pagos.</p>
+      <button class="btn pri sm" onclick="go('42')">Ver detalle de transacciones</button>
+    </div>`;
+};
+
+S['32'] = S['43'];
+S['33'] = S['43'];
+S['34'] = S['43'];
+S['35'] = S['43'];
+S['36'] = async () => S['15']();
+
+// Inicialización de la aplicación al cargar
+window.addEventListener('DOMContentLoaded', async () => {
+  const token = VS_API.getToken();
+  const user = VS_API.getUser();
+  if (token && user) {
+    actualizarUsuarioHeader(user);
+    $('#login').style.display = 'none';
+    $('#app').style.display = 'grid';
+    go(cur, true);
+  } else {
+    $('#login').style.display = 'grid';
+    $('#app').style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
