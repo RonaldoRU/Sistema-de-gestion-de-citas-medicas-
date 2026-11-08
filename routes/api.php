@@ -195,11 +195,11 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/', [CitaController::class, 'index'])->name('api.citas.index');
         Route::get('/disponibilidad', [CitaController::class, 'disponibilidad'])->name('api.citas.disponibilidad');
         Route::get('/proximo-libre', [CitaController::class, 'proximoLibre'])->name('api.citas.proximoLibre');
-        Route::post('/', [CitaController::class, 'store'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.citas.store');
+        Route::post('/', [CitaController::class, 'store'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,PACIENTE')->name('api.citas.store');
         Route::put('/{id}/reprogramar', [CitaController::class, 'reprogramar'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA')->name('api.citas.reprogramar');
         Route::put('/{id}/cancelar', [CitaController::class, 'cancelar'])->name('api.citas.cancelar');
         Route::put('/{id}/atender', [CitaController::class, 'registrarAtencion'])->middleware('rol:ADMINISTRADOR,MEDICO,RECEPCIONISTA')->name('api.citas.atender');
-        Route::put('/{id}/estado', [CitaController::class, 'cambiarEstado'])->name('api.citas.estado');
+        Route::put('/{id}/estado', [CitaController::class, 'cambiarEstado'])->middleware('rol:ADMINISTRADOR,RECEPCIONISTA,MEDICO')->name('api.citas.estado');
 
         // Historial de Estados de Cita -> HistorialEstadoCitaController
         Route::get('/{id}/historial-estados', [HistorialEstadoCitaController::class, 'index'])->name('api.citas.historialEstados.index');

@@ -214,7 +214,7 @@ tr.off td{color:var(--mute)}
 <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
 <div id="app">
   <aside id="side" aria-label="Paquetes y casos de uso">
-    <div class="brand">
+    <div class="brand" style="cursor:pointer;" onclick="if(typeof esRolPaciente==='function'&&esRolPaciente()){go('38');}else{go('dashboard');}">
       <span class="logo">
         <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="12" y="2" width="10" height="30" rx="2" fill="#A9DCC4"/><rect x="2" y="12" width="30" height="10" rx="2" fill="#A9DCC4"/><path d="M17 23c-4-3-6-5-6-7.2A2.8 2.8 0 0 1 17 14a2.8 2.8 0 0 1 6 1.8C23 18 21 20 17 23z" fill="#1E4E8C"/></svg>
         <span class="bt">Vida Salud</span>
@@ -222,7 +222,7 @@ tr.off td{color:var(--mute)}
       <small>Clínica Médica</small>
     </div>
     <nav id="nav"></nav>
-    <div style="padding:1rem 1.4rem;font-size:.78rem;color:#B5C6E0;border-top:1px solid rgba(255,255,255,.1);">
+    <div id="side-footer" style="padding:1rem 1.4rem;font-size:.78rem;color:#B5C6E0;border-top:1px solid rgba(255,255,255,.1);">
       <span class="tag">43 Casos de uso</span> Vida Salud v2.0
     </div>
   </aside>
@@ -261,7 +261,7 @@ tr.off td{color:var(--mute)}
 // =========================================================================
 // DEFINICIÓN DE LOS 43 CASOS DE USO (7 PAQUETES OFICIALES)
 // =========================================================================
-const P = [
+const P_ADMIN = [
   ["Seguridad y Autenticación", [
     ["01", "Iniciar Sesión en la Plataforma Web"],
     ["02", "Cerrar Sesión y Revocar Sesión"],
@@ -321,6 +321,40 @@ const P = [
   ]]
 ];
 
+const P_PACIENTE = [
+  ["Portal del Paciente", [
+    ["38", "Reserva de Ficha Médica Web"],
+    ["39", "Confirmación y Notificación de Reserva"],
+    ["40", "Consulta de Estado de Ficha Reservada"],
+    ["41", "Pasarela de Pago y Comprobante Digital"]
+  ]]
+];
+
+const IC_PACIENTE = [
+  '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11h.01"/>'
+];
+
+function esRolPaciente() {
+  try {
+    const u = (typeof VS_API !== 'undefined' && VS_API.getUser) ? VS_API.getUser() : null;
+    if (!u) return false;
+    const r = (u.rol && u.rol.nombre ? u.rol.nombre : (u.rol || '')).toString().toUpperCase();
+    return r.includes('PACIENTE');
+  } catch (e) {
+    return false;
+  }
+}
+
+function getActivePackages() {
+  return esRolPaciente() ? P_PACIENTE : P_ADMIN;
+}
+
+function getActiveIcons() {
+  return esRolPaciente() ? IC_PACIENTE : IC;
+}
+
+let P = P_ADMIN;
+
 const IC = [
   '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/>',
   '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 11l1.5 1.5L21 9"/>',
@@ -369,8 +403,9 @@ function hd(t, p, r = '') {
   if (cur === 'dashboard') {
     return `<div class="head" style="--hb:#E3ECF8;--hc:#1E4E8C"><div><h1>${t}</h1><p>${p}</p></div>${r}</div>`;
   }
-  const i = P.findIndex(pkg => pkg[1].some(c => c[0] == cur));
-  const c = HB[i] || HB[0];
+  const pkgs = getActivePackages();
+  const i = pkgs.findIndex(pkg => pkg[1].some(c => c[0] == cur));
+  const c = HB[i >= 0 ? (i % HB.length) : 0] || HB[0];
   return `<div class="head" style="--hb:${c[0]};--hc:${c[1]}"><div><h1>${t}</h1><p>${p}</p></div>${r}</div>`;
 }
 
@@ -426,22 +461,29 @@ function hamb(force) {
 }
 
 function nav() {
-  const isDash = cur === 'dashboard';
-  const dashHtml = `
-    <div style="padding:.5rem .8rem .3rem;">
-      <a href="#dashboard" ${isDash ? 'aria-current="page" style="background:rgba(255,255,255,.16);color:#fff;border-left:4px solid #7FD3E0;font-weight:600;"' : 'style="border-left:4px solid transparent;"'} onclick="go('dashboard');return false;" style="display:flex;align-items:center;gap:.7rem;padding:.75rem 1rem;color:#E8EEF7;text-decoration:none;border-radius:4px;font-size:.88rem;transition:background var(--t);background:rgba(255,255,255,.06);">
-        <span style="display:inline-flex;color:#7FD3E0;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        </span>
-        <span class="nm">Panel Principal (Dashboard)</span>
-      </a>
-    </div>
-  `;
+  const isPac = esRolPaciente();
+  const pkgs = getActivePackages();
+  const icons = getActiveIcons();
 
-  $('#nav').innerHTML = dashHtml + P.map((p, i) => `
-    <div class="pkg ${p[1].some(c => c[0] == cur) ? 'open' : ''}">
-      <button aria-expanded="${p[1].some(c => c[0] == cur)}" data-tip="${p[0]}" onclick="tog(this)">
-        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${IC[i]}</svg></span>
+  let dashHtml = '';
+  if (!isPac) {
+    const isDash = cur === 'dashboard';
+    dashHtml = `
+      <div style="padding:.5rem .8rem .3rem;">
+        <a href="#dashboard" ${isDash ? 'aria-current="page" style="background:rgba(255,255,255,.16);color:#fff;border-left:4px solid #7FD3E0;font-weight:600;"' : 'style="border-left:4px solid transparent;"'} onclick="go('dashboard');return false;" style="display:flex;align-items:center;gap:.7rem;padding:.75rem 1rem;color:#E8EEF7;text-decoration:none;border-radius:4px;font-size:.88rem;transition:background var(--t);background:rgba(255,255,255,.06);">
+          <span style="display:inline-flex;color:#7FD3E0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </span>
+          <span class="nm">Panel Principal (Dashboard)</span>
+        </a>
+      </div>
+    `;
+  }
+
+  $('#nav').innerHTML = dashHtml + pkgs.map((p, i) => `
+    <div class="pkg ${p[1].some(c => c[0] == cur) || isPac ? 'open' : ''}">
+      <button aria-expanded="${p[1].some(c => c[0] == cur) || isPac}" data-tip="${p[0]}" onclick="tog(this)">
+        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${icons[i] || icons[0]}</svg></span>
         <span class="nm">${p[0]}</span>
         <span class="c" aria-hidden="true">›</span>
       </button>
@@ -450,6 +492,15 @@ function nav() {
       </div></ul>
     </div>
   `).join('');
+
+  const sf = $('#side-footer');
+  if (sf) {
+    if (isPac) {
+      sf.innerHTML = '<span class="tag" style="background:#245C47;color:#fff;">Portal Paciente</span> Vida Salud';
+    } else {
+      sf.innerHTML = '<span class="tag">43 Casos de uso</span> Vida Salud v2.0';
+    }
+  }
 }
 
 function tog(b) {
@@ -462,15 +513,23 @@ function tog(b) {
 const S = {};
 
 async function go(id, first) {
+  if (esRolPaciente()) {
+    const allowed = ['38', '39', '40', '41'];
+    if (!allowed.includes(String(id))) {
+      id = '38';
+    }
+  }
   cur = id;
   if (mob()) $('#app').classList.remove('drawer');
   nav();
 
+  const pkgs = getActivePackages();
+  const pk = pkgs.find(p => p[1].some(c => c[0] == id));
+  const cu = pk ? pk[1].find(c => c[0] == id) : [id, id === 'dashboard' ? 'Panel Principal (Dashboard)' : 'Detalle de operación'];
+
   if (id === 'dashboard') {
     $('#crumb').innerHTML = `Sistema / <b>Panel Principal (Dashboard)</b>`;
   } else {
-    const pk = P.find(p => p[1].some(c => c[0] == id));
-    const cu = pk ? pk[1].find(c => c[0] == id) : [id, 'Detalle de operación'];
     $('#crumb').innerHTML = `${pk ? pk[0] : 'Sistema'} / <b>${cu[1]}</b>`;
   }
 
@@ -672,7 +731,11 @@ $('#lf').onsubmit = async function (e) {
     $('#app').style.display = 'grid';
     $('#p').value = '';
     toast('¡Bienvenido(a) a Clínica Vida Salud!');
-    go('dashboard', true);
+    if (esRolPaciente()) {
+      go('38', true);
+    } else {
+      go('dashboard', true);
+    }
   } catch (err) {
     loginTries++;
     const errMsg = err.message || 'Credenciales incorrectas.';
@@ -2578,7 +2641,828 @@ S['42'] = async () => {
     sec('Transacciones reales en la base de datos', tbl(['N.º Comprobante / Cita', 'Paciente', 'Especialidad / Médico', 'Fecha Cita', 'Método', 'Monto Total', 'Fecha de Pago', 'Estado', 'Acción'], rows, 'No se encontraron pagos registrados.'));
 };
 
-S['41'] = S['42'];
+// =========================================================================
+// PORTAL DEL PACIENTE (CU38, CU39, CU40, CU41)
+// =========================================================================
+
+window.ultimaFichaReservada = null;
+window.fichaParaPagarId = null;
+let cu38SlotSeleccionado = null;
+let cu38EspecialidadesCache = [];
+let cu38MedicosCache = [];
+
+// CU38: Reserva de Ficha Médica Web por Paciente
+S['38'] = async () => {
+  cu38SlotSeleccionado = null;
+  return hd('Reserva de Ficha Médica Web', 'Consulta disponibilidad de médicos por especialidad y reserva tu cupo en tiempo real.') +
+    `<div class="card">
+      <div class="filters" style="align-items:flex-end;">
+        <div>
+          <label>Especialidad médica</label>
+          <select id="p-esp" onchange="onCU38EspecialidadChange()">
+            <option value="">Cargando especialidades...</option>
+          </select>
+        </div>
+        <div>
+          <label>Médico tratante</label>
+          <select id="p-med" onchange="cargarTurnosCU38()">
+            <option value="">Todos los médicos</option>
+          </select>
+        </div>
+        <div>
+          <label>Fecha de consulta *</label>
+          <input id="p-fec" type="date" value="${hoyISO()}" min="${hoyISO()}" onchange="cargarTurnosCU38()">
+        </div>
+        <div>
+          <button class="btn pri" onclick="cargarTurnosCU38()">Consultar Cupos</button>
+          <button class="btn ghost" onclick="buscarProximoLibreCU38()">Próximo Cupo Libre</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div>
+        <div class="card" style="margin-bottom:1rem;">
+          <h3 id="p-titulo-turno" style="font:400 1.6rem var(--serif);margin-bottom:.3rem;">Turnos Disponibles</h3>
+          <p id="p-sub-turno" style="font-size:.85rem;color:var(--mute);">Seleccione especialidad, médico y fecha para ver cupos en tiempo real</p>
+        </div>
+        <div id="p-slots-wrap" class="slotlist">
+          <p class="mono" style="color:var(--mute);padding:1.5rem;">Cargando turnos disponibles...</p>
+        </div>
+      </div>
+
+      <div class="sum" id="p-resumen">
+        <h2>Resumen de Reserva</h2>
+        <div id="p-sum-info" style="color:var(--mute);font-size:.88rem;line-height:1.5;">
+          Selecciona un horario disponible en el panel izquierdo.
+        </div>
+        <div id="p-form-extra" style="display:none;margin-top:1rem;">
+          <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">Motivo de la consulta / Síntomas *</label>
+          <textarea id="p-motivo" rows="3" style="width:100%;margin-bottom:.8rem;padding:.5rem;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:.88rem;" placeholder="Ej. Chequeo preventivo, dolor de cabeza...">Consulta Médica General</textarea>
+          <div style="background:#F2F7F6;border-left:3px solid var(--sage);padding:.6rem .8rem;margin-bottom:1rem;font-size:.82rem;color:#245C47;border-radius:2px;">
+            Arancel oficial de consulta: <b>Bs 150.00</b><br>
+            <span style="font-size:.76rem;color:var(--mute);">Podrás pagar en línea mediante QR Simple o Tarjeta tras confirmar tu reserva.</span>
+          </div>
+          <button id="p-btn-confirmar" class="btn pri full" onclick="confirmarReservaFichaCU38()">Confirmar Reserva de Ficha Médica</button>
+        </div>
+      </div>
+    </div>`;
+};
+
+S['38'].init = async () => {
+  await inicializarFiltrosCU38();
+  await cargarTurnosCU38();
+};
+
+async function inicializarFiltrosCU38() {
+  try {
+    const [resE, resM] = await Promise.all([
+      VS_API.especialidades.listar().catch(() => []),
+      VS_API.medicos.listar().catch(() => [])
+    ]);
+
+    cu38EspecialidadesCache = (resE && resE.data) ? resE.data : (Array.isArray(resE) ? resE : []);
+    const medList = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || resM || []);
+    cu38MedicosCache = Array.isArray(medList) ? medList : [];
+
+    const espSelect = $('#p-esp');
+    if (espSelect) {
+      espSelect.innerHTML = `<option value="">Todas las especialidades</option>` +
+        cu38EspecialidadesCache.map(e => `<option value="${e.id_especialidad}">${h(e.nombre)}</option>`).join('');
+    }
+
+    actualizarSelectMedicosCU38('');
+  } catch (e) {
+    console.error('Error al inicializar filtros de reserva:', e);
+  }
+}
+
+function actualizarSelectMedicosCU38(idEspecialidad) {
+  const medSelect = $('#p-med');
+  if (!medSelect) return;
+
+  let filtrados = cu38MedicosCache;
+  if (idEspecialidad) {
+    filtrados = cu38MedicosCache.filter(m => String(m.id_especialidad) === String(idEspecialidad));
+  }
+
+  medSelect.innerHTML = `<option value="">Cualquier médico disponible</option>` +
+    filtrados.map(m => {
+      const nom = m.persona ? `${m.persona.nombres || ''} ${m.persona.apellidos || ''}`.trim() : (m.nombre || 'Médico');
+      const esp = m.especialidad?.nombre ? ` (${m.especialidad.nombre})` : '';
+      return `<option value="${m.id_persona}">Dr(a). ${h(nom)}${h(esp)}</option>`;
+    }).join('');
+}
+
+function onCU38EspecialidadChange() {
+  const espId = $('#p-esp').value;
+  actualizarSelectMedicosCU38(espId);
+  cargarTurnosCU38();
+}
+
+async function cargarTurnosCU38() {
+  const wrap = $('#p-slots-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<p class="mono" style="color:var(--mute);padding:1.5rem;">Consultando horarios...</p>';
+  cu38SlotSeleccionado = null;
+  const sumInfo = $('#p-sum-info');
+  const formExtra = $('#p-form-extra');
+  if (sumInfo) sumInfo.innerHTML = 'Selecciona un horario disponible en el panel izquierdo.';
+  if (formExtra) formExtra.style.display = 'none';
+
+  const f = $('#p-fec')?.value || hoyISO();
+  const esp = $('#p-esp')?.value;
+  const med = $('#p-med')?.value;
+
+  try {
+    const params = { fecha: f };
+    if (esp) params.id_especialidad = esp;
+    if (med) params.id_medico = med;
+
+    const disp = await VS_API.citas.disponibilidad(params);
+
+    if (disp.fecha_antigua) {
+      wrap.innerHTML = `<div class="emptybox" style="grid-column:1/-1;">
+        <p style="font-weight:600;color:var(--ink);">Fecha no disponible para reservas</p>
+        <p style="font-size:.88rem;color:var(--mute);">Solo es posible agendar turnos para fechas presentes o futuras.</p>
+      </div>`;
+      $('#p-titulo-turno').textContent = `${disp.nombre_dia || f} · Archivado`;
+      $('#p-sub-turno').textContent = 'Turno histórico no disponible';
+      return;
+    }
+
+    if (disp.atiende_este_dia === false) {
+      wrap.innerHTML = `<div class="emptybox" style="grid-column:1/-1;">
+        <p style="font-weight:600;color:var(--ink);">${h(disp.mensaje || 'No hay atención médica en la fecha seleccionada.')}</p>
+        <p style="font-size:.88rem;color:var(--mute);">Haz clic en "Próximo Cupo Libre" para buscar el día más cercano con cupos disponibles.</p>
+        <button class="btn pri sm" onclick="buscarProximoLibreCU38()">Buscar próximo cupo libre</button>
+      </div>`;
+      $('#p-titulo-turno').textContent = `${disp.nombre_dia || f} · Sin atención`;
+      $('#p-sub-turno').textContent = '0 bloques disponibles';
+      return;
+    }
+
+    const slots = disp.slots || [];
+    const nomMed = disp.medico?.persona ? `Dr(a). ${disp.medico.persona.nombres} ${disp.medico.persona.apellidos}` : 'Médicos de la Clínica';
+    $('#p-titulo-turno').textContent = `${disp.nombre_dia || f} · ${h(nomMed)}`;
+    $('#p-sub-turno').textContent = `${disp.turno || 'Horario de atención'} · Bloques de 15/30 min · ${disp.bloques_libres} cupos libres`;
+
+    if (slots.length === 0) {
+      wrap.innerHTML = `<div class="emptybox" style="grid-column:1/-1;"><p>No hay turnos libres en este momento.</p></div>`;
+      return;
+    }
+
+    wrap.innerHTML = slots.map(s => {
+      if (s.estado === 'LIBRE') {
+        return `<button class="sbtn" data-h="${s.hora_inicio}" data-hf="${s.hora_fin}" onclick="seleccionarSlotCU38(this, '${s.hora_inicio}', '${s.hora_fin}')">
+          <span class="mono"><b>${s.hora_inicio}</b></span><span class="tag">LIBRE</span>
+        </button>`;
+      } else if (s.estado === 'BLOQUEADO') {
+        return `<button class="sbtn hol" disabled title="Bloqueado: ${h(s.motivo || '')}">
+          <span class="mono">${s.hora_inicio}</span><span style="font-size:.7rem;">BLOQ</span>
+        </button>`;
+      } else if (s.estado === 'PASADO' || s.estado === 'VENCIDO') {
+        return `<button class="sbtn past" disabled title="Horario ya transcurrido">
+          <span class="mono">${s.hora_inicio}</span><span style="font-size:.7rem;">PASADO</span>
+        </button>`;
+      } else {
+        return `<button class="sbtn busy" disabled title="Reservado">
+          <span class="mono">${s.hora_inicio}</span><span style="font-size:.7rem;">OCUPADO</span>
+        </button>`;
+      }
+    }).join('');
+
+  } catch (err) {
+    wrap.innerHTML = `<p style="color:var(--warn);">${h(err.message)}</p>`;
+  }
+}
+
+function seleccionarSlotCU38(btn, hIni, hFin) {
+  document.querySelectorAll('#p-slots-wrap .sbtn.sel').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+
+  const f = $('#p-fec')?.value || hoyISO();
+  const medId = $('#p-med')?.value;
+  const espId = $('#p-esp')?.value;
+
+  const medObj = cu38MedicosCache.find(m => String(m.id_persona) === String(medId)) || cu38MedicosCache[0];
+  const espObj = cu38EspecialidadesCache.find(e => String(e.id_especialidad) === String(espId)) || (medObj?.especialidad) || cu38EspecialidadesCache[0];
+
+  cu38SlotSeleccionado = {
+    hora_inicio: hIni,
+    hora_fin: hFin,
+    fecha: f,
+    id_medico: medId || (medObj ? medObj.id_persona : null),
+    id_especialidad: espId || (espObj ? espObj.id_especialidad : null),
+    medico_nombre: medObj?.persona ? `${medObj.persona.nombres} ${medObj.persona.apellidos}` : 'Médico General',
+    especialidad_nombre: espObj ? espObj.nombre : 'Medicina General'
+  };
+
+  const sumInfo = $('#p-sum-info');
+  sumInfo.innerHTML = `
+    <div style="background:#F3F6FB;padding:.8rem;border-radius:4px;margin-bottom:.6rem;border-left:3px solid #1E4E8C;">
+      <div style="font-weight:600;color:#173E70;font-size:.95rem;">${h(cu38SlotSeleccionado.especialidad_nombre)}</div>
+      <div style="font-size:.85rem;color:var(--mute);">Dr(a). ${h(cu38SlotSeleccionado.medico_nombre)}</div>
+      <div class="mono" style="font-size:.88rem;margin-top:.4rem;font-weight:600;color:var(--ink);">
+        📅 ${fmt(cu38SlotSeleccionado.fecha)} · ⏰ ${hIni} - ${hFin}
+      </div>
+    </div>
+  `;
+
+  $('#p-form-extra').style.display = 'block';
+}
+
+async function buscarProximoLibreCU38() {
+  const med = $('#p-med')?.value;
+  const esp = $('#p-esp')?.value;
+  const f = $('#p-fec')?.value || hoyISO();
+  try {
+    const res = await VS_API.citas.proximoLibre({ id_medico: med, id_especialidad: esp, fecha_desde: f });
+    if (res.fecha_libre) {
+      $('#p-fec').value = res.fecha_libre;
+      toast(`Próximo cupo libre: ${fmt(res.fecha_libre)}`);
+      cargarTurnosCU38();
+    } else {
+      toast('No se encontraron turnos libres en las próximas semanas.', true);
+    }
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
+
+async function confirmarReservaFichaCU38() {
+  if (!cu38SlotSeleccionado) {
+    toast('Por favor selecciona un turno disponible primero.', true);
+    return;
+  }
+
+  const btn = $('#p-btn-confirmar');
+  btn.disabled = true;
+  btn.textContent = 'Agendando ficha médica...';
+
+  const motivo = $('#p-motivo')?.value.trim() || 'Consulta Médica General';
+
+  try {
+    const payload = {
+      id_medico: cu38SlotSeleccionado.id_medico,
+      id_especialidad: cu38SlotSeleccionado.id_especialidad,
+      fecha: cu38SlotSeleccionado.fecha,
+      hora_inicio: cu38SlotSeleccionado.hora_inicio,
+      motivo_consulta: motivo
+    };
+
+    const res = await VS_API.citas.crear(payload);
+    const citaGuardada = (res && res.data) ? res.data : res;
+    window.ultimaFichaReservada = citaGuardada;
+    window.fichaParaPagarId = citaGuardada.id_cita;
+
+    toast('¡Ficha médica agendada exitosamente!');
+    go('39');
+  } catch (err) {
+    toast(err.message || 'Error al agendar ficha médica', true);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Confirmar Reserva de Ficha Médica';
+    }
+  }
+}
+
+// CU39: Confirmación y Notificación de Reserva Web
+S['39'] = async () => {
+  let c = window.ultimaFichaReservada;
+
+  if (!c) {
+    try {
+      const res = await VS_API.citas.listar({ per_page: 1 });
+      const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+      if (Array.isArray(list) && list.length > 0) {
+        c = list[0];
+        window.ultimaFichaReservada = c;
+      }
+    } catch (e) {}
+  }
+
+  if (!c) {
+    return hd('Confirmación y Notificación de Reserva', 'Comprobante digital de ficha y estado de notificaciones.') +
+      `<div class="card" style="text-align:center;padding:3rem;">
+        <h3 style="color:#173E70;margin-bottom:.5rem;">Aún no tienes fichas médicas reservadas</h3>
+        <p style="color:var(--mute);margin-bottom:1.5rem;">Puedes buscar turnos y agendar una consulta médica en línea ahora mismo.</p>
+        <button class="btn pri" onclick="go('38')">Reservar Ficha Médica Ahora</button>
+      </div>`;
+  }
+
+  const user = VS_API.getUser() || {};
+  const pacNombre = (user.nombres || '') + ' ' + (user.apellidos || '');
+  const medNombre = c.medico?.persona ? `Dr(a). ${c.medico.persona.nombres} ${c.medico.persona.apellidos}` : 'Médico General Asignado';
+  const espNombre = c.especialidad?.nombre || 'Medicina General';
+  const codCita = c.codigo || ('CM-' + String(c.id_cita).padStart(4, '0'));
+  const fechaStr = fmt(c.fecha);
+  const horaStr = c.hora_inicio || c.hora || '08:00';
+  const numConsultorio = ((c.id_medico || 1) % 6) + 101;
+  const estaPagado = !!(c.pago && (Array.isArray(c.pago) ? c.pago.length > 0 : c.pago.id_pago));
+
+  return hd('Confirmación y Notificación de Reserva', 'Comprobante digital de su ficha médica y notificaciones automáticas.') +
+    `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;align-items:start;">
+      <!-- TICKET DIGITAL OFICIAL -->
+      <div class="card" style="border-top:4px solid #1E4E8C;background:#fff;padding:1.8rem;box-shadow:0 4px 14px rgba(0,0,0,.06);">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:1rem;margin-bottom:1.2rem;">
+          <div>
+            <span class="mono" style="font-size:.78rem;color:var(--mute);letter-spacing:1px;text-transform:uppercase;">Clínica Vida Salud</span>
+            <h2 style="font-size:1.3rem;color:#173E70;margin:.2rem 0 0;">Ticket de Ficha Médica</h2>
+          </div>
+          <span class="st conf" style="font-size:.85rem;padding:.3rem .7rem;">${h(c.estado || 'PROGRAMADA')}</span>
+        </div>
+
+        <div style="background:#F3F6FB;padding:1rem;border-radius:4px;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="font-size:.75rem;color:var(--mute);text-transform:uppercase;">Código de Ficha</span>
+            <div class="mono" style="font-size:1.4rem;font-weight:700;color:#1E4E8C;">${h(codCita)}</div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:.75rem;color:var(--mute);text-transform:uppercase;">Arancel Consulta</span>
+            <div class="mono" style="font-size:1.3rem;font-weight:700;color:#245C47;">Bs 150.00</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;font-size:.88rem;margin-bottom:1.4rem;">
+          <div>
+            <span style="color:var(--mute);font-size:.75rem;display:block;">PACIENTE</span>
+            <b>${h(pacNombre.trim() || 'Paciente')}</b>
+          </div>
+          <div>
+            <span style="color:var(--mute);font-size:.75rem;display:block;">ESPECIALIDAD</span>
+            <b>${h(espNombre)}</b>
+          </div>
+          <div>
+            <span style="color:var(--mute);font-size:.75rem;display:block;">MÉDICO TRATANTE</span>
+            <span>${h(medNombre)}</span>
+          </div>
+          <div>
+            <span style="color:var(--mute);font-size:.75rem;display:block;">CONSULTORIO</span>
+            <span>Consultorio ${numConsultorio} (Torre Médica)</span>
+          </div>
+          <div>
+            <span style="color:var(--mute);font-size:.75rem;display:block;">FECHA DE ATENCIÓN</span>
+            <span class="mono"><b>${fechaStr}</b></span>
+          </div>
+          <div>
+            <span style="color:var(--mute);font-size:.75rem;display:block;">HORA CITADA</span>
+            <span class="mono"><b>${horaStr}</b></span>
+          </div>
+        </div>
+
+        <div style="border-top:1px dashed var(--line);padding-top:1rem;display:flex;flex-direction:column;gap:.6rem;">
+          ${!estaPagado
+            ? `<button class="btn pri full" onclick="iniciarPagoDesdeFicha(${c.id_cita})">Pagar Ficha en Línea (Pasarela de Pago)</button>`
+            : `<button class="btn sm full" style="background:#E1F2E9;color:#2F6B55;font-weight:600;" onclick="verComprobanteCita(${c.id_cita})">✓ Ficha Pagada · Ver Comprobante Digital</button>`
+          }
+          <div style="display:flex;gap:.5rem;">
+            <button class="btn ghost full" onclick="go('40')">Ver Mis Fichas</button>
+            <button class="btn full" onclick="window.print()">Imprimir Ticket</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTADO DE NOTIFICACIÓN AUTOMÁTICA -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="card" style="border-left:4px solid var(--sage);background:#fff;">
+          <h3 style="font-size:1.05rem;color:#245C47;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Notificación Automática Despachada
+          </h3>
+          <p style="font-size:.88rem;color:var(--ink);line-height:1.5;margin-bottom:.8rem;">
+            Hemos enviado un comprobante y recordatorio con el código <b>${h(codCita)}</b> a tu número de WhatsApp y correo electrónico registrado.
+          </p>
+          <div style="background:#F3F6FB;padding:.7rem;border-radius:4px;font-size:.82rem;color:var(--mute);">
+            <b>Canal activo:</b> WhatsApp & Correo Electrónico<br>
+            <b>Recordatorio preventivo:</b> Se despachará 24 horas antes de tu consulta.
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="font-size:.95rem;color:#173E70;margin-bottom:.5rem;">Recomendaciones para tu consulta</h4>
+          <ul style="font-size:.85rem;color:var(--mute);line-height:1.6;padding-left:1.2rem;margin:0;">
+            <li>Llegar con 10 minutos de anticipación a la sala de espera.</li>
+            <li>Presentar tu cédula de identidad y el código de ficha en recepción.</li>
+            <li>Si requieres cancelar o reprogramar tu cita médica, hazlo con al menos 2 horas de anticipación desde tu panel.</li>
+          </ul>
+        </div>
+      </div>
+    </div>`;
+};
+
+// CU40: Consulta de Estado de la Ficha Reservada (Paciente)
+S['40'] = async () => {
+  const res = await VS_API.citas.listar({ per_page: 50 });
+  const rawList = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+  const u = VS_API.getUser();
+  // Doble filtro de seguridad: solo citas de este paciente
+  const list = Array.isArray(rawList)
+    ? rawList.filter(c => !u || !u.id_persona || String(c.id_paciente) === String(u.id_persona))
+    : [];
+
+  const rows = list.map(c => {
+    const codCita = c.codigo || ('CM-' + String(c.id_cita).padStart(4, '0'));
+    const esp = c.especialidad?.nombre || 'Medicina General';
+    const med = c.medico?.persona ? `Dr(a). ${c.medico.persona.nombres} ${c.medico.persona.apellidos}` : 'Médico General';
+    const fechaHora = `${fmt(c.fecha)} ${c.hora_inicio || c.hora || ''}`;
+    const motivo = c.motivo_consulta || c.motivo || 'Consulta médica general';
+    const estaPagado = !!(c.pago && (Array.isArray(c.pago) ? c.pago.length > 0 : c.pago.id_pago));
+
+    let stBadge = `<span class="st prog">${h(c.estado)}</span>`;
+    if (c.estado === 'CONFIRMADA') stBadge = `<span class="st conf">CONFIRMADA</span>`;
+    else if (c.estado === 'ATENDIDA') stBadge = `<span class="st" style="background:#E1F2E9;color:#2F6B55;">ATENDIDA</span>`;
+    else if (c.estado === 'CANCELADA') stBadge = `<span class="st canc">CANCELADA</span>`;
+
+    const pagoBadge = estaPagado
+      ? `<span class="st conf">PAGADO</span>`
+      : `<span class="st pend">PENDIENTE</span>`;
+
+    let acciones = '';
+    if (!estaPagado && c.estado !== 'CANCELADA' && c.estado !== 'ATENDIDA') {
+      acciones += `<button class="btn sm pri" onclick="iniciarPagoDesdeFicha(${c.id_cita})" style="margin-right:.3rem;">Pagar Ficha</button>`;
+    } else if (estaPagado) {
+      acciones += `<button class="btn sm" onclick="verComprobanteCita(${c.id_cita})" style="margin-right:.3rem;">Comprobante</button>`;
+    }
+
+    if (c.estado === 'PROGRAMADA' || c.estado === 'CONFIRMADA') {
+      acciones += `<button class="btn sm danger" onclick="abrirCancelarFichaModal(${c.id_cita}, '${h(codCita)}')">Cancelar</button>`;
+    }
+
+    return [
+      `<span class="mono font-bold" style="color:#1E4E8C;">${h(codCita)}</span>`,
+      `<b>${h(esp)}</b>`,
+      h(med),
+      `<span class="mono">${fechaHora}</span>`,
+      `<span style="font-size:.84rem;color:var(--mute);">${h(motivo)}</span>`,
+      stBadge,
+      pagoBadge,
+      acciones || `<span class="mono" style="font-size:.76rem;color:var(--mute);">Completada</span>`
+    ];
+  });
+
+  return hd('Consulta de Estado de Ficha Reservada', 'Monitorea en tiempo real el estado de tus fichas médicas agendadas.', `
+      <button class="btn pri" onclick="go('38')">+ Reservar Nueva Ficha</button>
+    `) +
+    sec('Mis Fichas Médicas Reservadas', tbl(['N.º Ficha', 'Especialidad', 'Médico Asignado', 'Fecha y Hora', 'Motivo', 'Estado', 'Pago', 'Acciones'], rows, 'No tienes ninguna ficha médica reservada. Haz clic en "+ Reservar Nueva Ficha" para agendar una cita.'));
+};
+
+function iniciarPagoDesdeFicha(idCita) {
+  window.fichaParaPagarId = idCita;
+  go('41');
+}
+
+function abrirCancelarFichaModal(idCita, codigo) {
+  modal(`
+    <h3 id="mt">Cancelar Ficha Médica</h3>
+    <p style="color:var(--mute);margin-bottom:1rem;font-size:.9rem;">
+      ¿Estás seguro(a) de cancelar la ficha médica <b>${h(codigo)}</b>? Por favor indica el motivo de la cancelación.
+    </p>
+    <div style="margin-bottom:1.2rem;">
+      <label>Motivo de cancelación *</label>
+      <input id="can-mot" placeholder="Ej. Imprevisto laboral, reprogramación de viaje..." required>
+      <div class="err" id="can-err"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeM()">Volver</button>
+      <button class="btn danger" onclick="confirmarCancelarFicha(${idCita})">Confirmar Cancelación</button>
+    </div>
+  `);
+}
+
+async function confirmarCancelarFicha(idCita) {
+  const motInput = $('#can-mot');
+  const err = $('#can-err');
+  const mot = motInput ? motInput.value.trim() : '';
+  if (!mot || mot.length < 4) {
+    if (err) err.textContent = 'Indica un motivo válido de cancelación (mínimo 4 caracteres).';
+    return;
+  }
+
+  try {
+    await VS_API.citas.cancelar(idCita, mot);
+    closeM();
+    toast('Ficha médica cancelada exitosamente.');
+    go('40');
+  } catch (e) {
+    if (err) err.textContent = e.message;
+  }
+}
+
+// CU41: Pasarela de Pago y Emisión de Comprobante Digital
+S['41'] = async () => {
+  if (!esRolPaciente()) {
+    return S['42']();
+  }
+
+  // Cargar citas del paciente para determinar cuál está pendiente de pago
+  const [resC, resP] = await Promise.all([
+    VS_API.citas.listar({ per_page: 50 }).catch(() => ({ data: [] })),
+    VS_API.pagos.listar({ per_page: 50 }).catch(() => ({ data: [] }))
+  ]);
+
+  const rawCitas = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || resC || []);
+  const rawPagos = (resP && resP.data && resP.data.data) ? resP.data.data : (resP.data || resP || []);
+  const u = VS_API.getUser() || {};
+
+  const misCitas = Array.isArray(rawCitas) ? rawCitas.filter(c => !u.id_persona || String(c.id_paciente) === String(u.id_persona)) : [];
+  const misPagos = Array.isArray(rawPagos) ? rawPagos.filter(p => !u.id_persona || String(p.cita?.id_paciente) === String(u.id_persona)) : [];
+
+  let citaAPagar = null;
+  if (window.fichaParaPagarId) {
+    citaAPagar = misCitas.find(c => String(c.id_cita) === String(window.fichaParaPagarId));
+  }
+  if (!citaAPagar) {
+    citaAPagar = misCitas.find(c => {
+      const estaPagada = !!(c.pago && (Array.isArray(c.pago) ? c.pago.length > 0 : c.pago.id_pago));
+      return !estaPagada && c.estado !== 'CANCELADA' && c.estado !== 'ATENDIDA';
+    });
+  }
+
+  let htmlCheckout = '';
+  if (citaAPagar) {
+    const codCita = citaAPagar.codigo || ('CM-' + String(citaAPagar.id_cita).padStart(4, '0'));
+    const esp = citaAPagar.especialidad?.nombre || 'Medicina General';
+    const med = citaAPagar.medico?.persona ? `Dr(a). ${citaAPagar.medico.persona.nombres} ${citaAPagar.medico.persona.apellidos}` : 'Consulta Médica';
+    const fStr = `${fmt(citaAPagar.fecha)} ${citaAPagar.hora_inicio || citaAPagar.hora || ''}`;
+    const monto = 150.00;
+    const refQr = 'QR-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+
+    htmlCheckout = `
+      <div class="card" style="border-top:4px solid var(--sage);margin-bottom:2rem;background:#fff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem;">
+          <div>
+            <h2 style="font-size:1.25rem;color:#173E70;margin:0;">Pasarela de Pago en Línea</h2>
+            <p style="font-size:.85rem;color:var(--mute);margin:.2rem 0 0;">Ficha Médica: <b>${h(codCita)}</b> · ${h(esp)} · ${h(med)}</p>
+          </div>
+          <span class="mono font-bold" style="font-size:1.3rem;color:#245C47;">Bs ${monto.toFixed(2)} BOB</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem;">
+          <!-- OPCIONES DE PAGO -->
+          <div>
+            <div style="display:flex;gap:.6rem;margin-bottom:1.2rem;">
+              <button id="tab-qr" class="btn pri sm" onclick="alternarMetodoPago('QR')">QR Simple (Bolivia)</button>
+              <button id="tab-card" class="btn ghost sm" onclick="alternarMetodoPago('CARD')">Tarjeta Débito / Crédito</button>
+            </div>
+
+            <!-- VISTA QR SIMPLE -->
+            <div id="vista-qr" style="background:#F7F9FC;border:1px solid var(--line);border-radius:6px;padding:1.4rem;text-align:center;">
+              <div style="font-weight:600;color:#173E70;margin-bottom:.4rem;">Código QR Simple Interbancario</div>
+              <p style="font-size:.82rem;color:var(--mute);margin-bottom:1rem;">Válido para Banco Unión, BCP, BNB, Banco Sol, Mercantil y cualquier app bancaria.</p>
+              
+              <!-- QR GENERADO SVG -->
+              <div style="display:inline-block;padding:12px;background:#fff;border-radius:8px;border:1px solid #D5E0EA;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:1rem;">
+                <svg width="180" height="180" viewBox="0 0 100 100" style="display:block;">
+                  <rect width="100" height="100" fill="#ffffff"/>
+                  <rect x="10" y="10" width="25" height="25" fill="#173E70"/>
+                  <rect x="14" y="14" width="17" height="17" fill="#ffffff"/>
+                  <rect x="18" y="18" width="9" height="9" fill="#173E70"/>
+                  <rect x="65" y="10" width="25" height="25" fill="#173E70"/>
+                  <rect x="69" y="14" width="17" height="17" fill="#ffffff"/>
+                  <rect x="73" y="18" width="9" height="9" fill="#173E70"/>
+                  <rect x="10" y="65" width="25" height="25" fill="#173E70"/>
+                  <rect x="14" y="69" width="17" height="17" fill="#ffffff"/>
+                  <rect x="18" y="73" width="9" height="9" fill="#173E70"/>
+                  <rect x="42" y="15" width="8" height="8" fill="#245C47"/>
+                  <rect x="45" y="30" width="10" height="10" fill="#173E70"/>
+                  <rect x="25" y="45" width="12" height="6" fill="#173E70"/>
+                  <rect x="45" y="45" width="10" height="10" fill="#245C47"/>
+                  <rect x="62" y="45" width="14" height="8" fill="#173E70"/>
+                  <rect x="42" y="65" width="12" height="10" fill="#173E70"/>
+                  <rect x="65" y="65" width="10" height="12" fill="#245C47"/>
+                  <rect x="80" y="75" width="10" height="10" fill="#173E70"/>
+                </svg>
+              </div>
+
+              <div class="mono" style="font-size:.78rem;color:var(--mute);margin-bottom:1rem;">Referencia: <b>${refQr}</b> · Monto: <b>Bs 150.00 BOB</b></div>
+              <button class="btn pri full" onclick="procesarPagoPaciente(${citaAPagar.id_cita}, 'QR', '${refQr}')">Confirmar Pago QR Realizado</button>
+            </div>
+
+            <!-- VISTA TARJETA -->
+            <div id="vista-card" style="display:none;background:#F7F9FC;border:1px solid var(--line);border-radius:6px;padding:1.4rem;">
+              <div style="font-weight:600;color:#173E70;margin-bottom:1rem;">Pago seguro con Tarjeta de Débito o Crédito</div>
+              <div style="display:grid;gap:.8rem;">
+                <div>
+                  <label style="font-size:.78rem;color:var(--mute);display:block;">Titular de la tarjeta</label>
+                  <input id="card-titular" value="${h((u.nombres || '') + ' ' + (u.apellidos || ''))}" placeholder="Nombre completo">
+                </div>
+                <div>
+                  <label style="font-size:.78rem;color:var(--mute);display:block;">Número de tarjeta (16 dígitos)</label>
+                  <input id="card-num" value="4552 1234 5678 9012" placeholder="•••• •••• •••• ••••">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
+                  <div>
+                    <label style="font-size:.78rem;color:var(--mute);display:block;">Vencimiento</label>
+                    <input id="card-exp" value="12/28" placeholder="MM/AA">
+                  </div>
+                  <div>
+                    <label style="font-size:.78rem;color:var(--mute);display:block;">CVV</label>
+                    <input id="card-cvv" value="842" type="password" maxlength="4" placeholder="•••">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:.78rem;color:var(--mute);display:block;">NIT o C.I. para Facturación / Comprobante</label>
+                  <input id="card-nit" value="${h(u.ci || '')}" placeholder="Cédula de Identidad o NIT">
+                </div>
+                <button class="btn pri full" style="margin-top:.5rem;" onclick="procesarPagoPaciente(${citaAPagar.id_cita}, 'TARJETA')">Pagar Bs 150.00 con Tarjeta</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESUMEN DE LA ORDEN DE PAGO -->
+          <div style="background:#F3F6FB;padding:1.4rem;border-radius:6px;display:flex;flex-direction:column;justify-content:space-between;">
+            <div>
+              <h3 style="font-size:1.1rem;color:#173E70;margin-bottom:1rem;">Resumen de la Transacción</h3>
+              <div style="display:grid;gap:.7rem;font-size:.88rem;">
+                <div style="display:flex;justify-content:space-between;">
+                  <span style="color:var(--mute);">Concepto:</span>
+                  <b>Consulta Especializada</b>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span style="color:var(--mute);">Ficha Médica:</span>
+                  <span class="mono"><b>${h(codCita)}</b></span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span style="color:var(--mute);">Médico Tratante:</span>
+                  <span>${h(med)}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span style="color:var(--mute);">Fecha de Atención:</span>
+                  <span class="mono">${fStr}</span>
+                </div>
+                <div style="border-top:1px solid var(--line);margin-top:.4rem;padding-top:.7rem;display:flex;justify-content:space-between;font-size:1.05rem;">
+                  <span>Total a Pagar:</span>
+                  <b class="mono" style="color:#245C47;">Bs 150.00 BOB</b>
+                </div>
+              </div>
+            </div>
+
+            <div style="font-size:.78rem;color:var(--mute);border-top:1px dashed var(--line);padding-top:1rem;margin-top:1.5rem;display:flex;align-items:center;gap:.5rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Transacción encriptada con cifrado bancario y emisión inmediata de Comprobante Digital Oficial.
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Historial de Comprobantes del Paciente
+  const filasPagos = misPagos.map(p => {
+    const c = p.cita || {};
+    const codCita = c.codigo || ('CM-' + (c.id_cita || p.id_cita));
+    const esp = c.especialidad?.nombre || 'Consulta General';
+    const med = c.medico?.persona ? `Dr(a). ${c.medico.persona.nombres} ${c.medico.persona.apellidos}` : 'Médico General';
+    const numComp = p.comprobante_pago?.numero || ('COMP-2026-' + String(p.id_pago).padStart(4, '0'));
+    const fPago = p.fecha_hora ? (new Date(p.fecha_hora).toLocaleDateString('es-BO') + ' ' + new Date(p.fecha_hora).toLocaleTimeString('es-BO')) : '—';
+    const montoStr = 'Bs ' + Number(p.monto || 150).toFixed(2);
+
+    return [
+      `<span class="mono font-bold" style="color:#1E4E8C;">${h(numComp)}</span>`,
+      `<span class="mono">${h(codCita)}</span>`,
+      `<div><b>${h(esp)}</b><div style="font-size:.76rem;color:var(--mute);">${h(med)}</div></div>`,
+      `<span class="mono" style="font-size:.82rem;">${h(fPago)}</span>`,
+      `<span class="tag">${h(p.metodo || 'QR')}</span>`,
+      `<span class="mono font-bold" style="color:#245C47;">${h(montoStr)}</span>`,
+      `<span class="st conf">PAGADO</span>`,
+      `<button class="btn sm" onclick="verComprobanteModal(${p.id_pago})">Ver Comprobante</button>`
+    ];
+  });
+
+  return hd('Pasarela de Pago y Emisión de Comprobante Digital', 'Procesa el pago seguro de tu consulta médica y emite tu comprobante fiscal.') +
+    htmlCheckout +
+    sec('Mis Comprobantes y Pagos Registrados', tbl(['N.º Comprobante', 'Ficha Médica', 'Especialidad / Médico', 'Fecha de Pago', 'Método', 'Monto', 'Estado', 'Acciones'], filasPagos, 'No tienes pagos registrados en este momento.'));
+};
+
+function alternarMetodoPago(metodo) {
+  const vQr = $('#vista-qr');
+  const vCard = $('#vista-card');
+  const tQr = $('#tab-qr');
+  const tCard = $('#tab-card');
+  if (!vQr || !vCard) return;
+
+  if (metodo === 'CARD') {
+    vQr.style.display = 'none';
+    vCard.style.display = 'block';
+    tCard.classList.remove('ghost');
+    tCard.classList.add('pri');
+    tQr.classList.remove('pri');
+    tQr.classList.add('ghost');
+  } else {
+    vCard.style.display = 'none';
+    vQr.style.display = 'block';
+    tQr.classList.remove('ghost');
+    tQr.classList.add('pri');
+    tCard.classList.remove('pri');
+    tCard.classList.add('ghost');
+  }
+}
+
+async function procesarPagoPaciente(idCita, metodo, ref) {
+  try {
+    const nitCi = $('#card-nit')?.value || '';
+    const payload = {
+      id_cita: idCita,
+      monto: 150.00,
+      metodo: metodo,
+      referencia_externa: ref || ('TX-' + Date.now().toString().slice(-8)),
+      nit_ci: nitCi
+    };
+
+    const res = await VS_API.pagos.crear(payload);
+    const pagoData = (res && res.data) ? res.data : res;
+    window.fichaParaPagarId = null;
+    toast('¡Pago registrado y comprobante emitido exitosamente!');
+
+    if (pagoData && pagoData.id_pago) {
+      verComprobanteModal(pagoData.id_pago);
+    } else {
+      go('41');
+    }
+  } catch (err) {
+    toast(err.message || 'Error al procesar el pago', true);
+  }
+}
+
+async function verComprobanteModal(idPago) {
+  try {
+    const res = await VS_API.pagos.obtener(idPago);
+    const p = (res && res.data) ? res.data : res;
+    if (!p) throw new Error('Comprobante no encontrado.');
+
+    const c = p.cita || {};
+    const pac = c.paciente?.persona ? `${c.paciente.persona.nombres || ''} ${c.paciente.persona.apellidos || ''}`.trim() : 'Paciente';
+    const ci = c.paciente?.persona?.ci || p.nit_ci || '—';
+    const med = c.medico?.persona ? `Dr(a). ${c.medico.persona.nombres} ${c.medico.persona.apellidos}` : 'Consulta Médica General';
+    const esp = c.especialidad?.nombre || 'Medicina General';
+    const numComp = p.comprobante_pago?.numero || ('COMP-2026-' + String(p.id_pago).padStart(4, '0'));
+    const fEmision = p.comprobante_pago?.fecha_emision ? new Date(p.comprobante_pago.fecha_emision).toLocaleString('es-BO') : (p.fecha_hora ? new Date(p.fecha_hora).toLocaleString('es-BO') : 'Hoy');
+    const monto = Number(p.monto || 150).toFixed(2);
+    const codCita = c.codigo || ('CM-' + (c.id_cita || p.id_cita));
+
+    modal(`
+      <div style="padding:1.5rem 1rem;background:#fff;max-width:480px;margin:auto;">
+        <div style="text-align:center;border-bottom:2px dashed #D5E0EA;padding-bottom:1rem;margin-bottom:1.2rem;">
+          <h2 style="font-size:1.35rem;color:#173E70;margin:0 0 .2rem;">CLÍNICA VIDA SALUD S.A.</h2>
+          <div style="font-size:.8rem;color:var(--mute);">NIT: 1028495024 · Santa Cruz de la Sierra, Bolivia</div>
+          <div style="font-size:.8rem;color:var(--mute);">Casa Matriz: Av. San Martín #450</div>
+          <div class="mono" style="font-size:1.05rem;font-weight:700;color:#1E4E8C;margin-top:.6rem;">
+            COMPROBANTE ELECTRÓNICO N.º ${h(numComp)}
+          </div>
+          <div class="mono" style="font-size:.78rem;color:var(--mute);">Emisión: ${h(fEmision)}</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;font-size:.85rem;margin-bottom:1.2rem;">
+          <div><span style="color:var(--mute);font-size:.75rem;">SEÑOR(A):</span><br><b>${h(pac)}</b></div>
+          <div><span style="color:var(--mute);font-size:.75rem;">NIT / CI:</span><br><span class="mono">${h(ci)}</span></div>
+          <div><span style="color:var(--mute);font-size:.75rem;">MÉDICO:</span><br>${h(med)}</div>
+          <div><span style="color:var(--mute);font-size:.75rem;">ESPECIALIDAD:</span><br><b>${h(esp)}</b></div>
+          <div><span style="color:var(--mute);font-size:.75rem;">FICHA MÉDICA:</span><br><span class="mono font-bold">${h(codCita)}</span></div>
+          <div><span style="color:var(--mute);font-size:.75rem;">MÉTODO DE PAGO:</span><br><span class="tag">${h(p.metodo || 'QR')}</span></div>
+        </div>
+
+        <div style="background:#F7F9FC;border-radius:4px;padding:.8rem;margin-bottom:1.2rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:.4rem;">
+            <span>Atención Consulta Médica Especializada</span>
+            <span class="mono">Bs ${monto}</span>
+          </div>
+          <div style="border-top:1px solid #D5E0EA;padding-top:.4rem;display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700;color:#245C47;">
+            <span>TOTAL PAGADO:</span>
+            <span class="mono">Bs ${monto} BOB</span>
+          </div>
+        </div>
+
+        <div style="text-align:center;font-size:.75rem;color:var(--mute);border-top:1px dashed #D5E0EA;padding-top:1rem;margin-bottom:1.2rem;">
+          <div class="mono" style="margin-bottom:.3rem;">CÓDIGO DE CONTROL: 8A-F4-19-E2-90</div>
+          <div>"ESTE DOCUMENTO ES LA CONSTANCIA OFICIAL DE PAGO Y RESERVA DE SU FICHA MÉDICA"</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" onclick="closeM();go('41');">Cerrar</button>
+          <button class="btn pri" onclick="window.print()">Imprimir Comprobante</button>
+        </div>
+      </div>
+    `);
+  } catch (err) {
+    toast(err.message || 'Error al cargar comprobante', true);
+  }
+}
+
+async function verComprobanteCita(idCita) {
+  try {
+    const res = await VS_API.pagos.listar({ id_cita: idCita });
+    const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
+    if (Array.isArray(list) && list.length > 0) {
+      verComprobanteModal(list[0].id_pago);
+    } else {
+      toast('No se encontró el pago de esta ficha médica.', true);
+    }
+  } catch (e) {
+    toast(e.message, true);
+  }
+}
 
 function abrirReembolsoModal(idPago, codCita) {
   modal(`
@@ -2653,7 +3537,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     actualizarUsuarioHeader(user);
     $('#login').style.display = 'none';
     $('#app').style.display = 'grid';
-    go(cur, true);
+    if (esRolPaciente()) {
+      const allowed = ['38', '39', '40', '41'];
+      go(allowed.includes(cur) ? cur : '38', true);
+    } else {
+      go(cur, true);
+    }
   } else {
     $('#login').style.display = 'grid';
     $('#app').style.display = 'none';

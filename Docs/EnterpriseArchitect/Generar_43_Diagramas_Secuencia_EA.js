@@ -1,4 +1,4 @@
-!INC Local Scripts.EAConstants - JScript
+/*!INC Local Scripts.EAConstants - JScript
 /*
  * ==========================================================================================
  * SISTEMA CLÍNICA VIDA SALUD - AUTOMATIZACIÓN DE DIAGRAMAS DE SECUENCIA EN ENTERPRISE ARCHITECT
@@ -69,14 +69,14 @@ function Log(msg) {
             Session.Output(msg);
             return;
         }
-    } catch (e1) {}
+    } catch (e1) { }
 
     try {
         if (typeof WScript !== "undefined") {
             WScript.Echo(msg);
             return;
         }
-    } catch (e2) {}
+    } catch (e2) { }
 }
 
 // Catálogo estructurado de los 43 Casos de Uso
@@ -1066,7 +1066,7 @@ function main() {
         // 1. Crear el diagrama de secuencia
         var diagram = modulePackage.Diagrams.AddNew(uc.name, "Sequence");
         diagram.Notes = "Diagrama de Secuencia del Caso de Uso " + uc.id + ": " + uc.name + ".\n" +
-                        "Sistema de Gestión de Citas Médicas Clínica Vida Salud.";
+            "Sistema de Gestión de Citas Médicas Clínica Vida Salud.";
         diagram.Update();
 
         // 2. Crear las 5 Líneas de Vida (Lifelines)
@@ -1113,7 +1113,7 @@ function main() {
             var left = startX + l * (colWidth + colGap);
             var right = left + colWidth;
             var posStr = "l=" + left + ";r=" + right + ";t=" + topY + ";b=" + bottomY + ";";
-            
+
             var diagObj = diagram.DiagramObjects.AddNew(posStr, "");
             diagObj.ElementID = lifelines[l].ElementID;
             diagObj.Update();
@@ -1147,7 +1147,7 @@ function main() {
         diagram.Update();
         try {
             eaRepo.ReloadDiagram(diagram.DiagramID);
-        } catch (eReload) {}
+        } catch (eReload) { }
         modulePackage.Diagrams.Refresh();
         modulePackage.Elements.Refresh();
         totalGenerados++;
@@ -1158,7 +1158,7 @@ function main() {
     eaRepo.RefreshModelView(targetPackage.PackageID);
     try {
         eaRepo.ShowInProjectView(rootPackage);
-    } catch (eShow) {}
+    } catch (eShow) { }
 
     Log("========================================================================");
     Log(" ¡PROCESO COMPLETADO CON ÉXITO!");

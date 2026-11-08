@@ -22,6 +22,8 @@ class PagoController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $user = Auth::user();
+
         $query = Pago::with([
             'cita.paciente.persona',
             'cita.medico.persona',
@@ -30,6 +32,13 @@ class PagoController extends Controller
             'reembolsos',
             'usuarioRegistro.persona',
         ]);
+
+        if ($user && $user->tieneRol('PACIENTE')) {
+            // Un paciente únicamente puede ver sus propios pagos y comprobantes
+            $query->whereHas('cita', function ($q) use ($user): void {
+                $q->where('id_paciente', $user->id_persona);
+            });
+        }
 
         if ($request->filled('estado')) {
             $query->where('estado', strtoupper(trim((string) $request->input('estado'))));
@@ -90,6 +99,16 @@ class PagoController extends Controller
             ], 404);
         }
 
+        $user = Auth::user();
+        if ($user && $user->tieneRol('PACIENTE')) {
+            if ($pago->cita && $pago->cita->id_paciente != $user->id_persona) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acceso denegado. No puedes ver comprobantes de otros pacientes.',
+                ], 403);
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => $pago,
@@ -110,6 +129,16 @@ class PagoController extends Controller
         ]);
 
         $cita = Cita::with(['paciente.persona', 'medico.persona', 'especialidad'])->findOrFail($request->input('id_cita'));
+
+        $user = Auth::user();
+        if ($user && $user->tieneRol('PACIENTE')) {
+            if ($cita->id_paciente != $user->id_persona) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acceso denegado. Solo puedes pagar tus propias citas médicas.',
+                ], 403);
+            }
+        }
 
         $metodo = strtoupper(trim((string) $request->input('metodo')));
         if ($metodo === 'QR_SIMPLE') {

@@ -23,14 +23,20 @@ class CitaController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $user = Auth::user();
+
         $query = Cita::with([
             'paciente.persona',
             'medico.persona',
             'especialidad',
             'usuarioRegistro.persona',
+            'pago.comprobantePago',
         ]);
 
-        if ($request->filled('id_paciente')) {
+        if ($user && $user->tieneRol('PACIENTE')) {
+            // Un paciente SOLO PUEDE VER SUS PROPIAS CITAS
+            $query->where('id_paciente', $user->id_persona);
+        } elseif ($request->filled('id_paciente')) {
             $query->where('id_paciente', $request->input('id_paciente'));
         }
 
@@ -83,6 +89,14 @@ class CitaController extends Controller
      */
     public function historialCitas(int $id): JsonResponse
     {
+        $user = Auth::user();
+        if ($user && $user->tieneRol('PACIENTE') && $user->id_persona != $id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado. Solo puedes consultar tu propio historial de citas.',
+            ], 403);
+        }
+
         $paciente = Paciente::with('persona')->find($id);
 
         if (! $paciente) {
@@ -141,7 +155,11 @@ class CitaController extends Controller
         $motivo = trim((string) ($request->input('motivo_consulta') ?: $request->input('motivo') ?: 'Consulta médica general'));
         $horaInicioRaw = substr(trim((string) $request->input('hora_inicio')), 0, 5);
 
+        $user = Auth::user();
+        $idPaciente = ($user && $user->tieneRol('PACIENTE')) ? $user->id_persona : $request->input('id_paciente');
+
         $request->merge([
+            'id_paciente' => $idPaciente,
             'id_especialidad' => $idEspecialidad,
             'motivo_consulta' => $motivo,
             'hora_inicio' => $horaInicioRaw,
@@ -248,6 +266,7 @@ class CitaController extends Controller
                 'success' => true,
                 'message' => 'Cita médica agendada exitosamente.',
                 'cita' => $cita->load(['paciente.persona', 'medico.persona', 'especialidad']),
+                'data' => $cita,
             ], 201);
         });
     }
@@ -353,6 +372,16 @@ class CitaController extends Controller
                 'success' => false,
                 'message' => 'Cita no encontrada.',
             ], 404);
+        }
+
+        $user = Auth::user();
+        if ($user && $user->tieneRol('PACIENTE')) {
+            if ($cita->id_paciente != $user->id_persona) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acceso denegado. Solo puedes cancelar tus propias citas médicas.',
+                ], 403);
+            }
         }
 
         $validator = Validator::make($request->all(), [

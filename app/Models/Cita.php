@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Cita extends Model
 {
@@ -92,5 +93,10 @@ class Cita extends Model
     public function pagos(): HasMany
     {
         return $this->hasMany(Pago::class, 'id_cita', 'id_cita');
+    }
+
+    public function pago(): HasOne
+    {
+        return $this->hasOne(Pago::class, 'id_cita', 'id_cita');
     }
 }

@@ -429,6 +429,9 @@
         var q = params ? '?' + new URLSearchParams(params).toString() : '';
         return client.request('/pagos' + q);
       },
+      obtener: function (id) {
+        return client.request('/pagos/' + id);
+      },
       crear: function (data) {
         return client.request('/pagos', { method: 'POST', body: data });
       },
