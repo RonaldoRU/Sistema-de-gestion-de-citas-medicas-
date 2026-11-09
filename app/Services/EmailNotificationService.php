@@ -120,42 +120,55 @@ class EmailNotificationService
         }
 
         $pacienteNombre = trim("{$persona->nombres} {$persona->apellidos}");
+        $nitCi = $persona->ci ?? 'S/N';
+        $medicoPersona = $pago->cita?->medico?->persona;
+        $medicoNombre = $medicoPersona ? trim("Dr(a). {$medicoPersona->nombres} {$medicoPersona->apellidos}") : 'Médico de Guardia';
         $numComprobante = $pago->comprobantePago?->numero ?? 'COMP-2026-'.str_pad((string) $pago->id_pago, 4, '0', STR_PAD_LEFT);
         $monto = number_format((float) $pago->monto, 2);
-        $metodo = $pago->metodo ?? 'QR Simple';
+        $metodo = $pago->metodo ?? 'QR';
         $especialidad = $pago->cita?->especialidad?->nombre ?? 'Consulta Especializada';
+        $codCita = $pago->cita?->codigo ?? ('CM-'.str_pad((string) $pago->id_cita, 4, '0', STR_PAD_LEFT));
         $fechaHora = date('d/m/Y H:i', strtotime($pago->fecha_hora ?? now()));
+        $codControl = strtoupper(substr(md5($numComprobante.$pago->id_pago), 0, 2).'-'.substr(md5($codCita), 0, 2).'-'.substr(md5((string) $monto), 0, 2).'-E2-90');
 
         $html = "
-        <div style='font-family: Arial, sans-serif; background-color: #F6F8FB; padding: 25px;'>
-            <div style='max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #D9E0EA; overflow: hidden;'>
-                <div style='background-color: #2F6B55; padding: 25px; text-align: center; color: #ffffff;'>
-                    <h1 style='margin: 0; font-size: 22px;'>Clínica Vida Salud</h1>
-                    <p style='margin: 5px 0 0; font-size: 13px; color: #E4F1EA;'>Comprobante Digital Oficial de Pago</p>
+        <div style='max-width: 420px; margin: 0 auto; font-family: Arial, sans-serif; background-color: #ffffff; border: 2px solid #173E70; border-radius: 6px; padding: 18px 20px; color: #16243A;'>
+            <div style='text-align: center; border-bottom: 2px dashed #CBD5E1; padding-bottom: 12px; margin-bottom: 12px;'>
+                <div style='font-size: 16px; font-weight: bold; color: #173E70;'>CLÍNICA VIDA SALUD S.A.</div>
+                <div style='font-size: 11px; color: #64748B;'>NIT: 1028495024 · Casa Matriz: Av. San Martín #450</div>
+                <div style='font-size: 13px; font-weight: bold; color: #1E4E8C; margin-top: 6px;'>COMPROBANTE ELECTRÓNICO N.º {$numComprobante}</div>
+                <div style='font-size: 11px; color: #64748B;'>Emisión: {$fechaHora}</div>
+            </div>
+            <table style='width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 12px;'>
+                <tr>
+                    <td style='padding: 4px 0; color: #64748B;'>SEÑOR(A):<br><strong style='color: #16243A;'>{$pacienteNombre}</strong></td>
+                    <td style='padding: 4px 0; color: #64748B;'>NIT / CI:<br><strong style='color: #16243A;'>{$nitCi}</strong></td>
+                </tr>
+                <tr>
+                    <td style='padding: 4px 0; color: #64748B;'>MÉDICO:<br><strong style='color: #16243A;'>{$medicoNombre}</strong></td>
+                    <td style='padding: 4px 0; color: #64748B;'>ESPECIALIDAD:<br><strong style='color: #16243A;'>{$especialidad}</strong></td>
+                </tr>
+                <tr>
+                    <td style='padding: 4px 0; color: #64748B;'>FICHA MÉDICA:<br><strong style='color: #1E4E8C;'>{$codCita}</strong></td>
+                    <td style='padding: 4px 0; color: #64748B;'>MÉTODO DE PAGO:<br><strong style='color: #16243A;'>{$metodo}</strong></td>
+                </tr>
+            </table>
+            <div style='background-color: #F7F9FC; border: 1px solid #D5E0EA; border-radius: 4px; padding: 10px 12px; margin-bottom: 12px;'>
+                <div style='display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;'>
+                    <span>Atención Consulta Médica ({$especialidad})</span>
+                    <strong>Bs {$monto}</strong>
                 </div>
-                <div style='padding: 30px; color: #16243A;'>
-                    <div style='text-align: center; margin-bottom: 20px;'>
-                        <span style='font-size: 12px; color: #55617A; text-transform: uppercase;'>N.º de Transacción</span>
-                        <h2 style='color: #2F6B55; margin: 3px 0 0;'>{$numComprobante}</h2>
-                    </div>
-                    <p style='line-height: 1.6; font-size: 15px;'>Estimado(a) <strong>{$pacienteNombre}</strong>, hemos registrado tu pago exitosamente.</p>
-                    <div style='background-color: #F8FAFD; border: 1px dashed #CBD5E1; border-radius: 6px; padding: 18px; margin: 20px 0;'>
-                        <p style='margin: 4px 0;'><strong>Concepto:</strong> {$especialidad}</p>
-                        <p style='margin: 4px 0;'><strong>Ficha Médica:</strong> {$pago->cita?->codigo}</p>
-                        <p style='margin: 4px 0;'><strong>Fecha y Hora de Pago:</strong> {$fechaHora}</p>
-                        <p style='margin: 4px 0;'><strong>Método de Pago:</strong> {$metodo}</p>
-                        <p style='margin: 8px 0 4px; font-size: 16px;'><strong>TOTAL PAGADO:</strong> <span style='color: #2F6B55; font-weight: bold;'>Bs {$monto} BOB</span></p>
-                        <p style='margin: 4px 0;'><strong>Estado:</strong> <span style='color: #2F6B55; font-weight: bold;'>PAGADO / APROBADO</span></p>
-                    </div>
-                    <p style='font-size: 12px; color: #64748B; text-align: center;'>Este documento constituye la constancia formal y electrónica del pago de su consulta médica.</p>
-                </div>
-                <div style='background-color: #F8FAFD; padding: 15px; text-align: center; font-size: 12px; color: #8794AA; border-top: 1px solid #E2E8F0;'>
-                    © ".date('Y').' Clínica Vida Salud · NIT: 1028493021
+                <div style='border-top: 1px solid #D5E0EA; padding-top: 6px; font-size: 14px; font-weight: bold; color: #245C47; text-align: right;'>
+                    TOTAL PAGADO: Bs {$monto} BOB
                 </div>
             </div>
-        </div>';
+            <div style='text-align: center; font-size: 10px; color: #64748B; border-top: 1px dashed #CBD5E1; padding-top: 8px;'>
+                <div style='font-family: monospace; font-weight: bold; margin-bottom: 3px;'>CÓDIGO DE CONTROL: {$codControl}</div>
+                <div>CONSTANCIA OFICIAL DE PAGO Y RESERVA DE FICHA MÉDICA</div>
+            </div>
+        </div>";
 
-        return self::enviar($destinatario, "Comprobante de Pago Digital - {$numComprobante}", $html);
+        return self::enviar($destinatario, "Comprobante de Pago - {$numComprobante} ({$codCita})", $html);
     }
 
     /**

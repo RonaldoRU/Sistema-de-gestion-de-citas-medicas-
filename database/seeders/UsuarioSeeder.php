@@ -41,6 +41,21 @@ class UsuarioSeeder extends Seeder
             ['ci' => '10954052', 'nombre_usuario' => 'reguez', 'id_rol' => 3, 'estado' => 'ACTIVO'],
             ['ci' => '9856412', 'nombre_usuario' => 'hflores', 'id_rol' => 3, 'estado' => 'INACTIVO'],
             ['ci' => '3000003', 'nombre_usuario' => 'dr.perez', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+
+            // Cuentas de Médicos Especialistas
+            ['ci' => '13482910', 'nombre_usuario' => 'dr.villarroel', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '14295831', 'nombre_usuario' => 'dr.camacho', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '15839204', 'nombre_usuario' => 'dr.zeballos', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '16928475', 'nombre_usuario' => 'dr.hurtado', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '17839201', 'nombre_usuario' => 'dr.paz', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '18940291', 'nombre_usuario' => 'dr.torrico', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '19820394', 'nombre_usuario' => 'dr.morales', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '20938412', 'nombre_usuario' => 'dr.anez', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '21948523', 'nombre_usuario' => 'dr.rivera', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+            ['ci' => '22849534', 'nombre_usuario' => 'dr.saldana', 'id_rol' => 3, 'estado' => 'ACTIVO'],
+
+            // Paciente
+            ['ci' => '9802455', 'nombre_usuario' => 'paciente', 'id_rol' => 4, 'estado' => 'ACTIVO'],
         ];
 
         foreach ($usuarios as $item) {

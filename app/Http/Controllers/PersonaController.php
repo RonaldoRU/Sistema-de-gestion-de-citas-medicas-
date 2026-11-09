@@ -66,11 +66,14 @@ class PersonaController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'ci' => 'required|string|max:20|unique:persona,ci',
+            'ci' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', 'unique:persona,ci'],
             'nombres' => 'required|string|max:80',
             'apellidos' => 'required|string|max:80',
             'telefono' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:150|unique:persona,email',
+        ], [
+            'ci.unique' => 'La Cédula de Identidad (CI) ya se encuentra registrada.',
+            'ci.regex' => 'El Carnet de Identidad (CI) debe contener únicamente dígitos numéricos.',
         ]);
 
         if ($validator->fails()) {
@@ -119,12 +122,15 @@ class PersonaController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'ci' => ['required', 'string', 'max:20', Rule::unique('persona', 'ci')->ignore($persona->id_persona, 'id_persona')],
+            'ci' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', Rule::unique('persona', 'ci')->ignore($persona->id_persona, 'id_persona')],
             'nombres' => 'required|string|max:80',
             'apellidos' => 'required|string|max:80',
             'telefono' => 'nullable|string|max:20',
             'email' => ['nullable', 'email', 'max:150', Rule::unique('persona', 'email')->ignore($persona->id_persona, 'id_persona')],
             'activo' => 'nullable|boolean',
+        ], [
+            'ci.unique' => 'La Cédula de Identidad (CI) ya se encuentra registrada.',
+            'ci.regex' => 'El Carnet de Identidad (CI) debe contener únicamente dígitos numéricos.',
         ]);
 
         if ($validator->fails()) {

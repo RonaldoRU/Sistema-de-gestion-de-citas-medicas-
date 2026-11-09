@@ -92,29 +92,26 @@ class AuditoriaService
             request()->attributes->set('vs_audit_logged', true);
         }
 
-        // Restricción anti-duplicados: Evitar registrar más de dos acciones del mismo tipo en la bitácora
-        // Si el último evento registrado para esta tabla/registro o usuario tiene idéntico tipo_accion y detalle, no duplicar.
-        // Si cualquier campo es diferente, la restricción NO se levanta y se registra normalmente.
-        $queryDuplicado = Bitacora::query();
+        // Anti-rebote de 2 segundos únicamente para evitar que una misma petición HTTP se registre dos veces
+        // en el mismo instante. Toda acción real posterior (incluyendo cada LOGIN, LOGOUT, modificación o cambio de estado)
+        // se almacena siempre como un nuevo registro en la bitácora.
+        $queryDuplicado = Bitacora::query()
+            ->where('fecha_hora', '>=', now()->subSeconds(2))
+            ->where('tipo_accion', $tipoUpper);
+
         if ($tablaAfectada && $idRegistroAfectado) {
             $queryDuplicado->where('tabla_afectada', $tablaAfectada)
-                ->where('id_registro_afectado', $idRegistroAfectado)
-                ->where('tipo_accion', $tipoUpper);
+                ->where('id_registro_afectado', $idRegistroAfectado);
         } else {
-            $queryDuplicado->where('modulo', strtoupper($modulo))
-                ->where('tipo_accion', $tipoUpper);
+            $queryDuplicado->where('modulo', strtoupper($modulo));
             if ($userId) {
                 $queryDuplicado->where('id_usuario', $userId);
             }
         }
 
         $ultimo = $queryDuplicado->latest('id_bitacora')->first();
-        if ($ultimo) {
-            $mismoDetalle = ($ultimo->detalle === $detalleTexto);
-            $mismaDesc = ($ultimo->descripcion === $desc);
-            if ($mismoDetalle || $mismaDesc) {
-                return $ultimo;
-            }
+        if ($ultimo && $ultimo->detalle === $detalleTexto) {
+            return $ultimo;
         }
 
         return Bitacora::create([

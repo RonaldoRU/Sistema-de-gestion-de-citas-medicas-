@@ -374,3 +374,53 @@ test('administrador y medico pueden consultar los perfiles de todos los paciente
     $respListMed = $this->getJson('/api/pacientes');
     $respListMed->assertStatus(200);
 });
+
+test('bitacora registra login, logout y todas las acciones de paciente, medico y administrador', function (): void {
+    // 1. Login de Paciente
+    $loginPac = $this->postJson('/api/auth/login', [
+        'identificador' => $this->userPaciente1->nombre_usuario,
+        'password' => 'Paciente123*',
+    ]);
+    $loginPac->assertStatus(200);
+
+    // 2. Logout de Paciente
+    $logoutPac = $this->postJson('/api/auth/logout', [
+        'id_usuario' => $this->userPaciente1->id_usuario,
+        'usuario' => $this->userPaciente1->nombre_usuario,
+    ]);
+    $logoutPac->assertStatus(200);
+
+    // 3. Login de Médico y configurar horario
+    $loginMed = $this->postJson('/api/auth/login', [
+        'identificador' => $this->userMedico->nombre_usuario,
+        'password' => 'Medico123*',
+    ]);
+    $loginMed->assertStatus(200);
+
+    $this->actingAs($this->userMedico);
+    $horResp = $this->postJson('/api/medicos/'.$this->medico->id_persona.'/horarios', [
+        'dias_semana' => [1, 2],
+        'hora_inicio' => '08:00',
+        'hora_fin' => '12:00',
+        'duracion_bloque_min' => 30,
+    ]);
+    $horResp->assertStatus(200);
+
+    // 4. Login de Administrador y consultar Bitácora
+    $loginAdm = $this->postJson('/api/auth/login', [
+        'identificador' => $this->userAdmin->nombre_usuario,
+        'password' => 'Admin123*',
+    ]);
+    $loginAdm->assertStatus(200);
+
+    $this->actingAs($this->userAdmin);
+    $bitaResp = $this->getJson('/api/bitacora?per_page=200');
+    $bitaResp->assertStatus(200);
+
+    $eventos = $bitaResp->json('data.data') ?: $bitaResp->json('data');
+    $acciones = array_column($eventos, 'tipo_accion');
+
+    expect($acciones)->toContain('LOGIN')
+        ->and($acciones)->toContain('LOGOUT')
+        ->and($acciones)->toContain('CREAR');
+});

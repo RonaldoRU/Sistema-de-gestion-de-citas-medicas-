@@ -92,18 +92,20 @@ class UsuarioController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'ci' => 'required|string|max:20|unique:persona,ci',
+            'ci' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', 'unique:persona,ci'],
             'nombres' => 'required|string|max:80',
             'apellidos' => 'required|string|max:80',
             'email' => 'required|email|max:150|unique:persona,email',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9]{8}$/'],
             'id_rol' => 'required|exists:rol,id_rol',
             'nombre_usuario' => 'nullable|string|max:50|unique:usuario,nombre_usuario',
             'password' => 'required|string|min:6',
             'cargo' => 'nullable|string|max:60',
         ], [
             'ci.unique' => 'La Cédula de Identidad (CI) ya se encuentra registrada en el sistema.',
+            'ci.regex' => 'El Carnet de Identidad (CI) debe contener únicamente dígitos numéricos.',
             'email.unique' => 'El correo electrónico ya pertenece a otra persona registrada.',
+            'telefono.regex' => 'El teléfono debe contener exactamente 8 dígitos numéricos (Eje 71354665).',
             'id_rol.exists' => 'El rol seleccionado no es válido.',
             'nombre_usuario.unique' => 'El nombre de usuario ya está en uso.',
         ]);
@@ -209,15 +211,17 @@ class UsuarioController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'ci' => ['nullable', 'string', 'max:20', Rule::unique('persona', 'ci')->ignore($personaId, 'id_persona')],
+            'ci' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/', Rule::unique('persona', 'ci')->ignore($personaId, 'id_persona')],
             'nombres' => 'required|string|max:80',
             'apellidos' => 'required|string|max:80',
             'email' => ['required', 'email', 'max:150', Rule::unique('persona', 'email')->ignore($personaId, 'id_persona')],
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9]{8}$/'],
             'password' => 'nullable|string|min:6',
         ], [
-            'email.unique' => 'El correo electrónico ya pertenece a otra persona registrada.',
             'ci.unique' => 'La Cédula de Identidad ya se encuentra registrada.',
+            'ci.regex' => 'El Carnet de Identidad (CI) debe contener únicamente dígitos numéricos.',
+            'email.unique' => 'El correo electrónico ya pertenece a otra persona registrada.',
+            'telefono.regex' => 'El teléfono debe contener exactamente 8 dígitos numéricos (Eje 71354665).',
         ]);
 
         if ($validator->fails()) {

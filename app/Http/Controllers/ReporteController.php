@@ -46,7 +46,7 @@ class ReporteController extends Controller
             'tipo' => 'required|string|max:60',
             'fecha_desde' => 'nullable|date',
             'fecha_hasta' => 'nullable|date|after_or_equal:fecha_desde',
-            'formato' => 'nullable|string|in:PDF,CSV',
+            'formato' => 'nullable|string|in:PDF,CSV,XLSX,EXCEL',
             'filtros' => 'nullable|array',
             'parametros' => 'nullable|array',
         ]);

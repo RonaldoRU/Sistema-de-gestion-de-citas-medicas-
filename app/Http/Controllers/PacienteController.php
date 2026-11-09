@@ -113,17 +113,19 @@ class PacienteController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'ci' => 'required|string|max:20|unique:persona,ci',
+            'ci' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', 'unique:persona,ci'],
             'nombres' => 'required|string|max:80',
             'apellidos' => 'required|string|max:80',
             'sexo' => 'required|string|in:M,F',
             'fecha_nacimiento' => 'required|date',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9]{8}$/'],
             'email' => 'nullable|email|max:150|unique:persona,email',
             'direccion' => 'nullable|string|max:200',
         ], [
             'ci.unique' => 'La Cédula de Identidad (CI) ya pertenece a otra persona registrada.',
             'ci.required' => 'La Cédula de Identidad (CI) es obligatoria.',
+            'ci.regex' => 'El Carnet de Identidad (CI) debe contener únicamente dígitos numéricos.',
+            'telefono.regex' => 'El teléfono debe contener exactamente 8 dígitos numéricos (Eje 71354665).',
             'sexo.in' => 'El sexo debe ser M o F.',
             'fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
         ]);
@@ -210,14 +212,17 @@ class PacienteController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'ci' => ['required', 'string', 'max:20', Rule::unique('persona', 'ci')->ignore($personaId, 'id_persona')],
+            'ci' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', Rule::unique('persona', 'ci')->ignore($personaId, 'id_persona')],
             'nombres' => 'required|string|max:80',
             'apellidos' => 'required|string|max:80',
             'sexo' => 'required|string|in:M,F',
             'fecha_nacimiento' => 'required|date',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9]{8}$/'],
             'email' => ['nullable', 'email', 'max:150', Rule::unique('persona', 'email')->ignore($personaId, 'id_persona')],
             'direccion' => 'nullable|string|max:200',
+        ], [
+            'ci.regex' => 'El Carnet de Identidad (CI) debe contener únicamente dígitos numéricos.',
+            'telefono.regex' => 'El teléfono debe contener exactamente 8 dígitos numéricos (Eje 71354665).',
         ]);
 
         if ($validator->fails()) {
@@ -353,12 +358,13 @@ class PacienteController extends Controller
             'apellidos' => 'required|string|max:80',
             'sexo' => 'required|string|in:M,F',
             'fecha_nacimiento' => 'required|date',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9]{8}$/'],
             'email' => 'required|email|max:150|unique:persona,email',
             'direccion' => 'nullable|string|max:200',
             'password' => 'required|string|min:6',
         ], [
             'ci.unique' => 'La Cédula de Identidad (CI) ya se encuentra registrada en el sistema.',
+            'telefono.regex' => 'El teléfono debe contener exactamente 8 dígitos numéricos (Eje 71354665).',
             'email.unique' => 'El correo electrónico ya se encuentra registrado en el sistema.',
         ]);
 

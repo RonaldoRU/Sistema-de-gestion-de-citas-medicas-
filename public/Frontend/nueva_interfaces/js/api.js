@@ -389,13 +389,15 @@
         return client.request('/citas/' + id + '/reprogramar', { method: 'PUT', body: data });
       },
       cancelar: function (id, motivo) {
+        var mot = motivo || 'Cancelación justificada';
         return client.request('/citas/' + id + '/cancelar', {
           method: 'PUT',
-          body: { motivo: motivo || 'Cancelación justificada' }
+          body: { motivo: mot, motivo_cancelacion: mot }
         });
       },
       atender: function (id, data) {
-        return client.request('/citas/' + id + '/atender', { method: 'PUT', body: data || {} });
+        var payload = Object.assign({ estado: 'ATENDIDA' }, data || {});
+        return client.request('/citas/' + id + '/atender', { method: 'PUT', body: payload });
       },
       cambiarEstado: function (id, estado, observaciones) {
         return client.request('/citas/' + id + '/estado', {
@@ -451,6 +453,13 @@
 
     // ---------- Reportes Administrativos ----------
     reportes: {
+      listar: function (params) {
+        var q = params ? '?' + new URLSearchParams(params).toString() : '';
+        return client.request('/reportes' + q);
+      },
+      crear: function (data) {
+        return client.request('/reportes', { method: 'POST', body: data });
+      },
       obtener: function (tipo, params) {
         var data = Object.assign({ tipo: tipo, tipo_reporte: tipo }, params || {});
         return client.request('/reportes', { method: 'POST', body: data }).then(function (res) {

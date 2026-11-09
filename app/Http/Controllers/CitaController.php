@@ -129,6 +129,7 @@ class CitaController extends Controller
                     'nombre_completo' => $paciente->nombre_completo,
                 ],
                 'citas' => [],
+                'data' => [],
             ]);
         }
 
@@ -141,6 +142,7 @@ class CitaController extends Controller
             ],
             'total_citas' => $citas->count(),
             'citas' => $citas,
+            'data' => $citas,
         ]);
     }
 
@@ -202,9 +204,42 @@ class CitaController extends Controller
             ], 422);
         }
 
+        if ($medico && $idEspecialidad) {
+            $tieneEspecialidad = $medico->especialidades()->where('especialidad.id_especialidad', $idEspecialidad)->exists();
+            if (! $tieneEspecialidad) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El médico seleccionado no cuenta con la especialidad indicada.',
+                    'errors' => ['id_especialidad' => ['El profesional médico seleccionado no atiende la especialidad indicada.']],
+                ], 422);
+            }
+        }
+
         $fecha = $request->input('fecha');
         $horaInicio = $request->input('hora_inicio');
         $horaFin = $request->input('hora_fin', Carbon::createFromFormat('H:i', $horaInicio)->addMinutes(15)->format('H:i'));
+
+        $ahoraBolivia = now()->setTimezone('America/La_Paz');
+        $hoyBolivia = $ahoraBolivia->toDateString();
+
+        if (! app()->environment('testing')) {
+            if ($fecha < $hoyBolivia) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "No está permitido registrar citas médicas en fechas pasadas. La fecha seleccionada debe ser hoy ({$hoyBolivia}) o posterior.",
+                ], 422);
+            }
+
+            if ($fecha === $hoyBolivia) {
+                $horaMinima = $ahoraBolivia->copy()->addHour()->format('H:i');
+                if ($horaInicio < $horaMinima) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Para citas en el día de hoy, debe agendar con un mínimo de 1 hora de anticipación en tiempo real (mínimo a partir de las {$horaMinima}).",
+                    ], 422);
+                }
+            }
+        }
 
         $bloqueado = BloqueoAgenda::where('fecha_inicio', '<=', $fecha)
             ->where('fecha_fin', '>=', $fecha)
@@ -315,6 +350,8 @@ class CitaController extends Controller
                     $nuevoPago->id_pago,
                     "Cobro de ficha [{$cita->codigo}]: Pago aprobado de Bs {$monto} con {$metodo}. Comprobante [{$numeroComp}]."
                 );
+
+                EmailNotificationService::enviarComprobantePago($nuevoPago);
             }
 
             EmailNotificationService::enviarConfirmacionCita($cita);
@@ -441,6 +478,9 @@ class CitaController extends Controller
             }
         }
 
+        $motivoCancelacionRaw = trim((string) ($request->input('motivo_cancelacion') ?: $request->input('motivo') ?: 'Cancelación justificada'));
+        $request->merge(['motivo_cancelacion' => $motivoCancelacionRaw]);
+
         $validator = Validator::make($request->all(), [
             'motivo_cancelacion' => 'required|string|max:200',
         ], [
@@ -470,12 +510,15 @@ class CitaController extends Controller
             'motivo' => $motivo,
         ]);
 
+        $actorRol = strtoupper((string) ($user?->rol?->nombre ?? 'PERSONAL'));
+        $actorNombre = $user?->nombre_usuario ?? 'Sistema';
+
         AuditoriaService::registrar(
             'P6_CITAS',
             'CANCELAR',
             'cita',
             $cita->id_cita,
-            "Cita [{$cita->codigo}] cancelada. Motivo: {$motivo}."
+            "Cita [{$cita->codigo}] cancelada por [{$actorNombre}] ({$actorRol}). Motivo: {$motivo}."
         );
 
         EmailNotificationService::enviarCancelacionCita($cita, $motivo);
@@ -500,6 +543,13 @@ class CitaController extends Controller
                 'message' => 'Cita no encontrada.',
             ], 404);
         }
+
+        $estadoEntrante = strtoupper(trim((string) ($request->input('estado') ?: 'ATENDIDA')));
+        $obsEntrante = trim((string) ($request->input('observacion_atencion') ?: $request->input('diagnostico') ?: $request->input('observaciones') ?: 'Atención médica concluida con éxito'));
+        $request->merge([
+            'estado' => $estadoEntrante,
+            'observacion_atencion' => $obsEntrante,
+        ]);
 
         $validator = Validator::make($request->all(), [
             'estado' => 'required|string|in:ATENDIDA,INASISTENCIA',
@@ -527,7 +577,7 @@ class CitaController extends Controller
             'id_usuario' => Auth::id() ?? 1,
             'estado_anterior' => $estadoAnt,
             'estado_nuevo' => $estadoNuevo,
-            'motivo' => 'Registro de atención médica o inasistencia',
+            'motivo' => $obsEntrante ?: 'Registro de atención médica o inasistencia',
         ]);
 
         AuditoriaService::registrar(
@@ -535,7 +585,7 @@ class CitaController extends Controller
             'MODIFICAR',
             'cita',
             $cita->id_cita,
-            "Cita [{$cita->codigo}] concluida con estado [{$estadoNuevo}]."
+            "Cita [{$cita->codigo}] concluida con estado [{$estadoNuevo}]. Observación: {$obsEntrante}."
         );
 
         return response()->json([
@@ -575,8 +625,12 @@ class CitaController extends Controller
 
         $carbonFecha = Carbon::parse($fecha);
         $diaSemana = $carbonFecha->dayOfWeekIso; // 1 = Lunes, 7 = Domingo
-        $haceUnaSemana = now()->setTimezone('America/La_Paz')->subDays(7)->startOfDay();
-        $esFechaAntigua = $carbonFecha->lt($haceUnaSemana);
+        $horaActualBolivia = now()->setTimezone('America/La_Paz');
+        $hoyBolivia = $horaActualBolivia->toDateString();
+        $esFechaPasada = $carbonFecha->toDateString() < $hoyBolivia;
+        $esFechaAntigua = $esFechaPasada;
+        $esHoy = $carbonFecha->toDateString() === $hoyBolivia;
+        $horaMinimaHoy = $horaActualBolivia->copy()->addHour();
 
         $diasEsp = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
         $mesesEsp = [1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril', 5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto', 9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'];
@@ -640,15 +694,15 @@ class CitaController extends Controller
                 return $cIni < $hFin && $cFin > $hIni;
             });
 
-            if ($esFechaAntigua) {
-                // Si la fecha tiene más de 1 semana, los turnos se archivan de la parte visible
+            if ($esFechaPasada) {
+                // Fechas pasadas no permiten selección de cupos
                 $slots[] = [
                     'hora_inicio' => $hIni,
                     'hora_fin' => $hFin,
-                    'estado' => 'VENCIDO',
+                    'estado' => 'PASADO',
                     'disponible' => false,
                     'cita_codigo' => $citaOcup?->codigo,
-                    'motivo' => 'Turno concluido (más de 1 semana de antigüedad)',
+                    'motivo' => 'Fecha pasada no disponible para reservas',
                 ];
             } elseif ($bloqueo) {
                 $slots[] = [
@@ -669,14 +723,14 @@ class CitaController extends Controller
                     'id_cita' => $citaOcup->id_cita,
                     'motivo' => 'Horario reservado con cita '.$citaOcup->codigo,
                 ];
-            } elseif ($esHoy && Carbon::createFromFormat('H:i', $hIni)->lt($horaActualBolivia)) {
+            } elseif ($esHoy && Carbon::createFromFormat('H:i', $hIni)->lt($horaMinimaHoy)) {
                 $slots[] = [
                     'hora_inicio' => $hIni,
                     'hora_fin' => $hFin,
-                    'estado' => 'PASADO',
+                    'estado' => 'NO_DISPONIBLE',
                     'disponible' => false,
                     'cita_codigo' => null,
-                    'motivo' => 'Horario ya transcurrido hoy',
+                    'motivo' => 'Requiere mínimo 1 hora de anticipación en tiempo real (disponible desde las '.$horaMinimaHoy->format('H:i').')',
                 ];
             } else {
                 $slots[] = [

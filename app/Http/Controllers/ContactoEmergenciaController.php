@@ -48,6 +48,13 @@ class ContactoEmergenciaController extends Controller
             ], 404);
         }
 
+        $nombreCompleto = trim((string) ($request->input('nombre_completo') ?: $request->input('nombre') ?: ''));
+        $parentesco = trim((string) ($request->input('parentesco') ?: $request->input('relacion') ?: 'Familiar'));
+        $request->merge([
+            'nombre_completo' => $nombreCompleto,
+            'parentesco' => $parentesco,
+        ]);
+
         $validator = Validator::make($request->all(), [
             'nombre_completo' => 'required|string|max:150',
             'parentesco' => 'required|string|max:40',
@@ -67,17 +74,17 @@ class ContactoEmergenciaController extends Controller
 
         $contacto = ContactoEmergencia::create([
             'id_paciente' => $paciente->id_persona,
-            'nombre_completo' => trim($request->input('nombre_completo')),
-            'parentesco' => trim($request->input('parentesco')),
+            'nombre_completo' => $nombreCompleto,
+            'parentesco' => $parentesco,
             'telefono' => trim($request->input('telefono')),
         ]);
 
         AuditoriaService::registrar(
             'P4_PACIENTES',
-            'CONTACTO_EMERGENCIA',
+            'REGISTRAR',
             'contacto_emergencia',
             $contacto->id_contacto,
-            "Se agregó contacto de emergencia [{$contacto->nombre_completo}] al paciente [{$paciente->codigo}]."
+            "Se agregó contacto de emergencia [{$contacto->nombre_completo}] ({$contacto->parentesco}) al paciente [{$paciente->codigo}]."
         );
 
         return response()->json([

@@ -93,18 +93,20 @@ class MedicoController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'ci' => 'required|string|max:20|unique:persona,ci',
+            'ci' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', 'unique:persona,ci'],
             'nombres' => 'required|string|max:80',
             'apellidos' => 'required|string|max:80',
             'matricula' => 'required|string|max:30|unique:medico,matricula',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9]{8}$/'],
             'email' => 'required|email|max:150|unique:persona,email',
             'especialidades' => 'required|array|min:1',
             'especialidades.*' => 'exists:especialidad,id_especialidad',
             'password' => 'nullable|string|min:6',
         ], [
-            'matricula.unique' => 'La matrícula profesional ya pertenece a otro médico registrado.',
             'ci.unique' => 'La Cédula de Identidad ya se encuentra registrada.',
+            'ci.regex' => 'El Carnet de Identidad (CI) debe contener únicamente dígitos numéricos.',
+            'matricula.unique' => 'La matrícula profesional ya pertenece a otro médico registrado.',
+            'telefono.regex' => 'El teléfono debe contener exactamente 8 dígitos numéricos (Eje 71354665).',
             'email.unique' => 'El correo electrónico ya se encuentra registrado.',
             'especialidades.required' => 'Debe asociar al menos una especialidad médica al profesional.',
         ]);
@@ -202,12 +204,13 @@ class MedicoController extends Controller
             'nombres' => 'required|string|max:80',
             'apellidos' => 'required|string|max:80',
             'matricula' => ['required', 'string', 'max:30', Rule::unique('medico', 'matricula')->ignore($personaId, 'id_persona')],
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9]{8}$/'],
             'email' => ['required', 'email', 'max:150', Rule::unique('persona', 'email')->ignore($personaId, 'id_persona')],
             'especialidades' => 'nullable|array',
             'especialidades.*' => 'exists:especialidad,id_especialidad',
         ], [
             'matricula.unique' => 'La matrícula profesional ya se encuentra en uso por otro médico.',
+            'telefono.regex' => 'El teléfono debe contener exactamente 8 dígitos numéricos (Eje 71354665).',
         ]);
 
         if ($validator->fails()) {

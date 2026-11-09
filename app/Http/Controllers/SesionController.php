@@ -116,6 +116,16 @@ class SesionController extends Controller
 
             $intentosRestantes = 3 - $user->intentos_fallidos;
 
+            AuditoriaService::registrar(
+                'P1_SEGURIDAD',
+                'LOGIN',
+                'usuario',
+                $user->id_usuario,
+                "Intento fallido de inicio de sesión ({$user->intentos_fallidos}/3) para el usuario [{$user->nombre_usuario}].",
+                $user->id_usuario,
+                "Intento fallido de login ({$user->intentos_fallidos}/3): {$user->nombre_usuario}"
+            );
+
             return response()->json([
                 'success' => false,
                 'message' => "Credenciales inválidas. Le restan {$intentosRestantes} intento(s) antes del bloqueo temporal.",
@@ -166,14 +176,17 @@ class SesionController extends Controller
             default => '/Frontend/stitch/html/inicio.html',
         };
 
+        $horaLogin = now()->setTimezone('America/La_Paz')->format('d/m/Y H:i:s');
+        $nombreCompleto = trim(($user->persona?->nombres ?? '').' '.($user->persona?->apellidos ?? '')) ?: $user->nombre_usuario;
+
         AuditoriaService::registrar(
             'P1_SEGURIDAD',
             'LOGIN',
             'usuario',
             $user->id_usuario,
-            "Inicio de sesión exitoso. Usuario: [{$user->nombre_usuario}], Rol: [{$rolNombre}].",
+            "Inicio de sesión exitoso en la plataforma web. Usuario: [{$user->nombre_usuario}] ({$nombreCompleto}), Rol: [{$rolNombre}], Hora: [{$horaLogin}].",
             $user->id_usuario,
-            "Inicio de sesión: {$user->nombre_usuario} ({$rolNombre})"
+            "Inicio de sesión: {$user->nombre_usuario} ({$rolNombre}) - {$horaLogin}"
         );
 
         if ($request->wantsJson() || $request->is('api/*')) {
@@ -277,16 +290,16 @@ class SesionController extends Controller
 
         $targetUserId = $user?->id_usuario ?? $sesionModel?->id_usuario;
         $targetUsername = $user?->nombre_usuario ?? $sesionModel?->usuario?->nombre_usuario ?? ($request->input('usuario') ?: 'usuario');
-        $targetRol = $user?->rol?->nombre ?? $sesionModel?->usuario?->rol?->nombre ?? 'Usuario';
+        $targetRol = strtoupper((string) ($user?->rol?->nombre ?? $sesionModel?->usuario?->rol?->nombre ?? 'USUARIO'));
 
         AuditoriaService::registrar(
             'P1_SEGURIDAD',
             'LOGOUT',
             'usuario',
             $targetUserId,
-            "Cierre de sesión y revocación exitosa del usuario [{$targetUsername}] (Rol: [{$targetRol}], inicio: {$fechaInicio->format('d/m/Y H:i:s')}, cierre: {$ahora->format('d/m/Y H:i:s')}).",
+            "Cierre de sesión y revocación exitosa del usuario [{$targetUsername}] (Rol: [{$targetRol}], inicio: {$fechaInicio->format('d/m/Y H:i:s')}, cierre: {$ahora->format('d/m/Y H:i:s')}, duración: {$duracionTexto}).",
             $targetUserId,
-            "Cierre de sesión: {$targetUsername} ({$targetRol})"
+            "Cierre de sesión: {$targetUsername} ({$targetRol}) - {$ahora->format('d/m/Y H:i:s')}"
         );
 
         Auth::logout();

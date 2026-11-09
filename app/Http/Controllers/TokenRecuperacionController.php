@@ -102,8 +102,11 @@ class TokenRecuperacionController extends Controller
      */
     public function restablecerContrasena(Request $request): JsonResponse
     {
+        $codigoRaw = trim((string) ($request->input('codigo') ?: $request->input('token') ?: ''));
+        $request->merge(['codigo' => $codigoRaw]);
+
         $validator = Validator::make($request->all(), [
-            'identificador' => 'required|string',
+            'identificador' => 'nullable|string',
             'codigo' => 'required|string|size:6',
             'password' => 'required|string|min:6|confirmed',
         ], [
@@ -119,35 +122,46 @@ class TokenRecuperacionController extends Controller
             ], 422);
         }
 
-        $identificador = trim($request->input('identificador'));
+        $identificador = trim((string) $request->input('identificador', ''));
         $codigoIngresado = trim($request->input('codigo'));
         $tokenHash = hash('sha256', $codigoIngresado);
 
-        $user = Usuario::where('nombre_usuario', $identificador)
-            ->orWhereHas('persona', function ($q) use ($identificador): void {
-                $q->where('email', $identificador)
-                    ->orWhere('ci', $identificador);
-            })
-            ->first();
-
-        if (! $user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Usuario no encontrado.',
-            ], 404);
+        $user = null;
+        if ($identificador !== '') {
+            $user = Usuario::where('nombre_usuario', $identificador)
+                ->orWhereHas('persona', function ($q) use ($identificador): void {
+                    $q->where('email', $identificador)
+                        ->orWhere('ci', $identificador);
+                })
+                ->first();
         }
 
-        $registroToken = TokenRecuperacion::where('id_usuario', $user->id_usuario)
-            ->where('token_hash', $tokenHash)
+        $tokenQuery = TokenRecuperacion::where('token_hash', $tokenHash)
             ->where('usado', false)
-            ->where('fecha_expiracion', '>', now())
-            ->first();
+            ->where('fecha_expiracion', '>', now());
+
+        if ($user) {
+            $tokenQuery->where('id_usuario', $user->id_usuario);
+        }
+
+        $registroToken = $tokenQuery->latest('id_token')->first();
 
         if (! $registroToken) {
             return response()->json([
                 'success' => false,
                 'message' => 'Código de verificación inválido o expirado (máximo 15 minutos de vigencia).',
             ], 400);
+        }
+
+        if (! $user) {
+            $user = Usuario::find($registroToken->id_usuario);
+        }
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado.',
+            ], 404);
         }
 
         $user->update([

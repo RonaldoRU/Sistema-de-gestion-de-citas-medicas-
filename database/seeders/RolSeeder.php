@@ -16,6 +16,7 @@ class RolSeeder extends Seeder
             ['id_rol' => 1, 'nombre' => 'ADMINISTRADOR', 'descripcion' => 'Acceso total al sistema y configuración global'],
             ['id_rol' => 2, 'nombre' => 'RECEPCIONISTA', 'descripcion' => 'Gestión de pacientes, agenda y confirmación de citas'],
             ['id_rol' => 3, 'nombre' => 'MEDICO', 'descripcion' => 'Consulta de agenda, citas asignadas y registro de atención'],
+            ['id_rol' => 4, 'nombre' => 'PACIENTE', 'descripcion' => 'Acceso web para auto-reserva de citas, consulta de fichas y pagos'],
         ];
 
         foreach ($roles as $rol) {
