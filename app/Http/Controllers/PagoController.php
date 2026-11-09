@@ -62,7 +62,7 @@ class PagoController extends Controller
         }
 
         $pagos = $query->orderBy('id_pago', 'desc')
-            ->paginate($request->input('per_page', 25));
+            ->paginate($request->input('per_page', 200));
 
         $totalRecaudado = (float) Pago::where('estado', 'APROBADO')->sum('monto');
         $totalReembolsado = (float) Reembolso::where('estado', 'PROCESADO')->sum('monto');

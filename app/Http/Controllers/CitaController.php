@@ -80,7 +80,7 @@ class CitaController extends Controller
             $query->where('fecha', '<=', $request->input('fecha_hasta'));
         }
 
-        $citas = $query->orderBy('fecha', 'desc')->orderBy('hora_inicio', 'asc')->paginate($request->input('per_page', 20));
+        $citas = $query->orderBy('fecha', 'desc')->orderBy('hora_inicio', 'asc')->paginate($request->input('per_page', 200));
 
         return response()->json([
             'success' => true,

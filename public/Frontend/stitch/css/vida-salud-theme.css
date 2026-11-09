@@ -1276,17 +1276,41 @@ table {
 
 /* ---------- Tablas ---------- */
 .vs-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  max-height: 580px;
   overflow-x: auto;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+}
+.vs-table-wrap::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+.vs-table-wrap::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.vs-table-wrap::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 5px;
+}
+.vs-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: var(--vs-forest);
 }
 
 .vs-table {
   width: 100%;
+  min-width: max-content;
   font-size: 0.8125rem;
   text-align: left;
 }
 
 .vs-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
   font-size: 0.6875rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;

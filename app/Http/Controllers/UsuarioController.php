@@ -54,7 +54,7 @@ class UsuarioController extends Controller
             });
         }
 
-        $usuarios = $query->orderBy('id_usuario', 'desc')->paginate($request->input('per_page', 15));
+        $usuarios = $query->orderBy('id_usuario', 'desc')->paginate($request->input('per_page', 200));
 
         return response()->json([
             'success' => true,

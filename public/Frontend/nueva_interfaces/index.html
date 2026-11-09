@@ -87,22 +87,30 @@ nav{flex:1;overflow-y:auto;padding-bottom:2rem}
 #app.col .pkg>button::after{content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translate(-4px,-50%);background:var(--ink);color:#fff;padding:.35rem .65rem;font-size:.8rem;white-space:nowrap;border-radius:3px;opacity:0;pointer-events:none;transition:opacity var(--t),transform var(--t);z-index:50}
 #app.col .pkg>button:hover::after,#app.col .pkg>button:focus-visible::after{opacity:1;transform:translate(0,-50%)}
 
-main{padding:2rem 3rem 4rem;max-width:1300px;overflow-x:hidden}
+main{padding:2rem 2.4rem 4rem;width:100%;max-width:100%;min-width:0;overflow-x:hidden}
 .top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.8rem;font-size:.86rem;color:var(--mute)}
 .top>.crumb{display:flex;align-items:center}
 .crumb b{color:var(--ink);font-weight:600}
 .ham{background:none;border:1px solid var(--line);width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border-radius:3px;margin-right:1rem;color:var(--acc)}
 .ham:hover{background:var(--acc-soft)}
 
-#view{transition:opacity var(--t),transform var(--t)}
+#view{transition:opacity var(--t),transform var(--t);min-width:0;width:100%}
 #view.out{opacity:0;transform:translateY(6px)}
-.head{background:var(--hb,#E3ECF8);border-left:4px solid var(--hc,#1E4E8C);padding:1.4rem 1.8rem;margin:0 0 1.8rem;display:flex;justify-content:space-between;align-items:flex-end;gap:2rem}
+.head{background:var(--hb,#E3ECF8);border-left:4px solid var(--hc,#1E4E8C);padding:1.4rem 1.8rem;margin:0 0 1.8rem;display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap}
 .head p{color:#3E4A60;max-width:70ch;margin-top:.4rem;font-size:.92rem}
 
-/* Tablas */
-table{width:100%;border-collapse:collapse;font-size:.88rem;background:#fff;border:1px solid var(--line)}
-th{text-align:left;font-weight:600;color:var(--acc);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--acc);padding:.7rem .6rem;background:#F8FAFD}
-td{border-bottom:1px solid var(--line);padding:.65rem .6rem;vertical-align:middle}
+/* Tablas y Matrices con Desplazamiento Horizontal y Vertical Completo */
+.table-scroll-wrap{width:100%;max-width:100%;min-width:0;background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:0 1px 3px rgba(15,23,42,.04);overflow:hidden}
+.table-scroll{width:100%;max-width:100%;max-height:560px;overflow-x:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:auto;scrollbar-color:#64748B #E2E8F0}
+.table-scroll::-webkit-scrollbar{width:10px;height:10px}
+.table-scroll::-webkit-scrollbar-track{background:#E2E8F0;border-radius:4px}
+.table-scroll::-webkit-scrollbar-thumb{background:#64748B;border-radius:4px;border:2px solid #E2E8F0}
+.table-scroll::-webkit-scrollbar-thumb:hover{background:var(--acc)}
+.table-scroll::-webkit-scrollbar-corner{background:#E2E8F0}
+.table-scroll-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;padding:.45rem .85rem;background:#F8FAFD;border-top:1px solid var(--line);font-size:.76rem;color:var(--mute)}
+table{width:100%;min-width:760px;border-collapse:separate;border-spacing:0;font-size:.88rem;background:#fff;border:0}
+th{position:sticky;top:0;z-index:3;text-align:left;font-weight:600;color:var(--acc);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid var(--acc);padding:.75rem .75rem;background:#F8FAFD;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:.65rem .75rem;vertical-align:middle}
 tbody tr:hover{background:#EEF3FA}
 tr.off td{color:var(--mute)}
 
@@ -117,8 +125,8 @@ tr.off td{color:var(--mute)}
 .st.off{color:var(--mute);background:#ECEFF4}
 
 /* Formularios, tarjetas y bloques */
-.blk{margin-bottom:2rem}.blk>h2{margin-bottom:.8rem}
-.card{background:#fff;border:1px solid var(--line);border-radius:3px;padding:1.4rem;margin-bottom:1.6rem}
+.blk{margin-bottom:2rem;min-width:0;width:100%}.blk>h2{margin-bottom:.8rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:3px;padding:1.4rem;margin-bottom:1.6rem;min-width:0;max-width:100%}
 .filters{display:flex;gap:1.4rem;margin-bottom:1.6rem;align-items:flex-end;flex-wrap:wrap}
 .filters>div{min-width:180px}
 .row{display:flex;gap:1.4rem;align-items:flex-end}.row>div{flex:1;max-width:340px}
@@ -146,7 +154,7 @@ tr.off td{color:var(--mute)}
 .slot.busy{background:#E6EBF3;color:#55617A;cursor:not-allowed}
 .slot.hol{background:repeating-linear-gradient(135deg,#FBF0D6 0 6px,#F3E2B8 6px 7px);color:#6E4A00;cursor:not-allowed}
 .slot.sel{background:var(--acc);color:#fff}
-.slotlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:.5rem}
+.slotlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:.5rem;max-height:460px;overflow-y:auto;overflow-x:auto;padding:.35rem;scrollbar-width:thin}
 .sbtn{display:flex;justify-content:space-between;align-items:center;gap:.4rem;min-height:42px;padding:.5rem .75rem;border:1px solid #BFD6C9;background:#fff;color:#245C47;cursor:pointer;border-radius:3px;font-size:.85rem}
 .sbtn:hover{background:var(--sage-soft)}
 .sbtn.sel{background:var(--acc);border-color:var(--acc);color:#fff}
@@ -515,9 +523,12 @@ function hd(t, p, r = '') {
 const sec = (t, b) => `<section class="blk"><h2>${t}</h2>${b}</section>`;
 
 function tbl(cols, rows, empty = 'Sin registros.') {
-  return `<table><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${
+  const bar = rows.length
+    ? `<div class="table-scroll-bar"><span>Total en matriz: <b>${rows.length}</b> registro(s)</span><span class="mono">↔ ↕ Desliza horizontal o verticalmente para ver todos los datos</span></div>`
+    : '';
+  return `<div class="table-scroll-wrap"><div class="table-scroll"><table><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${
     rows.length ? rows.map(r => `<tr>${r.map(td => `<td>${td}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${cols.length}" style="text-align:center;color:var(--mute);padding:2rem;">${empty}</td></tr>`
-  }</tbody></table>`;
+  }</tbody></table></div>${bar}</div>`;
 }
 
 // Helpers de Toast y Modal
@@ -672,16 +683,16 @@ S['dashboard'] = async () => {
 
   try {
     const [citasRes, pacRes, medRes, pagosRes, bitaRes] = await Promise.all([
-      VS_API.citas.listar({ fecha: hoyISO(), per_page: 10 }).catch(() => ({ data: { data: [] } })),
-      VS_API.pacientes.listar({ per_page: 5 }).catch(() => ({ data: { total: 0 } })),
-      VS_API.medicos.listar({ per_page: 50 }).catch(() => ({ data: [] })),
-      VS_API.pagos.listar({ fecha: hoyISO() }).catch(() => ({ data: [] })),
-      VS_API.bitacora.listar({ per_page: 6 }).catch(() => ({ data: [] }))
+      VS_API.citas.listar({ fecha: hoyISO(), per_page: 250 }).catch(() => ({ data: { data: [] } })),
+      VS_API.pacientes.listar({ per_page: 250 }).catch(() => ({ data: { total: 0 } })),
+      VS_API.medicos.listar({ per_page: 250 }).catch(() => ({ data: [] })),
+      VS_API.pagos.listar({ fecha: hoyISO(), per_page: 250 }).catch(() => ({ data: [] })),
+      VS_API.bitacora.listar({ per_page: 100 }).catch(() => ({ data: [] }))
     ]);
 
     const listaCitas = (citasRes.data && citasRes.data.data) || (Array.isArray(citasRes.data) ? citasRes.data : []);
     totalCitas = (citasRes.data && citasRes.data.total !== undefined) ? citasRes.data.total : listaCitas.length;
-    citasHoy = listaCitas.slice(0, 6);
+    citasHoy = listaCitas;
 
     totalPacientes = (pacRes.data && pacRes.data.total !== undefined) ? pacRes.data.total : (Array.isArray(pacRes.data) ? pacRes.data.length : 0);
 
@@ -692,7 +703,7 @@ S['dashboard'] = async () => {
     recaudacionHoy = listaPagos.reduce((acc, p) => acc + (parseFloat(p.monto) || 0), 0);
 
     const listaBit = Array.isArray(bitaRes.data) ? bitaRes.data : ((bitaRes.data && bitaRes.data.data) || []);
-    bitacoraReciente = listaBit.slice(0, 6);
+    bitacoraReciente = listaBit.slice(0, 50);
   } catch (e) {
     console.warn('Dashboard datos parciales:', e);
   }
@@ -796,7 +807,7 @@ S['dashboard'] = async () => {
           <h2 style="font-size:1.15rem;color:#173E70;margin:0;">Auditoría Reciente (Bitácora)</h2>
           <button class="btn ghost" style="font-size:.8rem;padding:.2rem .5rem;" onclick="go('11')">Ver bitácora →</button>
         </div>
-        <div style="display:flex;flex-direction:column;">
+        <div class="table-scroll" style="display:flex;flex-direction:column;max-height:420px;padding-right:.5rem;">
           ${filasBitacora}
         </div>
       </div>
@@ -1440,7 +1451,7 @@ async function reactivarCuenta(id) {
 // P3: BITÁCORA Y AUDITORÍA EN TIEMPO REAL (CU10, CU11)
 // =========================================================================
 S['11'] = async () => {
-  const res = await VS_API.bitacora.listar({ per_page: 50 });
+  const res = await VS_API.bitacora.listar({ per_page: 250 });
   const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
 
   const rows = (Array.isArray(list) ? list : []).map(b => {
@@ -1451,9 +1462,9 @@ S['11'] = async () => {
       `<span class="mono"><b>${h(usr)}</b></span>`,
       `<span class="tag">${h(b.modulo || 'SISTEMA')}</span>`,
       `<span class="st prog">${h(b.tipo_accion || 'ACCIÓN')}</span>`,
-      `<span class="mono" style="font-size:.78rem;">${h(b.tabla_afectada || '—')} ${b.id_registro_afectado ? ('#' + b.id_registro_afectado) : ''}</span>`,
-      `<div style="max-width:380px;font-size:.82rem;">${h(b.detalle || b.descripcion || '—')}</div>`,
-      `<span class="mono" style="font-size:.75rem;color:var(--mute);">${h(b.ip || '127.0.0.1')}</span>`
+      `<span class="mono" style="font-size:.78rem;white-space:nowrap;">${h(b.tabla_afectada || '—')} ${b.id_registro_afectado ? ('#' + b.id_registro_afectado) : ''}</span>`,
+      `<div style="min-width:260px;max-width:520px;font-size:.82rem;white-space:normal;word-break:break-word;">${h(b.detalle || b.descripcion || '—')}</div>`,
+      `<span class="mono" style="font-size:.75rem;color:var(--mute);white-space:nowrap;">${h(b.ip || '127.0.0.1')}</span>`
     ];
   });
 
@@ -1474,7 +1485,7 @@ let pacientesCache = [];
 let pacienteModificandoId = null;
 
 S['15'] = async () => {
-  const res = await VS_API.pacientes.listar({ per_page: 50 });
+  const res = await VS_API.pacientes.listar({ per_page: 250 });
   const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
   pacientesCache = Array.isArray(list) ? list : [];
 
@@ -2864,8 +2875,8 @@ S['25'] = S['24'];
 
 // CU30: Agenda diaria del médico
 S['30'] = async () => {
-  const resM = await VS_API.medicos.listar();
-  const resC = await VS_API.citas.listar({ per_page: 50 });
+  const resM = await VS_API.medicos.listar({ per_page: 250 });
+  const resC = await VS_API.citas.listar({ per_page: 250 });
   const medicos = (resM && resM.data && resM.data.data) ? resM.data.data : (resM.data || resM || []);
   const citas = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || resC || []);
 
@@ -3048,7 +3059,7 @@ async function regenerarRecordatorios() {
 
 // Pasarela de pago, comprobantes y reembolsos
 S['42'] = async () => {
-  const res = await VS_API.pagos.listar({ per_page: 50 });
+  const res = await VS_API.pagos.listar({ per_page: 250 });
   const list = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
 
   const rows = list.map(p => {
@@ -3512,7 +3523,7 @@ S['39'] = async () => {
 
 // CU40: Consulta de Estado de la Ficha Reservada (Paciente)
 S['40'] = async () => {
-  const res = await VS_API.citas.listar({ per_page: 50 });
+  const res = await VS_API.citas.listar({ per_page: 250 });
   const rawList = (res && res.data && res.data.data) ? res.data.data : (res.data || res || []);
   const u = VS_API.getUser();
   // Doble filtro de seguridad: solo citas de este paciente
@@ -3616,8 +3627,8 @@ S['41'] = async () => {
 
   // Cargar citas del paciente para determinar cuál está pendiente de pago
   const [resC, resP] = await Promise.all([
-    VS_API.citas.listar({ per_page: 50 }).catch(() => ({ data: [] })),
-    VS_API.pagos.listar({ per_page: 50 }).catch(() => ({ data: [] }))
+    VS_API.citas.listar({ per_page: 250 }).catch(() => ({ data: [] })),
+    VS_API.pagos.listar({ per_page: 250 }).catch(() => ({ data: [] }))
   ]);
 
   const rawCitas = (resC && resC.data && resC.data.data) ? resC.data.data : (resC.data || resC || []);

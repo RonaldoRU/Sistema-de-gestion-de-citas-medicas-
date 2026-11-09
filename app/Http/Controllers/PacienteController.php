@@ -46,7 +46,7 @@ class PacienteController extends Controller
             });
         }
 
-        $pacientes = $query->orderBy('id_persona', 'desc')->paginate($request->input('per_page', 15));
+        $pacientes = $query->orderBy('id_persona', 'desc')->paginate($request->input('per_page', 200));
 
         if ($request->filled('buscar') && $pacientes->isEmpty()) {
             return response()->json([

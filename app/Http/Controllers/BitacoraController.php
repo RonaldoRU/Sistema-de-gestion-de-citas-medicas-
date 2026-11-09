@@ -90,7 +90,7 @@ class BitacoraController extends Controller
 
         $bitacora = $query->orderBy('fecha_hora', 'desc')
             ->orderBy('id_bitacora', 'desc')
-            ->paginate($request->input('per_page', 20));
+            ->paginate($request->input('per_page', 200));
 
         $totalHoy = Bitacora::whereDate('fecha_hora', now()->toDateString())->count();
         $alertasHoy = Bitacora::whereDate('fecha_hora', now()->toDateString())

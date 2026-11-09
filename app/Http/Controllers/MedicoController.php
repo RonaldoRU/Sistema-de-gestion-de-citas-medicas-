@@ -45,7 +45,7 @@ class MedicoController extends Controller
             });
         }
 
-        $medicos = $query->orderBy('id_persona', 'asc')->paginate($request->input('per_page', 15));
+        $medicos = $query->orderBy('id_persona', 'asc')->paginate($request->input('per_page', 200));
 
         return response()->json([
             'success' => true,
