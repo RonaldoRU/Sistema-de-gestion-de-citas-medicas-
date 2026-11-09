@@ -8,6 +8,7 @@ use App\Models\Persona;
 use App\Models\Rol;
 use App\Models\Usuario;
 use App\Services\AuditoriaService;
+use App\Services\EmailNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -422,6 +423,8 @@ class PacienteController extends Controller
                 "Auto-registro web de paciente [{$persona->nombres} {$persona->apellidos}] (CI {$persona->ci}, código {$paciente->codigo}, usuario {$usuario->nombre_usuario}).",
                 $usuario->id_usuario
             );
+
+            EmailNotificationService::enviarBienvenidaPaciente($persona, $usuario, $paciente);
 
             $pacienteCargado = $paciente->load('persona');
 

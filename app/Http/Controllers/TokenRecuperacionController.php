@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TokenRecuperacion;
 use App\Models\Usuario;
 use App\Services\AuditoriaService;
+use App\Services\EmailNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -85,6 +86,8 @@ class TokenRecuperacionController extends Controller
             "Solicitud de restablecimiento de contraseña para usuario [{$user->nombre_usuario}].",
             $user->id_usuario
         );
+
+        EmailNotificationService::enviarCodigoRecuperacion($user, $codigo);
 
         return response()->json([
             'success' => true,

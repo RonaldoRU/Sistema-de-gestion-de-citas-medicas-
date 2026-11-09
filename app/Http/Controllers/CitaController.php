@@ -12,6 +12,7 @@ use App\Models\Medico;
 use App\Models\Paciente;
 use App\Models\Pago;
 use App\Services\AuditoriaService;
+use App\Services\EmailNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -316,6 +317,8 @@ class CitaController extends Controller
                 );
             }
 
+            EmailNotificationService::enviarConfirmacionCita($cita);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Cita médica agendada exitosamente.',
@@ -474,6 +477,8 @@ class CitaController extends Controller
             $cita->id_cita,
             "Cita [{$cita->codigo}] cancelada. Motivo: {$motivo}."
         );
+
+        EmailNotificationService::enviarCancelacionCita($cita, $motivo);
 
         return response()->json([
             'success' => true,

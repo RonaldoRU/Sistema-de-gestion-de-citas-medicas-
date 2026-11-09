@@ -8,6 +8,7 @@ use App\Models\HistorialEstadoCita;
 use App\Models\Pago;
 use App\Models\Reembolso;
 use App\Services\AuditoriaService;
+use App\Services\EmailNotificationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -194,6 +195,8 @@ class PagoController extends Controller
 
             return $nuevoPago;
         });
+
+        EmailNotificationService::enviarComprobantePago($pago);
 
         return response()->json([
             'success' => true,
