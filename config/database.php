@@ -87,7 +87,14 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL', env('DATABASE_URL')),
-            'host' => env('PGHOST', env('DB_HOST', '127.0.0.1')),
+            'host' => (function () {
+                $h = env('PGHOST', env('DB_HOST', '127.0.0.1'));
+                if ($h === 'db' && @gethostbyname('db') === 'db') {
+                    return '127.0.0.1';
+                }
+
+                return $h;
+            })(),
             'port' => env('PGPORT', env('DB_PORT', '5432')),
             'database' => env('PGDATABASE', env('DB_DATABASE', 'Clinica_Vida_Salud')),
             'username' => env('PGUSER', env('DB_USERNAME', 'postgres')),

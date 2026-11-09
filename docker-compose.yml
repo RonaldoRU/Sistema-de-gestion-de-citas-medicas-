@@ -62,7 +62,10 @@ services:
       timeout: 3s
       retries: 10
     networks:
-      - vidasalud-net
+      vidasalud-net:
+        aliases:
+          - db
+          - vidasalud-db
 
 networks:
   vidasalud-net:

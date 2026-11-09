@@ -4099,6 +4099,10 @@ S['36'] = async () => S['15']();
 // Inicialización de la aplicación al cargar
 window.addEventListener('DOMContentLoaded', async () => {
   const manualLogout = sessionStorage.getItem('vs_manual_logout') === '1';
+  // Purgar tokens residuales o de mock
+  if (VS_API.getToken() === '27c4c9dc3d9e4bdfa36e04e02f65ace251cebbabbc6450e834f90898d10ed34f') {
+    VS_API.clearAuth();
+  }
   if (manualLogout) {
     $('#login').style.display = 'grid';
     $('#app').style.display = 'none';

@@ -1,24 +1,53 @@
 !INC Local Scripts.EAConstants - JScript
+/*
+ * ==========================================================================================
+ * SISTEMA CLÍNICA VIDA SALUD - DIAGRAMA DE ARQUITECTURA EN CAPAS WEB (4 CAPAS)
+ * ==========================================================================================
+ * Descripción: Script en JScript para Sparx Systems Enterprise Architect (v12/v14/v15/v16/v17).
+ * Genera el Diagrama de Arquitectura en 4 Capas Desacopladas con diseño gráfico idéntico al 
+ * esquema oficial RUP, tipografía corporativa Arial 12pt, versiones tecnológicas explícitas
+ * y trazabilidad de dependencias «use» entre capas y servicios.
+ * 
+ * 1. TIPOGRAFÍA Y ESTILO:
+ *    - Fuente: Arial, Tamaño 12 pt (fontsz=120 en decipuntos de Enterprise Architect).
+ *    - Dimensionamiento y coordenadas calculadas para evitar cortes de texto.
+ *    - Paleta de colores corporativos diferenciada por capa (Ámbar, Azul, Verde, Slate).
+ * 
+ * 2. ESTRUCTURA DE CAPAS:
+ *    - Capa 1: «layer» CAPA DE SERVICIOS DE SOFTWARE / SOPORTE (Presentación - Vistas Blade)
+ *        • Portal Recepción (WebLogin, WebPacientes, WebAgendaCitas, WebRecordatorios)
+ *        • Panel Médico (WebLogin, WebAgendaDiaria, WebAtencionMedica, WebHistorialPaciente)
+ *        • Panel Administración (WebUsuariosRoles, WebMedicosHorarios, WebBitacora, WebReportes)
+ *    - Capa 2: «layer» CAPA ESPECÍFICA DE LA APLICACIÓN (Controladores Laravel)
+ *        • Controladores P1 a P7 (Seguridad, Usuarios RBAC, Auditoría, Pacientes, Médicos, Citas, Reportes)
+ *    - Capa 3: «layer» CAPA DE APLICACIÓN / DOMINIO (Servicios y modelos Eloquent)
+ *        • Servicios de Negocio y Modelos P1 a P7 con sus dependencias internas modeladas
+ *    - Capa 4: «layer» CAPA DE INFRAESTRUCTURA
+ *        • PostgreSQL 16 — Base de Datos Relacional (Engine + Esquema vida_salud 21 tablas)
+ *        • Servidor de Aplicación (Apache/Nginx + PHP 8.3, Laravel 11 Eloquent ORM & Blade)
+ * 
+ * 3. RELACIONES Y FLUJO:
+ *    - Conectores de dependencia descendente «use» entre capas.
+ *    - Conexiones específicas entre servicios de dominio.
+ * ==========================================================================================
+ */
 
-/* =========================================================================================
- * Script Name: EnterpriseArchitect_DiagramaDeCapas_VidaSalud.js
- * Author:      Clínica Vida Salud - Sistema Web de Gestión de Citas Médicas
- * Purpose:     Genera automáticamente en Sparx Systems Enterprise Architect:
- *              - Paquete contenedor "Arquitectura en Capas - Clínica Vida Salud"
- *              - Diagrama de Capas Web UML (Logical / Layered Architecture)
- *              - 4 Capas Arquitectónicas estructuradas con estereotipo «layer»:
- *                  1. Capa de Servicios de Software / Soporte (Presentación - Vistas Blade/Web)
- *                  2. Capa Específica de la Aplicación (Controladores Laravel REST)
- *                  3. Capa de Aplicación / Dominio (Servicios y Modelos Eloquent ORM)
- *                  4. Capa de Infraestructura (PostgreSQL 16 Engine/Schema & Servidores)
- *              - Subpaquetes y componentes con estereotipos («form», «controller», «service»,
- *                «database», «schema», «execution environment», «framework»)
- *              - Versiones tecnológicas explícitas (PHP 8.3, Laravel 11/13, PostgreSQL 16, Vite 6, Tailwind v4)
- *              - Relaciones de dependencia «use» entre capas y dependencias entre servicios del dominio
- *              - Paleta de colores armónica, corporativa y diferenciada por capa con soporte multi-versión EA
- *              - Nota técnica y encabezado arquitectónico con metadatos del sistema
- * Language:    JScript (Compatible con Enterprise Architect 12, 13, 14, 15, 16)
- * ========================================================================================= */
+// Función segura de logging en consola para EA y WScript (evita excepciones COM)
+function Log(msg) {
+    try {
+        if (typeof Session !== "undefined") {
+            Session.Output(msg);
+            return;
+        }
+    } catch (e1) {}
+
+    try {
+        if (typeof WScript !== "undefined") {
+            WScript.Echo(msg);
+            return;
+        }
+    } catch (e2) {}
+}
 
 // Helper para convertir color Hex (#RRGGBB) a entero BGR de Enterprise Architect
 function hexToBgr(hex) {
@@ -31,7 +60,7 @@ function hexToBgr(hex) {
     return (b * 65536) + (g * 256) + r;
 }
 
-// Helper para aplicar color de fondo, borde y estilo a un DiagramObject
+// Helper para aplicar color, bordes y tipografía Arial Tamaño 12 a un DiagramObject
 function styleDiagramObject(diagObj, bgHex, borderHex, borderWidth) {
     var bgrBg = hexToBgr(bgHex);
     var bgrBorder = hexToBgr(borderHex);
@@ -43,87 +72,105 @@ function styleDiagramObject(diagObj, bgHex, borderHex, borderWidth) {
         diagObj.BorderWidth = bWidth;
     } catch (e) {}
 
-    // Formato de compatibilidad en Style string para todas las versiones de EA
-    diagObj.Style = "BCol=" + bgrBg + ";BFmt=0;LCol=" + bgrBorder + ";LWth=" + bWidth + ";";
+    // Configuración explícita de fuente Arial tamaño 12 (fontsz=120 en decipuntos)
+    diagObj.Style = "BCol=" + bgrBg + ";BFmt=0;LCol=" + bgrBorder + ";LWth=" + bWidth + ";font=Arial;fontsz=120;pitch=34;";
     diagObj.Update();
 }
 
 function main() {
-    Repository.EnsureOutputVisible("Script");
-    Session.Output("========================================================================");
-    Session.Output(" Iniciando creación del Diagrama de Capas Web - Clínica Vida Salud ");
-    Session.Output("========================================================================");
+    Log("========================================================================");
+    Log(" INICIANDO GENERACIÓN DEL DIAGRAMA DE CAPAS DE LA WEB - VIDA SALUD ");
+    Log(" FUENTE: ARIAL 12 PT | 4 CAPAS DESACOPLADAS | DISEÑO PROFESIONAL ");
+    Log("========================================================================");
 
-    var targetPackage = Repository.GetTreeSelectedPackage();
-    if (targetPackage == null) {
-        Session.Prompt("Por favor, selecciona un Paquete o Vista en el Project Browser antes de ejecutar este script.", 0);
+    var eaRepo = null;
+    if (typeof Repository !== "undefined") {
+        eaRepo = Repository;
+    } else {
+        try {
+            var eaApp = new ActiveXObject("EA.App");
+            eaRepo = eaApp.Repository;
+        } catch (e) {
+            Log("[ERROR] No se pudo obtener la instancia del Repositorio de EA: " + e.message);
+            return;
+        }
+    }
+
+    if (!eaRepo) {
+        Log("[ERROR] El objeto Repository no está disponible.");
         return;
     }
 
-    Session.Output("Paquete destino seleccionado: " + targetPackage.Name);
+    try {
+        eaRepo.EnsureOutputVisible("Script");
+    } catch (e) {}
 
-    // 1. Crear Paquete raíz contenedor en el Project Browser
+    var targetPackage = eaRepo.GetTreeSelectedPackage();
+    if (!targetPackage) {
+        if (eaRepo.Models.Count > 0) {
+            targetPackage = eaRepo.Models.GetAt(0);
+        } else {
+            Log("[ERROR] Por favor selecciona un paquete en el Project Browser.");
+            return;
+        }
+    }
+
+    Log("-> Paquete destino seleccionado: " + targetPackage.Name);
+
+    // 1. Crear Paquete contenedor para la arquitectura en capas
     var rootPkg = targetPackage.Packages.AddNew("Arquitectura en Capas - Clínica Vida Salud Web", "");
     rootPkg.Notes = "Estructura arquitectónica en 4 capas desacopladas del Sistema de Gestión de Citas Médicas Clínica Vida Salud:\n" +
-                    "- Capa 1: Servicios de Software / Soporte (Presentación y Vistas)\n" +
-                    "- Capa 2: Específica de la Aplicación (Controladores Laravel REST)\n" +
-                    "- Capa 3: Dominio / Aplicación (Servicios de Negocio y Modelos Eloquent)\n" +
-                    "- Capa 4: Infraestructura (PostgreSQL 16, Servidor Web Nginx/Apache y PHP 8.3)";
+                    "- Capa 1: Servicios de Software / Soporte (Presentación - Vistas Blade / Portales Web)\n" +
+                    "- Capa 2: Específica de la Aplicación (Controladores Laravel REST P1 - P7)\n" +
+                    "- Capa 3: Dominio / Aplicación (Servicios de Negocio y Modelos Eloquent ORM)\n" +
+                    "- Capa 4: Infraestructura (PostgreSQL 16 RDBMS y Servidor Web PHP 8.3 / Laravel 11)";
     rootPkg.Update();
     targetPackage.Packages.Refresh();
 
     // 2. Crear el Diagrama UML de Capas (Logical / Package Diagram)
-    var layerDiagram = rootPkg.Diagrams.AddNew("Diagrama de Capas de la Web (4 Capas)", "Logical");
+    var layerDiagram = rootPkg.Diagrams.AddNew("Diagrama de Capas de la Web", "Logical");
     layerDiagram.Notes = "Diagrama de Arquitectura en Capas (Layered Architecture) para la plataforma web de Clínica Vida Salud.\n" +
-                         "Representa el desacoplamiento entre Vistas de Usuario, Controladores de Orquestación, Lógica de Negocio/Dominio e Infraestructura de Almacenamiento y Ejecución.";
+                         "Tipografía: Arial 12 pt. Trazabilidad completa con estereotipos «layer», «form», «controller», «service», «database», «schema» y relaciones «use».";
     layerDiagram.Update();
     rootPkg.Diagrams.Refresh();
 
     // =========================================================================
-    // DEFINICIÓN DE PALETA DE COLORES CORPORATIVOS (BGR HEX)
+    // PALETA DE COLORES CORPORATIVOS (BGR HEX)
     // =========================================================================
     var COLORS = {
-        // Encabezado / Banner principal
-        headerBg:       "#1E293B", // Slate 800
-        headerBorder:   "#0F172A", // Slate 900
-        headerText:     "#FFFFFF",
+        // Capa 1: Presentación / Soporte (Tonos Cálidos / Ámbar)
+        layer1Bg:       "#FFFFFF", // Fondo contenedor claro
+        layer1Border:   "#475569", // Slate 600
+        subPanelBg:     "#FAFAFA", // Fondo portal
+        subPanelBorder: "#94A3B8", // Slate 400
+        formBg:         "#FEF3C7", // Ámbar suave (como en el diseño)
+        formBorder:     "#D97706", // Ámbar oscuro
 
-        // Capa 1: Presentación / Soporte (Tonos Cálidos / Ámbar / Crema)
-        layer1Bg:       "#FFFBEB", // Amber 50
-        layer1Border:   "#D97706", // Amber 600
-        col1Bg:         "#FEF3C7", // Amber 100
-        col1Border:     "#F59E0B", // Amber 500
-        formBg:         "#FFF0B3", // Dorado pastel cálido
-        formBorder:     "#B45309", // Amber 700
+        // Capa 2: Controladores Laravel (Tonos Azul Pastel)
+        layer2Bg:       "#FFFFFF",
+        layer2Border:   "#475569",
+        ctrlBg:         "#DBEAFE", // Azul suave pastel
+        ctrlBorder:     "#2563EB", // Azul corporativo
 
-        // Capa 2: Controladores Laravel (Tonos Azul Pastel / Corporativo)
-        layer2Bg:       "#EFF6FF", // Blue 50
-        layer2Border:   "#2563EB", // Blue 600
-        ctrlBg:         "#DBEAFE", // Blue 100
-        ctrlBorder:     "#1D4ED8", // Blue 700
+        // Capa 3: Servicios / Dominio Eloquent (Tonos Verde Esmeralda Suave)
+        layer3Bg:       "#FFFFFF",
+        layer3Border:   "#475569",
+        serviceBg:      "#DCFCE7", // Verde suave pastel
+        serviceBorder:  "#16A34A", // Verde esmeralda
 
-        // Capa 3: Servicios / Dominio Eloquent (Tonos Verde Esmeralda / Menta)
-        layer3Bg:       "#F0FDF4", // Green 50
-        layer3Border:   "#16A34A", // Green 600
-        serviceBg:      "#DCFCE7", // Green 100
-        serviceBorder:  "#15803D", // Green 700
-
-        // Capa 4: Infraestructura (Tonos Slate / Gris Tecnológico & Bases de Datos)
-        layer4Bg:       "#F8FAFC", // Slate 50
-        layer4Border:   "#475569", // Slate 600
-        subInfraBg:     "#F1F5F9", // Slate 100
+        // Capa 4: Infraestructura (Tonos Gris / Ámbar Tecnológico)
+        layer4Bg:       "#FFFFFF",
+        layer4Border:   "#475569",
+        subInfraBg:     "#F8FAFC", // Slate 50
         subInfraBorder: "#64748B", // Slate 500
-        dbBg:           "#FEF9C3", // Yellow 100
-        dbBorder:       "#A16207", // Yellow 700
-        serverBg:       "#FEF08A", // Yellow 200
-        serverBorder:   "#CA8A04", // Yellow 600
+        infraItemBg:    "#FEF3C7", // Ámbar suave
+        infraItemBorder:"#D97706", // Ámbar
 
-        // Nota Técnica
-        noteBg:         "#F3F4F6", // Gray 100
-        noteBorder:     "#4B5563"  // Gray 600
+        // Ficha Técnica
+        noteBg:         "#F1F5F9",
+        noteBorder:     "#334155"
     };
 
-    // Colección para almacenar referencias a los elementos creados y sus diagram objects
     var elementsMap = {};
 
     function addElementToDiagram(name, type, stereotype, left, right, top, bottom, bgHex, borderHex, borderWidth) {
@@ -147,191 +194,204 @@ function main() {
     }
 
     // =========================================================================
-    // 3. CREAR CONTENEDORES DE LAS 4 CAPAS («layer»)
-    //    Se agregan primero para que queden en el fondo visual (z-order inferior)
+    // 3. CONTENEDORES DE LAS 4 CAPAS PRINCIPALES («layer»)
+    //    (Se crean primero para asegurar el Z-Order correcto en el fondo)
     // =========================================================================
-    Session.Output("-> Creando los 4 contenedores principales de capas...");
+    Log("-> Creando los 4 contenedores principales de capas («layer»)...");
 
     var layer1 = addElementToDiagram(
         "CAPA DE SERVICIOS DE SOFTWARE / SOPORTE (Presentación - Vistas Blade)",
         "Package", "layer",
-        50, 1280, -40, -290,
+        50, 1550, -40, -370,
         COLORS.layer1Bg, COLORS.layer1Border, 2
     );
 
     var layer2 = addElementToDiagram(
         "CAPA ESPECÍFICA DE LA APLICACIÓN (Controladores Laravel)",
         "Package", "layer",
-        50, 1280, -350, -520,
+        50, 1550, -430, -650,
         COLORS.layer2Bg, COLORS.layer2Border, 2
     );
 
     var layer3 = addElementToDiagram(
         "CAPA DE APLICACIÓN / DOMINIO (Servicios y modelos Eloquent)",
         "Package", "layer",
-        50, 1280, -580, -800,
+        50, 1550, -710, -980,
         COLORS.layer3Bg, COLORS.layer3Border, 2
     );
 
     var layer4 = addElementToDiagram(
         "CAPA DE INFRAESTRUCTURA",
         "Package", "layer",
-        50, 1280, -860, -1030,
+        50, 1550, -1040, -1270,
         COLORS.layer4Bg, COLORS.layer4Border, 2
     );
 
     // =========================================================================
     // 4. ELEMENTOS DE LA CAPA 1: PRESENTACIÓN (PORTALES Y FORMULARIOS)
     // =========================================================================
-    Session.Output("-> Agregando subpaneles y formularios de la Capa 1...");
+    Log("-> Creando subpaneles y formularios en Capa 1...");
 
-    // Subpanel 1: Portal Recepción
-    var subPortal = addElementToDiagram("Portal Recepción", "Package", "", 70, 450, -75, -275, COLORS.col1Bg, COLORS.col1Border, 1);
-    var f1_1 = addElementToDiagram("WebLogin", "Package", "form", 85, 250, -105, -180, COLORS.formBg, COLORS.formBorder, 1);
-    var f1_2 = addElementToDiagram("WebPacientes\n(CU10 - CU15, CU21 - CU22)", "Package", "form", 265, 435, -105, -180, COLORS.formBg, COLORS.formBorder, 1);
-    var f1_3 = addElementToDiagram("WebAgendaCitas\n(CU26 - CU29)", "Package", "form", 85, 250, -195, -265, COLORS.formBg, COLORS.formBorder, 1);
-    var f1_4 = addElementToDiagram("WebRecordatorios\n(CU34)", "Package", "form", 265, 435, -195, -265, COLORS.formBg, COLORS.formBorder, 1);
+    // Subpanel 1: Portal Recepción (x: 80 a 540)
+    var subPortal = addElementToDiagram("Portal Recepción", "Package", "", 80, 540, -80, -350, COLORS.subPanelBg, COLORS.subPanelBorder, 1);
+    var f1_1 = addElementToDiagram("WebLogin", "Package", "form", 95, 295, -120, -215, COLORS.formBg, COLORS.formBorder, 1);
+    var f1_2 = addElementToDiagram("WebPacientes\n(CU10 - CU15, CU21 - CU22)", "Package", "form", 315, 525, -120, -215, COLORS.formBg, COLORS.formBorder, 1);
+    var f1_3 = addElementToDiagram("WebAgendaCitas\n(CU26 - CU29)", "Package", "form", 95, 295, -235, -330, COLORS.formBg, COLORS.formBorder, 1);
+    var f1_4 = addElementToDiagram("WebRecordatorios\n(CU34)", "Package", "form", 315, 525, -235, -330, COLORS.formBg, COLORS.formBorder, 1);
 
-    // Subpanel 2: Panel Médico
-    var subMedico = addElementToDiagram("Panel Médico", "Package", "", 475, 855, -75, -275, COLORS.col1Bg, COLORS.col1Border, 1);
-    var f2_1 = addElementToDiagram("WebLogin ", "Package", "form", 490, 655, -105, -180, COLORS.formBg, COLORS.formBorder, 1);
-    var f2_2 = addElementToDiagram("WebAgendaDiaria\n(CU28)", "Package", "form", 670, 840, -105, -180, COLORS.formBg, COLORS.formBorder, 1);
-    var f2_3 = addElementToDiagram("WebAtencionMedica\n(CU29)", "Package", "form", 490, 655, -195, -265, COLORS.formBg, COLORS.formBorder, 1);
-    var f2_4 = addElementToDiagram("WebHistorialPaciente\n(CU14)", "Package", "form", 670, 840, -195, -265, COLORS.formBg, COLORS.formBorder, 1);
+    // Subpanel 2: Panel Médico (x: 570 a 1030)
+    var subMedico = addElementToDiagram("Panel Médico", "Package", "", 570, 1030, -80, -350, COLORS.subPanelBg, COLORS.subPanelBorder, 1);
+    var f2_1 = addElementToDiagram("WebLogin ", "Package", "form", 585, 785, -120, -215, COLORS.formBg, COLORS.formBorder, 1);
+    var f2_2 = addElementToDiagram("WebAgendaDiaria\n(CU28)", "Package", "form", 805, 1015, -120, -215, COLORS.formBg, COLORS.formBorder, 1);
+    var f2_3 = addElementToDiagram("WebAtencionMedica\n(CU25)", "Package", "form", 585, 785, -235, -330, COLORS.formBg, COLORS.formBorder, 1);
+    var f2_4 = addElementToDiagram("WebHistorialPaciente\n(CU14)", "Package", "form", 805, 1015, -235, -330, COLORS.formBg, COLORS.formBorder, 1);
 
-    // Subpanel 3: Panel Administración
-    var subAdmin = addElementToDiagram("Panel Administración", "Package", "", 880, 1260, -75, -275, COLORS.col1Bg, COLORS.col1Border, 1);
-    var f3_1 = addElementToDiagram("WebUsuariosRoles\n(CU01 - CU05)", "Package", "form", 895, 1060, -105, -180, COLORS.formBg, COLORS.formBorder, 1);
-    var f3_2 = addElementToDiagram("WebMedicosHorarios\n(CU16 - CU19, CU23)", "Package", "form", 1075, 1245, -105, -180, COLORS.formBg, COLORS.formBorder, 1);
-    var f3_3 = addElementToDiagram("WebBitacora\n(CU30 - CU31)", "Package", "form", 895, 1060, -195, -265, COLORS.formBg, COLORS.formBorder, 1);
-    var f3_4 = addElementToDiagram("WebReportes\n(CU27 - CU32, CU33)", "Package", "form", 1075, 1245, -195, -265, COLORS.formBg, COLORS.formBorder, 1);
-
-    // =========================================================================
-    // 5. ELEMENTOS DE LA CAPA 2: CONTROLADORES LARAVEL (7 CONTROLADORES P1-P7)
-    // =========================================================================
-    Session.Output("-> Agregando Controladores Laravel de la Capa 2...");
-
-    // Fila 1 de Controladores
-    var c1 = addElementToDiagram("P1 Seguridad y Autenticación", "Package", "controller", 75, 355, -385, -440, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
-    var c2 = addElementToDiagram("P2 Administración de Usuarios RBAC", "Package", "controller", 375, 655, -385, -440, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
-    var c3 = addElementToDiagram("P3 Auditoría y Bitácora", "Package", "controller", 675, 955, -385, -440, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
-    var c4 = addElementToDiagram("P4 Gestión de Pacientes", "Package", "controller", 975, 1255, -385, -440, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
-
-    // Fila 2 de Controladores (Centrados)
-    var c5 = addElementToDiagram("P5 Gestión Médica y Horarios", "Package", "controller", 215, 495, -455, -505, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
-    var c6 = addElementToDiagram("P6 Gestión de Citas", "Package", "controller", 525, 805, -455, -505, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
-    var c7 = addElementToDiagram("P7 Reportes", "Package", "controller", 835, 1115, -455, -505, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
+    // Subpanel 3: Panel Administración (x: 1060 a 1520)
+    var subAdmin = addElementToDiagram("Panel Administración", "Package", "", 1060, 1520, -80, -350, COLORS.subPanelBg, COLORS.subPanelBorder, 1);
+    var f3_1 = addElementToDiagram("WebUsuariosRoles\n(CU05 - CU10)", "Package", "form", 1075, 1285, -120, -215, COLORS.formBg, COLORS.formBorder, 1);
+    var f3_2 = addElementToDiagram("WebMedicosHorarios\n(CU16 - CU19, CU23)", "Package", "form", 1305, 1505, -120, -215, COLORS.formBg, COLORS.formBorder, 1);
+    var f3_3 = addElementToDiagram("WebBitacora\n(CU30 - CU33)", "Package", "form", 1075, 1285, -235, -330, COLORS.formBg, COLORS.formBorder, 1);
+    var f3_4 = addElementToDiagram("WebReportes\n(CU27 - CU30, CU35)", "Package", "form", 1305, 1505, -235, -330, COLORS.formBg, COLORS.formBorder, 1);
 
     // =========================================================================
-    // 6. ELEMENTOS DE LA CAPA 3: SERVICIOS Y MODELOS DE DOMINIO (7 SERVICIOS)
+    // 5. ELEMENTOS DE LA CAPA 2: CONTROLADORES LARAVEL (P1 a P7)
     // =========================================================================
-    Session.Output("-> Agregando Servicios y Modelos de Dominio de la Capa 3...");
+    Log("-> Creando Controladores Laravel en Capa 2...");
 
-    // Fila 1 de Servicios
-    var s1 = addElementToDiagram("P1 Seguridad y Autenticación ", "Package", "service", 75, 335, -615, -675, COLORS.serviceBg, COLORS.serviceBorder, 1);
-    var s2 = addElementToDiagram("P2 Administración de Usuarios RBAC ", "Package", "service", 395, 655, -615, -675, COLORS.serviceBg, COLORS.serviceBorder, 1);
-    var s3 = addElementToDiagram("P3 Auditoría y Bitácora ", "Package", "service", 715, 975, -615, -675, COLORS.serviceBg, COLORS.serviceBorder, 1);
+    // Fila 1 de Controladores (4 controladores)
+    var c1 = addElementToDiagram("P1 Seguridad y Autenticación", "Package", "controller", 80, 410, -470, -540, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
+    var c2 = addElementToDiagram("P2 Administración de Usuarios RBAC", "Package", "controller", 450, 780, -470, -540, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
+    var c3 = addElementToDiagram("P3 Auditoría y Bitácora", "Package", "controller", 820, 1150, -470, -540, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
+    var c4 = addElementToDiagram("P4 Gestión de Pacientes", "Package", "controller", 1190, 1520, -470, -540, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
 
-    // Fila 2 de Servicios
-    var s5 = addElementToDiagram("P5 Gestión Médica y Horarios ", "Package", "service", 75, 335, -715, -775, COLORS.serviceBg, COLORS.serviceBorder, 1);
-    var s4 = addElementToDiagram("P4 Gestión de Pacientes ", "Package", "service", 395, 655, -715, -775, COLORS.serviceBg, COLORS.serviceBorder, 1);
-    var s6 = addElementToDiagram("P6 Gestión de Citas ", "Package", "service", 715, 975, -715, -775, COLORS.serviceBg, COLORS.serviceBorder, 1);
-    var s7 = addElementToDiagram("P7 Reportes ", "Package", "service", 1015, 1255, -715, -775, COLORS.serviceBg, COLORS.serviceBorder, 1);
+    // Fila 2 de Controladores (3 controladores centrados)
+    var c5 = addElementToDiagram("P5 Gestión Médica y Horarios", "Package", "controller", 260, 600, -560, -630, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
+    var c6 = addElementToDiagram("P6 Gestión de Citas", "Package", "controller", 640, 980, -560, -630, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
+    var c7 = addElementToDiagram("P7 Reportes", "Package", "controller", 1020, 1360, -560, -630, COLORS.ctrlBg, COLORS.ctrlBorder, 1);
+
+    // =========================================================================
+    // 6. ELEMENTOS DE LA CAPA 3: SERVICIOS Y MODELOS ELOQUENT (P1 a P7)
+    // =========================================================================
+    Log("-> Creando Servicios de Negocio en Capa 3...");
+
+    // Fila 1 de Servicios (3 servicios)
+    var s1 = addElementToDiagram("P1 Seguridad y Autenticación ", "Package", "service", 100, 440, -750, -825, COLORS.serviceBg, COLORS.serviceBorder, 1);
+    var s2 = addElementToDiagram("P2 Administración de Usuarios RBAC ", "Package", "service", 480, 840, -750, -825, COLORS.serviceBg, COLORS.serviceBorder, 1);
+    var s3 = addElementToDiagram("P3 Auditoría y Bitácora ", "Package", "service", 880, 1240, -750, -825, COLORS.serviceBg, COLORS.serviceBorder, 1);
+
+    // Fila 2 de Servicios (4 servicios)
+    var s5 = addElementToDiagram("P5 Gestión Médica y Horarios ", "Package", "service", 80, 410, -870, -950, COLORS.serviceBg, COLORS.serviceBorder, 1);
+    var s4 = addElementToDiagram("P4 Gestión de Pacientes ", "Package", "service", 450, 780, -870, -950, COLORS.serviceBg, COLORS.serviceBorder, 1);
+    var s6 = addElementToDiagram("P6 Gestión de Citas ", "Package", "service", 820, 1150, -870, -950, COLORS.serviceBg, COLORS.serviceBorder, 1);
+    var s7 = addElementToDiagram("P7 Reportes ", "Package", "service", 1190, 1520, -870, -950, COLORS.serviceBg, COLORS.serviceBorder, 1);
 
     // =========================================================================
     // 7. ELEMENTOS DE LA CAPA 4: INFRAESTRUCTURA (POSTGRESQL & SERVIDORES)
     // =========================================================================
-    Session.Output("-> Agregando infraestructura (PostgreSQL 16 y Servidores)...");
+    Log("-> Creando componentes de infraestructura en Capa 4...");
 
-    // Contenedor PostgreSQL
-    var subPostgres = addElementToDiagram("PostgreSQL 16 — Base de Datos Relacional", "Package", "", 70, 645, -890, -1015, COLORS.subInfraBg, COLORS.subInfraBorder, 1);
-    var db1 = addElementToDiagram("PostgreSQL 16 Engine", "Package", "database", 95, 345, -925, -995, COLORS.dbBg, COLORS.dbBorder, 1);
-    var db2 = addElementToDiagram("Esquema BD vida_salud\n21 tablas · SP · Triggers", "Package", "schema", 365, 625, -925, -995, COLORS.dbBg, COLORS.dbBorder, 1);
+    // Contenedor PostgreSQL 16
+    var subPostgres = addElementToDiagram("PostgreSQL 16 — Base de Datos Relacional", "Package", "", 80, 780, -1080, -1245, COLORS.subInfraBg, COLORS.subInfraBorder, 1);
+    var db1 = addElementToDiagram("PostgreSQL 16 Engine", "Package", "database", 105, 415, -1125, -1215, COLORS.infraItemBg, COLORS.infraItemBorder, 1);
+    var db2 = addElementToDiagram("Esquema BD vida_salud\n21 tablas · SP · Triggers", "Package", "schema", 445, 755, -1125, -1215, COLORS.infraItemBg, COLORS.infraItemBorder, 1);
 
     // Contenedor Servidor de Aplicación
-    var subServidor = addElementToDiagram("Servidor de Aplicación", "Package", "", 685, 1260, -890, -1015, COLORS.subInfraBg, COLORS.subInfraBorder, 1);
-    var srv1 = addElementToDiagram("Apache / Nginx + PHP 8.3", "Package", "execution environment", 710, 960, -925, -995, COLORS.serverBg, COLORS.serverBorder, 1);
-    var srv2 = addElementToDiagram("Laravel 11 / 13\n(Eloquent ORM, Blade / REST)", "Package", "framework", 980, 1235, -925, -995, COLORS.serverBg, COLORS.serverBorder, 1);
+    var subServidor = addElementToDiagram("Servidor de Aplicación", "Package", "", 820, 1520, -1080, -1245, COLORS.subInfraBg, COLORS.subInfraBorder, 1);
+    var srv1 = addElementToDiagram("Apache / Nginx + PHP 8.3", "Package", "execution environment", 845, 1155, -1125, -1215, COLORS.infraItemBg, COLORS.infraItemBorder, 1);
+    var srv2 = addElementToDiagram("Laravel 11\n(Eloquent ORM, Blade)", "Package", "framework", 1185, 1495, -1125, -1215, COLORS.infraItemBg, COLORS.infraItemBorder, 1);
 
     // =========================================================================
-    // 8. NOTA TÉCNICA / FICHA DE VERSIONES Y METADATOS ARQUITECTÓNICOS
+    // 8. FICHA TÉCNICA Y METADATOS ARQUITECTÓNICOS
     // =========================================================================
-    Session.Output("-> Agregando Ficha Técnica y Leyenda del Sistema...");
+    Log("-> Creando Ficha Técnica del Sistema...");
 
     var noteElem = rootPkg.Elements.AddNew("Ficha Técnica - Arquitectura Web Vida Salud", "Note");
-    noteElem.Notes = "CLÍNICA VIDA SALUD - ESPECIFICACIÓN ARQUITECTÓNICA\n" +
-                     "═════════════════════════════════════════════════════════════════\n" +
-                     "• Patrón: Arquitectura en 4 Capas Desacopladas (Layered Pattern)\n" +
-                     "• Backend Framework: Laravel 11 / 13 (PHP 8.3 Enterprise)\n" +
-                     "• Base de Datos: PostgreSQL 16 (21 Tablas, Triggers de Auditoría, SP)\n" +
-                     "• Frontend: Blade Components + Stitch UI (HTML5, ES6+, Tailwind CSS v4)\n" +
-                     "• Bundler: Vite 6 con soporte de hot reloading y compilación optimizada\n" +
-                     "• Alcance: 43 Casos de Uso (P1 Seguridad a P7 Reportes)\n" +
-                     "• Seguridad: Autenticación por Tokens Bearer, RBAC estricto y SHA-256";
+    noteElem.Notes = "CLÍNICA VIDA SALUD - ESPECIFICACIÓN ARQUITECTÓNICA EN 4 CAPAS\n" +
+                     "═══════════════════════════════════════════════════════════════════════════════\n" +
+                     "• Capa 1 (Presentación): Vistas Blade, Componentes UI interactivos, Tailwind CSS v4.\n" +
+                     "• Capa 2 (Controladores): Laravel 11 Controllers, Inyección de Dependencias, Validación.\n" +
+                     "• Capa 3 (Dominio): Servicios de Negocio desacoplados, Modelos Eloquent ORM.\n" +
+                     "• Capa 4 (Infraestructura): PostgreSQL 16 (21 Tablas, Triggers, SP), Apache/Nginx + PHP 8.3.\n" +
+                     "• Tipografía: Arial 12 pt | Trazabilidad con 43 Casos de Uso del Sistema.";
     noteElem.Update();
 
-    var noteDiagObj = layerDiagram.DiagramObjects.AddNew("l=50;r=1280;t=-1045;b=-1140;", "");
+    var noteDiagObj = layerDiagram.DiagramObjects.AddNew("l=50;r=1550;t=-1290;b=-1390;", "");
     noteDiagObj.ElementID = noteElem.ElementID;
     noteDiagObj.Update();
     styleDiagramObject(noteDiagObj, COLORS.noteBg, COLORS.noteBorder, 1);
 
     // =========================================================================
-    // 9. CREACIÓN DE CONECTORES DE DEPENDENCIA UML («use»)
+    // 9. CONECTORES DE DEPENDENCIA UML («use»)
     // =========================================================================
-    Session.Output("-> Creando relaciones de dependencia entre capas y servicios...");
+    Log("-> Creando dependencias UML («use»)...");
 
-    function addDependency(sourceEl, targetEl, stereotype, noteText) {
-        if (sourceEl == null || targetEl == null) return;
+    function addDependency(sourceEl, targetEl, stereotype, name) {
+        if (!sourceEl || !targetEl) return null;
         try {
-            var con = sourceEl.Connectors.AddNew(noteText || "", "Dependency");
+            var con = sourceEl.Connectors.AddNew(name || "", "Dependency");
             con.SupplierID = targetEl.ElementID;
             if (stereotype && stereotype.length > 0) {
                 con.Stereotype = stereotype;
             }
+            con.Direction = "Source -> Destination";
             con.Update();
             sourceEl.Connectors.Refresh();
-        } catch (err) {
-            Session.Output("Aviso: Conector no pudo ser creado: " + err.message);
+            return con;
+        } catch (e) {
+            Log("[WARN] Conector no pudo ser creado: " + e.message);
+            return null;
         }
     }
 
-    // A) Relaciones «use» entre Capas Principales (Flujo de Dependencia Descendente)
+    // A) Conectores entre Capa 1 y Capa 2 («use»)
+    addDependency(subPortal, layer2, "use", "");
+    addDependency(subAdmin, layer2, "use", "");
+
+    // B) Conectores entre Capa 2 y Capa 3 («use»)
+    addDependency(c1, s1, "use", "");
+    addDependency(c6, s6, "use", "");
+
+    // C) Dependencias internas entre Servicios de Negocio (Capa 3)
+    addDependency(s1, s2, "", ""); // P1 Seguridad -> P2 Usuarios RBAC
+    addDependency(s3, s2, "", ""); // P3 Auditoría -> P2 Usuarios RBAC
+    addDependency(s5, s4, "", ""); // P5 Médicos y Horarios -> P4 Pacientes
+    addDependency(s6, s4, "", ""); // P6 Citas -> P4 Pacientes
+    addDependency(s6, s2, "", ""); // P6 Citas -> P2 Usuarios RBAC
+    addDependency(s7, s6, "", ""); // P7 Reportes -> P6 Citas
+    addDependency(s5, s6, "", ""); // P5 Médicos -> P6 Citas
+
+    // D) Conectores entre Capa 3 e Infraestructura («use»)
+    addDependency(s4, subPostgres, "use", "");
+    addDependency(s6, subServidor, "use", "");
+
+    // E) Dependencia general entre capas
     addDependency(layer1, layer2, "use", "");
     addDependency(layer2, layer3, "use", "");
     addDependency(layer3, layer4, "use", "");
 
-    // B) Conexiones adicionales verticales específicas mostradas en el diseño (Presentación -> Controladores)
-    addDependency(subPortal, layer2, "use", "");
-    addDependency(subAdmin, layer2, "use", "");
-
-    // C) Conexiones desde Servicios a Infraestructura
-    addDependency(layer3, subPostgres, "use", "");
-    addDependency(layer3, subServidor, "use", "");
-
-    // D) Dependencias internas entre Servicios de la Capa de Dominio (Capa 3)
-    addDependency(s1, s2, "", ""); // P1 Seguridad -> P2 Usuarios RBAC
-    addDependency(s3, s2, "", ""); // P3 Auditoría -> P2 Usuarios RBAC
-    addDependency(s5, s4, "", ""); // P5 Gestión Médica -> P4 Pacientes
-    addDependency(s6, s4, "", ""); // P6 Citas -> P4 Pacientes
-    addDependency(s6, s2, "", ""); // P6 Citas -> P2 Usuarios RBAC
-    addDependency(s5, s6, "", ""); // P5 Médicos -> P6 Citas
-    addDependency(s7, s6, "", ""); // P7 Reportes -> P6 Citas
-
-    // Refrescar y guardar el diagrama
+    // Refrescar y guardar el modelo
     rootPkg.Elements.Refresh();
+    rootPkg.Packages.Refresh();
     layerDiagram.Update();
-    Repository.ReloadDiagram(layerDiagram.DiagramID);
-    Repository.RefreshModelView(rootPkg.PackageID);
-    Repository.ShowInProjectView(rootPkg);
 
-    Session.Output("========================================================================");
-    Session.Output(" ¡Diagrama de Capas Web generado con éxito en Enterprise Architect!");
-    Session.Output(" Paquete: 'Arquitectura en Capas - Clínica Vida Salud Web'");
-    Session.Output(" Diagrama: 'Diagrama de Capas de la Web (4 Capas)'");
-    Session.Output("========================================================================");
-    Session.Prompt("¡Generación completada con éxito!\n\nSe ha creado el Diagrama de Capas Web con los paquetes de cada nivel, sus versiones tecnológicas (PHP 8.3, Laravel 11/13, PostgreSQL 16), paleta de colores corporativa y relaciones de dependencia «use».", 0);
+    try {
+        eaRepo.ReloadDiagram(layerDiagram.DiagramID);
+        eaRepo.RefreshModelView(rootPkg.PackageID);
+        eaRepo.ShowInProjectView(rootPkg);
+    } catch (e) {}
+
+    Log("========================================================================");
+    Log(" ¡DIAGRAMA DE CAPAS GENERADO CON ÉXITO EN ENTERPRISE ARCHITECT! ");
+    Log(" Paquete: 'Arquitectura en Capas - Clínica Vida Salud Web'");
+    Log(" Diagrama: 'Diagrama de Capas de la Web'");
+    Log("========================================================================");
+
+    try {
+        if (typeof Session !== "undefined") {
+            Session.Prompt("¡Generación completada con éxito!\n\nSe ha creado el Diagrama de Capas Web en Enterprise Architect con:\n- Las 4 Capas Arquitectónicas estructuradas («layer»).\n- Tipografía en Arial 12 pt.\n- Subpaneles y paquetes de Vistas, Controladores, Servicios e Infraestructura.\n- Versiones de PHP 8.3, Laravel 11 y PostgreSQL 16.\n- Relaciones de dependencia «use» perfectamente conectadas.", 0);
+        }
+    } catch (e) {}
 }
 
-// Iniciar ejecución
+// Ejecutar función principal
 main();
-

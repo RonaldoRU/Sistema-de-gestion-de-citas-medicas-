@@ -28,32 +28,18 @@
 
   var API_BASE = resolveApiBase();
 
-  // Token admin inicial por defecto para navegación directa sin perder sesión
-  var DEFAULT_ADMIN_TOKEN = '27c4c9dc3d9e4bdfa36e04e02f65ace251cebbabbc6450e834f90898d10ed34f';
-  var DEFAULT_ADMIN_USER = {
-    id_usuario: 1,
-    id_persona: 1,
-    id_rol: 1,
-    nombre_usuario: 'scolque',
-    nombres: 'Silvia Irene',
-    apellidos: 'Colque López',
-    rol: 'Administrador'
-  };
-
   var VS_API = {
     base: API_BASE,
 
     getToken: function () {
-      var t = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
-      if (!t) {
-        // Inicializar con la sesión activa del administrador
-        this.setToken(DEFAULT_ADMIN_TOKEN, true);
-        return DEFAULT_ADMIN_TOKEN;
-      }
-      return t;
+      return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null;
     },
 
     setToken: function (token, remember) {
+      if (!token) {
+        this.clearAuth();
+        return;
+      }
       if (remember) {
         localStorage.setItem(TOKEN_KEY, token);
       } else {
@@ -64,13 +50,10 @@
     getUser: function () {
       try {
         var u = sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY);
-        if (!u) {
-          this.setUser(DEFAULT_ADMIN_USER, true);
-          return DEFAULT_ADMIN_USER;
-        }
+        if (!u) return null;
         return JSON.parse(u);
       } catch (e) {
-        return DEFAULT_ADMIN_USER;
+        return null;
       }
     },
 
